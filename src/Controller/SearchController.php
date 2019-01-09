@@ -39,6 +39,17 @@ class SearchController extends AbstractController
         
         return $this->json($searchResponse->response);
     }
+
+    /**
+     * @Route("/Search/Mapping{index}")
+     * @Route("/search/mapping/{index}")
+     */
+    public function searchMapping($index)
+    {
+        return $this->json(
+            $this->search->search->getDocumentMapping($index)
+        );
+    }
     
     /**
      * @Route("/Lore")
@@ -60,4 +71,6 @@ class SearchController extends AbstractController
     
         return $this->json($searchResponse->response);
     }
+
+
 }

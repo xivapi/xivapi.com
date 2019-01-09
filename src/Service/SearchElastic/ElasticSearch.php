@@ -143,6 +143,13 @@ class ElasticSearch
         ]);
     }
 
+    public function getDocumentMapping(string $index)
+    {
+        return $this->client->indices()->getMapping([
+            'index' => $index
+        ]);
+    }
+
     public function  search(string $index, string $type, array $query)
     {
         return $this->client->search([

@@ -8,9 +8,9 @@ use App\Service\SearchElastic\ElasticQuery;
 class Search
 {
     /** @var ElasticSearch $search */
-    protected $search;
+    public $search;
     /** @var ElasticQuery $query */
-    protected $query;
+    public $query;
 
     function __construct()
     {
