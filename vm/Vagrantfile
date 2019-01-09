@@ -1,0 +1,39 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "ubuntu/bionic64"
+
+  # provision
+  config.vm.provision :shell, path: "VagrantfileProvision.sh"
+
+  # provider
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+
+    # high spec for data importing, realistically would be low
+    vb.memory = 8000
+    vb.cpus = 4
+  end
+
+  # network
+  config.vm.network "private_network", ip: "14.14.14.14"
+
+
+  # host domains
+  config.vm.hostname = "xivapi.local"
+  config.hostmanager.aliases = %w(
+    lodestone.xivapi.local
+    staging.xivapi.local
+    mogboard.local
+    xivapi.adminer
+  )
+
+  # host manager config
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+
+  # sync folder (enable NFS on windows)
+  config.vm.synced_folder "../", "/vagrant"#, type: "nfs"
+end

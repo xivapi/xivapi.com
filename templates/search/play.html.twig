@@ -1,0 +1,177 @@
+{% extends "base.html.twig"  %}
+{% set page = 'playground' %}
+{% block title %}Search Playground{% endblock %}
+
+{% block body %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.42.2/codemirror.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.42.2/theme/monokai.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.42.2/codemirror.min.css">
+
+<div class="playground">
+
+    <div>
+        <h1>Search Play Testing</h1>
+        <p>
+            Test the Elastic Search Query DSL.
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html">ElasticSearch Documentation</a>.
+        </p>
+    </div>
+
+    <div>
+        <div>
+            <div class="form-row">
+                <label for="endpoint">Endpoint</label>
+                <input name="search_endpoint" id="search_endpoint" placeholder="URL of API Endpoint" class="form-control" value="{{ app.request.getSchemeAndHttpHost() }}">
+            </div>
+            <br>
+            <div class="form-row">
+                <label for="search_indexes">Indexes</label>
+                <textarea name="search_indexes" id="search_indexes" placeholder="Search Indexes" class="form-control">item,achievement,instantcontent</textarea>
+            </div>
+            <br>
+            <div class="form-row">
+                <label for="search_body">Body</label>
+                <textarea name="search_body" id="search_body" placeholder="Elastic Search Query" class="form-control"></textarea>
+            </div>
+            <br><br>
+            <button class="btn-search-test" type="button">Search</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="checkbox" id="auto_run_query"> Run query automatically on change.
+        </div>
+        <div>
+            <label>Response</label>
+            <div class="playground-response" id="playground-response"><pre></pre></div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+let query = {
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "wildcard": {
+                        "NameCombined_en": "*aiming*"
+                    }
+                }
+            ],
+            "filter": [
+                {
+                    "range": {
+                        "ItemSearchCategory.ID": {
+                            "gt": "1"
+                        }
+                    }
+                },
+                {
+                    "range": {
+                        "LevelItem": {
+                            "gte": "100"
+                        }
+                    }
+                },
+                {
+                    "range": {
+                        "LevelItem": {
+                            "lte": "125"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "from": 0,
+    "size": 10,
+    "sort": [
+        {
+            "LevelItem": "desc"
+        }
+    ]
+};
+
+let $searchTestButton = $('.btn-search-test');
+let $searchResponseBox = $('#playground-response').find('pre');
+let $searchJsonBody = $('#search_body');
+let runSearchDslTimeout = null;
+
+query = JSON.stringify(query, null, 2);
+query = localStorage.getItem('xivapi_playground_search_dsl')
+    ? localStorage.getItem('xivapi_playground_search_dsl')
+    : query;
+
+$searchJsonBody.html(query);
+$searchResponseBox.text('// Response will show here');
+
+$searchTestButton.on('click', function() {
+    runSearchDsl();
+});
+
+function runSearchDsl()
+{
+    let data = {
+        indexes: $('#search_indexes').val().trim(),
+        body: JSON.parse($('#search_body').val().trim()),
+    };
+
+    $searchTestButton.text('Searching ...').attr("disabled", true);
+
+    $.ajax({
+        url: $('#search_endpoint').val().trim() + '/search',
+        type: "POST",
+        data: JSON.stringify(data),
+        dataType: "json",
+        contentType: "application/json",
+        processData: false,
+        success: function(response) {
+            console.log(response);
+
+            $searchResponseBox.text(
+                JSON.stringify(response, null, 2)
+            );
+        },
+        error: function(a,b,c) {
+            if (a.responseText[0] === '{') {
+                $searchResponseBox.text(
+                    JSON.stringify(JSON.parse(a.responseText), null, 2)
+                );
+            } else {
+                $searchResponseBox.text(
+                    'Request Error: View browser console and network tab for more information.'
+                );
+            }
+
+            console.error(a,b,c);
+        },
+        complete: function() {
+            $searchTestButton.text('Search').attr("disabled", false);
+        }
+    });
+}
+
+let cm = CodeMirror.fromTextArea(document.getElementById('search_body'), {
+    mode: "javascript",
+    lineNumbers: true,
+});
+
+cm.on('change', function () {
+    json = cm.getValue();
+
+    // save new json
+    localStorage.setItem('xivapi_playground_search_dsl', json);
+    $('#search_body').val(json);
+
+    clearTimeout(runSearchDslTimeout);
+    if ($('#auto_run_query').prop('checked')) {
+        runSearchDslTimeout = setTimeout(function() {
+            runSearchDsl();
+        }, 1000);
+    }
+});
+
+</script>
+{% endblock %}

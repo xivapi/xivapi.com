@@ -1,0 +1,90 @@
+{% extends "docs/index.html.twig"  %}
+{% import "docs/macros.html.twig" as docs %}
+{% set section = 16 %}
+
+{% block doc %}
+
+    <h1>Patch List</h1>
+
+    {{ docs.gap() }}
+
+    {{ docs.api('/patchlist', '/patchlist') }}
+    <p>
+        The API keeps a track record of when a piece of content is updated, this is based on which
+        patch version the ID appears; ignoring all "dummy" rows. This patch list is handled manually
+        and has been curated over many years. Work is in progress to ensure an accurate patch version
+        for all current game files.
+    </p>
+
+    <p>
+        You can keep a hash of this patch list to know if any new data has been added to the API.
+    </p>
+
+    <p>
+        This patch list will not be accurate for Korean or Chinese game content.
+    </p>
+
+    {{ docs.gap() }}
+
+    <h4>Response info</h4>
+
+    <table>
+        <thead>
+        <tr>
+            <th width="25%">Field</th>
+            <th>Details</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Banner</td>
+            <td>The banner from lodestone, this will only be on main patches and but sub-patches.</td>
+        </tr>
+        <tr>
+            <td>ExVersion</td>
+            <td>The ID to the file: http://xivapi.com/ExVersion</td>
+        </tr>
+        <tr>
+            <td>ID</td>
+            <td>This is an internal ID record.</td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>The name of the patch in several languages, this has not yet been translated.</td>
+        </tr>
+        <tr>
+            <td>Release Date</td>
+            <td>Unix timestamp of the patch release date.</td>
+        </tr>
+        <tr>
+            <td>Version</td>
+            <td>A string that represents the version, eg: `3.55b`</td>
+        </tr>
+        </tbody>
+    </table>
+
+    {{ docs.gap() }}
+
+    <h4>Game Patch</h4>
+    <p>A field on content that states which patch it was first added.</p>
+    <p>
+        Example: <strong>Cronus Lux Replica</strong> <a href="http://xivapi.com/Item/21004?pretty=1">http://xivapi.com/Item/21004?pretty=1</a>.
+    </p>
+    <pre class="box">{
+    "GamePatch": {
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/k\/i4m9KdxaQkwYVT_F6JOcytNdEs.png",
+        "ExVersion": 2,
+        "ID": 40,
+        "Name": "Patch 4.1: The Legend Returns",
+        "Name_cn": "Patch 4.1: The Legend Returns",
+        "Name_de": "Patch 4.1: The Legend Returns",
+        "Name_en": "Patch 4.1: The Legend Returns",
+        "Name_fr": "Patch 4.1: The Legend Returns",
+        "Name_ja": "Patch 4.1: The Legend Returns",
+        "Name_kr": "Patch 4.1: The Legend Returns",
+        "ReleaseDate": "1507622400",
+        "Version": "4.0"
+    }
+}</pre>
+
+{% endblock %}

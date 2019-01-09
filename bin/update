@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+START_TIME=$SECONDS
+
+## -------------------------------------------------------------------------------------
+
+# Convert data from CSV to Json
+/usr/bin/php /vagrant/bin/console SaintCoinachJsonCacheCommand 1
+
+# Build data
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 0 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 25 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 75 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 100 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 125 25 1
+
+sleep 5
+
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 150 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 175 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 200 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 225 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 250 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 275 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 300 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 325 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 350 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 375 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 400 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 425 25 1
+#/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 450 25 1
+
+# Add custom data
+sleep 5
+/usr/bin/php /vagrant/bin/console SaintCoinachRedisCustomCommand
+
+# Add on patch info
+sleep 5
+/usr/bin/php /vagrant/bin/console UpdatePatchCommand 1
+
+# Update search
+sleep 5
+/usr/bin/php /vagrant/bin/console UpdateSearchCommand dev
+
+# Update lore search
+sleep 5
+/usr/bin/php /vagrant/bin/console UpdateSearchLoreCommand dev
+
+## -------------------------------------------------------------------------------------
+
+end=`date +%s`
+
+ELAPSED_TIME=$(($SECONDS - $START_TIME))
+
+echo ""
+echo "Completed"
+echo "$(($ELAPSED_TIME/60)) min $(($ELAPSED_TIME%60)) sec"
+echo ""

@@ -1,0 +1,94 @@
+{% extends "docs/index.html.twig"  %}
+{% import "docs/macros.html.twig" as docs %}
+
+{% block doc %}
+
+    <h1>Welcome</h1>
+
+    <p>The XIVAPI provides a massive amount of FINAL FANTASY XIV game data in a JSON format via
+        a REST API. You can fetch information on all sorts of game content that has been discovered and
+        mapped in the SaintCoinach Schema. In addition it provides Character, Free Company, Linkshell, PvPTeams
+        and Lodestone information!</p>
+
+    <p><strong>Find the light theme too much?</strong></p>
+    <p>
+        <strong>Theme</strong>
+        <select id="themeSelect" class="themeSelect">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+        </select>
+    </p>
+
+    {{ docs.gap() }}
+
+    <h2>Patreon Support!</h2>
+    <p>
+        By contributing a small amount every month you support development on XIVAPI and Mogboard.com
+        - You'll receive perks for both sites, recognition on discord and appreciation from the devs heart!
+        If you want to know how much things cost; <a href="http://xivapi.local/docs/Costs">view the live pricing</a> page.
+    </p>
+    <p>
+        <a href="https://www.patreon.com/bePatron?u=13230932" target="_blank">
+            <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png">
+        </a>
+    </p>
+
+    {{ docs.gap() }}
+
+    {# ENVIRONMENTS #}
+    <h2>API Environments</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Production</th>
+                <th>Staging</th>
+                <th>Local</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>https://xivapi.com</code></td>
+                <td><code>https://staging.xivapi.com</code></td>
+                <td><code>http://xivapi.local</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <small>Please use HTTPS for all queries. HTTP is not supported and could be shut off at anytime.</small>
+
+    {# API Keys #}
+    <p>To use the API you will need to create a developer app.
+        This provides you with a public and private key that
+        grants access to the API. It will also provide flexiable
+        rate-limiting and support.</p>
+
+    <hr>
+
+    {# Open Source #}
+    <h2>Open Source!</h2>
+    <p>All of XIVAPI is open source, go nuts!</p>
+    <p>
+        <strong>Github</strong>
+        <a href="https://github.com/xivapi/xivapi.com">xivapi/xivapi.com</a>
+    </p>
+
+    <hr>
+
+
+    {# Third party tools #}
+    <h2>Saint Coinach</h2>
+    <p><a href="https://github.com/ufx/SaintCoinach">https://github.com/ufx/SaintCoinach</a></p>
+    <p>
+        SaintCoinach is a tool that allows you to extract data from the FFXIV Game files, it can provide you with
+        CSV data, Icons and Maps. It is very useful if you wish to build a FFXIV fan site or application!
+    </p>
+
+    <p><a href="https://github.com/ufx/SaintCoinach/blob/master/SaintCoinach/ex.json">https://github.com/ufx/SaintCoinach/blob/master/SaintCoinach/ex.json</a></p>
+    <p>
+        The schema is a huge JSON file that describes the EXD files found in
+        the FFXIV game files. Many community members take time to datamine
+        and understand the way the EXD files are mapped and
+        this file helps describe it in a universal format.
+    </p>
+
+{% endblock %}

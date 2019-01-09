@@ -1,0 +1,22 @@
+sudo visudo
+dalamud ALL = NOPASSWD: /usr/bin/supervisorctl
+
+
+sudo nano /etc/supervisor/conf.d/lodestone.conf
+
+    9FchmRlV3vQJDw0YHyV3zRjf5CFFtL
+
+    sudo supervisorctl start all
+    sudo supervisorctl stop all
+    sudo supervisorctl clear all
+    sudo supervisorctl restart all
+    sudo supervisorctl reread
+    sudo supervisorctl status
+
+
+    - Paste config
+    - sudo supervisorctl reread
+    - sudo supervisorctl update
+    - sudo supervisorctl restart all
+    - sudo supervisorctl clear all
+    - Verify: sudo supervisorctl

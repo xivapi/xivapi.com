@@ -1,0 +1,25 @@
+// mobile
+@media only screen and (max-width: 600px) {
+
+}
+
+// ipad
+@media only screen and (max-width: 1000px) {
+    .section-one > section,
+    .section-two > section,
+    .section-three > section,
+    .section-four > section{
+        width: 100% !important;
+    }
+
+    .section-two > section > div:first-of-type {
+        flex: 0 1 100% !important;
+        text-align: center;
+        padding: 0 20px !important;
+    }
+
+    .section-two > section > div:last-of-type {
+        flex: none;
+        display: none;
+    }
+}

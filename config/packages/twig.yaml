@@ -1,0 +1,8 @@
+twig:
+    paths: ['%kernel.project_dir%/templates']
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+    globals:
+        auth: '@App\Service\User\UserService'
+    form_themes:
+        - 'bootstrap_4_layout.html.twig'

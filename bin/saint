@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+START_TIME=$SECONDS
+
+# Deploy Data
+/usr/bin/php /vagrant/bin/console app:saint
+
+end=`date +%s`
+
+ELAPSED_TIME=$(($SECONDS - $START_TIME))
+
+echo ""
+echo "Completed"
+echo "$(($ELAPSED_TIME/60)) min $(($ELAPSED_TIME%60)) sec"
+echo ""

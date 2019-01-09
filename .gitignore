@@ -1,0 +1,47 @@
+.idea
+/data
+!/data/.gitkeep
+!/public/i/.gitkeep
+/public/i
+!/public/m/.gitkeep
+/public/m
+!/public/mp/.gitkeep
+/public/mp
+!/public/downloads/.gitkeep
+/public/downloads
+/mnt
+/vm/ubuntu-bionic-18.04-cloudimg-console.log
+/vm/.vagrant
+/src/offline.txt
+/src/Controller/MapData.csv
+/src/Controller/MemoryData.csv
+/src/EventListener/Exceptions.txt
+/src/Service/Companion/accounts.json
+git_version.txt
+/sites
+
+#
+# Symfony
+#
+.env
+/public/bundles/
+/bin/.phpunit
+/var/
+var/
+/vendor/
+.web-server-pid
+
+#
+# Encore
+#
+/node_modules/
+/public/build/
+npm-debug.log
+yarn-error.log
+
+###> symfony/phpunit-bridge ###
+.phpunit
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+src/Service/Common/Statistics\.php\.log

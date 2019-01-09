@@ -1,0 +1,95 @@
+{% extends "base.html.twig"  %}
+{% set page = 'app' %}
+{% block title %}Apps - XIVAPI{% endblock %}
+
+{% block body %}
+<div class="apps">
+    <aside>
+        {% include 'app/nav.html.twig' %}
+    </aside>
+    <main>
+        <h1>Developer Apps</h1>
+        <br>
+
+        {% if auth.user %}
+            {% if not auth.user.isBanned() %}
+                {% if auth.user.apps|length < auth.user.appsMax %}
+                    <div class="create-app">
+                        <a href="{{ path('app_manage', { id: 'new' }) }}">Create a new app</a>
+                    </div>
+                {% else %}
+                    <div class="warning">
+                        You cannot make anymore dev applications at this time.
+                        {% if auth.user.level == 2 %}Your limit will increase to <strong>5 after 1 hour</strong>{% endif %}
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            {% if auth.user.isBanned() %}
+                <div class="banned">
+                    <h4>Account Banned</h4>
+                    <p>Hello, your account has been banned on XIVAPI. This is likely due to API abuse or crawl detection, if you
+                        believe this is in error or want to know more please <a href="https://discord.gg/MFFVHWC">Join Discord</a>
+                    </p>
+                    <br>
+                    <p>You will not be able to edit or create any applications. All your existing app keys will no longer work.</p>
+                </div>
+            {% endif %}
+
+            {% if auth.user.isLimited() %}
+                <div class="warning">
+                    <h4>Account Limited</h4>
+                    <p><strong>Welcome to XIVAPI!</strong></p>
+                    <br>
+                    <p>New accounts are in a limited state for 1 hour. This means you can create
+                        <strong>1 App</strong> with <strong>2/req/sec</strong> rate limit. This restriction
+                        will be lifted after 1 hour. This gives you time to have a play with some of the
+                        API endpoints and think about what you really need to do!</p>
+                    <br>
+                    <p>If you have any questions, please: <a href="https://discord.gg/MFFVHWC">Join Discord</a></p>
+                </div>
+            {% endif %}
+        {% else %}
+
+            <div class="login">
+                <p>
+                    <img src="/discord/name_purple.png" height="42">
+                </p>
+                <p>
+                    To create apps and expand your usage of <strong>xivapi.com</strong>,<br>
+                    please login using your Discord account.
+                </p>
+                <p>
+                    <a href="{{ path('app_login_discord') }}">
+                        Login via Discord
+                    </a>
+                </p>
+                <small>You must have a verified email on your discord account.</small>
+            </div>
+        {% endif %}
+
+        <br>
+
+        <h3>The do's and don't of API usage!</h3>
+        <ul>
+            <li><span class="text-green">DO</span> build awesome stuff, even if it already exists.</li>
+            <li><span class="text-green">DO</span> ask for help if you want any advice! <a href="https://discord.gg/MFFVHWC">jump on discord</a>, we're friendly!</li>
+            <li><span class="text-green">DO</span> cache your requests, consider your queries and app flow.</li>
+            <li><span class="text-green">DO</span> get in touch if you want any custom data, this is a community driven api</li>
+            <li><span class="text-red">DO NOT</span> crawl/scrape the API to try get every bit of information. <br> <i>You will be banned</i>. <a href="https://github.com/viion/ffxiv-datamining">Learn about data-mining here</a>.</li>
+            <li><span class="text-red">DO NOT</span> spam the api, you will be rate limited anyway so save yourself the hassle! :)</li>
+        </ul>
+        <br>
+
+        <p><strong>Worried about being banned?</strong> - Dont, unless you do some serious crawling you wont be.
+            If you make something cool and it goes viral, this is not the same behaviour as crawlers/bots/scrapers.</p>
+
+        <p><strong>Why do I need a key?</strong> - You need a key to access the entire API. This is so the service
+            can be monitored for spam/abuse. XIVAPI is for everyone! Plus you get sweet rate limits and analytics.</p>
+
+        <p><strong>What if someone steals my key?</strong> - You can change your key at anytime and break their app.
+            Then go tell them to get their own key, it costs nothing.</p>
+
+    </main>
+</div>
+{% endblock %}

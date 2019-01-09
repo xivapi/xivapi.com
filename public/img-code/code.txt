@@ -1,0 +1,49 @@
+
+
+	PHP
+
+
+$json = file_get_contents("https://xivapi.com/Item/1675");
+$json = json_decode($json);
+
+// I.Lv 80 Curtana
+echo "I.Lv {$json->LevelItem} {$json->Name_en}";
+echo "<img src=\"https://xivapi.com/{$json->Icon}\">";
+
+
+	PYTHON
+
+
+import urllib2, json
+
+request = urllib2.Request("http://xivapi.com/Item/1675")
+request.add_header('User-Agent', '<User-Agent>')
+data = json.loads(urllib2.urlopen(request).read())
+
+# I.Lv 80 Curtana
+print "I.Lv %d %s" % (data['LevelItem'], data['Name_en'])
+
+
+	JAVASCRIPT
+
+
+// Stone II
+fetch ("https://xivapi.com/Action/127", { mode: 'cors' })
+	.then(response => response.json())
+	.then(data => console.info(data.Name_en))
+
+
+	JQUERY
+
+// Stone II
+$.ajax({
+	url: "https://xivapi.com/Action/127",
+	dataType: "json",
+	success: function(data) {
+		console.info(data.Name_en)
+	}
+});
+
+	C#
+
+

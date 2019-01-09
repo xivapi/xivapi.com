@@ -1,0 +1,111 @@
+{% set page = page is defined ? page : 'home' %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125096878-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ env("SITE_CONFIG_GOOGLE_ANALYTICS") }}');
+        </script>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>{% block title %}XIVAPI{% endblock %}</title>
+
+        <link rel="shortcut icon" type="image/png" href="{{ favIcon() }}">
+        <link rel="search" type="application/opensearchdescription+xml" title="XIVAPI" href="/opensearch.xml">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:500,700" rel="stylesheet">
+        <link rel="stylesheet" href="/ui/vis.css?v={{ siteVersion().hash }}">
+        <script src="/ui/app.jq_331.js?v={{ siteVersion().hash }}"></script>
+        <script src="/ui/app.js?v={{ siteVersion().hash }}"></script>
+
+        {% block stylesheets %}{% endblock %}
+    </head>
+    <body>
+        <header class="page-{{ page }}">
+            <span></span>
+            <span></span>
+            <div>
+                <div>
+                    <a href="{{ path('home') }}">
+                        <img src="/logo_light.svg" height="36">
+                    </a>
+                </div>
+                <div>
+                    <a href="{{ path('home') }}">Home</a>
+                    <a href="{{ path('docs') }}">Docs</a>
+                    <a href="{{ path('app') }}">Apps</a>
+
+                    <em>|</em>
+
+                    {% if auth.user %}
+                    <span>
+                        {{ auth.user.username }}
+                        <img src="{{ auth.user.avatar }}" height="50">
+                    </span>
+                    {% else %}
+                    <a href="{{ path('app_login_discord') }}" class="btn-login">
+                        Login via <strong>Discord</strong>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% if page == 'home' %}
+            <div>
+                <strong>A FINAL FANTASY XIV: Online REST API</strong>
+                <div>Game data, characters, free companies, linkshells, lodestone, markets &amp; maps.</div>
+            </div>
+            {% endif %}
+        </header>
+
+        {% block body %}{% endblock %}
+
+        <footer>
+            <div>
+                <img src="/logo.svg" height="32">
+            </div>
+            <div>
+                Premium Virtue (Phoenix)
+                &nbsp;&nbsp;&nbsp;&bull;&nbsp;&nbsp;&nbsp;
+                Discord: Vekien#3458
+                &nbsp;&nbsp;&nbsp;&bull;&nbsp;&nbsp;&nbsp;
+                Twitter: <a href="https://twitter.com/viion">Viion</a>
+            </div>
+            <div>
+                <small>
+                    v{{ siteVersion().version }} - Deployed {{ siteVersion().time }}
+                    <br>
+                    ALL FINAL FANTASY XIV CONTENT IS PROPERTY OF SQUARE ENIX CO., LTD
+                </small>
+            </div>
+            {% if auth.user %}
+                <br><br>
+                <div>
+                    Want to leave? <a href="{{ path('app_logout') }}" class="btn btn-secondary">Click here to Logout!</a>
+                </div>
+            {% endif %}
+            <div>
+                <strong>Theme</strong>
+                <select id="themeSelect" class="themeSelect">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </div>
+        </footer>
+
+        {% block javascripts %}{% endblock %}
+        <script>$('body').addClass(localStorage.getItem('theme') ? localStorage.getItem('theme') : 'light');</script>
+        <script>$('.themeSelect').val(localStorage.getItem('theme'));</script>
+        <script>
+            $('.themeSelect').on('change', function(event) {
+                let selectedTheme = $(event.target).val().trim();
+                localStorage.setItem('theme', selectedTheme);
+                $('body').removeClass('light dark').addClass(selectedTheme);
+            })
+        </script>
+    </body>
+</html>

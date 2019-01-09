@@ -1,0 +1,314 @@
+{% extends "docs/index.html.twig"  %}
+{% import "docs/macros.html.twig" as docs %}
+{% set section = 7 %}
+
+{% block doc %}
+
+    <h1>Search</h1>
+
+    <p>
+        XIVAPI provides the ability to quickly search all game content via ElasticSearch.
+        This search endpoint only searches game content and not: characters, free companies,
+        linkshells or pvp teams. Those have their own dedicated search endpoints as they
+        relay to Lodestone.
+    </p>
+
+    <p class="note">A `string` or `filter` is required to search.</p>
+
+    {{ docs.gap() }}
+
+    {# Search #}
+    {{ docs.api('/search', '/search?string=aiming', 'search') }}
+    <p>
+        Search for something! The Search is multi-content and contains combined data,
+        this means your search request covers a vast amount of selected content
+        (which you can further extend via filters) and results are combined based on best-case matching.
+    </p>
+
+    <h4>Params</h4>
+
+    <h2 style="font-size: 16px;">Deprecation Notice:</h2>
+    <p class="note">
+        The method of GET params (show in the table below) for search is now deprecated. While the functionality
+        will never go away and always exist in some capacity, extending filter
+        abilities is no longer supported. If you want uncapped power for search please
+        considering using ElasticSearch Payloads, view the
+        <a href="{{ path('docs_page', { page: 'Search' }) }}#advanced">advanced section</a>
+        for more information.
+    </p>
+
+    <table class="param-table">
+        <thead>
+        <tr>
+            <th width="25%">Param</th>
+            <th width="75%">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>indexes</td>
+            <td>
+                <p>Search a specific series of indexes separated by commas.</p>
+                <p><strong>Accepts:</strong> <em>{{ search_indexes|join(', ') }}</em></p>
+            </td>
+        </tr>
+        <tr>
+            <td>string</td>
+            <td>
+                <p>The string to search for. The results for this are affected by <em>string_column</em>
+                    and <em>string_algo</em>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>string_algo</td>
+            <td>
+                <p>The search algorithm to use for string matching.</p>
+                <p><strong>Default:</strong> <em>{{ search_algo_default }}</em></p>
+                <p>For more information, read: <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/term-level-queries.html">Term Level Queries</a> on ElasticSearch.</p>
+                <p><strong>Supported Algorithms</strong>:</p>
+                <table class="param-table mini-table">
+                    <tr>
+                        <td width="25%">custom</td>
+                        <td>wildcard + fuzzy</td>
+                    </tr>
+                    <tr>
+                        <td>custom</td>
+                        <td>wildcard</td>
+                    </tr>
+                    <tr>
+                        <td>wildcard</td>
+                        <td>Post wildcard, eg: Aim*</td>
+                    </tr>
+                    <tr>
+                        <td>wildcard_plus</td>
+                        <td>Post &amp; Prefix wildcard, eg: *Aim*</td>
+                    </tr>
+                    <tr>
+                        <td>fuzzy</td>
+                        <td>Perform a fuzzy search. Fuzziness = 5</td>
+                    </tr>
+                    <tr>
+                        <td>term</td>
+                        <td>Match whole words by keyword terms.</td>
+                    </tr>
+                    <tr>
+                        <td>prefix</td>
+                        <td>Match a prefix, like a cheap auto-complete</td>
+                    </tr>
+                    <tr>
+                        <td>match</td>
+                        <td>Perform a match query.</td>
+                    </tr>
+                    <tr>
+                        <td>match_phrase</td>
+                        <td>Perform a match phrase query</td>
+                    </tr>
+                    <tr>
+                        <td>match_phrase_prefix</td>
+                        <td>Perform a match phrase prefix query</td>
+                    </tr>
+                    <tr>
+                        <td>multi_match</td>
+                        <td>Match against multiple string columns, separated by a comma.</td>
+                    </tr>
+                    <tr>
+                        <td>query_string</td>
+                        <td>Perform a query string, this has lots of logic!</td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>string_column</td>
+            <td>
+                <p>The column to use in string searches.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>page</td>
+            <td>Set the search results page, this controls <em>pagination</em> in the response</td>
+        </tr>
+        <tr>
+            <td>sort_field</td>
+            <td>Sort results by a specific field, you will loose scoring.</td>
+        </tr>
+        <tr>
+            <td>sort_order</td>
+            <td>Order the <em>sort_field</em> by a specific direction, either: <em>asc</em> or <em>desc</em>.</td>
+        </tr>
+        <tr>
+            <td>limit</td>
+            <td>Limit the number of results to show.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    {{ docs.gap() }}
+
+    <h4 id="filters">Filters</h4>
+
+    <p>Filters can be performed in the following format:</p>
+    <p><code>[FieldName][Operator][Value]</code>, eg: <code>LevelItem>=150</code></p>
+    <p>You can provide a comma separated list of filters as an "AND" exclusive query, eg:</p>
+
+    <code class="box">filters=LevelItem>35,LevelItem<=40,ClassJob.ID=1</code>
+
+    <p><strong>Accepted Operators:</strong></p>
+
+    <table>
+        <thead>
+        <tr>
+            <th width="15%">Operator</th>
+            <th>Information</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>=</td>
+            <td>Performs a `match`, eg: LevelItem=50 means only items that are level 50.</td>
+        </tr>
+        <tr>
+            <td>&gt;</td>
+            <td>Performs a "Greater than" `range` query. (gt)</td>
+        </tr>
+        <tr>
+            <td>&gt;=</td>
+            <td>Performs a "Greater than or equal to" `range` query. (gte)</td>
+        </tr>
+        <tr>
+            <td>&lt;</td>
+            <td>Performs a "Less than" `range` query. (gt)</td>
+        </tr>
+        <tr>
+            <td>&lt;=</td>
+            <td>Performs a "Less than" `range` query. (gt)</td>
+        </tr>
+        </tbody>
+    </table>
+
+    {{ docs.gap() }}
+
+    {# Lore #}
+    {{ docs.api('/lore', '/lore?string=legendary', 'lore') }}
+
+    <div class="lore">
+        <div>
+            <img src="/ui/lore.png" height="82">
+        </div>
+        <div>
+            <p>
+                Search for lore! This is a special built search endpoint which searches a string through
+                various lore specific content. The endpoint has all the same features as the <code>/search</code>
+                endpoint including <strong>Advanced ElasticSearch Queries</strong>.
+            </p>
+        </div>
+    </div>
+
+    <p>
+        The current content included in lore are:
+    </p>
+
+    <ul>
+        <li>Cutscene Subtitles</li>
+        <li>All Quest Dialogue and text data</li>
+        <li>Item Descriptions</li>
+        <li>Leve text data</li>
+        <li>FATE text data</li>
+        <li>NPC Yells</li>
+        <li>NPC Balloon tooltips</li>
+        <li>Instance Content and Public content text data</li>
+        <li>Achievement Descriptions</li>
+        <li>Default Talk entries</li>
+        <li>Event Item Help text</li>
+        <li>Mounts and Minion text</li>
+        <li>Status descriptions</li>
+        <li>Triple Triad Card text</li>
+    </ul>
+
+    <p>
+        If you want more, just hop on discord!
+    </p>
+
+    <hr>
+
+    <h2 id="advanced">Advanced ElasticSearch Queries</h2>
+
+    <p>
+        As search just uses the powerful <strong>ElasticSearch</strong>, you can infact just provide
+        an Elastic Search valid JSON query to the endpoint and it will be processed. This bypasses
+        all of the normal <code>GET</code> attributes you see above <small>(excluding: indexes)</small>
+        and allows you complete control over how you build the Elastic Query.
+    </p>
+
+    <p>
+        You can learn more about Elastic Search queries via the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html">Query DSL Documentation</a>
+    </p>
+
+    <p>
+        <strong>How do I get this awesome power!?</strong>
+    </p>
+
+    <p>
+        By simply sending a JSON payload. You can test your DSL using the <a href="{{ path('search_play') }}" target="_blank">Search Playground</a>.
+    </p>
+
+    <p>The payload is in the following format:</p>
+
+    <pre class="box">{
+    "body": {
+        // The Elastic Search payload
+    },
+    "indexes": "comma,list,of,indexes",
+}</pre>
+
+    <p>Here is a full working example:</p>
+
+    <pre class="box">{
+  "indexes": <em>"item,achievement,instantcontent"</em>,
+  "body": {
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "wildcard": {
+              <em>"NameCombined_en": "*aiming*"</em>
+            }
+          }
+        ],
+        "filter": [
+          {
+            "range": {
+              <em>"ItemSearchCategory.ID"</em>: {
+                <em>"gt": "1"</em>
+              }
+            }
+          },
+          {
+            "range": {
+              <em>"LevelItem"</em>: {
+                <em>"gte": "100"</em>
+              }
+            }
+          },
+          {
+            "range": {
+              <em>"LevelItem"</em>: {
+                <em>"lte": "125"</em>
+              }
+            }
+          }
+        ]
+      }
+    },
+    "from": 0,
+    "size": 10,
+    "sort": [
+      {
+        <em>"LevelItem": "desc"</em>
+      }
+    ]
+  }
+}</pre>
+
+{% endblock %}

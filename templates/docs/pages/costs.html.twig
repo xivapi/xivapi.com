@@ -1,0 +1,101 @@
+{% extends "docs/index.html.twig"  %}
+{% import "docs/macros.html.twig" as docs %}
+{% set section = 20 %}
+
+{% block doc %}
+
+    <h1>Costs</h1>
+
+    <p>
+        Below are the costs for <strong>XIVAPI</strong> &amp; <strong>MogBoard</strong>,
+        to be fully transparent in what patreon money goes towards the below prices
+        are updated in real-time against any server infrastructure changes.
+    </p>
+
+    <h2>Patreon Support!</h2>
+    <p>
+        By contributing a small amount every month you support development on XIVAPI and Mogboard.com
+        - You'll receive perks for both sites, recognition on discord and appreciation from the devs heart!
+    </p>
+    <p>
+        <a href="https://www.patreon.com/bePatron?u=13230932" target="_blank">
+            <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png">
+        </a>
+    </p>
+
+    {{ docs.gap() }}
+
+    <h2>Total Monthly Cost: <strong>${{ vultr.total + digitalocean.total }}</strong></h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Digital Ocean</th>
+                <th>Vultr</th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <p>
+                    Main applications such as the API (site), search and sync data (characters, etc) are
+                    hosted on US region servers via DigitalOcean.
+                </p>
+            </td>
+            <td>
+                <p>
+                    Lodestone tracking and auto-parsing servers (Characters, FC, LS and PVP Teams)
+                    are hosted via Vultr in the Tokyo region.
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h6>Server Fees</h6>
+                <table class="mini-table">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Region</th>
+                        <th>Cost</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for price in digitalocean.servers %}
+                        <tr class="pricing-row">
+                            <td><strong>{{ price.name }}</strong>
+                                <small>{{ price.ram|number_format }} MB</small></td>
+                            <td>{{ price.location }}<br></td>
+                            <td class="pricing-cost">${{ price.cost }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+            <td>
+                <h6>Server Fees</h6>
+                <table class="mini-table">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Region</th>
+                        <th>Cost</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for price in vultr.servers %}
+                        <tr class="pricing-row">
+                            <td><strong>{{ price.name }}</strong>
+                                <small>{{ price.ram }}</small></td>
+                            <td>{{ price.location }}</td>
+                            <td class="pricing-cost">${{ price.cost }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+{% endblock %}

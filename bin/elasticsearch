@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+echo "Starting Elastic Search ..."
+sudo systemctl start elasticsearch
+
+sleep 10
+
+curl -X GET 'http://localhost:9200'

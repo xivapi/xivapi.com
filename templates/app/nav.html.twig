@@ -1,0 +1,15 @@
+<div>
+    {% if auth.user %}
+        <h3>your apps <small>Max {{ auth.user.appsMax }}</small></h3>
+        <br>
+
+        {% for app in auth.user.apps %}
+            <a href="{{ path('app_manage', { id: app.id }) }}">{{ app.name }}</a>
+        {% endfor %}
+
+    {% else %}
+        <h3>apps</h3>
+        <br>
+        <p>Apps you have created will appear here.</p>
+    {% endif %}
+</div>

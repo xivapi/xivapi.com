@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Service\LodestoneQueue;
+
+/**
+ * THIS FILE IS AUTO-GENERATED VIA \App\Command\Lodestone\BuildCharacterData
+ */
+class CharacterData
+{
+    public static $data = {{DATA}};
+
+    public static function find($category, $string)
+    {
+        $newString = CharacterConverter::convert($string);
+        return self::$data[$category][$newString] ?? "MISSING: {$newString} - {$category} - {$string}";
+    }
+}

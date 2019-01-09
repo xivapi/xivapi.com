@@ -1,0 +1,56 @@
+{% extends "docs/index.html.twig"  %}
+{% import "docs/macros.html.twig" as docs %}
+{% set section = 19 %}
+
+{% block doc %}
+
+    <h1>Icons</h1>
+    <p class="note">All icons are property of SQUARE-ENIX Ltd {{ "now"|date('Y') }} all rights reserved</p>
+
+    {{ docs.gap() }}
+
+    {% if set %}
+        <div class="fr">
+            <a href="{{ path('docs_page', { page: 'Icons', set: set, download: 1 }) }}" target="_blank" class="btn btn-primary">Download Set</a>
+        </div>
+
+        <h6>{{ images.name }} <small>({{ images.icons|length }} images)</small></h6>
+
+        <p>Download the icons you want to use.</p>
+
+        {{ docs.gap() }}
+
+        <div class="icons">
+            {% for image in images.icons %}
+                <span>
+                        <a href="{{ image.url }}" target="_blank">
+                            <img src="/img-svg/loading.svg" class="lazy" data-src="{{ image.url }}">
+                        </a>
+                        <span>{{ image.name }}</span>
+                        <span>{{ image.res.w }}x{{ image.res.h }} ({{ image.size }})</span>
+                    </span>
+            {% endfor %}
+        </div>
+    {% else %}
+        <br>
+        <h6>Icon Sets</h6>
+
+        <ul>
+            {% for set, info in images %}
+                {% if info == '---' %}
+                    <hr>
+                {% else %}
+                    <li><a href="{{ path('docs_page', { page: 'Icons', set: set }) }}">{{ info[0] }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/8.15.0/lazyload.min.js"></script>
+<script>new LazyLoad({ elements_selector: ".lazy" });
+</script>
+{% endblock %}

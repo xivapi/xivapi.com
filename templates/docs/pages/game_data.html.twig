@@ -1,0 +1,86 @@
+{% extends "docs/index.html.twig"  %}
+{% import "docs/macros.html.twig" as docs %}
+{% set section = 8 %}
+
+{% block doc %}
+
+    <h1>Game Data</h1>
+    <p>Obtain game content data of Final Fantasy XIV.</p>
+    <p>If you find anything odd and want to look at the raw CSV values,
+        visit: <a href="https://github.com/viion/ffxiv-datamining/tree/master/csv">CSV Files</a> </p>
+
+    {{ docs.gap() }}
+
+    {# Content #}
+    {{ docs.api('/content', '/content', 'content') }}
+    <p>
+        View a list of available content that is accessible in the API. Content is added rapidly
+        when discovered and mapped to the SaintCoincach Schema, with huge effort from the community
+        there is a lot of information availble. Have fun hunting through!
+    </p>
+
+    {{ docs.gap() }}
+
+    {# Game Data List #}
+    {{ docs.api('/[content-name]', '/item', 'lists') }}
+    <p>
+        Returns a paginated list of content for the specified Content Name
+    </p>
+    {{ docs.commonPaginationInformation() }}
+
+    <h4>Params</h4>
+    <table class="params-table">
+        <thead>
+        <tr>
+            <th width="25%">Param</th>
+            <th width="75%">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>limit</td>
+            <td>
+                <p>Limit the number of items returned by the API.</p>
+                <ul>
+                    <li><strong>Default:</strong> {{ content_max_default }}</li>
+                    <li><strong>Max:</strong> {{ content_max }}</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>ids</td>
+            <td>Filter the ids down if you want data for a specific series of items.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    {{ docs.gap() }}
+
+    {# Content Schema #}
+    {{ docs.api('/[content-name]/schema', '/item/schema', 'schema') }}
+    <p>
+        View the current column and schema information of the content. Schema is automatically built
+        from the "biggest" document for that specific content.
+    </p>
+
+    {{ docs.gap() }}
+
+    {# Data #}
+    {{ docs.api('/[content-name]/[id]', '/item/1675', 'data') }}
+    <p>
+        Returns information about a specific object including extended information.
+    </p>
+    <p>
+        <small>I should write a bit more about this, it's kind of a big deal.</small>
+    </p>
+
+    {{ docs.gap() }}
+
+    {# Server Lists #}
+    {{ docs.api('/servers', '/servers', 'servers') }}
+    <p>A list of servers on the official servers (JA, EN, FR, DE)'</p>
+
+    {{ docs.api('/servers/dc', '/servers/dc', 'data-center') }}
+    <p>Another list of servers grouped by their data center.</p>
+
+{% endblock %}

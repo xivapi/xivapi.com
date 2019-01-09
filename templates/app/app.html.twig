@@ -1,0 +1,48 @@
+{% extends "base.html.twig"  %}
+{% set page = 'app' %}
+{% block title %}{{ app.name }} - App - XIVAPI{% endblock %}
+
+{% block body %}
+<div class="apps">
+    <aside>
+        {% include 'app/nav.html.twig' %}
+    </aside>
+    <main>
+
+        {% if message %}<div class="success">{{ message }}</div>{% endif %}
+
+        <nav>
+            <a href="{{ path('app_manage', { id: app.id }) }}">Manage</a>
+            <a href="{{ path('app_analytics', { id: app.id }) }}">Analytics</a>
+        </nav>
+
+        <div class="fr">
+            <a href="{{ path('app_delete', { id: app.id }) }}">DELETE</a>
+        </div>
+
+        <h1>{{ app.name }}</h1>
+
+        <br>
+
+        {% if  app.isRestricted() %}
+            <div class="warning">
+                <h3>Mass crawling detected</h3>
+                <p>This key has been restricted due to auto-detection of API abuse.<br>
+                    Please <a href="https://discord.gg/MFFVHWC">Join Discord</a> for help regarding this.</p>
+            </div>
+        {% endif %}
+        {% if app.isLimited() %}
+            <div class="warning">
+                <h3>Brand new, out of the oven key</h3>
+                <p>This key is limited to 2 requests per second. This restriction will be
+                    lifted: {{ (app.added+3600)|dateRelative }}</p>
+            </div>
+        {% endif %}
+
+        {# App Pages #}
+        {% block page %}{% endblock %}
+
+    </main>
+</div>
+
+{% endblock %}

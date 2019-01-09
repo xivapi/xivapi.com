@@ -1,0 +1,105 @@
+{% extends "docs/index.html.twig"  %}
+{% import "docs/macros.html.twig" as docs %}
+{% set section = 10 %}
+
+{% block doc %}
+
+    <h1>Free Company</h1>
+    <p>
+        Search and retrieve Free Company data from The Lodestone, provides useful information such
+        as profile information and member lists.
+    </p>
+
+    {{ docs.gap() }}
+
+    {# Search #}
+    {{ docs.api('/freecompany/search', '/freecompany/search?name=[name]&server=[server]', 'search') }}
+    <p>
+        Search for a character on **The Lodestone**. This does not search XIVAPI but instead
+        it goes directly to lodestone so the response will be "real-time". Responses are cached for 1 hour,
+        it is important to know that Lodestone has a ~6 hour varnish and CDN cache.
+    </p>
+
+    <h4>Params</h4>
+
+    <table class="params-table">
+        <thead>
+        <tr>
+            <th width="25%">Param</th>
+            <th width="75%">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Name</td>
+            <td><p>The name of the free company to search, you can use `+` for spaces or let the
+                    API handle it for you. If you search very short names you will get lots of responses.
+                    This is an issue with The Lodestone and not much XIVAPI can do about it at this time.</p></td>
+        </tr>
+        <tr>
+            <td>Server</td>
+            <td><p>*(optional)* The server to search against, this is case sensitive - You can
+                    obtain a list of valid servers via: https://xivapi.com/servers</p></td>
+        </tr>
+        <tr>
+            <td>Page</td>
+            <td><p>*(optional)* Search or move to a specific page.</p></td>
+        </tr>
+        </tbody>
+    </table>
+
+    {{ docs.gap() }}
+
+    {# GET #}
+    {{ docs.api('/freecompany/[lodestone_id]', '/freecompany/9231253336202687179', 'free-company') }}
+
+    <p>Get Free Company data, due to the nature of availability on the service this endpoint will
+        return either populated data or nothing, you will have to check the `Info` response to
+        see the current state.</p>
+
+    <h4>Params</h4>
+
+    <table class="params-table">
+        <thead>
+        <tr>
+            <th width="25%">Param</th>
+            <th width="75%">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>extended</td>
+            <td>If set to 1, the API will return more data in the response by extending out the data IDs to useful objects.</td>
+        </tr>
+        <tr>
+            <td>data</td>
+            <td>
+
+                <p>By default only the `Character` data will return, you can request more data using the `data` query.</p>
+
+                <h6>data</h6>
+                <p class="usage">{{ app.request.getSchemeAndHttpHost() }}/freecompany/9231253336202687179?data=AFCM</p>
+                <p>Pass a long a comma separated list of codes that relate to specific data sets you would like
+                    to fetch, these are as follows:</p>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th width="30%">Code</th>
+                        <th>Meaning</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>FCM</td>
+                        <td>Free Company Members (if added ot the system)</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+{% endblock %}

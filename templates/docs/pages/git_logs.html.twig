@@ -1,0 +1,60 @@
+{% extends "docs/index.html.twig"  %}
+{% import "docs/macros.html.twig" as docs %}
+{% set section = 18 %}
+
+{% block doc %}
+
+    <h1>Git Logs</h1>
+
+
+    <h2>Live: v{{ siteVersion().version }}</h2>
+    <p><code>{{ siteVersion().hash }}</code> - <small>{{ siteVersion().time }}</small></p>
+
+    <h2>Production</h2>
+    <table class="param-table mini-table">
+        <thead>
+        <tr>
+            <th>Commit</th>
+            <th width="60%">Message</th>
+            <th>Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for commit in commits.master %}
+        <tr class="git-row {{ siteVersion().hash == commit.sha ? 'git-row-live' : '' }}">
+            <td>{{ commit.sha|slice(0,8) }}</td>
+            <td>
+                {{ siteVersion().hash == commit.sha ? '<strong>(LIVE)</strong> - ' : '' }}
+                <a href="{{ commit.html_url }}" target="_blank">{{ commit.commit.message }}</a>
+            </td>
+            <td align="right"><small>{{ commit.commit.committer.date|dateRelative }}</small></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <h2>Staging</h2>
+    <table class="param-table mini-table">
+        <thead>
+        <tr>
+            <th>Commit</th>
+            <th width="60%">Message</th>
+            <th>Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for commit in commits.staging %}
+            <tr class="git-row {{ siteVersion().hash == commit.sha ? 'git-row-live' : '' }}">
+                <td>{{ commit.sha|slice(0,8) }}</td>
+                <td>
+                    {{ siteVersion().hash == commit.sha ? '<strong>(LIVE)</strong> - ' : '' }}
+                    <a href="{{ commit.html_url }}" target="_blank">{{ commit.commit.message }}</a>
+                </td>
+                <td align="right"><small>{{ commit.commit.committer.date|dateRelative }}</small></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

@@ -1,0 +1,153 @@
+{% macro gap() %}
+<div class="gap"></div>
+{% endmacro %}
+
+{% macro api(route, usage, section) %}
+<div class="route">
+    <h3 id="{{ section }}">{{ route }} <a href="#{{ section }}">#</a></h3>
+    <a href="{{ app.request.getSchemeAndHttpHost() }}{{ usage }}" target="_blank" class="usage">{{ app.request.getSchemeAndHttpHost() }}{{ usage }}</a>
+</div>
+{% endmacro %}
+
+{% macro param(route, usage, section) %}
+<div class="param">
+    <h3 id="{{ section }}">{{ route }}  <a href="#{{ section }}">#</a></h3>
+    <a href="{{ app.request.getSchemeAndHttpHost() }}{{ usage }}" target="_blank" class="usage">{{ app.request.getSchemeAndHttpHost() }}{{ usage }}</a>
+</div>
+{% endmacro %}
+
+{% macro commonParamsSearch() %}
+<h4>Params</h4>
+<table class="param-table">
+    <thead>
+    <tr>
+        <th width="20%">Param</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Name</td>
+        <td>
+            <p>The name to search for, you can use `+` for spaces or let the API handle it for you.</p>
+            <p>
+                If you search very short names you will get lots of responses. This is an issue with The Lodestone.</p>
+        </td>
+    </tr>
+    <tr>
+        <td>Server</td>
+        <td>
+            <p>*(optional)* The server to search against, this is case sensitive - You can
+                obtain a list of valid servers via: <a href="https://xivapi.com/servers">Server List</a></p>
+        </td>
+    </tr>
+    <tr>
+        <td>Page</td>
+        <td><p>*(optional)* Search or move to a specific page.</p></td>
+    </tr>
+    </tbody>
+</table>
+{% endmacro %}
+
+{% macro commonPaginationInformation() %}
+<h4>Pagination</h4>
+<pre class="box">{
+    "pagination": {
+        "page": 1,
+        "page_next": 2,
+        "page_prev": false,
+        "page_total": 94,
+        "results": 250,
+        "results_per_page": 250,
+        "results_total": 23500
+    }
+}</pre>
+<table class="params-table">
+    <thead>
+    <tr>
+        <th width="25%">Field</th>
+        <th width="75%">Details</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>page</td>
+        <td>The current page you have queried</td>
+    </tr>
+    <tr>
+        <td>page_next</td>
+        <td>The next page you can query, if `false` there is no next page and you're at the end</td>
+    </tr>
+    <tr>
+        <td>page_prev</td>
+        <td>The previous page you can query, if `false` there is no previous page and you're at the start</td>
+    </tr>
+    <tr>
+        <td>results</td>
+        <td>The total number of results in the current page</td>
+    </tr>
+    <tr>
+        <td>results_per_page</td>
+        <td>Your current maximum results a page can have</td>
+    </tr>
+    <tr>
+        <td>results_total</td>
+        <td>The total amount of results for the specified content</td>
+    </tr>
+    </tbody>
+</table>
+{% endmacro %}
+
+
+{% macro commonInfoStatusInformation() %}
+<h4>"Info" Statuses</h4>
+<p>
+    At the top level of the response will be a `Info` field, this will contain the
+    `State` and `LastUpdated` timestamp of various different pieces of character data.
+    The `State` is a number and here is what they mean:
+</p>
+<table class="param-table">
+    <thead>
+    <tr>
+        <th width="25%">State</th>
+        <th width="5%">Value</th>
+        <th>Information</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><strong>STATE_NONE</strong></td>
+        <td><strong>0</strong></td>
+        <td>Content is not on XIVAPI and will not be added via this request.</td>
+    </tr>
+    <tr>
+        <td><strong>STATE_ADDING</strong></td>
+        <td><strong>1</strong></td>
+        <td>
+            Content does not exist on the API and needs adding. The Payload should be empty if
+            this state is provided. It should take 2 minutes or less to add the content.
+        </td>
+    </tr>
+    <tr>
+        <td><strong>STATE_CACHED</strong></td>
+        <td><strong>2</strong></td>
+        <td>Content exists in the system and you're being provided a cached response.</td>
+    </tr><tr>
+        <td><strong>STATE_NOT_FOUND</strong></td>
+        <td><strong>3</strong></td>
+        <td>Content does not exist on The Lodestone.</td>
+    </tr>
+    <tr>
+        <td><strong>STATE_BLACKLIST</strong></td>
+        <td><strong>4</strong></td>
+        <td>Content has been Blacklisted. No data can be obtained via the API for any application.</td>
+    </tr>
+    <tr>
+        <td><strong>STATE_PRIVATE</strong></td>
+        <td><strong>5</strong></td>
+        <td>Content is private on lodestone, ask the owner to make the content public and then try again!</td>
+    </tr>
+    </tbody>
+
+</table>
+{% endmacro %}

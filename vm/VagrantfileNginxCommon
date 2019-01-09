@@ -1,0 +1,33 @@
+#
+# Common nginx configuration all sites use
+# Based on: Symfony 4
+#
+
+sendfile off;
+client_max_body_size 50M;
+
+location /ping {
+    return 200 'online';
+    add_header Content-Type text/plain;
+}
+
+location / {
+    # try to serve file directly, fallback to index.php
+    try_files $uri /index.php$is_args$args;
+}
+
+location ~ ^/index\.php(/|$) {
+    fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+    fastcgi_split_path_info ^(.+\.php)(/.*)$;
+    include fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+    fastcgi_param DOCUMENT_ROOT $realpath_root;
+    fastcgi_buffer_size 128k;
+    fastcgi_buffers 4 256k;
+    fastcgi_busy_buffers_size 256k;
+    internal;
+}
+
+location ~ \.php$ {
+    return 404;
+}
