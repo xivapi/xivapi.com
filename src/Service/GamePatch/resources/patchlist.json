@@ -656,5 +656,20 @@
         "Name_kr": "Patch 4.45",
         "ReleaseDate": 1541498400,
         "Version": "4.45"
+    },
+    {
+        "Banner": "https://img.finalfantasyxiv.com/lds/h/3/Jv-nF8an7MBqS0Cdp5DHnNLTy4.png",
+        "ID": 52,
+        "Url": "\/patch+4.5",
+        "ExVersion": 2,
+        "IsExpansion": false,
+        "Name_ja": "Patch 4.5: A Requiem for Heroes",
+        "Name_en": "Patch 4.5: A Requiem for Heroes",
+        "Name_fr": "Patch 4.5: A Requiem for Heroes",
+        "Name_de": "Patch 4.5: A Requiem for Heroes",
+        "Name_cn": "Patch 4.5: A Requiem for Heroes",
+        "Name_kr": "Patch 4.5: A Requiem for Heroes",
+        "ReleaseDate": 1546941600,
+        "Version": "4.5"
     }
 ]
