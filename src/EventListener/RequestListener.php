@@ -55,6 +55,12 @@ class RequestListener
 
         // record analytics
         GoogleAnalytics::hit(getenv('SITE_CONFIG_GOOGLE_ANALYTICS'), $request->getPathInfo());
+        GoogleAnalytics::event(
+            getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
+            'Requests',
+            'Endpoint',
+            explode('/', $request->getPathInfo())[1] ?? 'Home'
+        );
     
         // register app keys
         AppRequest::setManager($this->appManager);
