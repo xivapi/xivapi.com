@@ -315,6 +315,9 @@ class Arrays
     public static function snakeCase(&$array)
     {
         foreach (array_keys($array) as $key) {
+            # Special fix for PVP Teams
+            $key = str_ireplace('PvPTeam', 'PvpTeam', $key);
+            
             # Working with references here to avoid copying the value,
             # since you said your data is quite large.
             $value = &$array[$key];
