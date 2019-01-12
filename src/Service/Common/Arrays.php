@@ -315,9 +315,6 @@ class Arrays
     public static function snakeCase(&$array)
     {
         foreach (array_keys($array) as $key) {
-            # Special fix for PVP Teams
-            $key = str_ireplace('PvPTeam', 'PvpTeam', $key);
-            
             # Working with references here to avoid copying the value,
             # since you said your data is quite large.
             $value = &$array[$key];
@@ -326,7 +323,7 @@ class Arrays
             # This is what you actually want to do with your keys:
             #  - remove exclamation marks at the front
             #  - camelCase to snake_case
-            $transformedKey = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', ltrim($key, '!')));
+            $transformedKey = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', ltrim(str_ireplace('PvPTeam', 'PvpTeam', $key), '!')));
 
             # Work recursively
             if (is_array($value)) {
