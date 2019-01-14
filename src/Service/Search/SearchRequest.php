@@ -93,11 +93,7 @@ class SearchRequest
         
         // ensure body requests is in the array format
         if ($this->body) {
-            $this->body = json_decode($this->body, true)['body'] ?? false;
-            
-            if (!$this->body) {
-                throw new InvalidSearchRequestException();
-            }
+            $this->body = json_decode($this->body, true)['body'] ?? null;
         }
         
         // this ensures response handler will use default search columns
