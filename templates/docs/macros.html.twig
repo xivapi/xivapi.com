@@ -27,23 +27,30 @@
     </thead>
     <tbody>
     <tr>
-        <td>Name</td>
+        <td>name</td>
         <td>
             <p>The name to search for, you can use `+` for spaces or let the API handle it for you.</p>
-            <p>
-                If you search very short names you will get lots of responses. This is an issue with The Lodestone.</p>
+            <p>Searching name will automatically add quotations, this is to ensure better matching against short/common named characters.</p>
         </td>
     </tr>
     <tr>
-        <td>Server</td>
+        <td>server</td>
         <td>
-            <p>*(optional)* The server to search against, this is case sensitive - You can
-                obtain a list of valid servers via: <a href="https://xivapi.com/servers">Server List</a></p>
+            <p>
+                *(optional)* The server to search against, this is case sensitive - You can
+                obtain a list of valid servers via: <a href="https://xivapi.com/servers">Server List</a>
+            </p>
+            <p>
+                You can provide a data center here, eg: <code>server=_dc_Chaos</code>
+            </p>
         </td>
     </tr>
     <tr>
-        <td>Page</td>
-        <td><p>*(optional)* Search or move to a specific page.</p></td>
+        <td>page</td>
+        <td>
+            <p>*(optional)* Search or move to a specific page.</p>
+            <p>There is currently no way to change the amount of results back returned. It will always be 50 per page with a maximum of 20 pages. This is due to how Lodestone works.</p>
+        </td>
     </tr>
     </tbody>
 </table>
