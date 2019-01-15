@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\GameData;
 
+use App\Command\CommandHelperTrait;
 use App\Service\Redis\Redis;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,7 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use App\Service\Data\FileSystem;
 use App\Service\Data\FileReader;
 use App\Service\DataCustom\Pre\PreHandler;
-use App\Service\Redis\Cache;
 
 class SaintCoinachJsonCacheCommand extends Command
 {

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Users;
 
+use App\Command\CommandHelperTrait;
 use App\Entity\App;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;

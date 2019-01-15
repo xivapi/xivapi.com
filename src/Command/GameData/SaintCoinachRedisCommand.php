@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\GameData;
 
+use App\Command\CommandHelperTrait;
 use App\Service\Common\Arrays;
 use App\Service\Redis\Cache;
 use Symfony\Component\Console\Command\Command;

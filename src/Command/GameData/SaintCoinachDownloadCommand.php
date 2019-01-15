@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\GameData;
 
+use App\Command\CommandHelperTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -72,7 +73,7 @@ class SaintCoinachDownloadCommand extends Command
         
         $this->io->text("Downloading: <info>{$filename}</info>");
         file_put_contents(
-            __DIR__.'/../../'. getenv('GAME_TOOLS_DIRECTORY') .'/'. $filename,
+            __DIR__ . '/../../' . $filename,
             file_get_contents($download)
         );
         $this->complete();
@@ -91,8 +92,8 @@ class SaintCoinachDownloadCommand extends Command
     {
         $this->io->section('Extracting and running SaintCoinach.cmd');
         
-        $filename = __DIR__ .'/../../'. getenv('GAME_TOOLS_DIRECTORY') .'/'. $filename;
-        $folder = __DIR__ .'/../../'. getenv('GAME_TOOLS_DIRECTORY') .'/SaintCoinach.Cmd';
+        $filename = __DIR__ . '/../../' . $filename;
+        $folder = __DIR__ . '/../xivapi.com/' . getenv('GAME_TOOLS_DIRECTORY') .'/SaintCoinach.Cmd';
         
         $zip = new \ZipArchive;
         $result = $zip->open($filename);
