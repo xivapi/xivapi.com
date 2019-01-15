@@ -13,7 +13,7 @@
         "intervention/image": "^2.4",
         "knplabs/github-api": "^2.8",
         "league/csv": "^9.1",
-        "nesbot/carbon": "^1.32",
+        "nesbot/carbon": "^2.10.0",
         "nikic/php-parser": "^4.0",
         "php-amqplib/php-amqplib": "^2.8",
         "php-http/guzzle6-adapter": "^1.1",
