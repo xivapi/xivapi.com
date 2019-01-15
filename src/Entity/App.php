@@ -200,7 +200,7 @@ class App
 
     public function getApiRateLimit(): int
     {
-        return $this->apiRateLimit;
+        return $this->apiRateLimit + 5;
     }
 
     public function setApiRateLimit(int $apiRateLimit)
