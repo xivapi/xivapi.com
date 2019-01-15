@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Search;
 
+use App\Command\CommandHelperTrait;
 use App\Service\Common\Language;
 use App\Service\Data\CsvReader;
 use App\Service\Data\SaintCoinach;
@@ -57,13 +58,13 @@ class UpdateSearchLoreCommand extends Command
     
         /*
          * todo:
-         * - CraftLeveTalk.en
+         * - CraftLeveTalk
          * - Completion
-         * - GoldSaucerTalk.en
-         * - GuildleveAssignmentTalk.en
-         * - LogMessage.en - needs cleaning up
-         * - SkyIsland2Mission.en
-         * - SkyIsland2MissionDetail.en
+         * - GoldSaucerTalk
+         * - GuildleveAssignmentTalk
+         * - LogMessage - needs cleaning up
+         * - SkyIsland2Mission
+         * - SkyIsland2MissionDetail
          */
     
         //

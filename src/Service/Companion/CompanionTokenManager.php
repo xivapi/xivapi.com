@@ -13,9 +13,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class CompanionTokenManager
 {
     const SERVERS = [
-        // test
-        //'Phoenix'       => 'COMPANION_APP_ACCOUNT_D',
-        
         'Aegis'         => 'COMPANION_APP_ACCOUNT_B',
         'Atomos'        => 'COMPANION_APP_ACCOUNT_B',
         'Carbuncle'     => 'COMPANION_APP_ACCOUNT_B',
@@ -106,7 +103,7 @@ class CompanionTokenManager
      * if this succeeds it will be copied to the main login `xivapi_[server]
      * otherwise it wil lbe marked with an error.
      */
-    public function go(string $account, bool $debug = false): void
+    public function go(string $account, string $debugServer = null): void
     {
         $this->date = date('Y-m-d H:i:s') . ' (UTC)';
         $this->io->title('Companion App API Token Manager');
@@ -116,7 +113,7 @@ class CompanionTokenManager
 
         foreach (self::SERVERS as $server => $accountRegistered) {
             // skip all but phoenix if in debug mode
-            if ($debug && $server !== 'Phoenix') {
+            if ($server && $server != $debugServer) {
                 continue;
             }
             

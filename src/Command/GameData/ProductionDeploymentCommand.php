@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\GameData;
 
+use App\Command\CommandHelperTrait;
 use App\Service\Redis\Cache;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -70,6 +71,9 @@ class ProductionDeploymentCommand extends Command
 
         $allowedPrefixes = [
             'xiv',
+            'xiv2',
+            'xiv_korean',
+            'xiv_chinese',
             'ids',
             'conn',
             'locale',

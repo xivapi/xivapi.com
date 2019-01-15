@@ -26,18 +26,32 @@ class GameData
     {
         $contentName = $this->validate($contentName);
         
-        $content   = $this->cache->get("xiv_{$contentName}_{$contentId}");
-        $secondary = $this->cache->get("xiv2_{$contentName}_{$contentId}") ?: [];
+        $content = $this->cache->get("xiv_{$contentName}_{$contentId}");
     
         if (!$content) {
             throw new \Exception("Game Data does not exist: {$contentName} {$contentId}");
         }
-        
-        // merge main and secondary content
-        return (Object)array_merge(
-            (array)$content,
-            (array)$secondary
-        );
+
+        // add additional data
+        $additional = [
+            'xiv2',
+            'xiv_korean',
+            'xiv_chinese'
+        ];
+
+        foreach($additional as $add) {
+            $data = $this->cache->get("{$add}_{$contentName}_{$contentId}");
+
+            if (empty($data)) {
+                continue;
+            }
+
+            foreach ($data as $field => $value) {
+                $content->{$field} = $value;
+            }
+        }
+
+        return $content;
     }
 
     public function list(Request $request, string $contentName)

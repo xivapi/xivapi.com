@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Feeds;
 
+use App\Command\CommandHelperTrait;
 use App\Service\Redis\Cache;
 use Lodestone\Api;
 use Symfony\Component\Console\Command\Command;

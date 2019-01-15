@@ -1,16 +1,10 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Generator;
 
-use App\Entity\MapPosition;
-use App\Repository\MapPositionRepository;
+use App\Command\CommandHelperTrait;
 use App\Service\Maps\PreviewGenerator;
-use App\Service\Redis\Cache;
-use Doctrine\ORM\EntityManagerInterface;
-use Intervention\Image\Image;
-use Intervention\Image\ImageManager;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

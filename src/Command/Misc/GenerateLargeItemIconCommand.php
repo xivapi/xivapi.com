@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Misc;
 
+use App\Command\CommandHelperTrait;
+use App\Command\GameData\SaintCoinachRedisCommand;
 use App\Service\Redis\Redis;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -9,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateLargeItemIconCommand extends Command
 {
-    const SAVED_LIST_FILENAME = __DIR__.'/resources/icons.json';
+    const SAVED_LIST_FILENAME = __DIR__ . '/resources/icons.json';
 
     use CommandHelperTrait;
 

@@ -2,10 +2,10 @@
 
 namespace App\Service\Helpers;
 
+use App\Command\GameData\SaintCoinachRedisCommand;
 use App\Service\Data\SaintCoinach;
 use App\Service\Redis\Cache;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use App\Command\SaintCoinachRedisCommand;
 use App\Service\Data\CsvReader;
 
 class ManualHelper

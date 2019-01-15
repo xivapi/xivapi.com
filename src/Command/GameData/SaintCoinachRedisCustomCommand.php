@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\GameData;
 
+use App\Command\CommandHelperTrait;
 use App\Service\DataCustom\Achievement;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -27,7 +28,7 @@ class SaintCoinachRedisCustomCommand extends Command
         $this->title('CUSTOM DATA MAPPER');
         $this->startClock();
         
-        $filelist = scandir(__DIR__.'/../Service/DataCustom');
+        $filelist = scandir(__DIR__ . '/../Service/DataCustom');
         
         $customClassList = [];
         foreach ($filelist as $file) {

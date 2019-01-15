@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Search;
 
+use App\Command\CommandHelperTrait;
 use App\Service\Common\DataType;
 use App\Service\Common\Language;
 use App\Service\Redis\Cache;
 use App\Service\Search\SearchContent;
-use App\Service\SearchElastic\ElasticMapping;
 use App\Service\SearchElastic\ElasticSearch;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
