@@ -27,7 +27,8 @@ class SaintCoinachRedisCommand extends Command
         'GatheringType',
         'CraftType',
         'Cabinet',
-        'World'
+        'World',
+        'RecipeNotebookList',
     ];
 
     /** @var Cache */
