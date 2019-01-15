@@ -71,6 +71,9 @@ class ProductionDeploymentCommand extends Command
 
         $allowedPrefixes = [
             'xiv',
+            'xiv2',
+            'xiv_korean',
+            'xiv_chinese',
             'ids',
             'conn',
             'locale',
