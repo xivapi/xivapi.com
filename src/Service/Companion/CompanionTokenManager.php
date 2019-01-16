@@ -113,7 +113,7 @@ class CompanionTokenManager
 
         foreach (self::SERVERS as $server => $accountRegistered) {
             // skip all but phoenix if in debug mode
-            if ($server && $server != $debugServer) {
+            if ($debugServer && $server != $debugServer) {
                 continue;
             }
             
@@ -196,7 +196,7 @@ class CompanionTokenManager
         // copy all temps to mains
         foreach (self::SERVERS as $server => $accountRegistered) {
             // skip all but phoenix if in debug mode
-            if ($server && $server != $debugServer) {
+            if ($debugServer && $server != $debugServer) {
                 continue;
             }
             
