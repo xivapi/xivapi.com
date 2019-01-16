@@ -38,7 +38,7 @@ class UpdateCompanionAppLoginCommand extends Command
         ];
 
         // grab account and process logins, go, go, go!
-        $server  = $input->getArgument('account');
+        $server  = $input->getArgument('server');
         $account = $accounts[$input->getArgument('account')];
 
         $manager->go($account, $server);
