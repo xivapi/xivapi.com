@@ -188,7 +188,7 @@ class AppRequest
         $app  = self::app();
         
         if ($user && $app == null) {
-            $ratelimit  = 3;
+            $ratelimit  = 5;
             $keyNow   = "app_rate_limit_ip_{$ip}_{$user->getId()}_now";
             $keyBurst = "app_rate_limit_ip_{$ip}_{$user->getId()}_burst";
         }
@@ -212,7 +212,7 @@ class AppRequest
             // increment burst
             $burst = Redis::Cache()->get($keyBurst);
             $burst = $burst ? $burst + 1 : 1;
-            Redis::Cache()->set($keyBurst, $burst, 5);
+            Redis::Cache()->set($keyBurst, $burst, 2);
             
             // rate limit is 2x while not in burst timeout
             $burstlimit = 5;

@@ -22,7 +22,7 @@ class SearchRequest
     const STRING_SIMILAR             = 'similar';
 
     const MIN_LIMIT = 1;
-    const MAX_LIMIT = 1000;
+    const MAX_LIMIT = 100;
 
     const STRING_ALGORITHM_DEFAULT = self::STRING_WILDCARD;
     const STRING_ALGORITHMS = [
@@ -93,11 +93,7 @@ class SearchRequest
         
         // ensure body requests is in the array format
         if ($this->body) {
-            $this->body = json_decode($this->body, true)['body'] ?? false;
-            
-            if (!$this->body) {
-                throw new InvalidSearchRequestException();
-            }
+            $this->body = json_decode($this->body, true)['body'] ?? null;
         }
         
         // this ensures response handler will use default search columns

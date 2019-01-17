@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f298871bb502a05796330bb7e84a069e",
+    "content-hash": "f858956be293e8ceece41db9c8034bb6",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -7602,16 +7602,16 @@
         },
         {
             "name": "xivapi/lodestone-parser",
-            "version": "1.8.9",
+            "version": "1.8.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/xivapi/lodestone-parser.git",
-                "reference": "8766a6ef9ec37bff45fa6243ab4d28f3b9046f23"
+                "reference": "51a6719f2af6ccf6f7aab1c139e9c2f8be3eb0ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/xivapi/lodestone-parser/zipball/8766a6ef9ec37bff45fa6243ab4d28f3b9046f23",
-                "reference": "8766a6ef9ec37bff45fa6243ab4d28f3b9046f23",
+                "url": "https://api.github.com/repos/xivapi/lodestone-parser/zipball/51a6719f2af6ccf6f7aab1c139e9c2f8be3eb0ca",
+                "reference": "51a6719f2af6ccf6f7aab1c139e9c2f8be3eb0ca",
                 "shasum": ""
             },
             "require": {
@@ -7647,7 +7647,7 @@
                 "parser",
                 "php"
             ],
-            "time": "2019-01-09T00:25:28+00:00"
+            "time": "2019-01-11T21:12:57+00:00"
         },
         {
             "name": "zendframework/zend-code",

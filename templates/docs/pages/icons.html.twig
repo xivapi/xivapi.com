@@ -9,36 +9,101 @@
 
     {{ docs.gap() }}
 
+
+
     {% if set %}
-        <div class="fr">
-            <a href="{{ path('docs_page', { page: 'Icons', set: set, download: 1 }) }}" target="_blank" class="btn btn-primary">Download Set</a>
-        </div>
-
         <h6>{{ images.name }} <small>({{ images.icons|length }} images)</small></h6>
-
-        <p>Download the icons you want to use.</p>
 
         {{ docs.gap() }}
 
         <div class="icons">
             {% for image in images.icons %}
                 <span>
-                        <a href="{{ image.url }}" target="_blank">
-                            <img src="/img-svg/loading.svg" class="lazy" data-src="{{ image.url }}">
-                        </a>
-                        <span>{{ image.name }}</span>
-                        <span>{{ image.res.w }}x{{ image.res.h }} ({{ image.size }})</span>
-                    </span>
+                    <a href="{{ image.url }}" target="_blank">
+                        <img src="/img-svg/loading.svg" class="lazy" data-src="{{ image.url }}">
+                    </a>
+                    <span>{{ image.name }}</span>
+                    <span>{{ image.res.w }}x{{ image.res.h }} ({{ image.size }})</span>
+                </span>
             {% endfor %}
         </div>
     {% else %}
+        <h2>How In-Game Icon IDs work</h2>
+
+        <p>
+            In the in-game files, the filename for icons is very stripped.
+            The psudo logic for this is: You can find XIVAPI's implementation
+            <a href="https://github.com/xivapi/xivapi.com/blob/master/src/Service/Data/DataHelper.php#L68">on Github.com</a>.
+        </p>
+
+        <code class="box">
+            <div style="opacity: 0.6;">
+                // first we need to add padding to the icon_id
+            </div>
+            if <em style="color:#6178ac;">icon_id</em> length >= 6 <br>
+            &nbsp;&nbsp;&nbsp; <em style="color:#6178ac;">icon_id</em> = pad(5, "0", pad_left) <br>
+            else <br>
+            &nbsp;&nbsp;&nbsp; <em style="color:#6178ac;">icon_id</em> = '0' + pad(5, "0", pad_left) <br>
+            <br>
+
+            <div style="opacity: 0.6;">
+                // Now we can build the folder from the padded icon_id
+            </div>
+            if <em style="color:#6178ac;">icon_id</em> length >= 6 <br>
+            &nbsp;&nbsp;&nbsp; <em>folder_id</em> = icon_id[0] + icon_id[1] + icon_id[2] + '000 <br>
+            else <br>
+            &nbsp;&nbsp;&nbsp; <em>folder_id</em> = 0 + icon_id[1] + icon_id[2] + '000 <br>
+            <br>
+
+            path = <em>folder_id</em> / <em style="color:#6178ac;">icon_id</em> .png
+        </code>
+
+        <p>Example</p>
+
+        <ul>
+            <li>Get icon id: <code>icon_id = 26039</code></li>
+            <li>Is less than 5? <strong>YES</strong></li>
+            <li>Folder: <code>0 26 000</code> (the 0 we added)</li>
+            <li>Filename: <code>026039</code></li>
+            <li>Result: <code>026000/026039.png</code> <img src="/i/026000/026039.png" height="32" style="vertical-align: middle"></li>
+        </ul>
+
         <br>
-        <h6>Icon Sets</h6>
+
+        <h4>Where are the awesome HQ icons from Lodestone?</h4>
+
+        <p>
+            I am working to get these into XIVAPI. These are hard to obtain as the
+            URLs are hashed and the Lodestone ID for an item is also hashed. I can obtain
+            the Lodestone ID from Companion and use this to parse the HQ icons file path.
+            (The Icon URL in Companion is low res).
+        </p>
+        <p>
+            I am also planning on provided a waifu2x version of all icons since they do
+            come out rather well.
+        </p>
+
+        <hr>
+
+        <h2>Awesome Class/Job Icons</h2>
+
+        <p>
+            Thanks to Companion App we can get some awesome Class/Job icons in 256px PNG or full SVG.
+        </p>
+        <p>
+            Check out the repository: <a href="https://github.com/xivapi/classjob-icons">xivapi/classjob-icons</a>
+        </p>
+
+        <img src="https://raw.githubusercontent.com/xivapi/classjob-icons/master/classjobs_sprite.png" height="400px">
+
+        <hr>
+
+        <h2>Icon Sets</h2>
 
         <ul>
             {% for set, info in images %}
                 {% if info == '---' %}
-                    <hr>
+                    {{ docs.gap() }}
                 {% else %}
                     <li><a href="{{ path('docs_page', { page: 'Icons', set: set }) }}">{{ info[0] }}</a></li>
                 {% endif %}
@@ -46,11 +111,9 @@
         </ul>
     {% endif %}
 
-
 {% endblock %}
 
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/8.15.0/lazyload.min.js"></script>
-<script>new LazyLoad({ elements_selector: ".lazy" });
-</script>
+<script>new LazyLoad({ elements_selector: ".lazy" });</script>
 {% endblock %}

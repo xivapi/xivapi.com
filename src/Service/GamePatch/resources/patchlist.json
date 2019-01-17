@@ -1,6 +1,6 @@
 [
     {
-        "Banner": "http:\/\/i.imgur.com\/ZUUtGzH.png",
+        "Banner": "https:\/\/i.imgur.com\/ZUUtGzH.png",
         "ID": 0,
         "ExVersion": 0,
         "Name_cn": "Patch 2.0: A Realm Reborn",
@@ -13,7 +13,7 @@
         "Version": "2.0"
     },
     {
-        "Banner": "http:\/\/i.imgur.com\/ZUUtGzH.png",
+        "Banner": "https:\/\/i.imgur.com\/ZUUtGzH.png",
         "ID": 2,
         "ExVersion": 0,
         "Name_cn": "Patch 2.0: A Realm Reborn",
@@ -39,7 +39,7 @@
         "Version": "2.05"
     },
     {
-        "Banner": "http:\/\/img.finalfantasyxiv.com\/lds\/h\/X\/NsELex3yMQ6Htgnfdc5wUleM2A.png",
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/X\/NsELex3yMQ6Htgnfdc5wUleM2A.png",
         "ID": 4,
         "ExVersion": 0,
         "Name_cn": "Patch 2.1: A Realm Awoken",
@@ -91,7 +91,7 @@
         "Version": "2.16"
     },
     {
-        "Banner": "http:\/\/img.finalfantasyxiv.com\/lds\/h\/V\/Tvn9xPR13FNwXg7JvpbozlY9BQ.png",
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/V\/Tvn9xPR13FNwXg7JvpbozlY9BQ.png",
         "ID": 8,
         "ExVersion": 0,
         "Name_cn": "Patch 2.2: Through The Maelstrom",
@@ -130,7 +130,7 @@
         "Version": "2.28"
     },
     {
-        "Banner": "http:\/\/img.finalfantasyxiv.com\/lds\/h\/p\/cNT1F2vDxKS2QXXP8MWWP8-XsE.png",
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/p\/cNT1F2vDxKS2QXXP8MWWP8-XsE.png",
         "ID": 11,
         "ExVersion": 0,
         "Name_cn": "Patch 2.3: Defenders Of Eorzea",
@@ -169,7 +169,7 @@
         "Version": "2.38"
     },
     {
-        "Banner": "http:\/\/img.finalfantasyxiv.com\/lds\/h\/t\/KjFhnmNFDl3a35sDfmWYqn5JQg.png",
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/t\/KjFhnmNFDl3a35sDfmWYqn5JQg.png",
         "ID": 14,
         "ExVersion": 0,
         "Name_cn": "Patch 2.4: Dreams Of Ice",
@@ -195,7 +195,7 @@
         "Version": "2.45"
     },
     {
-        "Banner": "http:\/\/img.finalfantasyxiv.com\/lds\/h\/J\/9KjGL7nqywcMnEkQ72mJaXP6d8.png",
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/J\/9KjGL7nqywcMnEkQ72mJaXP6d8.png",
         "ID": 16,
         "ExVersion": 0,
         "Name_cn": "Patch 2.5: Before The Fall",
@@ -234,7 +234,7 @@
         "Version": "2.55"
     },
     {
-        "Banner": "http:\/\/img.finalfantasyxiv.com\/lds\/h\/O\/U5TufT2QVnzXONyLf61X468dFU.png",
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/O\/U5TufT2QVnzXONyLf61X468dFU.png",
         "ID": 19,
         "ExVersion": 1,
         "Name_cn": "Patch 3.0: Heavensward",
@@ -312,7 +312,7 @@
         "Version": "3.15"
     },
     {
-        "Banner": "http:\/\/img.finalfantasyxiv.com\/lds\/h\/x\/V-EzNfDS5pAsRiA-9d7Wr5ypPo.png",
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/x\/V-EzNfDS5pAsRiA-9d7Wr5ypPo.png",
         "ID": 25,
         "ExVersion": 1,
         "Name_cn": "Patch 3.2: The Gears Of Change",
@@ -338,7 +338,7 @@
         "Version": "3.25"
     },
     {
-        "Banner": "http:\/\/img.finalfantasyxiv.com\/lds\/h\/N\/5hPSYO8hzFnPtmWHUl1WdKUP6Y.png",
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/N\/5hPSYO8hzFnPtmWHUl1WdKUP6Y.png",
         "ID": 27,
         "ExVersion": 1,
         "Name_cn": "Patch 3.3: Revenge Of The Horde",
@@ -364,7 +364,7 @@
         "Version": "3.35"
     },
     {
-        "Banner": "http:\/\/img.finalfantasyxiv.com\/lds\/h\/1\/NiJCSH6UdB0Tmfri6l3aI8bwVk.png",
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/1\/NiJCSH6UdB0Tmfri6l3aI8bwVk.png",
         "ID": 30,
         "ExVersion": 1,
         "Name_cn": "Patch 3.4: Soul Surrender",
@@ -390,7 +390,7 @@
         "Version": "3.45"
     },
     {
-        "Banner": "http:\/\/img.finalfantasyxiv.com\/lds\/h\/X\/Fn6c_Pg2ARmXfetGQPs3M0f9Sg.png",
+        "Banner": "https:\/\/img.finalfantasyxiv.com\/lds\/h\/X\/Fn6c_Pg2ARmXfetGQPs3M0f9Sg.png",
         "ID": 32,
         "ExVersion": 1,
         "Name_cn": "Patch 3.5: The Far Edge Of Fate",

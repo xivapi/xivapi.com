@@ -1,167 +1,189 @@
 .dark {
+    :root {
+        --color1: #c9a3ff;
+        --color2: #c9a3ff;
+        --color3: #e6e6e6;
+        --color4: #c1c1c1;
+        --color5: #fff;
+    }
     background-color: #303030;
     color: #fff;
-
     a {
-      color: #c9a3ff;
+        color: #c9a3ff;
     }
     pre.box, code.box {
         background-color: #1d1d1d;
     }
-    .docs aside,
-    .apps aside {
-        border: solid 1px #5a5a5a;
+    .fake-browser {
+        box-shadow: 0 1px 30px rgba(0, 0, 0, 0.5);
+    }
+    .docs aside, .apps aside {
+        border: solid 1px #333;
+        box-shadow: 0 1px 5px #000, inset 0 0 1px #444;
+        background-color: #2c2c2c;
+
+        hr {
+            background-color: #555;
+        }
     }
     .docs aside .sub-nav, .apps aside .sub-nav {
-        border-left: dashed 1px #5d5d5d;
+        border-left: solid 3px #222;
     }
-    .docs aside > div > span > em, .apps aside > div > span > em {
+    .docs aside>div>span>em, .apps aside>div>span>em {
         border-bottom: solid 1px #565656;
     }
-    .docs main table tr td, .apps main table tr td {
+    .docs main table tr td {
         border-right: solid 1px #424242;
     }
-    .apps aside h3 {
-      color: #fff;
+    .apps {
+        main table tr td {
+            border-right: solid 1px #424242;
+        }
+        aside h3 {
+            color: #fff;
+        }
+        nav {
+            border-bottom: solid 1px #303030;
+            box-shadow: 0 2px 0 #464646;
+        }
+        main {
+            .apps-key>div {
+                background-color: #4c4c4c;
+            }
+            .apps-form {
+                border: solid 1px #5a5a5a;
+                hr {
+                    background-color: #5a5a5a;
+                }
+            }
+            table tr td {
+                background-color: #222;
+            }
+        }
     }
-    .apps main .create-app {
-        border-top: dashed 1px #5a5a5a;
-        border-bottom: dashed 1px #5a5a5a;
-    }
-    .apps nav {
-        border-bottom: solid 1px #303030;
-        box-shadow: 0 2px 0 #464646;
-    }
-    .apps main .apps-key > div {
-        background-color: #4c4c4c;
-    }
-    .apps main .apps-form {
-        border: solid 1px #5a5a5a;
-    }
-    .apps main .apps-form hr {
-        background-color: #5a5a5a;
-    }
-    .apps main table tr td, .docs main table tr td {
+    .docs main table tr td {
         background-color: #222;
     }
-    .apps main .warning {
-        background-color: #7194a6;
-    }
-    .apps main .success {
-        background-color: #68997c;
+    .apps main {
+        .warning {
+            background-color: #7194a6;
+        }
+        .success {
+            background-color: #68997c;
+        }
     }
     .docs {
-      main h2 {
-        color: #c9a3ff;
-      }
-      aside {
-        h3 {
-          color: #fff;
+        main h2 {
+            color: #c9a3ff;
         }
-        .sub-nav a {
-          color: #fff;
-          &:hover {
-            color: #c1c1c1;
-          }
+        aside {
+            h3 {
+                color: #fff;
+            }
+            .sub-nav a {
+                color: #fff;
+                &:hover {
+                    color: #c1c1c1;
+                }
+            }
         }
-      }
-      main {
-        p, h4 {
-          color: #fff;
+        main {
+            p, h4 {
+                color: #fff;
+            }
         }
-      }
     }
     .apps main h4 {
-      color: #fff;
+        color: #fff;
     }
     .docs main {
-      table.param-table tr td:first-of-type {
-        color: #bbd1f3;
-      }
-      .param {
-        h3 {
-          color: #91cca9;
+        table.param-table tr td:first-of-type {
+            color: #bbd1f3;
         }
-        a {
-          color: #b4fbd1;
+        .param {
+            h3 {
+                color: #91cca9;
+            }
+            a {
+                color: #b4fbd1;
+            }
         }
-      }
-      .route {
-        h3 {
-          color: #bbd4f9;
-          a {
-            color: #bbd4f9;
-          }
+        .route {
+            h3 {
+                color: #bbd4f9;
+                a {
+                    color: #bbd4f9;
+                }
+            }
+            a {
+                color: #bbd4f9;
+            }
         }
-        a {
-          color: #bbd4f9;
-        }
-      }
     }
     .section-four {
-      box-shadow: 0 0 200px 200px #303030;
-      background-color: #303030;
-      margin-top: 30px;
-      display: flex;
+        box-shadow: 0 0 200px 200px #303030;
+        background-color: #303030;
+        margin-top: 30px;
+        display: flex;
     }
     .section-two section div p {
-      color: #fff;
+        color: #fff;
     }
     .section-three section {
-      h3 {
-        color: #fff;
-      }
-      table tr td {
-        &:first-of-type {
-          color: #c9a3ff;
+        h3 {
+            color: #fff;
         }
-        &:last-of-type {
-          color: #fff;
+        table tr td {
+            &:first-of-type {
+                color: #c9a3ff;
+            }
+            &:last-of-type {
+                color: #fff;
+            }
         }
-      }
     }
     .section-two section div:first-of-type p {
-      color: #fff;
+        color: #fff;
     }
     .section-one section div div:last-of-type a, .section-four section div p:last-of-type a {
-      color: #c9a3ff;
+        color: #c9a3ff;
+        border: solid 1px #79659f;
+        box-shadow: 0 1px 6px #000;
     }
     .section-one section div div:last-of-type a:hover, .section-four section div p:last-of-type a:hover {
-      color: #fff;
+        color: #fff;
     }
-    .section-three > section > div {
+    .section-three>section>div {
         border: solid 1px #525151;
     }
-    .section-three > section table td {
+    .section-three>section table td {
         border-bottom: solid 1px #464646;
     }
     .docs main {
-      .git-row.git-row-live td {
-        background-color: #1e1e1e;
-      }
-      h6 {
-        color: #fff;
-      }
+        .git-row.git-row-live td {
+            background-color: #1e1e1e;
+        }
+        h6 {
+            color: #fff;
+        }
     }
     .docs hr {
         background-color: #4e4e4e;
     }
     label {
-      color: #fff;
+        color: #fff;
     }
     .apps main {
-      .apps-form .btn-success {
-        color: white;
-      }
+        .apps-form .btn-success {
+            color: white;
+        }
     }
     .apps main .delete-page {
         background-color: #303030;
     }
-
     .apps main .delete-page h4 span {
         color: #c9a3ff;
     }
-
     .apps main h2, .docs main h2 {
         color: #c9a3ff;
     }
@@ -169,15 +191,20 @@
         color: #ffffff;
         background-color: #7a42c9;
     }
-
     .docs main .api-key-btn:hover {
         background-color: #c9a3ff;
     }
-    :root {
-      --color1: #c9a3ff;
-      --color2: #c9a3ff;
-      --color3: #e6e6e6;
-      --color4: #c1c1c1;
-      --color5: #fff;
+    .docs main .icons > span {
+        border: solid 1px #555;
+        background-color: #383838;
     }
-  }
+    .docs main table tr th, .apps main table tr th {
+        background-color: #444;
+    }
+    .docs main table tr td, .apps main table tr td {
+        border-bottom: solid 1px #444;
+    }
+    .docs main table, .apps main table {
+        border: solid 1px #444;
+    }
+}

@@ -139,7 +139,7 @@
         </tr>
         <tr>
             <td>limit</td>
-            <td>Limit the number of results to show.</td>
+            <td>Limit the number of results to show. (from 1 to 100)</td>
         </tr>
         </tbody>
     </table>
@@ -236,8 +236,8 @@
 
     <p>
         As search just uses the powerful <strong>ElasticSearch</strong>, you can infact just provide
-        an Elastic Search valid JSON query to the endpoint and it will be processed. This bypasses
-        all of the normal <code>GET</code> attributes you see above <small>(excluding: indexes)</small>
+        an Elastic Search valid JSON query to the endpoint as the "body" param and it will be processed.
+        This bypasses all of the normal <code>GET</code> attributes you see above <small>(excluding: indexes)</small>
         and allows you complete control over how you build the Elastic Query.
     </p>
 
@@ -250,7 +250,9 @@
     </p>
 
     <p>
-        By simply sending a JSON payload. You can test your DSL using the <a href="{{ path('search_play') }}" target="_blank">Search Playground</a>.
+        By simply sending a JSON payload with the ElasticSearch query in the "body" field, search will switch to
+        advanced mode whenever it sees a query in the "body" field.
+        You can test your DSL using the <a href="{{ path('search_play') }}" target="_blank">Search Playground</a>.
     </p>
 
     <p>The payload is in the following format:</p>

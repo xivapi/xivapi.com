@@ -170,9 +170,7 @@ header {
 }
 
 footer {
-    max-width: 800px;
-    margin: 50px auto;
-    padding: 20px;
+    padding: 50px 20px;
     font-size: 14px;
     text-align: center;
 
@@ -473,7 +471,7 @@ input:not([type="checkbox"]), textarea {
             border: solid 1px #ddd;
             border-radius: 5px;
             overflow: hidden;
-            box-shadow: 0 1px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         table {
@@ -571,7 +569,12 @@ input:not([type="checkbox"]), textarea {
         padding: 30px;
         border: solid 1px #ddd;
         border-radius: 5px;
-        box-shadow: 0 0 20px rgba(30, 30, 30, 0.1);
+        box-shadow: 0 0 15px rgba(30, 30, 30, 0.2);
+
+        hr {
+            margin: 30px -30px;
+            height: 1px;
+        }
 
         h3 {
             font-size: 25px;
@@ -594,16 +597,6 @@ input:not([type="checkbox"]), textarea {
                 font-size: 13px;
                 text-transform: uppercase;
                 position: relative;
-
-                > em {
-                    border-bottom: solid 1px #ccc;
-                    display: block;
-                    position: absolute;
-                    right: 0;
-                    left: 50px;
-                    top: 14px;
-                    margin-right: -30px;
-                }
             }
         }
 
@@ -930,7 +923,7 @@ input:not([type="checkbox"]), textarea {
         flex: 0 1 300px;
         padding: 30px;
         border: solid 1px #ddd;
-        border-radius: 10px;
+        border-radius: 5px;
         box-shadow: 0 0 50px rgba(20, 20, 20, 0.1);
 
         h3 small {
@@ -1148,11 +1141,7 @@ input:not([type="checkbox"]), textarea {
 
         .create-app {
             display: block;
-            padding: 25px 0;
-            border-top: dashed 1px #eee;
-            border-bottom: dashed 1px #eee;
             margin-bottom: 20px;
-            text-align: center;
 
             a {
                 border: none;
