@@ -20,6 +20,8 @@
             <small>Version {{ siteVersion().version }}</small>
         </div>
 
+        <hr>
+
         <div>
             <a href="{{ path('docs_page', { page: 'Welcome' }) }}" class="{{ section != 1 ?: 'active' }}">Welcome</a>
             <a href="{{ path('docs_page', { page: 'API-Keys' }) }}" class="{{ section != 2 ?: 'active' }}">API Keys</a>
@@ -33,8 +35,10 @@
             </div>
         </div>
 
+        <hr>
+
         <div>
-            <span>API<em></em></span>
+            <span>API</span>
 
             <a href="{{ path('docs_page', { page: 'Search' }) }}" class="{{ section != 7 ?: 'active' }}">Search</a>
             <div class="sub-nav">
@@ -94,8 +98,10 @@
             <a href="{{ path('docs_page', { page: 'Patch-List' }) }}" class="{{ section != 16 ?: 'active' }}">Patch List</a>
         </div>
 
+        <hr>
+
         <div>
-            <span>Misc<em></em></span>
+            <span>Misc</span>
 
             <a href="{{ path('docs_page', { page: 'Mappy-Data' }) }}" class="{{ section != 17 ?: 'active' }}">Mappy Data</a>
             <div class="sub-nav">

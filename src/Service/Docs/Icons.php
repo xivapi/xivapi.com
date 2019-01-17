@@ -7,10 +7,11 @@ class Icons
     const ROOT = __DIR__ . '/../../../public';
 
     const ICON_SETS = [
-        'classjobs1'    => [ 'ClassJobs Set 1', '/cj/1' ],
-        'classjobs2'    => [ 'ClassJobs Set 2', '/cj/2' ],
-        'classjobs3'    => [ 'ClassJobs Set 3', '/cj/3' ],
-        'classjobs4'    => [ 'ClassJobs Set 4', '/cj/4' ],
+        'class_job_set_1'     => [ 'Class/Jobs Plain', '/cj/1' ],
+        'class_job_companion' => [ 'Class/Jobs Companion', '/cj/companion' ],
+        'class_job_svg'       => [ 'Class/Jobs SVG', '/cj/svg/ClassJob' ],
+        'class_job_misc'      => [ 'Class/Jobs Misc', '/cj/misc' ],
+        
 
         '---',
 
@@ -84,7 +85,7 @@ class Icons
         foreach (scandir(self::ROOT . $path) as $filename) {
             $pi = pathinfo($filename);
 
-            if (!isset($pi['extension']) || !in_array($pi['extension'], ['png', 'jpg', 'gif'])) {
+            if (!isset($pi['extension']) || !in_array($pi['extension'], ['png', 'jpg', 'gif', 'svg'])) {
                 continue;
             }
 
