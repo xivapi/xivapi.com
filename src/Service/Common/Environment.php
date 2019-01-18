@@ -26,8 +26,18 @@ class Environment
         $environment = 'prod';
         $host = explode('.', $request->getHost());
 
-        if ($host[0] === 'staging') {
-            $environment = 'staging';
+        switch($host[0]) {
+            case 'staging':
+                $environment = 'staging';
+                break;
+    
+            case 'companion':
+                $environment = 'companion';
+                break;
+    
+            case 'lodestone':
+                $environment = 'lodestone';
+                break;
         }
 
         if (isset($host[1]) && $host[1] === 'local') {
@@ -46,8 +56,18 @@ class Environment
     public static function checkValidHostDomain(Request $request)
     {
         $path = explode('/', $request->getPathInfo());
-        if ($request->getHost() == 'lodestone.xivapi.com' && $path[1] !== 'japan') {
-            throw new UnauthorizedAccessException();
+        
+        if (constant(self::CONSTANT) === 'companion') {
+            if ($path[1] !== 'companion') {
+                throw new UnauthorizedAccessException();
+            }
         }
+    
+        if (constant(self::CONSTANT) === 'lodestone') {
+            if ($path[1] !== 'japan') {
+                throw new UnauthorizedAccessException();
+            }
+        }
+        
     }
 }

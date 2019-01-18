@@ -5,6 +5,7 @@ server {
     server_name
         xivapi.local
         staging.xivapi.local
+        companion.xivapi.local
         lodestone.xivapi.local;
 
     listen 80;

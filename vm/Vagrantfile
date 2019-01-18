@@ -26,6 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.hostmanager.aliases = %w(
     lodestone.xivapi.local
     staging.xivapi.local
+    companion.xivapi.local
     mogboard.local
     xivapi.adminer
   )
