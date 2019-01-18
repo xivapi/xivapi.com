@@ -35,6 +35,13 @@ class RequestListener
 
         /** @var Request $request */
         $request = $event->getRequest();
+        
+        // Another quick hack to convert all queries into the request object
+        if ($queries = $request->query->all()) {
+            foreach ($queries as $key => $value) {
+                $request->request->set($key, $value);
+            }
+        }
 
         // Quick hack to allow json body requests
         if ($json = $request->getContent()) {
