@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Exception\UnauthorizedAccessException;
 use App\Service\Companion\Companion;
+use App\Service\Companion\CompanionMarket;
 use App\Service\Redis\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,15 +17,20 @@ class CompanionMarketController extends Controller
 {
     const ENDPOINT_CACHE_DURATION = 60;
 
+    /** @var CompanionMarket */
+    private $companionMarket;
     /** @var Companion */
     private $companion;
     /** @var Cache */
     private $cache;
     
-    public function __construct(Companion $companion)
+    public function __construct(Companion $companion, CompanionMarket $companionMarket)
     {
-        $this->companion  = $companion;
+        $this->companion = $companion;
+        $this->companionMarket = $companionMarket;
+        
         $this->cache      = new Cache();
+        
     }
     
     /**
@@ -53,6 +59,16 @@ class CompanionMarketController extends Controller
         }
         
         return $this->json($data);
+    }
+    
+    /**
+     * @Route("/v2/market/{server}/items/{itemId}")
+     */
+    public function itemPricesv2(string $server, int $itemId)
+    {
+        return $this->json(
+            $this->companionMarket->getPrices($server, $itemId)
+        );
     }
     
     /**

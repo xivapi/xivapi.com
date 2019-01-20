@@ -76,6 +76,73 @@ class ElasticSearch
             ]
         ]);
     }
+    
+    public function addIndexCompanion(string $index)
+    {
+        $this->client->indices()->create([
+            'index' => $index,
+            'body' => [
+                'settings' => [
+                    'analysis' => ElasticMapping::ANALYSIS,
+                    'number_of_shards'   => self::NUMBER_OF_SHARDS,
+                    'number_of_replicas' => self::NUMBER_OF_REPLICAS,
+                    'max_result_window'  => self::MAX_RESULT_WINDOW,
+                    'index.mapping.total_fields.limit' => self::MAX_FIELDS,
+                ],
+                'mappings' => [
+                    // companion item price mapping
+                    'companion_prices' => [
+                        '_source' => [ "enabled" => true ],
+                        'properties' => [
+                            "id"        => [ "type" => "text" ],
+                            "server"    => [ "type" => "integer" ],
+                            "item_id"   => [ "type" => "integer" ],
+                            "total"     => [ "type" => "integer" ],
+                            "prices"    => [
+                                "type"  => "nested",
+                                "properties" => [
+                                    "id"                 => [ "type" => "long" ],
+                                    "time"               => [ "type" => "integer" ],
+                                    "is_crafted"         => [ "type" => "boolean" ],
+                                    "is_hq"              => [ "type" => "boolean" ],
+                                    "price_per_unit"     => [ "type" => "integer" ],
+                                    "price_total"        => [ "type" => "integer" ],
+                                    "quantity"           => [ "type" => "integer" ],
+                                    "retainer_id"        => [ "type" => "integer" ],
+                                    "craft_signature_id" => [ "type" => "integer" ],
+                                    "town_id"            => [ "type" => "integer" ],
+                                    "stain_id"           => [ "type" => "integer" ],
+                                ]
+                            ]
+                        ]
+                    ],
+                    // companion history mapping
+                    'companion_history' => [
+                        '_source' => [ "enabled" => true ],
+                        'properties' => [
+                            "id"        => [ "type" => "text" ],
+                            "server"    => [ "type" => "integer" ],
+                            "item_id"   => [ "type" => "integer" ],
+                            "total"     => [ "type" => "integer" ],
+                            "prices"    => [
+                                "type"  => "nested",
+                                "properties" => [
+                                    "id"                 => [ "type" => "long" ],
+                                    "time"               => [ "type" => "integer" ],
+                                    "character_name"     => [ "type" => "integer" ],
+                                    "is_hq"              => [ "type" => "boolean" ],
+                                    "price_per_unit"     => [ "type" => "integer" ],
+                                    "price_total"        => [ "type" => "integer" ],
+                                    "quantity"           => [ "type" => "integer" ],
+                                    "purchase_date"      => [ "type" => "integer" ],
+                                ]
+                            ]
+                        ]
+                    ],
+                ]
+            ]
+        ]);
+    }
 
     public function deleteIndex(string $index): void
     {

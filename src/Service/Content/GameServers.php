@@ -4,6 +4,9 @@ namespace App\Service\Content;
 
 class GameServers
 {
+    /**
+     * It is important new servers are added to the end of this list.
+     */
     const LIST = [
         'Adamantoise',
         'Aegis',

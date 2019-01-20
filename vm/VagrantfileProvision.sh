@@ -121,6 +121,5 @@ select yn in "Yes" "No"; do
         No ) echo "FINISHED";;
     esac
 done
-done
 
 echo "FINISHED"
