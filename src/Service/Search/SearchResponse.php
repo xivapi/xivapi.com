@@ -4,8 +4,10 @@ namespace App\Service\Search;
 
 class SearchResponse
 {
+    /** @var array */
+    public $query;
     /** @var SearchRequest */
-    private $request;
+    public $request;
     /** @var object */
     public $response = [
         'Pagination' => [],
@@ -16,6 +18,12 @@ class SearchResponse
     public function __construct(SearchRequest $request)
     {
         $this->request = $request;
+    }
+    
+    public function setQuery(array $query): SearchResponse
+    {
+        $this->query = $query;
+        return $this;
     }
     
     /**

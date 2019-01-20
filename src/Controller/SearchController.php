@@ -37,6 +37,10 @@ class SearchController extends AbstractController
 
         # print_r($searchResponse->response);die;
         
+        if ($request->get('print_query')) {
+            return $this->json($searchResponse->query);
+        }
+        
         return $this->json($searchResponse->response);
     }
 

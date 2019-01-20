@@ -131,7 +131,9 @@ class ElasticQuery
         $this->body[]['match'] = [
             $field => [
                 'query' => strtolower($value),
-                'fuzziness' => '5',
+                'fuzziness' => 'AUTO',
+                'prefix_length' => 1,
+                'max_expansions' => 10,
             ]
         ];
 

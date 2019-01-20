@@ -71,12 +71,10 @@ class Search
         $this->performStringSearch($req);
         $this->performFilterSearch($req);
 
-        #echo $this->query->getJson(); die;
-
         $query = $this->query->getQuery($req->bool);
 
         try {
-            $res->setResults(
+            $res->setQuery($query)->setResults(
                 $this->search->search($req->indexes, $req->type, $query) ?: []
             );
         } catch (\Exception $ex) {
