@@ -34,7 +34,7 @@ class CompanionMarket
     public function rebuildIndex($index)
     {
         $this->elastic->deleteIndex($index);
-        $this->elastic->addIndexCompanion($index);
+        $this->elastic->addIndex($index);
     }
     
     /**

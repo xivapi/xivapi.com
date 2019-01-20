@@ -124,7 +124,7 @@ class ElasticSearch
                             "server"    => [ "type" => "integer" ],
                             "item_id"   => [ "type" => "integer" ],
                             "total"     => [ "type" => "integer" ],
-                            "prices"    => [
+                            "history"   => [
                                 "type"  => "nested",
                                 "properties" => [
                                     "id"                 => [ "type" => "long" ],
