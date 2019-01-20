@@ -55,7 +55,7 @@ class TestCompanionCommand extends Command
         $servers = file_get_contents('https://xivapi.com/servers?key=testing');
         $servers = json_decode($servers);
         
-        $total = 10000000;
+        $total = 15000;
     
         //
         // Insert random data
@@ -76,8 +76,8 @@ class TestCompanionCommand extends Command
                 $count++;
             
                 // insert at every 100 intervals
-                if ($count === 100) {
-                    $this->io->progressAdvance(100);
+                if ($count === 25) {
+                    $this->io->progressAdvance(25);
                     $this->companionMarket->setHistoryBulk($documents);
                 
                     unset($documents);
@@ -183,7 +183,7 @@ class TestCompanionCommand extends Command
         $item->id       = "{$server}_{$id}";
         $item->server   = $server;
         $item->item_id  = $id;
-        $item->total    = mt_rand(1,100);
+        $item->total    = mt_rand(1,1000);
         $item->history = [];
         
         // add between 1 and 100 prices
