@@ -66,8 +66,6 @@ class SearchResponse
      */
     public function formatResults($hits)
     {
-        
-        
         $results = [];
         foreach ($hits as $hit) {
             $data            = $hit['_source'];

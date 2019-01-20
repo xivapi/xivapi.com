@@ -29,6 +29,16 @@ class ResponseListener
                 return;
             }
             
+            // if printing a query, ignore any modifications
+            if ($request->get('print_query')) {
+                $response->setContent(
+                    json_encode(
+                        json_decode($response->getContent()), JSON_PRETTY_PRINT
+                    )
+                );
+                return;
+            }
+            
             // last minute handlers
             if (is_array($json)) {
                 //
@@ -42,7 +52,7 @@ class ResponseListener
                 // if its a list, handle columns per entry
                 // ignored when schema is requested
                 //
-                if (!$request->get('print_query') && $columns = $request->get('columns')) {
+                if ($columns = $request->get('columns')) {
                     // get columns param
                     $columns = array_unique(explode(',', $columns));
                     
