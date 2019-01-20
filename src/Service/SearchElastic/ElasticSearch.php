@@ -150,7 +150,7 @@ class ElasticSearch
         ]);
     }
 
-    public function  search(string $index, string $type, array $query)
+    public function search(string $index, string $type, array $query)
     {
         return $this->client->search([
             'index' => $index,

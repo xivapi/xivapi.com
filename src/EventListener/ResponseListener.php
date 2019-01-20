@@ -42,7 +42,7 @@ class ResponseListener
                 // if its a list, handle columns per entry
                 // ignored when schema is requested
                 //
-                if ($columns = $request->get('columns')) {
+                if (!$request->get('print_query') && $columns = $request->get('columns')) {
                     // get columns param
                     $columns = array_unique(explode(',', $columns));
                     
