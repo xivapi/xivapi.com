@@ -134,7 +134,6 @@ class AppRequest
             );
 
             // delay response
-            usleep(500000);
             throw new ApiBannedException();
         }
 
