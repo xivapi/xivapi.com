@@ -49,7 +49,7 @@ class RequestListener
                 $json = \GuzzleHttp\json_decode($json);
 
                 foreach($json as $key => $value) {
-                    $request->request->set($key, $value);
+                    $request->request->set($key, is_array($value) ? implode(',', $value) : $value);
                 }
             }
         }
