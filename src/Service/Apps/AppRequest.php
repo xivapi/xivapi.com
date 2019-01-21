@@ -228,6 +228,9 @@ class AppRequest
             // rate limit is 2x while not in burst timeout
             $burstlimit = 5;
             $ratelimit  = $burst > $burstlimit ? $app->getApiRateLimit() : ($app->getApiRateLimit() * 2);
+
+            // record auto ban count
+            Redis::Cache()->increment('app_autoban_count_'. $app->getApiKey());
         }
 
         // check limit against this ip
