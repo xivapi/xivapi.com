@@ -58,7 +58,6 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
                 'File'    => "#{$ex->getLine()} {$file}",
                 'Method'  => $event->getRequest()->getMethod(),
                 'Path'    => $event->getRequest()->getPathInfo(),
-                'Url'     => $event->getRequest()->getUri(),
                 'JSON'    => $json,
                 'Action'  => $event->getRequest()->attributes->get('_controller'),
                 'Code'    => method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : 500,
