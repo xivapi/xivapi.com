@@ -497,6 +497,9 @@
     "twig/twig": {
         "version": "v2.5.0"
     },
+    "wildbit/postmark-php": {
+        "version": "2.6.0"
+    },
     "wohali/oauth2-discord-new": {
         "version": "v1.0.0"
     },

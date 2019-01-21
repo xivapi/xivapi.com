@@ -32,6 +32,7 @@
         "symfony/webpack-encore-pack": "^1.0",
         "symfony/yaml": "^4.0",
         "toin0u/digitalocean-v2": "^2.2",
+        "wildbit/postmark-php": "^2.6",
         "wohali/oauth2-discord-new": "^1.0",
         "xivapi/companion-php": "0.1.8",
         "xivapi/lodestone-parser": "1.8.15"
