@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="api_key", columns={"api_key"}),
  *          @ORM\Index(name="api_rate_limit", columns={"api_rate_limit"}),
  *          @ORM\Index(name="is_restricted", columns={"is_restricted"}),
+ *          @ORM\Index(name="is_suspended", columns={"is_suspended"}),
  *          @ORM\Index(name="is_default", columns={"is_default"})
  *     }
  * )
@@ -92,7 +93,7 @@ class App
     private $default = false;
     /**
      * @var bool
-     * @ORM\Column(type="boolean", name="is_restricted", options={"default" : 0})
+     * @ORM\Column(type="boolean", name="is_suspended", options={"default" : 0})
      */
     private $suspended = false;
     /**
