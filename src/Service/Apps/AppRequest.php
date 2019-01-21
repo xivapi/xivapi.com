@@ -132,7 +132,11 @@ class AppRequest
                 $app->getApiKey(),
                 "{$app->getName()} - {$app->getUser()->getUsername()}"
             );
-            throw new ApiBannedException();
+
+            // "temp" measure to reduce resources
+            header('Location: https://www.youtube.com/watch?v=FXPKJUE86d0');
+            exit();
+            #throw new ApiBannedException();
         }
 
         // Track Developer App on Google Analytics (this is for XIVAPI Analytics)
@@ -197,44 +201,35 @@ class AppRequest
         $ip   = md5($request->getClientIp());
         $user = self::user();
         $app  = self::app();
-        
-        if ($user && $app == null) {
-            $ratelimit  = 5;
-            $keyNow   = "app_rate_limit_ip_{$ip}_{$user->getId()}_now";
-            $keyBurst = "app_rate_limit_ip_{$ip}_{$user->getId()}_burst";
-        }
-        
-        if ($app) {
-            $keyNow   = "app_rate_limit_ip_{$ip}_{$app->getApiKey()}_now";
-            $keyBurst = "app_rate_limit_ip_{$ip}_{$app->getApiKey()}_burst";
-        }
-        
-        // ignore if neither
-        if (!isset($keyNow)) {
+
+        // default to no rate limit
+        $ratelimit = 0;
+
+        // key is set on if an app exists, otherwise if a user exists, otherwise nout.
+        $key = $app ? "app_rate_limit_ip_{$ip}_{$app->getApiKey()}" : (
+              $user ? "app_rate_limit_ip_{$ip}_{$user->getId()}_now" : null
+        );
+
+        // if no key set, skip
+        if ($key === null) {
             return;
         }
     
         // increment req counts
-        $count = Redis::Cache()->get($keyNow);
+        $count = Redis::Cache()->get($key);
         $count = $count ? $count + 1 : 1;
-        Redis::Cache()->set($keyNow, $count, 1);
+        Redis::Cache()->set($key, $count, 1);
         
         if ($app) {
-            // increment burst
-            $burst = Redis::Cache()->get($keyBurst);
-            $burst = $burst ? $burst + 1 : 1;
-            Redis::Cache()->set($keyBurst, $burst, 2);
-            
-            // rate limit is 2x while not in burst timeout
-            $burstlimit = 5;
-            $ratelimit  = $burst > $burstlimit ? $app->getApiRateLimit() : ($app->getApiRateLimit() * 2);
+            // rate limit is 2x their original amount to account for off-seconds
+            $ratelimit = ($app->getApiRateLimit() * 2);
 
             // record auto ban count
             Redis::Cache()->increment('app_autoban_count_'. $app->getApiKey());
         }
 
         // check limit against this ip
-        if ($count > $ratelimit && ($app == null || $burst > $burstlimit)) {
+        if ($count > $ratelimit) {
             // if the app has Google Analytics, send an event
             if ($app && $app->hasGoogleAnalytics()) {
                 GoogleAnalytics::event(
