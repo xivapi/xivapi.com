@@ -16,6 +16,7 @@ use App\Entity\User;
 use App\Exception\ApiBannedException;
 use App\Exception\ApiRateLimitException;
 use App\Exception\ApiRestrictedException;
+use App\Exception\ApiSuspendedException;
 use App\Service\Redis\Redis;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Symfony\Component\HttpFoundation\Request;
@@ -125,18 +126,30 @@ class AppRequest
             return;
         }
 
+        // check if user is banned
         if ($app->getUser()->isBanned()) {
             GoogleAnalytics::event(
                 getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
-                'Banned',
-                $app->getApiKey(),
-                "{$app->getName()} - {$app->getUser()->getUsername()}"
+                'Denied',
+                'Account Banned',
+                "{$app->getApiKey()} - {$app->getName()} - {$app->getUser()->getUsername()}"
             );
 
             // "temp" measure to reduce resources
             header('Location: https://www.youtube.com/watch?v=FXPKJUE86d0');
             die();
             #throw new ApiBannedException();
+        }
+        
+        // check if app is suspended
+        if ($app->isSuspended()) {
+            GoogleAnalytics::event(
+                getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
+                'Denied',
+                'API Key Suspended',
+                "{$app->getApiKey()} - {$app->getName()} - {$app->getUser()->getUsername()}"
+            );
+            throw new ApiSuspendedException();
         }
 
         // record auto ban count
@@ -157,23 +170,6 @@ class AppRequest
             "{$app->getName()} - {$app->getApiKey()} - {$app->getUser()->getUsername()}",
             $request->getPathInfo()
         );
-    
-        // Track developer app referer
-        if (!empty($request->headers->get('referer'))) {
-            GoogleAnalytics::event(
-                getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
-                'Apps - Referer',
-                "{$app->getName()} - {$app->getApiKey()} - {$app->getUser()->getUsername()}",
-                $request->headers->get('referer')
-            );
-        } else {
-            GoogleAnalytics::event(
-                getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
-                'Apps - Referer',
-                "{$app->getName()} - {$app->getApiKey()} - {$app->getUser()->getUsername()}",
-                "None"
-            );
-        }
     }
 
     /**
@@ -242,6 +238,10 @@ class AppRequest
 
             // rate limit is 2x their original amount unless they hit their burst amount
             $limit = $app->getApiRateLimit() * ($burst ? 1 : 2);
+            
+            if ($app->isRestricted()) {
+                $limit = 1;
+            }
         }
 
         // check limit against this ip

@@ -91,6 +91,11 @@ class App
      */
     private $default = false;
     /**
+     * @var bool
+     * @ORM\Column(type="boolean", name="is_restricted", options={"default" : 0})
+     */
+    private $suspended = false;
+    /**
      * @var array
      * @ORM\Column(type="array", nullable=true)
      */
@@ -124,6 +129,28 @@ class App
     public function isDefault(): bool
     {
         return $this->default;
+    }
+    
+    public function isLimited()
+    {
+        return (time() - $this->added) < 3600;
+    }
+    
+    public function isRestricted(): bool
+    {
+        return $this->restricted;
+    }
+    
+    public function isSuspended(): bool
+    {
+        return $this->suspended;
+    }
+    
+    public function setSuspended(bool $suspended)
+    {
+        $this->suspended = $suspended;
+        
+        return $this;
     }
 
     public function getAdded(): int
@@ -207,16 +234,6 @@ class App
     {
         $this->apiRateLimit = $apiRateLimit;
         return $this;
-    }
-
-    public function isLimited()
-    {
-        return (time() - $this->added) < 3600;
-    }
-
-    public function isRestricted(): bool
-    {
-        return $this->restricted;
     }
 
     public function setRestricted(bool $restricted)
