@@ -132,6 +132,9 @@ class AppRequest
                 $app->getApiKey(),
                 "{$app->getName()} - {$app->getUser()->getUsername()}"
             );
+
+            // delay response
+            usleep(500000);
             throw new ApiBannedException();
         }
 
