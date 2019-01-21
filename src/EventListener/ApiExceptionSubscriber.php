@@ -33,7 +33,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
         $path       = $event->getRequest()->getPathInfo();
         $pathinfo   = pathinfo($path);
     
-        if (isset($pathinfo['extension'])) {
+        if (isset($pathinfo['extension']) && strlen($pathinfo['extension'] > 2)) {
             $event->setResponse(new Response("File not found: ". $path, 404));
             return null;
         }
