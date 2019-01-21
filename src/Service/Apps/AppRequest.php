@@ -206,7 +206,7 @@ class AppRequest
         $app  = self::app();
 
         // default to no rate limit
-        $ratelimit = 0;
+        $limit = 1;
 
         // key is set on if an app exists, otherwise if a user exists, otherwise nout.
         $key = $app ? "app_rate_limit_ip_{$ip}_{$app->getApiKey()}" : (
@@ -225,11 +225,11 @@ class AppRequest
         
         if ($app) {
             // rate limit is 2x their original amount to account for off-seconds
-            $ratelimit = ($app->getApiRateLimit() * 2);
+            $limit = ($app->getApiRateLimit() * 2);
         }
 
         // check limit against this ip
-        if ($count > $ratelimit) {
+        if ($count > $limit) {
             // if the app has Google Analytics, send an event
             if ($app && $app->hasGoogleAnalytics()) {
                 GoogleAnalytics::event(
@@ -249,7 +249,7 @@ class AppRequest
                 );
             }
         
-            throw new ApiRateLimitException();
+            throw new ApiRateLimitException($count, $limit);
         }
     }
 
