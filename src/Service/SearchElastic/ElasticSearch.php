@@ -91,13 +91,12 @@ class ElasticSearch
                 ],
                 'mappings' => [
                     // companion item price mapping
-                    'companion_prices' => [
+                    'companion' => [
                         '_source' => [ "enabled" => true ],
                         'properties' => [
                             "id"        => [ "type" => "text" ],
                             "server"    => [ "type" => "integer" ],
                             "item_id"   => [ "type" => "integer" ],
-                            "total"     => [ "type" => "integer" ],
                             "prices"    => [
                                 "type"  => "nested",
                                 "properties" => [
@@ -113,17 +112,7 @@ class ElasticSearch
                                     "town_id"            => [ "type" => "integer" ],
                                     "stain_id"           => [ "type" => "integer" ],
                                 ]
-                            ]
-                        ]
-                    ],
-                    // companion history mapping
-                    'companion_history' => [
-                        '_source' => [ "enabled" => true ],
-                        'properties' => [
-                            "id"        => [ "type" => "text" ],
-                            "server"    => [ "type" => "integer" ],
-                            "item_id"   => [ "type" => "integer" ],
-                            "total"     => [ "type" => "integer" ],
+                            ],
                             "history"   => [
                                 "type"  => "nested",
                                 "properties" => [
