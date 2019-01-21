@@ -240,12 +240,14 @@ class AppRequest
                 );
             }
 
-            GoogleAnalytics::event(
-                getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
-                'RateLimited',
-                $app->getApiKey(),
-                "{$app->getName()} - {$app->getUser()->getUsername()}"
-            );
+            if ($app) {
+                GoogleAnalytics::event(
+                    getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
+                    'RateLimited',
+                    $app->getApiKey(),
+                    "{$app->getName()} - {$app->getUser()->getUsername()}"
+                );
+            }
         
             throw new ApiRateLimitException();
         }
