@@ -66,12 +66,6 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
                 'Env'     => constant(Environment::CONSTANT),
             ]
         ];
-    
-        file_put_contents(
-            __DIR__.'/errors.txt',
-            $message . " --- #{$ex->getLine()} {$file} \n",
-            FILE_APPEND
-        );
 
         $response = new JsonResponse($json, $json['Debug']['Code']);
         $response->headers->set('Content-Type','application/json');
