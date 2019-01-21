@@ -139,6 +139,9 @@ class AppRequest
             #throw new ApiBannedException();
         }
 
+        // record auto ban count
+        Redis::Cache()->increment('app_autoban_count_'. $app->getApiKey());
+
         // Track Developer App on Google Analytics (this is for XIVAPI Analytics)
         GoogleAnalytics::event(
             getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
@@ -223,9 +226,6 @@ class AppRequest
         if ($app) {
             // rate limit is 2x their original amount to account for off-seconds
             $ratelimit = ($app->getApiRateLimit() * 2);
-
-            // record auto ban count
-            Redis::Cache()->increment('app_autoban_count_'. $app->getApiKey());
         }
 
         // check limit against this ip
