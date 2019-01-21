@@ -224,14 +224,23 @@ class AppRequest
         $count = Redis::Cache()->get($key);
         $count = $count ? $count + 1 : 1;
         Redis::Cache()->set($key, $count, 2);
-        
+
+        $burst = null;
         if ($app) {
-            // rate limit is 2x their original amount to account for off-seconds
-            $limit = ($app->getApiRateLimit() * 2);
+            // check if burst hit
+            $burst = Redis::Cache()->get($key ."_burst");
+
+            // rate limit is 2x their original amount unless they hit their burst amount
+            $limit = $app->getApiRateLimit() * ($burst ? 1 : 2);
         }
 
         // check limit against this ip
         if ($count > $limit) {
+            // if not already marked as burst, do so
+            if ($app && $burst == false) {
+                Redis::Cache()->set($key ."_burst", true, 5);
+            }
+
             // if the app has Google Analytics, send an event
             if ($app && $app->hasGoogleAnalytics()) {
                 GoogleAnalytics::event(
