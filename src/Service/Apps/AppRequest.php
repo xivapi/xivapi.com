@@ -201,6 +201,12 @@ class AppRequest
      */
     public static function handleRateLimit(Request $request)
     {
+        // don't rate limit stuff not in our url list
+        $controller = explode('::', $request->attributes->get('_controller'))[0];
+        if (!in_array($controller, self::URL)) {
+            return;
+        }
+        
         $ip   = md5($request->getClientIp());
         $user = self::user();
         $app  = self::app();

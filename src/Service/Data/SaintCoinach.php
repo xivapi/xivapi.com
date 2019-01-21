@@ -16,9 +16,11 @@ class SaintCoinach
             throw new \Exception("SaintCoinach schema ex.json file missing at: ". self::SCHEMA_FILENAME);
         }
         
-        return json_decode(
+        $schema = \GuzzleHttp\json_decode(
             file_get_contents(self::SCHEMA_FILENAME)
         );
+        
+        return $schema;
     }
     
     /**
