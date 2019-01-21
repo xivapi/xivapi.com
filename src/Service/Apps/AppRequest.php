@@ -215,6 +215,10 @@ class AppRequest
               $user ? "app_rate_limit_ip_{$ip}_{$user->getId()}_{$second}" : null
         );
 
+        $keyBurst = $app ? "app_rate_limit_ip_{$ip}_{$app->getApiKey()}_burst" : (
+                    $user ? "app_rate_limit_ip_{$ip}_{$user->getId()}_burst" : null
+        );
+
         // if no key set, skip
         if ($key === null) {
             return;
@@ -228,7 +232,7 @@ class AppRequest
         $burst = null;
         if ($app) {
             // check if burst hit
-            $burst = Redis::Cache()->get($key ."_burst");
+            $burst = Redis::Cache()->get($keyBurst);
 
             // rate limit is 2x their original amount unless they hit their burst amount
             $limit = $app->getApiRateLimit() * ($burst ? 1 : 2);
@@ -238,7 +242,7 @@ class AppRequest
         if ($count > $limit) {
             // if not already marked as burst, do so
             if ($app && $burst == false) {
-                Redis::Cache()->set($key ."_burst", true, 5);
+                Redis::Cache()->set($keyBurst, true, 5);
             }
 
             // if the app has Google Analytics, send an event
