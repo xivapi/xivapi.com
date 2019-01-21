@@ -52,6 +52,13 @@ class AutoBanCheckCommand extends Command
             $key   = "app_autoban_count_{$app->getApiKey()}";
             $count = Redis::Cache()->getCount($key);
 
+            // if count below 1000, ignore
+            if ($count < 1000) {
+                continue;
+            }
+
+            $this->io->text("{$count} requests by: {$app->getName()} {$app->getApiKey()}");
+
             if ($count > $threshold) {
                 $bans++;
 
