@@ -135,7 +135,7 @@ class AppRequest
 
             // "temp" measure to reduce resources
             header('Location: https://www.youtube.com/watch?v=FXPKJUE86d0');
-            exit();
+            die();
             #throw new ApiBannedException();
         }
 

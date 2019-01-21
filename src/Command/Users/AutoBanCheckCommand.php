@@ -39,12 +39,10 @@ class AutoBanCheckCommand extends Command
         $this->setSymfonyStyle($input, $output);
         $this->io->text('Running auto ban check');
 
-        // app_autoban_count_
-
         $apps = $this->em->getRepository(App::class)->findAll();
 
-        // 15 req/sec is above avg right now.
-        $threshold = 3600 * 15;
+        // 30k hits in an hour
+        $threshold = 30000;
         $bans = 0;
 
         /** @var App $app */
@@ -57,22 +55,19 @@ class AutoBanCheckCommand extends Command
                 continue;
             }
 
-            $this->io->text("{$count} requests by: {$app->getName()} {$app->getApiKey()}");
+            $this->io->text("{$count} requests by: {$app->getName()} <comment>{$app->getApiKey()}</comment>");
 
             if ($count > $threshold) {
                 $bans++;
 
                 /** @var User $user */
                 $user = $app->getUser();
-                /*
                 $user->setBanned(true);
                 $user->setAppsMax(0);
-
                 $app->setApiRateLimit(0);
                 $app->setLevel(1);
                 $app->setRestricted(1);
                 $app->setName("[BANNED] {$app->getName()}");
-                */
 
                 $this->em->persist($app);
                 $this->em->persist($user);

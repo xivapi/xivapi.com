@@ -21,8 +21,7 @@ class SaintCoinachJsonCacheCommand extends Command
         $this
             ->setName('SaintCoinachJsonCacheCommand')
             ->setDescription('Converts all CSV files into JSON documents for easier access during the update stage.')
-            ->addArgument('fast', InputArgument::OPTIONAL, 'Skip all questions and use default values')
-            ->addArgument('contentName', InputArgument::OPTIONAL, 'Process only a specific piece of content');
+            ->addArgument('content', InputArgument::OPTIONAL, 'Process only a specific piece of content');
         ;
     }
 
@@ -47,6 +46,7 @@ class SaintCoinachJsonCacheCommand extends Command
         // save content
         asort($content);
         $content = array_values(array_filter($content));
+        $this->io->text("Saving: ". count($content) ." content entries");
         Redis::Cache()->set('content', $content, SaintCoinachRedisCommand::REDIS_DURATION);
     
         // write out content data
@@ -56,7 +56,7 @@ class SaintCoinachJsonCacheCommand extends Command
             foreach($list as $i => $filename) {
                 $this->io->progressAdvance();
                 
-                if ($input->getArgument('contentName') && $input->getArgument('contentName') !== $filename) {
+                if ($input->getArgument('content') && $input->getArgument('content') !== $filename) {
                     continue;
                 }
 
@@ -76,12 +76,5 @@ class SaintCoinachJsonCacheCommand extends Command
         $this->io->text('Performing pre-data customisation');
         PreHandler::CustomDataConverter();
         $this->complete();
-    
-    
-    
-        // delete redis cache
-        $this->io->text('Deleting redis cache');
-        Redis::Cache()->flush();
-        $this->endClock();
     }
 }

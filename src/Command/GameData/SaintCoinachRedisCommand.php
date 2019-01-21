@@ -5,6 +5,7 @@ namespace App\Command\GameData;
 use App\Command\CommandHelperTrait;
 use App\Service\Common\Arrays;
 use App\Service\Redis\Cache;
+use App\Service\Redis\Redis;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,8 +33,6 @@ class SaintCoinachRedisCommand extends Command
         'RecipeNotebookList',
     ];
 
-    /** @var Cache */
-    protected $redis;
     /** @var Patch */
     protected $patch;
     /** @var array */
@@ -57,7 +56,6 @@ class SaintCoinachRedisCommand extends Command
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->redis = new Cache();
         $this->patch = new Patch();
         
         $this->setSymfonyStyle($input, $output);
@@ -108,7 +106,7 @@ class SaintCoinachRedisCommand extends Command
         $total = count($chunkySchema);
         
         // start a pipeline
-        $this->redis->initPipeline();
+        Redis::Cache()->initPipeline();
         foreach ($chunkySchema as $contentName => $contentSchema) {
             $count++;
             
@@ -151,10 +149,10 @@ class SaintCoinachRedisCommand extends Command
 
                     // add sorting
                     Arrays::sortObjectByKey($data);
-    
+                    
                     // save
                     $this->saveContentId($data->ID, $contentName);
-                    $this->redis->set($key, $data, self::REDIS_DURATION);
+                    Redis::Cache()->set($key, $data, self::REDIS_DURATION);
                 }
                 
                 unset($this->save);
@@ -162,7 +160,7 @@ class SaintCoinachRedisCommand extends Command
         }
         $this->io->newLine();
         $this->io->text('Pushing to redis');
-        $this->redis->execPipeline();
+        Redis::Cache()->execPipeline();
         $this->complete();
     
         //
@@ -170,11 +168,11 @@ class SaintCoinachRedisCommand extends Command
         //
         
         $this->io->text('<fg=cyan>Caching content ID lists</>');
-        $this->redis->initPipeline();
+        Redis::Cache()->initPipeline();
         foreach ($this->ids as $contentName => $idList) {
-            $this->redis->set("ids_{$contentName}", $idList, self::REDIS_DURATION);
+            Redis::Cache()->set("ids_{$contentName}", $idList, self::REDIS_DURATION);
         }
-        $this->redis->execPipeline();
+        Redis::Cache()->execPipeline();
         $this->complete();
         
         //
@@ -185,7 +183,7 @@ class SaintCoinachRedisCommand extends Command
         $this->io->progressStart(count($this->links));
         foreach ($this->links as $linkTarget => $contentData) {
             $key = "connections_{$linkTarget}";
-            $contentLinks = $this->redis->get($key) ?: [];
+            $contentLinks = Redis::Cache()->get($key) ?: [];
             $contentLinks = (Array)$contentLinks;
     
             // process each target info
@@ -195,7 +193,7 @@ class SaintCoinachRedisCommand extends Command
             }
     
             // save
-            $this->redis->set($key, $contentLinks, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $contentLinks, self::REDIS_DURATION);
             $this->io->progressAdvance();
         }
         $this->io->progressFinish();
