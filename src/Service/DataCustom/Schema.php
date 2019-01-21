@@ -12,7 +12,7 @@ class Schema extends ManualHelper
     
     public function handle()
     {
-        $content = (array)$this->redis->get('content');
+        $content = $this->redis->get('content');
         $this->io->progressStart(count($content));
         
         foreach ($content as $contentName) {
