@@ -60,6 +60,13 @@ class RequestListener
         // register language based on domain
         Language::register($request);
 
+        // register app keys
+        AppRequest::setManager($this->appManager);
+        AppRequest::setUser($this->userService->getUser());
+        AppRequest::handleAppRequestRegistration($request);
+        AppRequest::handleTracking($request);
+        AppRequest::handleRateLimit($request);
+
         // record analytics
         GoogleAnalytics::hit(getenv('SITE_CONFIG_GOOGLE_ANALYTICS'), $request->getPathInfo());
         GoogleAnalytics::event(
@@ -68,12 +75,5 @@ class RequestListener
             'Endpoint',
             explode('/', $request->getPathInfo())[1] ?? 'Home'
         );
-    
-        // register app keys
-        AppRequest::setManager($this->appManager);
-        AppRequest::setUser($this->userService->getUser());
-        AppRequest::handleAppRequestRegistration($request);
-        AppRequest::handleTracking($request);
-        AppRequest::handleRateLimit($request);
     }
 }

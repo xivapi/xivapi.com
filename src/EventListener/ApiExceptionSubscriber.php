@@ -41,21 +41,27 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
         $file = str_ireplace('/home/dalamud/dalamud', '', $ex->getFile());
         $file = str_ireplace('/home/dalamud/dalamud_staging', '', $file);
         $message = $ex->getMessage() ?: '(no-exception-message)';
-        
+
+        // ensure key is not posted
+        $event->getRequest()->query->remove('key');
+        $event->getRequest()->request->remove('key');
+
+        // grab json body if one provided
+        $json = json_decode($event->getRequest()->getContent(), true);
+        unset($json['key']);
+
         $json = [
             'Error'   => true,
             'Subject' => 'XIVAPI Service Error',
             'Message' => $message,
             'Debug'   => [
-                'ID'      => Uuid::uuid4()->toString(),
-                'Class'   => get_class($ex),
                 'File'    => "#{$ex->getLine()} {$file}",
                 'Method'  => $event->getRequest()->getMethod(),
                 'Path'    => $event->getRequest()->getPathInfo(),
-                'HasKey'  => $event->getRequest()->get('key') ? 'Yes' : 'No',
+                'Url'     => $event->getRequest()->getUri(),
+                'JSON'    => $json,
                 'Action'  => $event->getRequest()->attributes->get('_controller'),
                 'Code'    => method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : 500,
-                'Time'    => time(),
                 'Date'    => date('Y-m-d H:i:s'),
                 'Note'    => "Get on discord: https://discord.gg/MFFVHWC and complain to @Vekien :)",
                 'Env'     => constant(Environment::CONSTANT),

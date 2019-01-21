@@ -13,6 +13,7 @@ use App\Controller\SearchController;
 use App\Controller\XivGameContentController;
 use App\Entity\App;
 use App\Entity\User;
+use App\Exception\ApiBannedException;
 use App\Exception\ApiRateLimitException;
 use App\Exception\ApiRestrictedException;
 use App\Service\Redis\Redis;
@@ -124,6 +125,16 @@ class AppRequest
             return;
         }
 
+        if ($app->getUser()->isBanned()) {
+            GoogleAnalytics::event(
+                getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
+                'Banned',
+                $app->getApiKey(),
+                "{$app->getName()} - {$app->getUser()->getUsername()}"
+            );
+            throw new ApiBannedException();
+        }
+
         // Track Developer App on Google Analytics (this is for XIVAPI Analytics)
         GoogleAnalytics::event(
             getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
@@ -230,6 +241,13 @@ class AppRequest
                     $ip
                 );
             }
+
+            GoogleAnalytics::event(
+                getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
+                'RateLimited',
+                $app->getApiKey(),
+                "{$app->getName()} - {$app->getUser()->getUsername()}"
+            );
         
             throw new ApiRateLimitException();
         }
