@@ -205,12 +205,14 @@ class AppRequest
         $user = self::user();
         $app  = self::app();
 
+        $second = date('s');
+
         // default to no rate limit
         $limit = 1;
 
         // key is set on if an app exists, otherwise if a user exists, otherwise nout.
-        $key = $app ? "app_rate_limit_ip_{$ip}_{$app->getApiKey()}" : (
-              $user ? "app_rate_limit_ip_{$ip}_{$user->getId()}_now" : null
+        $key = $app ? "app_rate_limit_ip_{$ip}_{$app->getApiKey()}_{$second}" : (
+              $user ? "app_rate_limit_ip_{$ip}_{$user->getId()}_{$second}" : null
         );
 
         // if no key set, skip
@@ -221,7 +223,7 @@ class AppRequest
         // increment req counts
         $count = Redis::Cache()->get($key);
         $count = $count ? $count + 1 : 1;
-        Redis::Cache()->set($key, $count, 1);
+        Redis::Cache()->set($key, $count, 2);
         
         if ($app) {
             // rate limit is 2x their original amount to account for off-seconds
