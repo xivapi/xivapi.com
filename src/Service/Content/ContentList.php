@@ -95,6 +95,10 @@ class ContentList
             ? array_unique(explode(',', $this->request->get('columns')))
             : ["ID","Name","Icon","Url"];
 
+        if ($this->request->get('columns_all')) {
+            $columns = [];
+        }
+
         $data = [];
         foreach ($this->ids as $id) {
             $content = $this->cache->get("xiv_{$this->name}_{$id}");
