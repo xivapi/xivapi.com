@@ -63,6 +63,11 @@ class PatchContent extends ManualHelper
             
             $this->io->text("{$current}/{$total} <comment>Tracked: {$contentName}</comment>");
             $ids = $this->redis->get("ids_{$contentName}");
+            
+            if (!$ids) {
+                $this->io->text('No ids for: '. $contentName);
+                continue;
+            }
     
             // load patch file
             $json = file_get_contents(sprintf(self::FILENAME, $contentName));
@@ -112,7 +117,7 @@ class PatchContent extends ManualHelper
             $schema = $this->redis->get("schema_{$contentName}");
             
             if (!$schema) {
-                $this->io->error('No schema for: '. $contentName);
+                $this->io->text('!!! Error: No schema for: '. $contentName);
                 continue;
             }
             
