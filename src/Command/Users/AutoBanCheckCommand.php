@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Service\Common\Mail;
 use App\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
+use GuzzleHttp\Client;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -71,12 +72,13 @@ class AutoBanCheckCommand extends Command
 
                 $this->em->persist($app);
                 $this->em->persist($user);
-
-                $this->mail->send(
-                    'josh@viion.co.uk',
-                    "XIVAPI - Banned: {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()}",
-                    "The App ID: {$app->getApiKey()} by {$app->getUser()->getUsername()} has automatically been banned for: {$count} requests in 1 hour."
-                );
+                
+                $subject = "XIVAPI - Banned: {$app->getUser()->getUsername()}";
+                $message = "API App Auto-Banned:  {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()}, Requests: {$count} in 1 hour.";
+                $this->mail->send('josh@viion.co.uk', $subject, $message);
+                
+                $client = new Client();
+                $client->get("https://mog.xivapi.com/say?message={$message}");
             }
 
             // reset
