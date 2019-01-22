@@ -42,8 +42,8 @@ class AutoBanCheckCommand extends Command
 
         $apps = $this->em->getRepository(App::class)->findAll();
 
-        // 30k hits in an hour
-        $threshold = 30000;
+        // threshold until auto ban
+        $threshold = 15000;
         $bans = 0;
 
         /** @var App $app */
