@@ -120,21 +120,35 @@ class ResponseListener
                     )
                 );
             }
-            
-            $response
-                ->setMaxAge((3600*4))
-                ->setExpires((new Carbon())->addHour(4))
-                ->setPublic();
-            
-            $uri = $event->getRequest()->getPathInfo();
-            
-            if (strpos($uri, '/verification') !== false) {
-                $response->setMaxAge(15)->setExpires((new Carbon())->addSeconds(15));
+
+            // work out expiry time
+            switch ($request->attributes->get('_controller')) {
+                default:
+                    $expires = 5;
+                    break;
+
+                case 'App\Controller\XivGameContentController::patches':
+                case 'App\Controller\XivGameContentController::servers':
+                case 'App\Controller\XivGameContentController::serversByDataCenter':
+                case 'App\Controller\XivGameContentController::content':
+                case 'App\Controller\XivGameContentController::contentList':
+                case 'App\Controller\XivGameContentController::schema':
+                case 'App\Controller\XivGameContentController::contentData':
+                case 'App\Controller\SearchController::search':
+                case 'App\Controller\SearchController::searchMapping':
+                case 'App\Controller\SearchController::lore':
+                    $expires = 3600 * 4;
+                    break;
+
+                case 'App\Controller\CompanionMarketController::itemPrices':
+                case 'App\Controller\CompanionMarketController::itemHistory':
+                case 'App\Controller\CompanionMarketController::categoryList':
+                case 'App\Controller\CompanionMarketController::categories':
+                    $expires = 300;
+                    break;
             }
-    
-            if (strpos($uri, '/market') !== false) {
-                $response->setMaxAge(300)->setExpires((new Carbon())->addSeconds(300));
-            }
+
+            $response->setMaxAge($expires)->setExpires((new Carbon())->addSeconds($expires))->setPublic();
 
             $response->headers->set('Content-Type','application/json');
             $response->headers->set('Access-Control-Allow-Origin','*');

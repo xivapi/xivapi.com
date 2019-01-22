@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Service\Common\Language;
 use App\Service\Search\SearchRequest;
 use App\Service\Search\SearchResponse;
 use App\Service\Search\Search;
