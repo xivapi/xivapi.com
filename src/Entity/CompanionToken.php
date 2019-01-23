@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     name="companion_tokens",
  *     indexes={
  *          @ORM\Index(name="server", columns={"server"}),
- *          @ORM\Index(name="status", columns={"status"})
+ *          @ORM\Index(name="online", columns={"online"})
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\CompanionTokenRepository")
@@ -23,13 +23,13 @@ class CompanionToken
      */
     private $id;
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=32, unique=true)
      */
     private $server;
     /**
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $status;
+    private $online;
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -52,14 +52,14 @@ class CompanionToken
         return $this;
     }
 
-    public function getStatus(): ?bool
+    public function isOnline(): bool
     {
-        return $this->status;
+        return $this->online;
     }
 
-    public function setStatus(?bool $status): self
+    public function setOnline($online): self
     {
-        $this->status = $status;
+        $this->online = $online;
 
         return $this;
     }

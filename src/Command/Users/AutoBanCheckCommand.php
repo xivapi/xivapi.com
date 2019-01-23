@@ -6,6 +6,7 @@ use App\Command\CommandHelperTrait;
 use App\Entity\App;
 use App\Entity\User;
 use App\Service\Common\Mail;
+use App\Service\Common\Mog;
 use App\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
@@ -76,9 +77,8 @@ class AutoBanCheckCommand extends Command
                 $subject = "XIVAPI - Banned: {$app->getUser()->getUsername()}";
                 $message = "API App Auto-Banned:  {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()}, Requests: {$count} in 1 hour.";
                 $this->mail->send('josh@viion.co.uk', $subject, $message);
-                
-                $client = new Client();
-                $client->get("https://mog.xivapi.com/say?message={$message}");
+
+                Mog::send($message);
             }
 
             // reset

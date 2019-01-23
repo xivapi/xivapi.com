@@ -2,7 +2,10 @@
 
 namespace App\Service\Companion;
 
+use App\Entity\CompanionToken;
+use App\Service\Common\Mog;
 use Companion\CompanionApi;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -12,6 +15,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class CompanionTokenManager
 {
+    const SERVERS_OFFLINE = [
+        'Gungnir',
+        'Bahamut',
+        'Chocobo',
+        'Mandragora',
+        'Shinryu',
+    ];
+
     const SERVERS = [
         'Aegis'         => 'COMPANION_APP_ACCOUNT_B',
         'Atomos'        => 'COMPANION_APP_ACCOUNT_B',
@@ -84,14 +95,23 @@ class CompanionTokenManager
         'Shiva'         => 'COMPANION_APP_ACCOUNT_A',
         'Zodiark'       => 'COMPANION_APP_ACCOUNT_A',
     ];
-    
+
+    const ACCOUNTS = [
+        'A' => 'COMPANION_APP_ACCOUNT_A',
+        'B' => 'COMPANION_APP_ACCOUNT_B',
+        'C' => 'COMPANION_APP_ACCOUNT_C',
+    ];
+
+    /** @var EntityManagerInterface em */
+    private $em;
     /** @var SymfonyStyle */
     private $io;
-    /** @var array */
-    private $table = [];
-    /** @var string  */
-    private $date = null;
-    
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
     public function setSymfonyStyle(SymfonyStyle $io): void
     {
         $this->io = $io;
@@ -103,38 +123,63 @@ class CompanionTokenManager
      * if this succeeds it will be copied to the main login `xivapi_[server]
      * otherwise it wil lbe marked with an error.
      */
-    public function go(string $account, string $debugServer = null): void
+    public function login(string $account, string $debugServer = null): void
     {
-        $this->date = date('Y-m-d H:i:s') . ' (UTC)';
         $this->io->title('Companion App API Token Manager');
-        $this->io->text("Date: {$this->date}");
-    
-        [$username, $password] = explode(',', getenv($account));
 
+        $account = self::ACCOUNTS[$account];
+        [$username, $password] = explode(',', getenv($account));
+        $failed = [];
+
+        //
+        // Login to each server
+        //
         foreach (self::SERVERS as $server => $accountRegistered) {
-            // skip all but phoenix if in debug mode
+            //
+            // if debugging, skip all but the debug server
+            //
             if ($debugServer && $server != $debugServer) {
                 continue;
             }
-            
-            try {
-                // skip characters not for this account
-                if ($account != $accountRegistered) {
-                    continue;
-                }
 
-                $this->io->text("Server: {$server}");
+            //
+            // Skip servers who are not part of this account
+            //
+            if ($account != $accountRegistered) {
+                continue;
+            }
+
+            //
+            // Grab token
+            //
+            $token = $this->em->getRepository(CompanionToken::class)->findOneBy(['server' => $server]);
+            if (!$token) {
+                $token = new CompanionToken();
+                $token->setServer($server);
+            }
+
+            // default state
+            $token->setOnline(false);
+
+            //
+            // if server not supported, skip it
+            //
+            if (in_array($server, self::SERVERS_OFFLINE)) {
+                $token->setMessage('Server does not yet have a character due to world congestion.');
+                continue;
+            }
+
+            //
+            // Login to Companion App
+            //
+            try {
+                $this->io->section("Server: {$server}");
 
                 // initialize API
                 $api = new CompanionApi("xivapi_{$server}_temp", Companion::PROFILE_FILENAME);
 
-                try {
-                    $api->Account()->login($username, $password);
-                } catch (\Exception $ex) {
-                    $this->addToTable($server, 'Could not login to account, reason: ' . $ex->getMessage());
-                    $this->setAccountError($server, 'Login failure');
-                    continue;
-                }
+                // login
+                $api->Account()->login($username, $password);
 
                 // get character list
                 $characterId = null;
@@ -147,9 +192,7 @@ class CompanionTokenManager
 
                 // if not found, error
                 if ($characterId === null) {
-                    $this->addToTable($server, 'Could not find a character for this server.');
-                    $this->setAccountError($server, "Could not find a character on this server.");
-                    continue;
+                    throw new \Exception("Could not find a character for server.");
                 }
 
                 // login to the found character
@@ -158,42 +201,33 @@ class CompanionTokenManager
                 // confirm
                 $character = $api->login()->getCharacter()->character;
                 if ($characterId !== $character->cid) {
-                    $this->addToTable($server, 'Could not login to this character.');
-                    $this->setAccountError($server, 'Could not login to the character for this server.');
-                    continue;
+                    throw new \Exception("Could not login to specified character for the server.");
                 }
                 
                 // confirm character status
                 $status = $api->login()->getCharacterStatus();
                 if (empty($status)) {
-                    $this->addToTable($server, 'Could not confirm character status.');
-                    $this->setAccountError($server, 'Could not confirm character status.');
-                    continue;
+                    throw new \Exception("Could not confirm character status");
                 }
 
-                // validate login
-                try {
-                    $api->market()->getItemMarketListings(5);
-                } catch (\Exception $ex) {
-                    $this->addToTable($server, "Could not validate Earth Shard sale count, reason: {$ex->getMessage()}");
-                    $this->setAccountError($server, "Could not obtain market board prices.");
-                    continue;
-                }
+                // perform a test
+                $api->market()->getItemMarketListings(5);
 
                 // confirm success
-                $this->addToTable($server, "✔ Token: {$api->Profile()->getToken()}");
-                $this->setAccountSuccess($server, "Character login token generated.");
+                $token
+                    ->setMessage('Session online as of: '. date('Y-m-d H:i:s') .'!')
+                    ->setOnline(true);
             } catch (\Exception $ex) {
-                $this->addToTable($server, "Could not validate Earth Shard sale count, reason: {$ex->getMessage()}");
-                $this->setAccountError($server, "Could not obtain market board prices.");
+                $token->setMessage('Could not login to account: '. $ex->getMessage());
+                $failed = $server;
+                continue;
             }
         }
         
-        $this->io->text([
-            '', '- Copying temp login to main production sessions ...', ''
-        ]);
-        
+        //
         // copy all temps to mains
+        //
+        $this->io->text([ '', '- Copying temp login to main production sessions ...', '' ]);
         foreach (self::SERVERS as $server => $accountRegistered) {
             // skip all but phoenix if in debug mode
             if ($debugServer && $server != $debugServer) {
@@ -204,90 +238,27 @@ class CompanionTokenManager
             if ($account != $accountRegistered) {
                 continue;
             }
-            
+
+            $this->setAccountValue($server, 'status', in_array($server, $failed) ? 'OFFLINE - FAILED TO LOGIN' : "Server Online!");
+            $this->setAccountValue($server, 'ok', in_array($server, $failed));
+            $this->setAccountValue($server, 'time', time());
             $this->setAccountSessionFromTemp($server);
         }
 
-        // print results
-        $this->io->text("Date: {$this->date}");
-        $this->io->table(
-            [ 'Server', 'Information' ],
-            $this->getTable()
-        );
-        
+        // inform if any offline
+        $this->postCompanionStatusOnDiscord($account, $username, $failed);
     }
 
-    /**
-     * Log some information to the table
-     */
-    private function addToTable($server, $information): void
+    private function postCompanionStatusOnDiscord($account, $username, $failed)
     {
-        $this->table[$server] = $information;
-    }
+        $failedCount = count($failed);
+        $message     = "<@&42667995159330816> [Companion Login Status] Account: {$account} - {$username} - Failed: {$failedCount}";
 
-    /**
-     * Get proper table information
-     */
-    private function getTable(): array
-    {
-        $arr = [];
-        foreach ($this->table as $server => $info) {
-            $arr[] = [ $server, $info ];
+        if ($failed) {
+            $message .= " -- The following servers were affected: ". implode(", ", $failed);
         }
 
-        return $arr;
-
-    }
-    
-    /**
-     * Return account login status information
-     */
-    public static function getAccountsLoginStatusInformation()
-    {
-        $json = file_get_contents(Companion::PROFILE_FILENAME);
-        $json = json_decode($json);
-        
-        $data = [];
-        $headers = [
-            'Server',
-            'Status',
-            'Information'
-        ];
-        
-        foreach (self::SERVERS as $server => $account) {
-            $main = $json->{"xivapi_{$server}"} ?? null;
-            $information = (isset($main->status) && $main->status ? $main->status : 'No logged in session information for this server.');
-
-            $data[] = [
-                "**{$server}**",
-
-                // we only care about the status of the main session
-                ($main ? (isset($main->ok) && $main->ok ? '✅ LIVE!' : '❌ Offline') : '❌ Offline'),
-                $information
-            ];
-        }
-        
-        return [ $headers, $data ];
-    }
-
-    /**
-     * Set an error on the token
-     */
-    private function setAccountError($server, $message)
-    {
-        $this->setAccountValue($server, 'status', "{$this->date} - $message");
-        $this->setAccountValue($server, 'ok', false);
-        $this->setAccountValue($server, 'time', time());
-    }
-
-    /**
-     * Set a success on the token
-     */
-    private function setAccountSuccess($server, $message)
-    {
-        $this->setAccountValue($server, 'status', "{$this->date} - $message");
-        $this->setAccountValue($server, 'ok', true);
-        $this->setAccountValue($server, 'time', time());
+        Mog::send($message);
     }
 
     /**
