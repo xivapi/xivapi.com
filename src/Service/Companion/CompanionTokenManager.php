@@ -173,7 +173,7 @@ class CompanionTokenManager
             // Login to Companion App
             //
             try {
-                $this->io->section("Server: {$server}");
+                $this->io->text("Server: {$server}");
 
                 // initialize API
                 $api = new CompanionApi("xivapi_{$server}_temp", Companion::PROFILE_FILENAME);
