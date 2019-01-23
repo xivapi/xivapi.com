@@ -21,16 +21,11 @@
         box-shadow: 0 1px 30px rgba(0, 0, 0, 0.5);
     }
     .docs aside, .apps aside {
-        border: solid 1px #333;
-        box-shadow: 0 1px 5px #000, inset 0 0 1px #444;
-        background-color: #2c2c2c;
+        border-right: solid 1px #545454;
 
         hr {
-            background-color: #555;
+            background-color: #545454;
         }
-    }
-    .docs aside .sub-nav, .apps aside .sub-nav {
-        border-left: solid 3px #222;
     }
     .docs aside>div>span>em, .apps aside>div>span>em {
         border-bottom: solid 1px #565656;

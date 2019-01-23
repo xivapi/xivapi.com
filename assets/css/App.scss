@@ -567,9 +567,7 @@ input:not([type="checkbox"]), textarea {
     aside {
         flex: 0 1 300px;
         padding: 30px;
-        border: solid 1px #ddd;
-        border-radius: 5px;
-        box-shadow: 0 0 15px rgba(30, 30, 30, 0.2);
+        border-right: solid 1px #ddd;
 
         hr {
             margin: 30px -30px;
@@ -618,9 +616,8 @@ input:not([type="checkbox"]), textarea {
         }
 
         .sub-nav {
-            padding: 3px 10px;
-            border-left: dashed 1px #ddd;
-            margin: 10px 0 10px 20px;
+            padding: 0 10px;
+            margin: 0 0 20px 15px;
 
             a {
                 padding: 6px 8px;
