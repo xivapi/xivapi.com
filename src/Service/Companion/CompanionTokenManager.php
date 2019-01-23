@@ -252,7 +252,7 @@ class CompanionTokenManager
     private function postCompanionStatusOnDiscord($account, $username, $failed)
     {
         $failedCount = count($failed);
-        $message     = "<@42667995159330816> [Companion Login Status] Account: {$account} - {$username} - Failed: {$failedCount}";
+        $message     = "<@42667995159330816> [Companion Login Status] Account: *{$account}* - *{$username}* - Failed: *{$failedCount}*";
 
         if ($failed) {
             $message .= " -- The following servers were affected: ". implode(", ", $failed);
