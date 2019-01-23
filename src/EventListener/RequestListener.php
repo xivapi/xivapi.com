@@ -31,11 +31,16 @@ class RequestListener
             return;
         }
 
-        Sentry::install();
-
         /** @var Request $request */
         $request = $event->getRequest();
-        
+
+        // temp measure until implement a proper blacklist.
+        if ($request->get('key') == '0e1339f00eb14023a206afef') {
+            die('API Key has been blacklisted from XIVAPI. Please update the app or extension you are using.');
+        }
+
+        Sentry::install();
+
         // Another quick hack to convert all queries into the request object
         if ($queries = $request->query->all()) {
             foreach ($queries as $key => $value) {
