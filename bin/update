@@ -4,9 +4,6 @@ START_TIME=$SECONDS
 
 ## -------------------------------------------------------------------------------------
 
-# Wipe Redis
-/usr/bin/php /vagrant/bin/console SaintCoinachClearRedisCommand
-
 # Convert data from CSV to Json
 /usr/bin/php /vagrant/bin/console SaintCoinachJsonCacheCommand
 
