@@ -180,6 +180,7 @@ class CompanionTokenManager
 
                 // login
                 $api->Account()->login($username, $password);
+                $this->io->text('- Account logged in.');
 
                 // get character list
                 $characterId = null;
@@ -197,6 +198,7 @@ class CompanionTokenManager
 
                 // login to the found character
                 $api->login()->loginCharacter($characterId);
+                $this->io->text('- Character logged in.');
 
                 // confirm
                 $character = $api->login()->getCharacter()->character;
@@ -206,12 +208,14 @@ class CompanionTokenManager
                 
                 // confirm character status
                 $status = $api->login()->getCharacterStatus();
+                $this->io->text('- Character status confirmed.');
                 if (empty($status)) {
                     throw new \Exception("Could not confirm character status");
                 }
 
                 // perform a test
                 $api->market()->getItemMarketListings(5);
+                $this->io->text('- Market price fetch confirmed.');
 
                 // confirm success
                 $token
@@ -222,6 +226,9 @@ class CompanionTokenManager
                 $failed = $server;
                 continue;
             }
+
+            $this->em->persist($token);
+            $this->em->flush();
         }
         
         //
