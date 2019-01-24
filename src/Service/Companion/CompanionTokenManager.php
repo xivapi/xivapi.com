@@ -221,6 +221,9 @@ class CompanionTokenManager
                 $token
                     ->setMessage('Online as of: '. date('Y-m-d H:i:s'))
                     ->setOnline(true);
+
+                // update companion record
+                $this->setAccountSessionFromTemp($server);
             } catch (\Exception $ex) {
                 $token->setMessage('Could not login to account: '. $ex->getMessage());
                 $failed[] = $server;
@@ -229,27 +232,6 @@ class CompanionTokenManager
 
             $this->em->persist($token);
             $this->em->flush();
-        }
-        
-        //
-        // copy all temps to mains
-        //
-        $this->io->text([ '', '- Copying temp login to main production sessions ...', '' ]);
-        foreach (self::SERVERS as $server => $accountRegistered) {
-            // skip all but phoenix if in debug mode
-            if ($debugServer && $server != $debugServer) {
-                continue;
-            }
-            
-            // skip characters not for this account
-            if ($account != $accountRegistered) {
-                continue;
-            }
-
-            $this->setAccountValue($server, 'status', in_array($server, $failed) ? 'OFFLINE - FAILED TO LOGIN' : "Server Online!");
-            $this->setAccountValue($server, 'ok', in_array($server, $failed));
-            $this->setAccountValue($server, 'time', time());
-            $this->setAccountSessionFromTemp($server);
         }
 
         // inform if any offline
@@ -280,18 +262,6 @@ class CompanionTokenManager
 
         Mog::send($message);
     }
-
-    /**
-     * Set an account value on the session
-     */
-    private function setAccountValue($server, $field, $message)
-    {
-        $json = file_get_contents(Companion::PROFILE_FILENAME);
-        $json = json_decode($json);
-        $json->{"xivapi_{$server}_temp"}->{$field} = $message;
-    
-        file_put_contents(Companion::PROFILE_FILENAME, json_encode($json, JSON_PRETTY_PRINT));
-    }
     
     /**
      * Set the account session from temp
@@ -300,11 +270,9 @@ class CompanionTokenManager
     {
         $json = file_get_contents(Companion::PROFILE_FILENAME);
         $json = json_decode($json);
-        
-        // only copy if its OK
-        if ($json->{"xivapi_{$server}_temp"}->ok) {
-            $json->{"xivapi_{$server}"} = $json->{"xivapi_{$server}_temp"};
-        }
+
+        // copy temp login to main login
+        $json->{"xivapi_{$server}"} = $json->{"xivapi_{$server}_temp"};
         
         file_put_contents(Companion::PROFILE_FILENAME, json_encode($json, JSON_PRETTY_PRINT));
     }
