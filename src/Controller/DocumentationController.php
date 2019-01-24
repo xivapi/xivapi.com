@@ -54,6 +54,7 @@ class DocumentationController extends Controller
             'content_max' => ContentList::MAX_ITEMS,
             'server_list' => GameServers::LIST,
             'server_tokens' => $this->companion->getCompanionLoginStatus(),
+            'server_unsupported' => CompanionTokenManager::SERVERS_OFFLINE,
         ];
         
         // change logs
