@@ -14,16 +14,6 @@ class Companion
     private $api;
     
     /**
-     * @return mixed
-     */
-    public function getTokens()
-    {
-        return json_decode(
-            file_get_contents(self::PROFILE_FILENAME)
-        );
-    }
-    
-    /**
      * Set server for all DC requests
      */
     public function setServer(string $server): Companion

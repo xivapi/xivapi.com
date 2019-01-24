@@ -219,7 +219,7 @@ class CompanionTokenManager
 
                 // confirm success
                 $token
-                    ->setMessage('Session online as of: '. date('Y-m-d H:i:s') .'!')
+                    ->setMessage('Online as of: '. date('Y-m-d H:i:s'))
                     ->setOnline(true);
             } catch (\Exception $ex) {
                 $token->setMessage('Could not login to account: '. $ex->getMessage());
@@ -258,6 +258,17 @@ class CompanionTokenManager
         }
     }
 
+    /**
+     * @return CompanionToken[]
+     */
+    public function getCompanionLoginStatus(): array
+    {
+        return $this->em->getRepository(CompanionToken::class)->findAll();
+    }
+
+    /**
+     * Post companion login status on discord (if any failed)
+     */
     private function postCompanionStatusOnDiscord($account, $username, $failed)
     {
         $failedCount = count($failed);

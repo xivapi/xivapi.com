@@ -100,12 +100,9 @@
         </thead>
         <tbody>
         {% for server in server_list %}
-            {% set status = server_status['xivapi_'~ server] ?? null %}
             <tr>
-                <td>{{ server }}</td>
-                <td>
-                    <small>{{ status.status ? status.status : 'OFFLINE' }}</small>
-                </td>
+                <td>{{ server.server|title }}</td>
+                <td>{{ status.isOnline ? 'Market Online' : 'OFFLINE' }}</td>
             </tr>
         {% endfor %}
         </tbody>

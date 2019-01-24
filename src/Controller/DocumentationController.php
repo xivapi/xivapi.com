@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\Companion\Companion;
+use App\Service\Companion\CompanionTokenManager;
 use App\Service\Content\ContentList;
 use App\Service\Content\GameServers;
 use App\Service\Docs\Icons;
@@ -28,7 +29,7 @@ class DocumentationController extends Controller
     /** @var Companion */
     private $companion;
     
-    public function __construct(EntityManagerInterface $em, Companion $companion)
+    public function __construct(EntityManagerInterface $em, CompanionTokenManager $companion)
     {
         $this->em = $em;
         $this->companion = $companion;
@@ -52,7 +53,7 @@ class DocumentationController extends Controller
             'content_max_default' => ContentList::DEFAULT_ITEMS,
             'content_max' => ContentList::MAX_ITEMS,
             'server_list' => GameServers::LIST,
-            'server_status' => (array)$this->companion->getTokens(),
+            'server_status' => $this->companion->getCompanionLoginStatus(),
         ];
         
         // change logs
