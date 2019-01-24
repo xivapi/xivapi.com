@@ -223,7 +223,7 @@ class CompanionTokenManager
                     ->setOnline(true);
             } catch (\Exception $ex) {
                 $token->setMessage('Could not login to account: '. $ex->getMessage());
-                $failed = $server;
+                $failed[] = $server;
                 continue;
             }
 
@@ -253,7 +253,9 @@ class CompanionTokenManager
         }
 
         // inform if any offline
-        $this->postCompanionStatusOnDiscord($account, $username, $failed);
+        if ($failed) {
+            $this->postCompanionStatusOnDiscord($account, $username, $failed);
+        }
     }
 
     private function postCompanionStatusOnDiscord($account, $username, $failed)
