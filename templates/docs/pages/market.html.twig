@@ -99,10 +99,10 @@
         </tr>
         </thead>
         <tbody>
-        {% for server in server_list %}
+        {% for token in server_tokens %}
             <tr>
-                <td>{{ server.server|title }}</td>
-                <td>{{ status.isOnline ? 'Market Online' : 'OFFLINE' }}</td>
+                <td>{{ token.server }}</td>
+                <td>{{ token.online ? 'Market Online' : 'OFFLINE' }}</td>
             </tr>
         {% endfor %}
         </tbody>
