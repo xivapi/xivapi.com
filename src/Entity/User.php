@@ -82,6 +82,7 @@ class User
     private $avatar;
     /**
      * @ORM\OneToMany(targetEntity="UserApp", mappedBy="user")
+     * @ORM\OrderBy({"name" = "ASC"})
      */
     private $apps;
     /**
