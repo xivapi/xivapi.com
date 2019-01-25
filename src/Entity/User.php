@@ -127,6 +127,11 @@ class User
         return $this->avatar;
     }
 
+    public function getToken(): string
+    {
+        return json_decode($this->token);
+    }
+
     // -------------------------------------------------------
 
     public function getSso(): string
@@ -163,11 +168,6 @@ class User
         $this->session = $session;
 
         return $this;
-    }
-
-    public function getToken(): string
-    {
-        return $this->token;
     }
 
     public function setToken(string $token)
