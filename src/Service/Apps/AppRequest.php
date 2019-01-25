@@ -3,7 +3,7 @@
 namespace App\Service\Apps;
 
 use App\Controller\CompanionMarketController;
-use App\Controller\ConceptTooltipsController;
+use App\Controller\TooltipsController;
 use App\Controller\LodestoneCharacterController;
 use App\Controller\LodestoneController;
 use App\Controller\LodestoneFreeCompanyController;
@@ -29,7 +29,7 @@ class AppRequest
      */
     const URL = [
         CompanionMarketController::class,
-        ConceptTooltipsController::class,
+        TooltipsController::class,
         LodestoneCharacterController::class,
         LodestoneController::class,
         LodestoneFreeCompanyController::class,

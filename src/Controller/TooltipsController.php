@@ -2,29 +2,15 @@
 
 namespace App\Controller;
 
-use App\Service\Redis\Cache;
+use App\Service\Redis\Redis;
 use App\Service\Tooltips\Views;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @deprecated
- *
- * At this time, this class is deprecated.
- */
-class ConceptTooltipsController extends Controller
+class TooltipsController extends Controller
 {
-    /** @var Cache */
-    private $cache;
-
-    public function __construct(Cache $cache)
-    {
-        $this->cache = $cache;
-    }
-
     /**
-     * @Route("/Tooltips", methods="POST")
      * @Route("/tooltips", methods="POST")
      */
     public function Tooltips(Request $request)
@@ -43,7 +29,7 @@ class ConceptTooltipsController extends Controller
         foreach ($json as $contentName => $ids) {
             foreach ($ids as $id) {
                 // grab content
-                $content = $this->cache->get("xiv_{$contentName}_{$id}");
+                $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
 
                 if (!$content) {
                     continue;
