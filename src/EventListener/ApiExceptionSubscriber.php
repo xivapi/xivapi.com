@@ -50,12 +50,12 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
         $json = json_decode($event->getRequest()->getContent(), true);
         unset($json['key']);
 
-        $json = [
+        $json = (Object)[
             'Error'   => true,
             'Subject' => 'XIVAPI Service Error',
             'Message' => $message,
             'Hash'    => sha1($message),
-            'Debug'   => [
+            'Debug'   => (Object)[
                 'File'    => "#{$ex->getLine()} {$file}",
                 'Method'  => $event->getRequest()->getMethod(),
                 'Path'    => $event->getRequest()->getPathInfo(),
@@ -74,7 +74,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
             FILE_APPEND
         );
 
-        $response = new JsonResponse($json, $json['Debug']['Code']);
+        $response = new JsonResponse($json, $json->Debug->Code);
         $response->headers->set('Content-Type','application/json');
         $response->headers->set('Access-Control-Allow-Origin','*');
         $event->setResponse($response);

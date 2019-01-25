@@ -245,13 +245,13 @@ class AppRequest
     /**
      * Handle an API exception
      */
-    public static function handleException(array $json)
+    public static function handleException(\stdClass $json)
     {
         if ($app = self::app()) {
             // if the app has Google Analytics, send an event
             if ($id = $app->getGoogleAnalyticsId()) {
-                GoogleAnalytics::event($id, 'Exceptions', 'ApiServiceErrorException', $json['Message']);
-                GoogleAnalytics::event($id, 'Exceptions', 'ApiServiceCodeException', $json['Debug']['Code']);
+                GoogleAnalytics::event($id, 'Exceptions', 'ApiServiceErrorException', $json->Message);
+                GoogleAnalytics::event($id, 'Exceptions', 'ApiServiceCodeException', $json->Debug->Code);
             }
         }
     }
