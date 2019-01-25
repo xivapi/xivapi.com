@@ -220,7 +220,7 @@ task('sync', function () {
         'branch' => 'master',
     ]);
 })->onHosts(
-    //'Sync',
+    'Sync',
     'Server1',
     'Server2',
     'Server3',
