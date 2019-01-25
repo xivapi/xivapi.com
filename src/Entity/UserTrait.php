@@ -22,7 +22,7 @@ trait UserTrait
      * @var bool
      * @ORM\Column(type="boolean", name="is_new", options={"default" : 0})
      */
-    private $new = false;
+    private $new = true;
     /**
      * @var bool
      * @ORM\Column(type="boolean", name="is_banned", options={"default" : 0})
