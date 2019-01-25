@@ -55,6 +55,10 @@ class AutoRateLimitCheckCommand extends Command
             1500 => 5,
             // 8 requests a second for 5 minutes consecutively
             2400 => 2,
+            // 12 requests a second for 5 minutes consecutively
+            3600 => 1,
+            // 15 requests a second for 5 minutes consecutively
+            4500 => 0,
         ];
 
         /** @var UserApp $app */
@@ -77,16 +81,24 @@ class AutoRateLimitCheckCommand extends Command
             }
 
             // loop through thresholds
+            $limit = false;
             foreach ($thresholds as $requestLimit => $rateLimit) {
                 if ($count > $requestLimit) {
+                    $limit = $requestLimit;
                     $bans++;
-                    Mog::send("<:status:474543481377783810> [XIVAPI] Auto-reduced Rate Limit of: <strong>{$app->getUser()->getUsername()}</strong> `{$app->getApiKey()}`, App Name: {$app->getName()} - Requests in 5 minutes: {$count}");
-                    $app->rateLimits($rateLimit, 1)
-                        ->setApiRateLimitAutoModified(true)
-                        ->setNotes("Rate limit has been reduced to: <strong>{$rateLimit}/sec</strong> due to excessive use: <strong>{$count}</strong> requests in a 5 minute period.");
                 }
             }
-
+            
+            if ($limit) {
+                Mog::send("<:status:474543481377783810> [XIVAPI] Auto-reduced rate limit to `{$limit}` for:
+                    **{$app->getUser()->getUsername()}** `{$app->getApiKey()}`, App Name: {$app->getName()}
+                    - Requests in 5 minutes: {$count}");
+                
+                $app->rateLimits($rateLimit, 1)
+                    ->setApiRateLimitAutoModified(true)
+                    ->setNotes("Rate limit has been reduced to: {$rateLimit}/sec due to excessive use: {$count} requests in a 5 minute period.");
+            }
+            
             $this->em->persist($app);
             Redis::Cache()->delete($key);
         }
