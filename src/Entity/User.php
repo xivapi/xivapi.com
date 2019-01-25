@@ -80,6 +80,9 @@ class User
      * @ORM\Column(type="string", length=60, nullable=true)
      */
     private $avatar;
+
+    // -- Apps
+
     /**
      * @ORM\OneToMany(targetEntity="UserApp", mappedBy="user")
      * @ORM\OrderBy({"name" = "ASC"})
@@ -90,6 +93,19 @@ class User
      * @ORM\Column(type="integer", length=16)
      */
     private $appsMax = 1;
+
+    // -- Mappy
+
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", name="has_mappy_access", options={"default" : 0})
+     */
+    private $mappyAccessEnabled = false;
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", name="has_mappy_access", options={"default" : 0})
+     */
+    private $mappyAccessCode = false;
 
     public function __construct()
     {
