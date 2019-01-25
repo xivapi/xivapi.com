@@ -3,9 +3,7 @@
 namespace App\Command\Misc;
 
 use App\Command\CommandHelperTrait;
-use App\Command\GameData\SaintCoinachRedisCommand;
 use App\Service\Common\Mog;
-use App\Service\Redis\Redis;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,6 +30,5 @@ class TestMogCommand extends Command
 
 
         Mog::send(trim($message), trim($room));
-
     }
 }
