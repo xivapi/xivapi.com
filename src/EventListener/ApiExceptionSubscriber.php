@@ -70,7 +70,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
         
         file_put_contents(
             __DIR__.'/../../exceptions.log',
-            "[{$json->Debug->Date}] {$json->Hash} {$json->Message}\n",
+            "[{$json->Debug->Date}] {$json->Hash} {$event->getRequest()->get('key')} {$json->Message}\n",
             FILE_APPEND
         );
 
