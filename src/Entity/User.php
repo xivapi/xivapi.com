@@ -79,7 +79,7 @@ class User extends UserCommon
      */
     private $avatar;
     /**
-     * @ORM\OneToMany(targetEntity="App", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="UserApp", mappedBy="user")
      */
     private $apps;
     /**
