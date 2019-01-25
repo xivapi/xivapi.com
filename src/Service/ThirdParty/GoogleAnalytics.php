@@ -4,6 +4,7 @@ namespace App\Service\ThirdParty;
 
 use App\Entity\User;
 use App\Entity\UserApp;
+use App\Service\Common\Language;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Ramsey\Uuid\Uuid;
@@ -95,6 +96,11 @@ class GoogleAnalytics
     public static function trackBaseEndpoint(Request $request)
     {
         self::event('{XIVAPI}', 'Requests', 'Endpoint', explode('/', $request->getPathInfo())[1] ?? 'Home');
+    }
+
+    public static function trackLanguage()
+    {
+        self::event('{XIVAPI}', 'Requests', 'Language', Language::current());
     }
 
     public static function trackUserBanned(User $user)

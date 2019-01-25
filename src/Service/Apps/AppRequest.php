@@ -17,6 +17,7 @@ use App\Exception\ApiUserBannedException;
 use App\Exception\ApiRateLimitException;
 use App\Exception\ApiRestrictedException;
 use App\Exception\ApiAppBannedException;
+use App\Service\Common\Language;
 use App\Service\Redis\Redis;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Symfony\Component\HttpFoundation\Request;
@@ -151,8 +152,27 @@ class AppRequest
 
         // handle app rate limit
         self::handleAppRateLimit($request);
+
+        // handle custom app tracking
+        self::handleAppTracking($request);
     }
 
+    /**
+     * handle app tracking
+     */
+    private static function handleAppTracking(Request $request)
+    {
+        $app  = self::app();
+
+        if ($app && $app->getGoogleAnalyticsId()) {
+            $id = $app->getGoogleAnalyticsId();
+
+            // custom events
+            GoogleAnalytics::event($id, 'Requests', 'Endpoint', explode('/', $request->getPathInfo())[1] ?? 'Home');
+            GoogleAnalytics::event($id, 'Requests', 'Language', Language::current());
+        }
+
+    }
 
     /**
      * Handle an apps rate limit
