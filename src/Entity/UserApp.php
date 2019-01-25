@@ -28,6 +28,12 @@ class UserApp extends UserCommon
     const DEFAULT_API_KEY = 'default';
 
     /**
+     * @var string
+     * @ORM\Id
+     * @ORM\Column(type="guid")
+     */
+    private $id;
+    /**
      * @var User
      * @ORM\ManyToOne(targetEntity="User", inversedBy="apps")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")

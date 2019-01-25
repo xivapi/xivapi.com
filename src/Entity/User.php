@@ -28,6 +28,12 @@ use Doctrine\ORM\Mapping as ORM;
 class User extends UserCommon
 {
     /**
+     * @var string
+     * @ORM\Id
+     * @ORM\Column(type="guid")
+     */
+    private $id;
+    /**
      * The name of the SSO provider
      * @var string
      * @ORM\Column(type="string", length=32)

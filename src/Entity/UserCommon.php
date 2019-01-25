@@ -10,12 +10,6 @@ use Ramsey\Uuid\Uuid;
 class UserCommon
 {
     /**
-     * @var string
-     * @ORM\Id
-     * @ORM\Column(type="guid")
-     */
-    private $id;
-    /**
      * @var int
      * @ORM\Column(type="integer")
      */
