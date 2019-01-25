@@ -72,7 +72,7 @@ class UserApp
     private $apiRateLimitAutoModified = false;
     /**
      * @var integer
-     * @ORM\Column(type="integer", length=4)
+     * @ORM\Column(type="integer", length=4, nullable=true)
      */
     private $apiRateLimitAutoModifiedDate = null;
 
@@ -195,12 +195,12 @@ class UserApp
         return $this;
     }
 
-    public function getApiRateLimitAutoModifiedDate(): int
+    public function getApiRateLimitAutoModifiedDate(): ?int
     {
         return $this->apiRateLimitAutoModifiedDate;
     }
 
-    public function setApiRateLimitAutoModifiedDate(int $apiRateLimitAutoModifiedDate)
+    public function setApiRateLimitAutoModifiedDate(?int $apiRateLimitAutoModifiedDate)
     {
         $this->apiRateLimitAutoModifiedDate = $apiRateLimitAutoModifiedDate;
 
