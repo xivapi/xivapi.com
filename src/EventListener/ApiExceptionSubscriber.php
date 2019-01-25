@@ -54,18 +54,25 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
             'Error'   => true,
             'Subject' => 'XIVAPI Service Error',
             'Message' => $message,
+            'Hash'    => sha1($message),
             'Debug'   => [
                 'File'    => "#{$ex->getLine()} {$file}",
                 'Method'  => $event->getRequest()->getMethod(),
                 'Path'    => $event->getRequest()->getPathInfo(),
-                'JSON'    => $json,
                 'Action'  => $event->getRequest()->attributes->get('_controller'),
+                'JSON'    => $json,
                 'Code'    => method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : 500,
                 'Date'    => date('Y-m-d H:i:s'),
                 'Note'    => "Get on discord: https://discord.gg/MFFVHWC and complain to @Vekien :)",
                 'Env'     => constant(Environment::CONSTANT),
             ]
         ];
+        
+        file_put_contents(
+            __DIR__.'/exceptions.log',
+            "[{$json->Debug->Date}] {$json->Hash} {$json->Message}\n",
+            FILE_APPEND
+        );
 
         $response = new JsonResponse($json, $json['Debug']['Code']);
         $response->headers->set('Content-Type','application/json');

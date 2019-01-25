@@ -149,13 +149,31 @@
     <h4>int</h4>
     <p>
         The API will return `ints` as `strings` whenever an numeric value is a length of 10 or more,
-        this means that unix timestamps, FC/LS IDs and any other long numbers will return as string
+        this means that FC/LS IDs and any other long numbers will return as string
         and not cause overflow issues.
     </p>
 
     {{ docs.gap() }}
 
+    <h2 id="exceptions">Exceptions</h2>
 
+    <p>
+        The API provides all errors and exceptions in JSON format, even if it is unrelated to the API itself.
+        This is to ensure your code can always check for an error response and safely manage it. The API will
+        attempt to use the correct HTTP code in all situations, otherwise it will default to a 500.
+    </p>
+
+    <p>Here is a typical response structure:</p>
+<pre class="box">{
+    "Error": true,
+    "Subject": "XIVAPI Service Error",
+    "Message": "The details of the error message",
+    "Hash": "A sha1 trackable hash of the error message",
+    "Debug": {
+        // Data in here can change, it helps the XIVAPI developers understand bugs
+        // Please do not code against this structure as it can change at any time.
+    }
+}</pre>
 
 
 {% endblock %}

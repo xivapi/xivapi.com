@@ -171,7 +171,6 @@ class AppRequest
             GoogleAnalytics::event($id, 'Requests', 'Endpoint', explode('/', $request->getPathInfo())[1] ?? 'Home');
             GoogleAnalytics::event($id, 'Requests', 'Language', Language::current());
         }
-
     }
 
     /**
