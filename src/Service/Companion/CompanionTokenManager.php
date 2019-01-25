@@ -260,7 +260,7 @@ class CompanionTokenManager
             $message .= " -- The following servers were affected: ". implode(", ", $failed);
         }
 
-        Mog::send($message);
+        Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
     }
     
     /**

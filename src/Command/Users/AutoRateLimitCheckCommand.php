@@ -76,7 +76,7 @@ class AutoRateLimitCheckCommand extends Command
             // loop through thresholds
             foreach ($thresholds as $requestLimit => $rateLimit) {
                 if ($count > $requestLimit) {
-                    Mog::send(":status: [XIVAPI] Auto-reduced Rate Limit of: {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()} - Requests in 5 minutes: {$count}");
+                    Mog::send("<:status:474543481377783810> [XIVAPI] Auto-reduced Rate Limit of: {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()} - Requests in 5 minutes: {$count}");
                     $app->rateLimits($rateLimit, 1)
                         ->setApiRateLimitAutoModified(true)
                         ->setNotes("Rate limit has been reduced due to excessive use: {$count} requests in a 5 minute period.");

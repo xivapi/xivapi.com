@@ -91,7 +91,7 @@ class UserService
         
         if (!$user) {
             $user = $this->createUser($this->sso::NAME, $ssoAccess);
-            Mog::send(":updates: [XIVAPI] New account has been created: {$ssoAccess->username}");
+            Mog::send("<:updates:474543481738625035> [XIVAPI] New account has been created: {$ssoAccess->username}");
         }
 
         // update user

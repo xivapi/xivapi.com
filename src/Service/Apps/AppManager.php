@@ -67,7 +67,7 @@ class AppManager
         $this->em->persist($app);
         $this->em->flush();
 
-        Mog::send(":notice: [XIVAPI] New development app has been created by the user: {$user->getUsername()}");
+        Mog::send("<:notice:474543539771015168> [XIVAPI] New development app has been created by the user: {$user->getUsername()}");
 
         return $app;
     }

@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class AutoBanCheckCommand extends Command
 {
     use CommandHelperTrait;
-    
+
     /** @var EntityManagerInterface */
     private $em;
     /** @var Mail */
@@ -74,11 +74,11 @@ class AutoBanCheckCommand extends Command
                 }
 
                 $this->em->persist($user);
-                
+
                 $subject = "XIVAPI - Banned: {$app->getUser()->getUsername()}";
-                $message = ":status: [XIVAPI] Auto-Banned: {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()} for: {$count} api requests in 1 hour.";
+                $message = "Auto-Banned: {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()} for: {$count} api requests in 1 hour.";
                 $this->mail->send('josh@viion.co.uk', $subject, $message);
-                Mog::send($message);
+                Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
             }
 
             Redis::Cache()->delete($key);
