@@ -25,7 +25,6 @@ class GameData
     public function one(string $contentName, int $contentId)
     {
         $contentName = $this->validate($contentName);
-        
         $content = $this->cache->get("xiv_{$contentName}_{$contentId}");
     
         if (!$content) {
