@@ -70,6 +70,11 @@ class UserApp
      * @ORM\Column(type="boolean", name="is_ratelimit_modified", options={"default" : 0})
      */
     private $apiRateLimitAutoModified = false;
+    /**
+     * @var integer
+     * @ORM\Column(type="integer", length=4)
+     */
+    private $apiRateLimitAutoModifiedDate = null;
 
     public function __construct()
     {
@@ -189,4 +194,18 @@ class UserApp
 
         return $this;
     }
+
+    public function getApiRateLimitAutoModifiedDate(): int
+    {
+        return $this->apiRateLimitAutoModifiedDate;
+    }
+
+    public function setApiRateLimitAutoModifiedDate(int $apiRateLimitAutoModifiedDate)
+    {
+        $this->apiRateLimitAutoModifiedDate = $apiRateLimitAutoModifiedDate;
+
+        return $this;
+    }
+
+
 }

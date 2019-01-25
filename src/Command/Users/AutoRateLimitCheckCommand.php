@@ -66,7 +66,9 @@ class AutoRateLimitCheckCommand extends Command
             if ($count < 1000) {
                 // if the user was auto rate limited before, return them to 5/5
                 if ($app->isApiRateLimitAutoModified()) {
-                    $app->rateLimits(3, 3)->setNotes("Rate limit has been automatically restored to a soft limit.");
+                    $app->rateLimits(3, 3)
+                        ->setApiRateLimitAutoModifiedDate(time())
+                        ->setNotes("Rate limit has been automatically restored to a soft limit.");
 
                     $this->em->persist($app);
                     $this->em->flush();
