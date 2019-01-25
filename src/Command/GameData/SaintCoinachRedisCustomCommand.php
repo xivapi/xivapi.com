@@ -28,7 +28,7 @@ class SaintCoinachRedisCustomCommand extends Command
         $this->title('CUSTOM DATA MAPPER');
         $this->startClock();
         
-        $filelist = scandir(__DIR__ . '/../Service/DataCustom');
+        $filelist = scandir(__DIR__ . '/../../Service/DataCustom');
         
         $customClassList = [];
         foreach ($filelist as $file) {
