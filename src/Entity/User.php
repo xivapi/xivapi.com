@@ -111,6 +111,22 @@ class User
         }
     }
 
+    public function getAvatar(): string
+    {
+        $token = $this->getToken();
+
+        if (empty($token->avatar) || stripos($this->avatar, 'xivapi.com') !== false) {
+            return 'http://xivapi.com/img-misc/chat_messengericon_goldsaucer.png';
+        }
+
+        $this->avatar = sprintf("https://cdn.discordapp.com/avatars/%s/%s.png?size=256",
+            $token->id,
+            $token->avatar
+        );
+
+        return $this->avatar;
+    }
+
     // -------------------------------------------------------
 
     public function getSso(): string
@@ -183,11 +199,6 @@ class User
         $this->email = $email;
 
         return $this;
-    }
-
-    public function getAvatar(): string
-    {
-        return $this->avatar;
     }
 
     public function setAvatar(string $avatar)
