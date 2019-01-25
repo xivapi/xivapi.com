@@ -99,12 +99,12 @@ trait UserTrait
         return $this;
     }
 
-    public function getNotes(): string
+    public function getNotes(): ?string
     {
         return $this->notes;
     }
 
-    public function setNotes(string $notes)
+    public function setNotes(?string $notes)
     {
         $this->notes = $notes;
 

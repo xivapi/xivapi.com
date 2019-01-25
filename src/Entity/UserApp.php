@@ -118,12 +118,12 @@ class UserApp
         return $this;
     }
 
-    public function getGoogleAnalyticsId(): string
+    public function getGoogleAnalyticsId(): ?string
     {
         return $this->googleAnalyticsId;
     }
 
-    public function setGoogleAnalyticsId(string $googleAnalyticsId)
+    public function setGoogleAnalyticsId(?string $googleAnalyticsId)
     {
         $this->googleAnalyticsId = $googleAnalyticsId;
 

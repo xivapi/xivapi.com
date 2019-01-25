@@ -51,10 +51,10 @@ class AutoRateLimitCheckCommand extends Command
         // bursts will go down to 1
         $bans = 0;
         $thresholds = [
-            // 200 a minute = 1000 in 5 minutes = 5/sec rate limit
-            1000 => 5,
-            // 400 a minute = 2000 in 5 minutes = 2/sec rate limit
-            2000 => 2,
+            // 5 requests a second for 5 minutes consecutively.
+            1500 => 5,
+            // 8 requests a second for 5 minutes consecutively
+            2400 => 2,
         ];
 
         /** @var UserApp $app */
@@ -66,7 +66,7 @@ class AutoRateLimitCheckCommand extends Command
             if ($count < 1000) {
                 // if the user was auto rate limited before, return them to 5/5
                 if ($app->isApiRateLimitAutoModified()) {
-                    $app->rateLimits(5, 5)->setNotes("Rate limit has been auto modified back to 5/5 as user has not sent over 1000 requests in 5 minutes");
+                    $app->rateLimits(3, 3)->setNotes("Rate limit has been auto modified back to 5/5 as user has not sent over 1000 requests in 5 minutes");
 
                     $this->em->persist($app);
                     $this->em->flush();
@@ -78,10 +78,10 @@ class AutoRateLimitCheckCommand extends Command
             foreach ($thresholds as $requestLimit => $rateLimit) {
                 if ($count > $requestLimit) {
                     $bans++;
-                    Mog::send("<:status:474543481377783810> [XIVAPI] Auto-reduced Rate Limit of: {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()} - Requests in 5 minutes: {$count}");
+                    Mog::send("<:status:474543481377783810> [XIVAPI] Auto-reduced Rate Limit of: <strong>{$app->getUser()->getUsername()}</strong> `{$app->getApiKey()}`, App Name: {$app->getName()} - Requests in 5 minutes: {$count}");
                     $app->rateLimits($rateLimit, 1)
                         ->setApiRateLimitAutoModified(true)
-                        ->setNotes("Rate limit has been reduced due to excessive use: {$count} requests in a 5 minute period.");
+                        ->setNotes("Rate limit has been reduced to: <strong>{$rateLimit}/sec</strong> due to excessive use: <strong>{$count}</strong> requests in a 5 minute period.");
                 }
             }
 
