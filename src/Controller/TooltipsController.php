@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Service\Redis\Redis;
-use App\Service\Tooltips\Views;
+use App\Service\Tooltips\Tooltips;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,7 +36,7 @@ class TooltipsController extends Controller
                 }
 
                 // build tooltip view
-                $view = Views::get($contentName, $content);
+                $view = Tooltips::get($contentName, $content);
 
                 // set response
                 $response[$contentName][$id] = $view;

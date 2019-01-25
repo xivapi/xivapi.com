@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Helpers;
+namespace App\Service\Content;
 
 use App\Command\GameData\SaintCoinachRedisCommand;
 use App\Service\Data\SaintCoinach;

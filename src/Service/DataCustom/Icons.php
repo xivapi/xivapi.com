@@ -3,7 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Data\DataHelper;
-use App\Service\Helpers\ManualHelper;
+use App\Service\Content\ManualHelper;
 
 class Icons extends ManualHelper
 {

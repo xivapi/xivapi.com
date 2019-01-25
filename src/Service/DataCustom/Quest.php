@@ -3,7 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Common\Arrays;
-use App\Service\Helpers\ManualHelper;
+use App\Service\Content\ManualHelper;
 use App\Service\Common\Language;
 
 class Quest extends ManualHelper

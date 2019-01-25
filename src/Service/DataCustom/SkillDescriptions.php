@@ -2,8 +2,8 @@
 
 namespace App\Service\DataCustom;
 
-use App\Service\Helpers\DescriptionFormatter;
-use App\Service\Helpers\ManualHelper;
+use App\Service\Content\DescriptionFormatter;
+use App\Service\Content\ManualHelper;
 use App\Service\Common\Language;
 
 class SkillDescriptions extends ManualHelper

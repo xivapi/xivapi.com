@@ -3,7 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Data\CsvReader;
-use App\Service\Helpers\ManualHelper;
+use App\Service\Content\ManualHelper;
 
 class Item extends ManualHelper
 {

@@ -2,8 +2,7 @@
 
 namespace App\Service\DataCustom;
 
-use App\Service\Common\Arrays;
-use App\Service\Helpers\ManualHelper;
+use App\Service\Content\ManualHelper;
 
 class InstanceContent extends ManualHelper
 {

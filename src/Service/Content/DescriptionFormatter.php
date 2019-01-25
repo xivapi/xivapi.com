@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Helpers;
+namespace App\Service\Content;
 
 use App\Service\Data\CsvReader;
 use PhpParser\Error;
@@ -17,7 +17,7 @@ class DescriptionFormatter
     
     public function format(string $description)
     {
-        foreach (CsvReader::Get(__DIR__.'/UIColor.csv') as $row) {
+        foreach (CsvReader::Get(__DIR__ . '/UIColor.csv') as $row) {
             $id = $row['key'];
             [$colourA, $colourB] = $row;
             $this->colours[$id] = $colourA;

@@ -2,7 +2,7 @@
 
 namespace App\Service\GamePatch;
 
-use App\Service\Helpers\ManualHelper;
+use App\Service\Content\ManualHelper;
 
 /**
  * Tracks patch info for each piece of content

@@ -2,8 +2,8 @@
 
 namespace App\Service\DataCustom;
 
-use App\Service\Helpers\ManualHelper;
-use App\Service\Helpers\Converter;
+use App\Service\Content\ManualHelper;
+use App\Service\Content\Converter;
 
 class Characters extends ManualHelper
 {

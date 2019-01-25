@@ -2,7 +2,7 @@
 
 namespace App\Service\DataCustom;
 
-use App\Service\Helpers\ManualHelper;
+use App\Service\Content\ManualHelper;
 
 /**
  * Build connections between game data

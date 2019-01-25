@@ -3,7 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\GameServers;
-use App\Service\Helpers\ManualHelper;
+use App\Service\Content\ManualHelper;
 
 class Servers extends ManualHelper
 {
@@ -21,6 +21,6 @@ class Servers extends ManualHelper
         
             // save
             $this->redis->set($key, $world, self::REDIS_DURATION);
-}
-}
+        }
+    }
 }

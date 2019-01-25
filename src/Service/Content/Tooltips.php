@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Service\Tooltips;
+namespace App\Service\Content;
 
-class Views
+class Tooltips
 {
     public static function get($category, $content)
     {
