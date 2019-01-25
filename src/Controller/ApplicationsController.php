@@ -347,7 +347,7 @@ class ApplicationsController extends Controller
         ksort($regions);
         
         return $this->render('app/mappy.html.twig', [
-            'allowed'           => $user->hasMapAccess(),
+            'allowed'           => true,
             'app'               => $app,
             'maps'              => $maps,
             'regions'           => $regions,
@@ -383,7 +383,7 @@ class ApplicationsController extends Controller
         $complete = $repo->findOneBy([ 'MapID' => $map->ID ]) ?: new MapCompletion();
         
         return $this->render('app/mappy_view.html.twig', [
-            'allowed'   => $user->hasMapAccess(),
+            'allowed'   => true,
             'app'       => $app,
             'map'       => $map,
             'complete'  => $complete,
