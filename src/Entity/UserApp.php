@@ -21,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="api_rate_limit", columns={"api_rate_limit"})
  *     }
  * )
- * @ORM\Entity(repositoryClass="App\Repository\AppRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\UserAppRepository")
  */
 class UserApp extends UserCommon
 {
