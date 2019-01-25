@@ -4,113 +4,37 @@ namespace App\Controller;
 
 use App\Entity\MapPosition;
 use App\Entity\User;
-use App\Entity\UserApp;
 use App\Entity\MapCompletion;
 use App\Exception\UnauthorizedAccessException;
 use App\Repository\MapPositionRepository;
-use App\Service\Apps\AppManager;
 use App\Service\Maps\Mappy;
 use App\Service\Redis\Redis;
 use App\Service\User\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ApplicationsMappyController extends Controller
+class MappyController extends Controller
 {
     /** @var EntityManagerInterface */
     private $em;
     /** @var UserService */
     private $userService;
-    /** @var AppManager */
-    private $apps;
     /** @var Mappy */
     private $mappy;
     
-    public function __construct(EntityManagerInterface $em, AppManager $apps, UserService $userService, Mappy $mappy)
+    public function __construct(EntityManagerInterface $em, UserService $userService, Mappy $mappy)
     {
         $this->em = $em;
         $this->userService = $userService;
-        $this->apps = $apps;
         $this->mappy = $mappy;
     }
     
-    /**
-     * @Route("/mappy/verify")
-     */
-    public function verify(Request $request)
-    {
-        $app = $this->apps->fetch($request);
-
-        return $this->json([
-            'allowed' => $app->getUser()->getLevel() >= 5
-        ]);
-    }
-    
-    /**
-     * @Route("/mappy/mark/complete")
-     */
-    public function markComplete(Request $request)
-    {
-        $app = $this->apps->fetch($request);
-
-        if (!$app->getUser()->getLevel() >= 5) {
-            throw new UnauthorizedHttpException("You are not allowed!");
-        }
-
-        $repo = $this->em->getRepository(MapCompletion::class);
-        $complete = $repo->findOneBy([ 'MapID' => $request->get('map') ]) ?: new MapCompletion();
-        
-        $complete
-            ->setMapID($request->get('map'))
-            ->setComplete(true)
-            ->setNotes('Marked complete via the app');
-        
-        $this->em->persist($complete);
-        $this->em->flush();
-        
-        return $this->json([
-            'status' => 'complete'
-        ]);
-    }
-    
-    /**
-     * @Route("/mappy/map/open")
-     */
-    public function openMap(request $request)
-    {
-        $app = $this->apps->fetch($request);
-
-        if (!$app->getUser()->getLevel() >= 5) {
-            throw new UnauthorizedAccessException();
-        }
-
-        return $this->redirectToRoute('app_manage_map_view', [
-            'id' => $app->getId(),
-            'map' => $request->get('map')
-        ]);
-    }
-    
-    /**
-     * @Route("/mappy/submit")
-     */
-    public function submit(Request $request)
-    {
-        $json = json_decode($request->getContent());
-
-        if ($request->getMethod() !== 'POST' || empty($json)) {
-            throw new UnauthorizedAccessException();
-        }
-
-        return $this->json([
-            'saved' => $this->mappy->save($json->data)
-        ]);
-    }
 
     /**
-     * @Route("/app/map", name="app_manage_map")
+     * @Route("/mappy", name="app_manage_map")
      */
     public function mappy(Request $request)
     {
@@ -186,9 +110,9 @@ class ApplicationsMappyController extends Controller
     }
 
     /**
-     * @Route("/app/{map}", name="app_manage_map_view")
+     * @Route("/mappy/{map}", name="app_manage_map_view")
      */
-    public function mappyView(string $map)
+    public function view(string $map)
     {
         /** @var User $user */
         $user = $this->userService->getUser(true);
@@ -208,9 +132,9 @@ class ApplicationsMappyController extends Controller
     }
 
     /**
-     * @Route("/app/{map}/data", name="app_manage_map_data")
+     * @Route("/mappy/{map}/data", name="app_manage_map_data")
      */
-    public function mappyData(Request $request, string $map)
+    public function data(Request $request, string $map)
     {
         /** @var User $user */
         $user = $this->userService->getUser(true);
@@ -242,9 +166,9 @@ class ApplicationsMappyController extends Controller
     }
 
     /**
-     * @Route("/app/{map}/update", name="app_manage_map_update")
+     * @Route("/mappy/{map}/update", name="app_manage_map_update")
      */
-    public function mappyUpdate(Request $request, string $map)
+    public function update(Request $request, string $map)
     {
         /** @var User $user */
         $user = $this->userService->getUser(true);
@@ -267,4 +191,73 @@ class ApplicationsMappyController extends Controller
             'map' => $map
         ]);
     }
+
+    /**
+     * @Route("/mappy/verify")
+     */
+    public function verify(Request $request)
+    {
+        $code = $request->get('code');
+
+        if (empty($code)) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var User $user */
+        $user = $this->em->getRepository(User::class)->findOneBy([ 'mappyAccessCode' => $code ]);
+
+        if (empty($user)) {
+            throw new NotFoundHttpException();
+        }
+
+        return $this->json($user->getId());
+    }
+
+    /**
+     * @Route("/mappy/mark/complete")
+     */
+    public function markComplete(Request $request)
+    {
+        $repo = $this->em->getRepository(MapCompletion::class);
+        $complete = $repo->findOneBy([ 'MapID' => $request->get('map') ]) ?: new MapCompletion();
+
+        $complete
+            ->setMapID($request->get('map'))
+            ->setComplete(true)
+            ->setNotes('Marked complete via the app');
+
+        $this->em->persist($complete);
+        $this->em->flush();
+
+        return $this->json([
+            'status' => 'complete'
+        ]);
+    }
+
+    /**
+     * @Route("/mappy/map/open")
+     */
+    public function openMap(request $request)
+    {
+        return $this->redirectToRoute('app_manage_map_view', [
+            'map' => $request->get('map')
+        ]);
+    }
+
+    /**
+     * @Route("/mappy/submit")
+     */
+    public function submit(Request $request)
+    {
+        $json = json_decode($request->getContent());
+
+        if ($request->getMethod() !== 'POST' || empty($json)) {
+            throw new UnauthorizedAccessException();
+        }
+
+        return $this->json([
+            'saved' => $this->mappy->save($json->data)
+        ]);
+    }
+
 }
