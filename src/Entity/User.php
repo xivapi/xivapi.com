@@ -127,7 +127,7 @@ class User
         return $this->avatar;
     }
 
-    public function getToken(): string
+    public function getToken(): ?\stdClass
     {
         return json_decode($this->token);
     }
