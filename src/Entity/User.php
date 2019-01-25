@@ -102,10 +102,10 @@ class User
      */
     private $mappyAccessEnabled = false;
     /**
-     * @var bool
-     * @ORM\Column(type="boolean", name="has_mappy_access", options={"default" : 0})
+     * @var int
+     * @ORM\Column(type="integer", options={"default" : 0})
      */
-    private $mappyAccessCode = false;
+    private $mappyAccessCode = 0;
 
     public function __construct()
     {
@@ -245,6 +245,30 @@ class User
     public function setAppsMax(int $appsMax)
     {
         $this->appsMax = $appsMax;
+
+        return $this;
+    }
+
+    public function isMappyAccessEnabled(): bool
+    {
+        return $this->mappyAccessEnabled;
+    }
+
+    public function setMappyAccessEnabled(bool $mappyAccessEnabled)
+    {
+        $this->mappyAccessEnabled = $mappyAccessEnabled;
+
+        return $this;
+    }
+
+    public function getMappyAccessCode(): int
+    {
+        return $this->mappyAccessCode;
+    }
+
+    public function setMappyAccessCode(int $mappyAccessCode)
+    {
+        $this->mappyAccessCode = $mappyAccessCode;
 
         return $this;
     }
