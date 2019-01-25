@@ -20,7 +20,7 @@ trait UserTrait
     private $added;
     /**
      * @var bool
-     * @ORM\Column(type="boolean", name="is_new", options={"default" : 0})
+     * @ORM\Column(type="boolean", name="is_new", options={"default" : 1})
      */
     private $new = true;
     /**
