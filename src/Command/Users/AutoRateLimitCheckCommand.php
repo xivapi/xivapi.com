@@ -49,6 +49,7 @@ class AutoRateLimitCheckCommand extends Command
 
         // requests threshold in 5 minute period to monitor
         // bursts will go down to 1
+        $bans = 0;
         $thresholds = [
             // 200 a minute = 1000 in 5 minutes = 5/sec rate limit
             1000 => 5,
@@ -76,6 +77,7 @@ class AutoRateLimitCheckCommand extends Command
             // loop through thresholds
             foreach ($thresholds as $requestLimit => $rateLimit) {
                 if ($count > $requestLimit) {
+                    $bans++;
                     Mog::send("<:status:474543481377783810> [XIVAPI] Auto-reduced Rate Limit of: {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()} - Requests in 5 minutes: {$count}");
                     $app->rateLimits($rateLimit, 1)
                         ->setApiRateLimitAutoModified(true)
@@ -88,5 +90,6 @@ class AutoRateLimitCheckCommand extends Command
         }
 
         $this->em->flush();
+        $this->io->text("Issued: {$bans} bans.");
     }
 }
