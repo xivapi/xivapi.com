@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\Service\User\UserService;
 use App\Service\User\SSO\DiscordSignIn;
-use App\Entity\App;
+use App\Entity\UserApp;
 use App\Entity\MapCompletion;
 use App\Entity\MapPosition;
 use App\Entity\User;
@@ -103,14 +103,14 @@ class ApplicationsController extends Controller
             return $this->redirectToRoute('app');
         }
         
-        $user->checkBannedStatus();
+        $user->checkBannedStatusAndRedirectUserToDiscord();
 
         if ($id === 'new') {
             $app = $this->apps->create();
             return $this->redirectToRoute('app_manage', [ 'id' => $app->getId() ]);
         }
 
-        /** @var App $app */
+        /** @var UserApp $app */
         $app = $this->apps->get($id);
         if (!$app || $app->getUser()->getId() !== $user->getId()) {
             throw new NotFoundHttpException('Application not found');
@@ -144,9 +144,9 @@ class ApplicationsController extends Controller
             return $this->redirectToRoute('app');
         }
     
-        $user->checkBannedStatus();
+        $user->checkBannedStatusAndRedirectUserToDiscord();
     
-        /** @var App $app */
+        /** @var UserApp $app */
         $app = $this->apps->get($id);
         if (!$app || $app->getUser()->getId() !== $user->getId()) {
             throw new NotFoundHttpException('Application not found');
@@ -180,9 +180,9 @@ class ApplicationsController extends Controller
             return $this->redirectToRoute('app');
         }
     
-        $user->checkBannedStatus();
+        $user->checkBannedStatusAndRedirectUserToDiscord();
         
-        /** @var App $app */
+        /** @var UserApp $app */
         $app = $this->apps->get($id);
         
         if (!$app) {
@@ -216,9 +216,9 @@ class ApplicationsController extends Controller
             return $this->redirectToRoute('app');
         }
         
-        $user->checkBannedStatus();
+        $user->checkBannedStatusAndRedirectUserToDiscord();
         
-        /** @var App $app */
+        /** @var UserApp $app */
         $app = $this->apps->get($id);
         
         if (!$app) {
@@ -249,9 +249,9 @@ class ApplicationsController extends Controller
             return $this->redirectToRoute('app');
         }
     
-        $user->checkBannedStatus();
+        $user->checkBannedStatusAndRedirectUserToDiscord();
         
-        /** @var App $app */
+        /** @var UserApp $app */
         $app = $this->apps->get($id);
         
         if (!$app) {
@@ -280,9 +280,9 @@ class ApplicationsController extends Controller
             return $this->redirectToRoute('app');
         }
 
-        $user->checkBannedStatus();
+        $user->checkBannedStatusAndRedirectUserToDiscord();
     
-        /** @var App $app */
+        /** @var UserApp $app */
         $app = $this->apps->get($id);
         if (!$app || $app->getUser()->getId() !== $user->getId()) {
             throw new NotFoundHttpException('Application not found');
@@ -368,9 +368,9 @@ class ApplicationsController extends Controller
             return $this->redirectToRoute('app');
         }
 
-        $user->checkBannedStatus();
+        $user->checkBannedStatusAndRedirectUserToDiscord();
     
-        /** @var App $app */
+        /** @var UserApp $app */
         $app = $this->apps->get($id);
         if (!$app || $app->getUser()->getId() !== $user->getId()) {
             throw new NotFoundHttpException('Application not found');
@@ -402,9 +402,9 @@ class ApplicationsController extends Controller
             return $this->redirectToRoute('app');
         }
 
-        $user->checkBannedStatus();
+        $user->checkBannedStatusAndRedirectUserToDiscord();
     
-        /** @var App $app */
+        /** @var UserApp $app */
         $app = $this->apps->get($id);
         if (!$app || $app->getUser()->getId() !== $user->getId()) {
             throw new NotFoundHttpException('Application not found');
@@ -446,9 +446,9 @@ class ApplicationsController extends Controller
             return $this->redirectToRoute('app');
         }
 
-        $user->checkBannedStatus();
+        $user->checkBannedStatusAndRedirectUserToDiscord();
     
-        /** @var App $app */
+        /** @var UserApp $app */
         $app = $this->apps->get($id);
         if (!$app || $app->getUser()->getId() !== $user->getId()) {
             throw new NotFoundHttpException('Application not found');

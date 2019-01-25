@@ -12,7 +12,7 @@
         <br>
 
         {% if auth.user %}
-            {% if not auth.user.isBanned() %}
+            {% if not auth.user.banned %}
                 {% if auth.user.apps|length < auth.user.appsMax %}
                     <div class="create-app">
                         <a href="{{ path('app_manage', { id: 'new' }) }}">Create a new app</a>
@@ -20,15 +20,15 @@
                 {% else %}
                     <div class="warning">
                         You cannot make anymore dev applications at this time.
-                        {% if auth.user.level == 2 %}Your limit will increase to <strong>5 after 1 hour</strong>{% endif %}
                     </div>
                 {% endif %}
             {% endif %}
 
-            {% if auth.user.isBanned() %}
+            {% if auth.user.banned %}
                 <div class="banned">
                     <h4>Account Banned</h4>
-                    <p>Hello, your account has been banned on XIVAPI. This is likely due to API abuse or crawl detection, if you
+                    <p>
+                        Hello, your account has been banned on XIVAPI. This is likely due to API abuse or crawl detection, if you
                         believe this is in error or want to know more please <a href="https://discord.gg/MFFVHWC">Join Discord</a>
                     </p>
                     <br>
@@ -36,21 +36,20 @@
                 </div>
             {% endif %}
 
-            {% if auth.user.isLimited() %}
+            {% if auth.user.new %}
                 <div class="warning">
                     <h4>Account Limited</h4>
                     <p><strong>Welcome to XIVAPI!</strong></p>
                     <br>
-                    <p>New accounts are in a limited state for 1 hour. This means you can create
-                        <strong>1 App</strong> with <strong>2/req/sec</strong> rate limit. This restriction
-                        will be lifted after 1 hour. This gives you time to have a play with some of the
+                    <p>
+                        New accounts are in a limited state for 2 hours. This means you can create
+                        <strong>1 App</strong> with a low rate limit. This gives you time to have a play with some of the
                         API endpoints and think about what you really need to do!</p>
                     <br>
                     <p>If you have any questions, please: <a href="https://discord.gg/MFFVHWC">Join Discord</a></p>
                 </div>
             {% endif %}
         {% else %}
-
             <div class="login">
                 <p>
                     <img src="/discord/name_purple.png" height="42">

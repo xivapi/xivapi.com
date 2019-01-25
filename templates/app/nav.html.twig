@@ -4,7 +4,7 @@
         <br>
 
         {% for app in auth.user.apps %}
-            <a href="{{ path('app_manage', { id: app.id }) }}">{{ app.name }}</a>
+            <a href="{{ path('app_manage', { id: app.id }) }}">{{ app.banned ? '[BANNED]' : '' }} {{ app.name }}</a>
         {% endfor %}
 
     {% else %}

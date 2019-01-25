@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\App;
+use App\Entity\UserApp;
 use App\Entity\MapCompletion;
 use App\Exception\UnauthorizedAccessException;
 use App\Service\Apps\AppManager;
@@ -90,17 +90,14 @@ class ApplicationsMappyController extends Controller
      */
     public function submit(Request $request)
     {
-        /** @var App $app */
+        /** @var UserApp $app */
         $app = $this->apps->fetch($request);
         
         $json = json_decode($request->getContent());
 
-        if ($request->getMethod() !== 'POST' || !$app->getUser()->getLevel() >= 5 || empty($json)) {
+        if ($request->getMethod() !== 'POST' || empty($json)) {
             throw new UnauthorizedAccessException();
         }
-        
-        # file_put_contents(__DIR__.'/data'. $json->id .'.json', json_encode($json, JSON_PRETTY_PRINT));
-        # $json = json_decode(file_get_contents(__DIR__.'/data839898.json'));
 
         return $this->json([
             'saved' => $this->mappy->save($json->data)

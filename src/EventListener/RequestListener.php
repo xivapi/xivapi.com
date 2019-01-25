@@ -34,12 +34,10 @@ class RequestListener
         /** @var Request $request */
         $request = $event->getRequest();
 
-        // temp measure until implement a proper blacklist.
+        // todo - temp measure until implement a proper blacklist.
         if ($request->get('key') == '0e1339f00eb14023a206afef') {
             die('API Key has been blacklisted from XIVAPI. Please update the app or extension you are using.');
         }
-
-        Sentry::install();
 
         // Another quick hack to convert all queries into the request object
         if ($queries = $request->query->all()) {
@@ -69,16 +67,9 @@ class RequestListener
         AppRequest::setManager($this->appManager);
         AppRequest::setUser($this->userService->getUser());
         AppRequest::handleAppRequestRegistration($request);
-        AppRequest::handleTracking($request);
-        AppRequest::handleRateLimit($request);
 
         // record analytics
-        GoogleAnalytics::hit(getenv('SITE_CONFIG_GOOGLE_ANALYTICS'), $request->getPathInfo());
-        GoogleAnalytics::event(
-            getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
-            'Requests',
-            'Endpoint',
-            explode('/', $request->getPathInfo())[1] ?? 'Home'
-        );
+        GoogleAnalytics::trackHits($request);
+        GoogleAnalytics::trackBaseEndpoint($request);
     }
 }

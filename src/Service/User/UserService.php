@@ -3,6 +3,9 @@
 namespace App\Service\User;
 
 use App\Entity\User;
+use App\Exception\AccountNotLoggedInException;
+use App\Exception\UnauthorizedAccessException;
+use App\Service\Common\Mog;
 use App\Service\User\SSO\CsrfInvalidException;
 use App\Service\User\SSO\DiscordSignIn;
 use App\Service\User\SSO\SignInInterface;
@@ -33,11 +36,14 @@ class UserService
     /**
      * Get the current logged in user
      */
-    public function getUser(): ?User
+    public function getUser(bool $enforce = false): ?User
     {
         $session = Cookie::get('session');
         
         if (!$session || $session === 'x') {
+            if ($enforce) {
+                throw new AccountNotLoggedInException();
+            }
             return null;
         }
         
@@ -47,6 +53,10 @@ class UserService
         $user = $repo->findOneBy([
             'session' => $session
         ]);
+
+        if ($user == null && $enforce) {
+            throw new AccountNotLoggedInException();
+        }
         
         return $user;
     }
@@ -66,6 +76,7 @@ class UserService
     public function authenticate(): User
     {
         // todo - debug this, sometimes CSRF fails, maybe implement Symfony CSRF.
+        // todo - migrate mogboard authenticate over, it has been fixed there.
         /** @var DiscordSignIn $sso */
         if (!$this->sso->isCsrfValid()) {
             //throw new CsrfInvalidException();
@@ -80,8 +91,7 @@ class UserService
         
         if (!$user) {
             $user = $this->createUser($this->sso::NAME, $ssoAccess);
-            
-            // todo - send email?
+            Mog::send(":updates: [XIVAPI] New account has been created: {$ssoAccess->username}");
         }
 
         // update user
@@ -89,9 +99,10 @@ class UserService
             ->setUsername($ssoAccess->username)
             ->setEmail($ssoAccess->email)
             ->setAvatar($ssoAccess->avatar ?: 'http://xivapi.com/img-misc/chat_messengericon_goldsaucer.png');
+
         $this->updateUser($user);
-        
         $this->setCookie($user->getSession());
+
         return $user;
     }
     
@@ -170,35 +181,5 @@ class UserService
     {
         $this->em->persist($user);
         $this->em->flush();
-    }
-    
-    /**
-     * User requests to download information
-     */
-    public function downloadInformation()
-    {
-        $user = $this->getUser();
-        
-        // todo - add more data to this
-        $data = [];
-        $data[] = "Username: {$user->getUsername()}";
-        
-        return implode("\n", $data);
-    }
-
-    /**
-     * User requests to delete their own account
-     */
-    public function deleteAccount()
-    {
-        $user = $this->getUser();
-        
-        if (!$user) {
-            return;
-        }
-        
-        $this->em->remove($user);
-        $this->em->flush();
-        return;
     }
 }

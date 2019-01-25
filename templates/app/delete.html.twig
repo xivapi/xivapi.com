@@ -9,6 +9,11 @@
     </aside>
     <main>
 
+        {% if app.banned %}
+        <div class="warning">
+            Sorry, you cannot delete a banned app key. Please talk to a moderator on discord to resolve this.
+        </div>
+        {% else %}
         <div class="delete-page">
 
             <h4><strong>You are about to delete the application: <span>{{ app.name }}</span></strong></h4>
@@ -39,6 +44,7 @@
 
             }, 1000)
         </script>
+        {% endif %}
 
     </main>
 </div>

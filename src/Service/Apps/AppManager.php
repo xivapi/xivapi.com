@@ -2,7 +2,8 @@
 
 namespace App\Service\Apps;
 
-use App\Entity\App;
+use App\Entity\UserApp;
+use App\Service\Common\Mog;
 use App\Service\User\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +28,7 @@ class AppManager
      */
     public function fetch(Request $request)
     {
-        return $this->em->getRepository(App::class)->findOneBy([
+        return $this->em->getRepository(UserApp::class)->findOneBy([
             'apiKey' => $request->get('key')
         ]);
     }
@@ -37,7 +38,7 @@ class AppManager
      */
     public function get(string $id)
     {
-        return $this->em->getRepository(App::class)->findOneBy([ 'id' => $id ]);
+        return $this->em->getRepository(UserApp::class)->findOneBy(['id' => $id ]);
     }
     
     /**
@@ -50,7 +51,7 @@ class AppManager
         }
 
         $id = strtolower(trim($id));
-        return $this->em->getRepository(App::class)->findOneBy([
+        return $this->em->getRepository(UserApp::class)->findOneBy([
             'apiKey' => $id
         ]);
     }
@@ -60,20 +61,14 @@ class AppManager
      */
     public function create()
     {
-        $user = $this->userService->getUser();
+        $user = $this->userService->getUser(true);
 
-        if (!$user) {
-            throw new \Exception('Not logged in');
-        }
-
-        $app = new App();
-        $app->setUser($user)
-            ->setName('App #'. (count($user->getApps()) + 1))
-            ->setLevel(2)
-            ->setApiRateLimit(5);
-
+        $app = (new UserApp())->setUser($user)->setName('App #'. (count($user->getApps()) + 1));;
         $this->em->persist($app);
         $this->em->flush();
+
+        Mog::send(":notice: [XIVAPI] New development app has been created by the user: {$user->getUsername()}");
+
         return $app;
     }
 }

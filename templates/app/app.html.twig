@@ -24,19 +24,32 @@
 
         <br>
 
-        {% if  app.isRestricted() %}
-            <div class="warning">
-                <h3>Mass crawling detected</h3>
-                <p>This key has been restricted due to auto-detection of API abuse.<br>
-                    Please <a href="https://discord.gg/MFFVHWC">Join Discord</a> for help regarding this.</p>
-            </div>
+        {# App is new! #}
+        {% if app.new %}
+        <div class="warning">
+            <h3>New App!</h3>
+            <p>
+                This is your brand new shiney developer app. Your app is currently in a "new" state
+                which lasts ~2 from creation. During this time it will have reduced rate limit that
+                will allow you to play around with the API and get to grips with things. After that
+                your rate limit will increase over time as the system feels comfortable with your usage.
+                <br><br>
+                If you need any help, be sure to hop onto the Discord!
+            </p>
+        </div>
         {% endif %}
-        {% if app.isLimited() %}
-            <div class="warning">
-                <h3>Brand new, out of the oven key</h3>
-                <p>This key is limited to 2 requests per second. This restriction will be
-                    lifted: {{ (app.added+3600)|dateRelative }}</p>
-            </div>
+
+        {# App is banned #}
+        {% if app.banned %}
+        <div class="banned">
+            <h3>Banned</h3>
+            <p>
+                Sorry to say this app key has been banned. Please jump onto discord to talk to a moderator
+                or send a direct message to Vekien for help in resolving this!
+                <br><br>
+                <strong>Reason:</strong> {{ app.notes }}
+            </p>
+        </div>
         {% endif %}
 
         {# App Pages #}

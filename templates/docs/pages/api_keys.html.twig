@@ -31,13 +31,19 @@
 }</pre>
     </code>
 
-
     {{ docs.gap() }}
 
     <h4>Rate Limiting</h4>
     <p>
         The API will deny requests that go above your rate limit. A new key will have a limited
-        amount of requests for the first hour, then it will be bumped to a full app amount.
+        amount of requests for the first 2 hours and then it will be bumped up over time.
+    </p>
+    <p>
+        It is important you keep an eye on your API usage. The system will monitor your API usage over time
+        and depending on thresholds met your key could reduce in rate limit or be automatically banned. If your
+        key and even your account happens to get banned then please jump onto the Discord and talk to
+        a moderator, or DM Vekien. Bans are nothing personal and are simply a way to make sure a code fault
+        or an unexpected issue doesn't ruin the whole system for everyone. I will work with you to get things resolved.
     </p>
 
     <table>
@@ -62,11 +68,10 @@
 
     <h4>Burst</h4>
     <p>
-        Your burst is 2x your rate limit until you hit your burst then it will reduce
-        to your normal rate limit. Once 5 seconds of no traffic has occurred from the
-        same source your burst will go back up to 2x your rate limit.
+        Your burst is appended onto your rate limit until you hit your burst then it will reduce
+        to 0. Once 5 seconds of no BURST traffic has occurred from the same source your burst will return as normal.
     </p>
-    <p>To illustrate this, Imagine these requests with a 5/req/second limit:</p>
+    <p>To illustrate this, Imagine these requests with a 5/req/second limit with a 5 burst:</p>
     <div class="rate-limit-example">
         <div>Request 1 &nbsp;@ 0 second - OK</div>
         <div>Request 2 &nbsp;@ 0 second - OK</div>
@@ -111,7 +116,8 @@
     <p>
         Step back. Don't. Your account will be banned without any warning. If you want all the data
         then it's all available to you, you have the game installed right!? Rip all the data
-        from your game files!
+        from your game files! There are systems in place to automatically ban or reduce API keys that
+        have unexpected excessive usage.
     </p>
     <p>
         To get started with datamining, visit: <a href="https://github.com/viion/ffxiv-datamining">viion/ffxiv-datamining</a> on Github
