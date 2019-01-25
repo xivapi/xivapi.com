@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="session", columns={"session"}),
  *          @ORM\Index(name="username", columns={"username"}),
  *          @ORM\Index(name="email", columns={"email"}),
- *          @ORM\Index(name="appsMax", columns={"appsMax"})
+ *          @ORM\Index(name="apps_max", columns={"apps_max"})
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
