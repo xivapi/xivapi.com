@@ -2,13 +2,17 @@
 
 namespace App\Entity;
 
-use Ramsey\Uuid\Uuid;
-
 /**
  * Common attributes all user entities must use.
  */
-class UserCommon
+trait UserTrait
 {
+    /**
+     * @var string
+     * @ORM\Id
+     * @ORM\Column(type="guid")
+     */
+    private $id;
     /**
      * @var int
      * @ORM\Column(type="integer")
@@ -34,12 +38,6 @@ class UserCommon
      * @ORM\Column(type="text", nullable=true)
      */
     private $notes;
-
-    public function __construct()
-    {
-        $this->id = Uuid::uuid4();
-        $this->added = time();
-    }
 
     public function getId(): string
     {

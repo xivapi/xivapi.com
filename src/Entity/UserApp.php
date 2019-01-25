@@ -23,16 +23,12 @@ use Doctrine\ORM\Mapping as ORM;
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserAppRepository")
  */
-class UserApp extends UserCommon
+class UserApp
 {
+    use UserTrait;
+
     const DEFAULT_API_KEY = 'default';
 
-    /**
-     * @var string
-     * @ORM\Id
-     * @ORM\Column(type="guid")
-     */
-    private $id;
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity="User", inversedBy="apps")
@@ -77,7 +73,8 @@ class UserApp extends UserCommon
 
     public function __construct()
     {
-        parent::__construct();
+        $this->id = Uuid::uuid4();
+        $this->added = time();
         $this->generateApiKey();
     }
 

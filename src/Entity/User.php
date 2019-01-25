@@ -25,8 +25,10 @@ use Doctrine\ORM\Mapping as ORM;
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User extends UserCommon
+class User
 {
+    use UserTrait;
+
     /**
      * @var string
      * @ORM\Id
@@ -90,7 +92,8 @@ class User extends UserCommon
 
     public function __construct()
     {
-        parent::__construct();
+        $this->id = Uuid::uuid4();
+        $this->added = time();
         $this->session = Uuid::uuid4()->toString() . Uuid::uuid4()->toString() . Uuid::uuid4()->toString();
         $this->apps = new ArrayCollection();
     }
