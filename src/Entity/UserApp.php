@@ -18,8 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="google_analytics_id", columns={"google_analytics_id"}),
  *          @ORM\Index(name="api_key", columns={"api_key"}),
  *          @ORM\Index(name="api_rate_limit", columns={"api_rate_limit"}),
- *          @ORM\Index(name="api_rate_limit_burst", columns={"api_rate_limit_burst"}),
- *          @ORM\Index(name="api_rate_limit_auto_modified", columns={"api_rate_limit_auto_modified"})
+ *          @ORM\Index(name="api_rate_limit_burst", columns={"api_rate_limit_burst"})
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserAppRepository")

@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="is_locked", columns={"is_locked"}),
  *
  *          @ORM\Index(name="sso", columns={"sso"}),
- *          @ORM\Index(name="ssoId", columns={"ssoId"}),
+ *          @ORM\Index(name="sso_id", columns={"sso_id"}),
  *          @ORM\Index(name="session", columns={"session"}),
  *          @ORM\Index(name="username", columns={"username"}),
  *          @ORM\Index(name="email", columns={"email"}),
