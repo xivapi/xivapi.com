@@ -60,6 +60,11 @@ class AutoRateLimitCheckCommand extends Command
             // 15 requests a second for 5 minutes consecutively
             4500 => 0,
         ];
+    
+        // timeouts for rate limits
+        $twoHourTimeout = time() - (60*60*2);
+        $oneDayTimeout  = time() - (60*60*24*1);
+        $oneWeekTimeout = time() - (60*60*24*7);
 
         /** @var UserApp $app */
         foreach($apps as $app) {
@@ -70,9 +75,18 @@ class AutoRateLimitCheckCommand extends Command
             if ($count < 1000) {
                 // if the user was auto rate limited before, return them to 5/5
                 if ($app->isApiRateLimitAutoModified()) {
-                    $app->rateLimits(3, 3)
-                        ->setApiRateLimitAutoModifiedDate(time())
-                        ->setNotes("Rate limit has been automatically restored to a soft limit.");
+                    $app->rateLimits(1, 1);
+    
+                    if ($app->getApiRateLimitAutoModifiedDate() < $twoHourTimeout) {
+                        $app->rateLimits(3, 2);
+                    } else if ($app->getApiRateLimitAutoModifiedDate() < $oneDayTimeout) {
+                        $app->rateLimits(5, 5);
+                    } else if ($app->getApiRateLimitAutoModifiedDate() < $oneWeekTimeout) {
+                        $app->rateLimits(10, 10);
+                    }
+                    
+                    $app->setApiRateLimitAutoModifiedDate(time())
+                        ->setNotes("Rate limit has been automatically increased to a soft limit.");
 
                     $this->em->persist($app);
                     $this->em->flush();
