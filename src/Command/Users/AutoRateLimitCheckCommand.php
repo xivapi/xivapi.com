@@ -104,7 +104,7 @@ class AutoRateLimitCheckCommand extends Command
             }
             
             if ($limit) {
-                Mog::send("<:status:474543481377783810> [XIVAPI] Auto-reduced rate limit to `{$limit}` for: **{$app->getUser()->getUsername()}** `{$app->getApiKey()}`, App Name: {$app->getName()} - Requests in 5 minutes: {$count}");
+                Mog::send("<:status:474543481377783810> [XIVAPI] Auto-reduced ratelimit to `{$limit}` for: **{$app->getUser()->getUsername()}** `{$app->getApiKey()}`, App Name: {$app->getName()} - Requests in 5 minutes: {$count}");
                 
                 $app->rateLimits($limit, 1)
                     ->setApiRateLimitAutoModified(true)
