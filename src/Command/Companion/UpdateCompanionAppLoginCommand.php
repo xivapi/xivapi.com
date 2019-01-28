@@ -15,12 +15,15 @@ class UpdateCompanionAppLoginCommand extends Command
 {
     use CommandHelperTrait;
 
-    /** @var CompanionTokenManager */
-    private $ctm;
+    const NAME = 'UpdateCompanionAppLoginCommand';
+    const DESCRIPTION = 'Re-login to each character to obtain a companion token';
 
-    public function __construct(CompanionTokenManager $ctm, $name = null)
+    /** @var CompanionTokenManager */
+    private $companionTokenManager;
+
+    public function __construct(CompanionTokenManager $companionTokenManager, $name = null)
     {
-        $this->ctm = $ctm;
+        $this->ctm = $companionTokenManager;
 
         parent::__construct($name);
     }
@@ -28,8 +31,8 @@ class UpdateCompanionAppLoginCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('UpdateCompanionAppLoginCommand')
-            ->setDescription('Re-login to each character')
+            ->setName(self::NAME)
+            ->setDescription(self::DESCRIPTION)
             ->addArgument('account', InputArgument::REQUIRED, 'Which account to login to, A, B or C.')
             ->addArgument('server', InputArgument::OPTIONAL, 'Login to just a specific server')
         ;
@@ -37,10 +40,6 @@ class UpdateCompanionAppLoginCommand extends Command
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->ctm->setSymfonyStyle(new SymfonyStyle($input, $output));
-        $this->ctm->login(
-            $input->getArgument('account'),
-            $input->getArgument('server')
-        );
+        $this->companionTokenManager->login($input->getArgument('account'), $input->getArgument('server'));
     }
 }

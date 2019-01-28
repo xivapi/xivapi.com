@@ -6,6 +6,7 @@ use App\Entity\CompanionToken;
 use App\Service\Common\Mog;
 use Companion\CompanionApi;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -104,17 +105,13 @@ class CompanionTokenManager
 
     /** @var EntityManagerInterface em */
     private $em;
-    /** @var SymfonyStyle */
-    private $io;
+    /** @var ConsoleOutput */
+    private $output;
 
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-    }
-
-    public function setSymfonyStyle(SymfonyStyle $io): void
-    {
-        $this->io = $io;
+        $this->output = new ConsoleOutput();
     }
     
     /**
@@ -125,7 +122,7 @@ class CompanionTokenManager
      */
     public function login(string $account, string $debugServer = null): void
     {
-        $this->io->title('Companion App API Token Manager');
+        $this->output->writeln('<comment>Companion App API Token Manager</comment>');
 
         $account = self::ACCOUNTS[$account];
         [$username, $password] = explode(',', getenv($account));
@@ -173,14 +170,13 @@ class CompanionTokenManager
             // Login to Companion App
             //
             try {
-                $this->io->text("Server: {$server}");
+                $this->output->writeln("Server: {$server}");
 
                 // initialize API
                 $api = new CompanionApi("xivapi_{$server}_temp", Companion::PROFILE_FILENAME);
 
                 // login
                 $api->Account()->login($username, $password);
-                $this->io->text('- Account logged in.');
 
                 // get character list
                 $characterId = null;
@@ -198,7 +194,6 @@ class CompanionTokenManager
 
                 // login to the found character
                 $api->login()->loginCharacter($characterId);
-                $this->io->text('- Character logged in.');
 
                 // confirm
                 $character = $api->login()->getCharacter()->character;
@@ -208,14 +203,12 @@ class CompanionTokenManager
                 
                 // confirm character status
                 $status = $api->login()->getCharacterStatus();
-                $this->io->text('- Character status confirmed.');
                 if (empty($status)) {
                     throw new \Exception("Could not confirm character status");
                 }
 
                 // perform a test
                 $api->market()->getItemMarketListings(5);
-                $this->io->text('- Market price fetch confirmed.');
 
                 // confirm success
                 $token
