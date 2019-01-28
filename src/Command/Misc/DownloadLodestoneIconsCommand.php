@@ -24,6 +24,8 @@ class DownloadLodestoneIconsCommand extends Command
     const XIVAPI_MARKET_URL = '/market/phoenix/items/%s';
     // url to companion icon, which is a bit smaller than the lodestone one
     const COMPANION_ICON_URL = 'https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/%s.png';
+    // path to icon directory
+    const ICON_DIRECTORY = __DIR__.'/../../../public/i2/ls/';
     
     /** @var Client */
     private $guzzle;
@@ -65,8 +67,10 @@ class DownloadLodestoneIconsCommand extends Command
         // load out completed list
         $this->loadCompleted();
         
+        $this->io->section('Downloading icons');
+        $this->io->progressStart(count($ids));
         foreach ($ids as $i => $itemId) {
-            $status = ($i + 1) . '/' . $total . " :: ". $itemId . " :: ";
+            $this->io->progressAdvance();
             
             // skip non test ones
             if ($test && $test != $itemId) {
@@ -79,13 +83,11 @@ class DownloadLodestoneIconsCommand extends Command
             }
 
             // grab lodestone market data
-            $this->io->text(['', "{$status} - Fetching market info" ]);
             $lodestoneMarket = $this->getLodestoneMarketData($itemId);
 
             // skip if no lodestone id
             if (!isset($lodestoneMarket->LodestoneId)) {
                 $this->markComplete(false, 'No lodestone ID', $itemId);
-                $this->io->text("{$status} - No lodestone ID");
                 continue;
             }
             
@@ -94,33 +96,29 @@ class DownloadLodestoneIconsCommand extends Command
             $lodestoneMarket->IconHq = empty($lodestoneMarket->IconHq) ? null : sprintf(self::COMPANION_ICON_URL, $lodestoneMarket->IconHq);
             
             // parse db page for the "big" icon
-            $this->io->text("{$status} - Parsing lodestone database information...");
             try {
                 $lodestoneItem = $this->lodestone->getDatabaseItem($lodestoneMarket->LodestoneId);
             } catch (\Exception $ex) {
                 $this->exceptions[$itemId] = $ex->getMessage();
-                $this->io->text("{$status} - No lodestone item page");
                 $this->markComplete(false, 'No lodestone database item icon', $itemId, $lodestoneMarket);
                 continue;
             }
             
             // skip if it fields
             if ($lodestoneItem == null || empty($lodestoneItem->Icon)) {
-                $this->io->text("{$status} - No lodestone database item icon");
                 $this->markComplete(false, 'No lodestone database item icon', $itemId);
                 continue;
             }
             
             // download both icons
-            $this->io->text("{$status} - Downloading icons");
             #$this->downloadIcon($lodestoneMarket->Icon, __DIR__.'/Icons/Companion/', $itemId);
             #$this->downloadIcon($lodestoneMarket->IconHq, __DIR__.'/Icons/CompanionHq/', $itemId);
             $this->downloadIcon($lodestoneItem->Icon, __DIR__.'/Icons/Lodestone/', $itemId);
             
             // save
-            $this->io->text("{$status} - Complete");
             $this->markComplete(true, 'Download OK', $itemId, $lodestoneMarket, $lodestoneItem);
         }
+        $this->io->progressFinish();
 
         // print exceptions
         $this->io->text(count($this->exceptions) . ' exceptions were recorded.');
@@ -130,6 +128,19 @@ class DownloadLodestoneIconsCommand extends Command
         
         // print saved total
         $this->io->text([ ' ', "Saved: {$this->saved} icons" ]);
+        
+        // copy icons
+        $this->io->section('Copying files');
+        $this->io->progressStart(count($ids));
+        foreach ($ids as $i => $itemId) {
+            $file = __DIR__."/Icons/Lodestone/{$itemId}.png";
+            $this->io->progressAdvance();
+            
+            if (file_exists($file)) {
+                copy($file, self::ICON_DIRECTORY . $itemId . ".png");
+            }
+        }
+        $this->io->progressFinish();
     }
     
     /**
