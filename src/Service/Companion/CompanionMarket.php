@@ -6,8 +6,9 @@ use App\Exception\CompanionMarketItemException;
 use App\Exception\CompanionMarketServerException;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
-use App\Service\Companion\Models\MarketItemListing;
+use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
+use App\Service\SearchElastic\ElasticQuery;
 use App\Service\SearchElastic\ElasticSearch;
 
 /**
@@ -15,8 +16,7 @@ use App\Service\SearchElastic\ElasticSearch;
  */
 class CompanionMarket
 {
-    const CURRENT = 'companion_prices';
-    const HISTORY = 'companion_history';
+    const INDEX = 'companion';
     
     /** @var ElasticSearch */
     private $elastic;
@@ -31,28 +31,19 @@ class CompanionMarket
      * Rebuilds the ElasticSearch index (this deletes everything inside the index)
      * Should only be run during the initial build of the service.
      */
-    public function rebuildIndex($index)
+    public function rebuildIndex()
     {
-        $this->elastic->deleteIndex($index);
-        $this->elastic->addIndex($index);
+        $this->elastic->deleteIndex(self::INDEX);
+        $this->elastic->addIndexCompanion(self::INDEX);
     }
     
     /**
      * Set the current prices for an item
      */
-    public function setPrices(MarketItem $marketItem)
+    public function set(MarketItem $marketItem)
     {
         $data = json_decode(json_encode($marketItem), true);
-        $this->elastic->addDocument(self::CURRENT, self::CURRENT, $marketItem->id, $data);
-    }
-    
-    /**
-     * Set the current prices for an item
-     */
-    public function setHistory(MarketItem $marketItem)
-    {
-        $data = json_decode(json_encode($marketItem), true);
-        $this->elastic->addDocument(self::HISTORY, self::HISTORY, $marketItem->id, $data);
+        $this->elastic->addDocument(self::INDEX, self::INDEX, $marketItem->id, $data);
     }
     
     /**
@@ -60,38 +51,23 @@ class CompanionMarket
      *
      * @param $marketItems MarketItem[]
      */
-    public function setPricesBulk($marketItems)
+    public function setBulk($marketItems)
     {
         $documents = [];
         foreach ($marketItems as $i => $marketItem) {
             $documents[$marketItem->id] = json_decode(json_encode($marketItem), true);
         }
         
-        $this->elastic->bulkDocuments(self::CURRENT, self::CURRENT, $documents);
-    }
-    
-    /**
-     * Set the current historic prices for multiple items
-     *
-     * @param $marketHistoryListings MarketHistory[]
-     */
-    public function setHistoryBulk($marketHistoryListings)
-    {
-        $documents = [];
-        foreach ($marketHistoryListings as $i => $marketHistory) {
-            $documents[$marketHistory->id] = json_decode(json_encode($marketHistory), true);
-        }
-    
-        $this->elastic->bulkDocuments(self::HISTORY, self::HISTORY, $documents);
+        $this->elastic->bulkDocuments(self::INDEX, self::INDEX, $documents);
     }
     
     /**
      * Get the current prices for an item
      */
-    public function getPrices(string $server, int $itemId): MarketItem
+    public function get(string $server, int $itemId): MarketItem
     {
         $server = $this->getServer($server);
-        $result = $this->elastic->getDocument(self::CURRENT, self::CURRENT, "{$server}_{$itemId}");
+        $result = $this->elastic->getDocument(self::INDEX, self::INDEX, "{$server}_{$itemId}");
         
         if ($result['found'] === 0) {
             throw new CompanionMarketItemException();
@@ -101,32 +77,55 @@ class CompanionMarket
         $item->id      = $result['_source']['id'];
         $item->server  = $result['_source']['server'];
         $item->item_id = $result['_source']['item_id'];
-        $item->sales   = $result['_source']['sales'];
         $item->prices  = [];
+        $item->history = [];
         
+        // map out current prices
         foreach ($result['_source']['prices'] as $price) {
-            $listing = new MarketItemListing();
+            $obj = new MarketListing();
 
             // these fields map 1:1
             foreach($price as $key => $value) {
-                $listing->{$key} = $value;
+                $obj->{$key} = $value;
             }
             
-            $item->prices[] = $listing;
+            $item->prices[] = $obj;
+        }
+    
+        // map out historic prices
+        foreach ($result['_source']['history'] as $price) {
+            $obj = new MarketHistory();
+        
+            // these fields map 1:1
+            foreach($price as $key => $value) {
+                $obj->{$key} = $value;
+            }
+        
+            $item->history[] = $obj;
         }
         
         return $item;
     }
     
     /**
-     * Get the history for an item
+     * Perform searches
      */
-    public function getHistory(string $server, int $itemId)
+    public function search()
     {
-        $server = $this->getServer($server);
-        $result = $this->elastic->getDocument(self::CURRENT, self::CURRENT, "{$server}_{$itemId}");
+        $query1 = new ElasticQuery();
+        $query1->filterTerm('prices.retainer_id', 69926);
+        #$query1->filterRange('prices.price_total', 9900000, 'gte');
         
-        print_r($result);
+        $query2 = new ElasticQuery();
+        $query2->nested('prices', $query1->getQuery());
+        $query2->limit(0, 2);
+        $query2->sort([
+            [ 'prices.price_total', 'desc' ]
+        ]);
+        
+        $results = $this->elastic->search(self::INDEX, self::INDEX, $query2->getQuery());
+        
+        print_r($results);
         die;
     }
     

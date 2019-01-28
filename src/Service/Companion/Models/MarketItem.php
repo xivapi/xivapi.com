@@ -13,8 +13,8 @@ class MarketItem
     public $server;
     /** @var int */
     public $item_id;
-    /** @var int */
-    public $total;
-    /** @var MarketItemListing[] */
+    /** @var MarketListing[] */
     public $prices = [];
+    /** @var MarketHistory[] */
+    public $history = [];
 }

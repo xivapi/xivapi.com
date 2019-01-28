@@ -5,7 +5,7 @@ namespace App\Service\Companion\Models;
 /**
  * This is a JSON Model
  */
-class MarketItemListing
+class MarketListing
 {
     public $id;
     public $time = 0;

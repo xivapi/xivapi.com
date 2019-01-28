@@ -7,14 +7,12 @@ namespace App\Service\Companion\Models;
  */
 class MarketHistory
 {
-    /** @var string */
     public $id;
-    /** @var int */
-    public $server;
-    /** @var int */
-    public $item_id;
-    /** @var int */
-    public $total;
-    /** @var MarketItemListing[] */
-    public $history = [];
+    public $time = 0;
+    public $character_name;
+    public $is_hq = false;
+    public $price_per_unit;
+    public $price_total;
+    public $quantity;
+    public $purchase_date;
 }
