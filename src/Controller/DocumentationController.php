@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Service\Companion\Companion;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Content\ContentList;
 use App\Service\Content\GameServers;
@@ -26,7 +25,7 @@ class DocumentationController extends Controller
 {
     /** @var EntityManagerInterface */
     private $em;
-    /** @var Companion */
+    /** @var CompanionTokenManager */
     private $companion;
     
     public function __construct(EntityManagerInterface $em, CompanionTokenManager $companion)
