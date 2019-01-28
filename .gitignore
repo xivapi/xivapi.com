@@ -17,8 +17,10 @@
 /src/Controller/MemoryData.csv
 /src/EventListener/Exceptions.txt
 /src/Service/Companion/accounts.json
+/src/Command/Misc/Icons
 git_version.txt
 /sites
+
 
 #
 # Symfony
@@ -45,3 +47,5 @@ yarn-error.log
 ###< symfony/phpunit-bridge ###
 
 src/Service/Common/Statistics\.php\.log
+
+exceptions\.log
