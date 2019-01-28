@@ -20,11 +20,13 @@ class ElasticQuery
      */
     public function getQuery(string $type = 'must'): array
     {
-        $response = [
-            'query' => [
+        $response = [];
+        
+        if ($this->body || $this->filters) {
+            $response['query'] = [
                 'bool' => []
-            ]
-        ];
+            ];
+        }
         
         if ($this->limit) {
             $response['from'] = $this->limit[0];
@@ -41,10 +43,6 @@ class ElasticQuery
 
         if ($this->filters) {
             $response['query']['bool']['filter'] = $this->filters;
-        }
-
-        if ($this->suggestions) {
-            $response['suggest'] = $this->suggestions;
         }
 
         return $response;
@@ -89,6 +87,19 @@ class ElasticQuery
         $this->body['match_all'] = [
             "boost" => 1
         ];
+        return $this;
+    }
+    
+    public function nested(string $path, array $query): self
+    {
+        $nested = array_merge($query, [
+            "path" => $path
+        ]);
+        
+        $this->body[] = [
+            "nested" => $nested
+        ];
+
         return $this;
     }
 
