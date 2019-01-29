@@ -3,6 +3,7 @@
 namespace App\Service\LodestoneQueue;
 
 use App\Entity\LodestoneStatistic;
+use App\Service\Common\Mog;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Api;
 use PhpAmqpLib\Exception\AMQPRuntimeException;
@@ -110,10 +111,15 @@ class Manager
             $responseRabbit->connect("{$queue}_response");
             
             // read responses
-            $responseRabbit->readMessageAsync(function($response) {
+            $responseRabbit->readMessageAsync(function($response) use ($queue) {
                 $startTime = microtime(true);
                 $startDate = date('H:i:s');
-    
+                $duration = round(time() - $response->added, 4);
+                
+                if ($duration > 100) {
+                    Mog::send("<:disconnecting:539860340251426816> [XIVAPI] Lodestone queue duration exceeded 100 seconds: {$duration} for queue: {$queue}");
+                }
+                
                 // connect to db
                 // todo - possible cpu leak here
                 $this->em->getConnection()->connect();
@@ -123,7 +129,7 @@ class Manager
                 $stat
                     ->setQueue($response->queue)
                     ->setMethod($response->method)
-                    ->setDuration(round(time() - $response->added, 4))
+                    ->setDuration($duration)
                     ->setCount(count($response->ids))
                     ->setRequestId($response->requestId ?: 'none_set');
     
