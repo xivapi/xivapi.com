@@ -62,14 +62,20 @@ class RequestListener
 
         // register language based on domain
         Language::register($request);
+    
+        // record analytics
+        GoogleAnalytics::trackHits($request);
+        GoogleAnalytics::trackBaseEndpoint($request);
+        
+        // if the key is a private mogboard key, skip all rate limits and app manager.
+        // dev privileges.
+        if ($request->get('key') == getenv('MOGBOARD_KEY')) {
+            return;
+        }
 
         // register app keys
         AppRequest::setManager($this->appManager);
         AppRequest::setUser($this->userService->getUser());
         AppRequest::handleAppRequestRegistration($request);
-
-        // record analytics
-        GoogleAnalytics::trackHits($request);
-        GoogleAnalytics::trackBaseEndpoint($request);
     }
 }
