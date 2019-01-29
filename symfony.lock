@@ -359,9 +359,6 @@
     "symfony/intl": {
         "version": "v4.1.2"
     },
-    "symfony/lts": {
-        "version": "4-dev"
-    },
     "symfony/maker-bundle": {
         "version": "1.0",
         "recipe": {
