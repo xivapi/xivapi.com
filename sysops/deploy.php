@@ -148,7 +148,7 @@ function deploySync($config)
     
     // composer update
     writeln('-> Updating composer libraries (it is normal for this to take a while)...');
-    run('composer require xivapi/lodestone-parser 1.8.16');
+    run('composer require xivapi/lodestone-parser 1.8.18');
     $result = run('composer update');
     result($result);
     
