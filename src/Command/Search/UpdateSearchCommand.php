@@ -34,16 +34,14 @@ class UpdateSearchCommand extends Command
             ->title('SEARCH')
             ->startClock();
 
-        // connect to production cache
-        [$ip, $port] = (in_array($input->getArgument('environment'), ['prod','staging']))
-            ? explode(',', getenv('ELASTIC_SERVER_PROD'))
-            : explode(',', getenv('ELASTIC_SERVER_LOCAL'));
+        $envAllowed  = in_array($input->getArgument('environment'), ['prod','staging']);
+        $environment = $envAllowed ? 'ELASTIC_SERVER_PROD' : 'ELASTIC_SERVER_LOCAL';
     
         if ($input->getArgument('environment') == 'prod') {
             $this->io->success('DEPLOYING TO PRODUCTION');
         }
         
-        $elastic = new ElasticSearch($ip, $port);
+        $elastic = new ElasticSearch($environment);
         $cache   = new Cache();
         
         // import documents to ElasticSearch

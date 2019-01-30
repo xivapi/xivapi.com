@@ -5,6 +5,7 @@ namespace App\Service\Content;
 use App\Service\Common\Arrays;
 use App\Service\Common\Language;
 use App\Service\Redis\Cache;
+use App\Service\Redis\Redis;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -15,17 +16,10 @@ class ContentList
 
     /** @var Request */
     private $request;
-    /** @var Cache */
-    private $cache;
     /** @var string */
     private $name;
     /** @var array */
     private $ids;
-    
-    public function __construct(Cache $cache)
-    {
-        $this->cache = $cache;
-    }
     
     public function get(Request $request, string $name)
     {
@@ -34,7 +28,7 @@ class ContentList
 
         $this->ids = $this->request->get('ids')
             ? explode(',', $this->request->get('ids'))
-            : $this->cache->get("ids_{$this->name}");
+            : Redis::Cache()->get("ids_{$this->name}");
         
         if (!$this->ids) {
             throw new NotFoundHttpException('No content ids found for: '. $this->name);
@@ -101,7 +95,7 @@ class ContentList
 
         $data = [];
         foreach ($this->ids as $id) {
-            $content = $this->cache->get("xiv_{$this->name}_{$id}");
+            $content = Redis::Cache()->get("xiv_{$this->name}_{$id}");
             
             if ($content) {
                 $content = Language::handle($content, $this->request->get('language'));

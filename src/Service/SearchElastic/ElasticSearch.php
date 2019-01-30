@@ -15,10 +15,9 @@ class ElasticSearch
     /** @var \Elasticsearch\Client */
     private $client;
 
-    public function __construct(string $ip = null, int $port = null)
+    public function __construct(string $environment)
     {
-        $ip   = $ip ?: getenv('ELASTIC_IP');
-        $port = $port ?: getenv('ELASTIC_PORT');
+        [$ip, $port] = explode(',', getenv($environment));
         
         if (!$ip || !$port) {
             throw new \Exception('No ElasticSearch IP or PORT configured in env file');

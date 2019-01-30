@@ -16,6 +16,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class CompanionTokenManager
 {
+    const PROFILE_FILENAME = __DIR__.'/accounts.json';
+    
     const SERVERS_OFFLINE = [
         'Gungnir',
         'Bahamut',
@@ -173,7 +175,7 @@ class CompanionTokenManager
                 $this->output->writeln("Server: {$server}");
 
                 // initialize API
-                $api = new CompanionApi("xivapi_{$server}_temp", Companion::PROFILE_FILENAME);
+                $api = new CompanionApi("xivapi_{$server}_temp", self::PROFILE_FILENAME);
 
                 // login
                 $api->Account()->login($username, $password);
@@ -261,12 +263,12 @@ class CompanionTokenManager
      */
     private function setAccountSessionFromTemp($server)
     {
-        $json = file_get_contents(Companion::PROFILE_FILENAME);
+        $json = file_get_contents(self::PROFILE_FILENAME);
         $json = json_decode($json);
 
         // copy temp login to main login
         $json->{"xivapi_{$server}"} = $json->{"xivapi_{$server}_temp"};
         
-        file_put_contents(Companion::PROFILE_FILENAME, json_encode($json, JSON_PRETTY_PRINT));
+        file_put_contents(self::PROFILE_FILENAME, json_encode($json, JSON_PRETTY_PRINT));
     }
 }

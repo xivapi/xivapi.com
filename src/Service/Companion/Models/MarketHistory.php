@@ -7,12 +7,31 @@ namespace App\Service\Companion\Models;
  */
 class MarketHistory
 {
-    public $id;
-    public $time = 0;
-    public $character_name;
-    public $is_hq = false;
-    public $price_per_unit;
-    public $price_total;
-    public $quantity;
-    public $purchase_date;
+    public $ID;
+    public $Added = 0;
+    public $PurchaseDate;
+    public $CharacterID;
+    public $CharacterName;
+    public $IsHq = false;
+    public $PricePerUnit;
+    public $PriceTotal;
+    public $Quantity;
+    
+    /**
+     * Used for testing purposes.
+     */
+    public function randomize(): self
+    {
+        $this->ID            = mt_rand(1,9999999999);
+        $this->Added         = time();
+        $this->PurchaseDate  = time();
+        $this->IsHq          = mt_rand(0,100) % 4 == 0;
+        $this->CharacterID   = 730968;
+        $this->CharacterName = 'Premium Virtue';
+        $this->PricePerUnit  = mt_rand(1,9999);
+        $this->Quantity      = mt_rand(1,999);
+        $this->PriceTotal    = $this->PricePerUnit * $this->Quantity;
+        
+        return $this;
+    }
 }

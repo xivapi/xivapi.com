@@ -14,11 +14,8 @@ class Search
 
     function __construct()
     {
-        [$ip, $port] = explode(',', getenv('ELASTIC_SERVER_LOCAL'));
-        $this->search = new ElasticSearch($ip, $port);
-
-        // create elastic query
-        $this->query = new ElasticQuery();
+        $this->search = new ElasticSearch('ELASTIC_SERVER_LOCAL');
+        $this->query  = new ElasticQuery();
     }
     
     /**

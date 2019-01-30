@@ -20,7 +20,6 @@ class CompanionPriority
 
     public function calculate()
     {
-        $this->console->
 
     }
 }

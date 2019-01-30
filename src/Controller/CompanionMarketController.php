@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Service\Companion\Companion;
 use App\Service\Companion\CompanionMarket;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -27,10 +28,24 @@ class CompanionMarketController extends Controller
      * @Route("/market/{server}/items/{itemId}")
      * @Route("/market/{server}/item/{itemId}")
      */
-    public function item(string $server, int $itemId)
+    public function item(Request $request, string $server, int $itemId)
     {
         return $this->json(
-            $this->companionMarket->get($server, $itemId)
+            $this->companionMarket->get(
+                $server,
+                $itemId,
+                $request->get('max_history') ?: 50
+            )
+        );
+    }
+    
+    /**
+     * @Route("/market/categories")
+     */
+    public function categories()
+    {
+        return $this->json(
+            $this->companion->getCategories()
         );
     }
     

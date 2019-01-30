@@ -4,9 +4,11 @@ namespace App\Service\Companion;
 
 use App\Exception\CompanionMarketItemException;
 use App\Exception\CompanionMarketServerException;
+use App\Service\Common\Arrays;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
+use App\Service\Content\GameData;
 use App\Service\Content\GameServers;
 use App\Service\SearchElastic\ElasticQuery;
 use App\Service\SearchElastic\ElasticSearch;
@@ -21,10 +23,10 @@ class CompanionMarket
     /** @var ElasticSearch */
     private $elastic;
     
-    public function __construct()
+    public function __construct(GameData $gamedata)
     {
-        [$ip, $port] = explode(',', getenv('ELASTIC_SERVER_COMPANION'));
-        $this->elastic = new ElasticSearch($ip, $port);
+        $this->elastic = new ElasticSearch('ELASTIC_SERVER_COMPANION');
+        $this->gamedata = $gamedata;
     }
     
     /**
@@ -43,7 +45,7 @@ class CompanionMarket
     public function set(MarketItem $marketItem)
     {
         $data = json_decode(json_encode($marketItem), true);
-        $this->elastic->addDocument(self::INDEX, self::INDEX, $marketItem->id, $data);
+        $this->elastic->addDocument(self::INDEX, self::INDEX, $marketItem->ID, $data);
     }
     
     /**
@@ -55,7 +57,7 @@ class CompanionMarket
     {
         $documents = [];
         foreach ($marketItems as $i => $marketItem) {
-            $documents[$marketItem->id] = json_decode(json_encode($marketItem), true);
+            $documents[$marketItem->ID] = json_decode(json_encode($marketItem), true);
         }
         
         $this->elastic->bulkDocuments(self::INDEX, self::INDEX, $documents);
@@ -64,7 +66,7 @@ class CompanionMarket
     /**
      * Get the current prices for an item
      */
-    public function get(string $server, int $itemId): MarketItem
+    public function get(string $server, int $itemId, int $maxHistory): MarketItem
     {
         $server = $this->getServer($server);
         $result = $this->elastic->getDocument(self::INDEX, self::INDEX, "{$server}_{$itemId}");
@@ -73,15 +75,20 @@ class CompanionMarket
             throw new CompanionMarketItemException();
         }
         
-        $item = new MarketItem();
-        $item->id      = $result['_source']['id'];
-        $item->server  = $result['_source']['server'];
-        $item->item_id = $result['_source']['item_id'];
-        $item->prices  = [];
-        $item->history = [];
+        $source = $result['_source'];
+        
+        $item          = new MarketItem();
+        $item->ID      = $source['ID'];
+        $item->Server  = $source['Server'];
+        $item->ItemID  = $source['ItemID'];
+        $item->Updated = $source['Updated'];
+        
+        // sort results
+        Arrays::sortBySubKey($source['Prices'], 'PricePerUnit', true);
+        Arrays::sortBySubKey($source['History'], 'PurchaseDate');
         
         // map out current prices
-        foreach ($result['_source']['prices'] as $price) {
+        foreach ($source['Prices'] as $price) {
             $obj = new MarketListing();
 
             // these fields map 1:1
@@ -89,11 +96,16 @@ class CompanionMarket
                 $obj->{$key} = $value;
             }
             
-            $item->prices[] = $obj;
+            $item->Prices[] = $obj;
         }
-    
+        
         // map out historic prices
-        foreach ($result['_source']['history'] as $price) {
+        foreach ($source['History'] as $i => $price) {
+            // limit history
+            if ($i >= $maxHistory) {
+                break;
+            }
+            
             $obj = new MarketHistory();
         
             // these fields map 1:1
@@ -101,7 +113,7 @@ class CompanionMarket
                 $obj->{$key} = $value;
             }
         
-            $item->history[] = $obj;
+            $item->History[] = $obj;
         }
         
         return $item;

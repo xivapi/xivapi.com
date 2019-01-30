@@ -41,16 +41,14 @@ class UpdateSearchLoreCommand extends Command
             ->title('LORE FINDER')
             ->startClock();
 
-        // connect to production cache
-        [$ip, $port] = (in_array($input->getArgument('environment'), ['prod','staging']))
-            ? explode(',', getenv('ELASTIC_SERVER_PROD'))
-            : explode(',', getenv('ELASTIC_SERVER_LOCAL'));
+        $envAllowed  = in_array($input->getArgument('environment'), ['prod','staging']);
+        $environment = $envAllowed ? 'ELASTIC_SERVER_PROD' : 'ELASTIC_SERVER_LOCAL';
         
         if ($input->getArgument('environment') == 'prod') {
             $this->io->success('DEPLOYING TO PRODUCTION');
         }
         
-        $this->elastic = new ElasticSearch($ip, $port);
+        $this->elastic = new ElasticSearch($environment);
         
         // recreate index
         $this->elastic->deleteIndex('lore_finder');

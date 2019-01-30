@@ -8,13 +8,17 @@ namespace App\Service\Companion\Models;
 class MarketItem
 {
     /** @var string */
-    public $id;
+    public $ID;
     /** @var int */
-    public $server;
+    public $Server;
     /** @var int */
-    public $item_id;
+    public $ItemID;
+    /** @var int */
+    public $Updated;
     /** @var MarketListing[] */
-    public $prices = [];
+    public $Prices = [];
     /** @var MarketHistory[] */
-    public $history = [];
+    public $History = [];
+    
+    
 }

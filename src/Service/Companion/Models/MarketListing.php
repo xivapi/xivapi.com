@@ -7,16 +7,43 @@ namespace App\Service\Companion\Models;
  */
 class MarketListing
 {
-    public $id;
-    public $time = 0;
-    public $is_crafted = false;
-    public $is_hq = false;
-    public $price_per_unit;
-    public $price_total;
-    public $quantity;
-    public $retainer_id;
-    public $craft_signature_id;
-    public $town_id;
-    public $stain_id;
-    public $materia = [];
+    public $ID;
+    public $Added = 0;
+    public $IsCrafted = false;
+    public $IsHq = false;
+    public $PricePerUnit;
+    public $PriceTotal;
+    public $Quantity;
+    public $RetainerID;
+    public $CreatorSignatureID;
+    public $TownID;
+    public $StainID;
+    public $Materia = [];
+    
+    /**
+     * Used for testing purposes.
+     */
+    public function randomize(): self
+    {
+        $this->ID                   = mt_rand(1,9999999999);
+        $this->Added                = time();
+        $this->IsCrafted            = mt_rand(0,100) % 4 == 0;
+        $this->IsHq                 = mt_rand(0,100) % 4 == 0;
+        $this->PricePerUnit         = mt_rand(1,9999);
+        $this->Quantity             = mt_rand(1,999);
+        $this->PriceTotal           = $this->PricePerUnit * $this->Quantity;
+        $this->RetainerID           = mt_rand(1,99999);
+        $this->CreatorSignatureID   = mt_rand(1,99999);
+        $this->TownID               = mt_rand(1,4);
+        $this->StainID              = mt_rand(1,25000);
+        
+        // add a random number of materia
+        if (mt_rand(0,50) % 3 == 0) {
+            foreach(range(1, mt_rand(1, 5)) as $i) {
+                $this->Materia[] = mt_rand(5604,5724);
+            }
+        }
+        
+        return $this;
+    }
 }

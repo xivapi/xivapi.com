@@ -323,7 +323,12 @@ class Arrays
             # This is what you actually want to do with your keys:
             #  - remove exclamation marks at the front
             #  - camelCase to snake_case
-            $transformedKey = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', ltrim(str_ireplace('PvPTeam', 'PvpTeam', $key), '!')));
+            $fixes = [
+                'PvPTeam' => 'PvpTeam',
+                'ID' => 'Id'
+            ];
+            
+            $transformedKey = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', ltrim(str_ireplace(array_keys($fixes), $fixes, $key), '!')));
 
             # Work recursively
             if (is_array($value)) {
