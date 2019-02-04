@@ -20,11 +20,11 @@ class GameData
     /**
      * get a single piece of content from the cache
      */
-    public function one(string $contentName, int $contentId)
+    public function one(string $contentName, string $contentId)
     {
         $contentName = $this->validate($contentName);
         $content = Redis::Cache()->get("xiv_{$contentName}_{$contentId}");
-    
+        
         if (!$content) {
             throw new \Exception("Game Data does not exist: {$contentName} {$contentId}");
         }
