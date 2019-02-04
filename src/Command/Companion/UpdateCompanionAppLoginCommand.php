@@ -23,7 +23,7 @@ class UpdateCompanionAppLoginCommand extends Command
 
     public function __construct(CompanionTokenManager $companionTokenManager, $name = null)
     {
-        $this->ctm = $companionTokenManager;
+        $this->companionTokenManager = $companionTokenManager;
 
         parent::__construct($name);
     }
@@ -40,6 +40,9 @@ class UpdateCompanionAppLoginCommand extends Command
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->companionTokenManager->login($input->getArgument('account'), $input->getArgument('server'));
+        $this->companionTokenManager->login(
+            $input->getArgument('account'),
+            $input->getArgument('server')
+        );
     }
 }

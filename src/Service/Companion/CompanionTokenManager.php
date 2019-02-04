@@ -113,7 +113,7 @@ class CompanionTokenManager
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->output = new ConsoleOutput();
+        $this->console = new ConsoleOutput();
     }
     
     /**
@@ -124,7 +124,7 @@ class CompanionTokenManager
      */
     public function login(string $account, string $debugServer = null): void
     {
-        $this->output->writeln('<comment>Companion App API Token Manager</comment>');
+        $this->console->writeln('<comment>Companion App API Token Manager</comment>');
 
         $account = self::ACCOUNTS[$account];
         [$username, $password] = explode(',', getenv($account));
@@ -134,6 +134,8 @@ class CompanionTokenManager
         // Login to each server
         //
         foreach (self::SERVERS as $server => $accountRegistered) {
+            $this->console->writeln("Server: {$server}");
+
             //
             // if debugging, skip all but the debug server
             //
@@ -172,8 +174,6 @@ class CompanionTokenManager
             // Login to Companion App
             //
             try {
-                $this->output->writeln("Server: {$server}");
-
                 // initialize API
                 $api = new CompanionApi("xivapi_{$server}_temp", self::PROFILE_FILENAME);
 
@@ -248,6 +248,16 @@ class CompanionTokenManager
      */
     private function postCompanionStatusOnDiscord($account, $username, $failed)
     {
+        if (getenv('APP_ENV') == 'dev') {
+            print_r([
+                $account,
+                $username,
+                $failed
+            ]);
+            
+            return;
+        }
+        
         $failedCount = count($failed);
         $message     = "<@42667995159330816> [Companion Login Status] Account: **{$account}** - **{$username}** - Failed: *{$failedCount}*";
 
