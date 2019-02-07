@@ -114,12 +114,26 @@ echo "- Testing ElasticSearch in 10 seconds ..."
 sleep 10
 curl -X GET 'http://localhost:9200'
 
-echo "Do you want to run composer install?"
-select yn in "Yes" "No"; do
-    case $yn in
-        Yes ) composer install; break;;
-        No ) echo "FINISHED";;
-    esac
-done
+#
+# Waifu
+#
+cd /vagrant/waifu2x
+wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64
+sudo dpkg -i cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
+sudo apt-key add /var/cuda-repo-<version>/7fa2af80.pub
+sudo apt-get update
+sudo apt-get install cuda
 
-echo "FINISHED"
+sudo apt-get install libsnappy-dev
+sudo apt-get install libgraphicsmagick1-dev
+
+git clone https://github.com/torch/distro.git ~/torch --recursiv
+cd ~/torch; bash install-deps;
+./install.sh
+
+source ~/.bashrc
+git clone --depth 1 https://github.com/nagadomi/waifu2x.git
+cd waifu2x
+./install_lua_modules.sh
+
+th waifu2x.lua

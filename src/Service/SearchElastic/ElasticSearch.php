@@ -99,7 +99,7 @@ class ElasticSearch
                             "prices"    => [
                                 "type"  => "nested",
                                 "properties" => [
-                                    "id"                 => [ "type" => "long" ],
+                                    "id"                 => [ "type" => "text" ],
                                     "time"               => [ "type" => "integer" ],
                                     "is_crafted"         => [ "type" => "boolean" ],
                                     "is_hq"              => [ "type" => "boolean" ],
@@ -115,7 +115,7 @@ class ElasticSearch
                             "history"   => [
                                 "type"  => "nested",
                                 "properties" => [
-                                    "id"                 => [ "type" => "long" ],
+                                    "id"                 => [ "type" => "text" ],
                                     "time"               => [ "type" => "integer" ],
                                     "character_name"     => [ "type" => "integer" ],
                                     "is_hq"              => [ "type" => "boolean" ],

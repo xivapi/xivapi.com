@@ -38,6 +38,8 @@ class TestCompanionCommand extends Command
         // rebuild the index
         $this->io->text('Rebuilding ElasticSearch index');
         $this->companionMarket->rebuildIndex();
+        
+        return;
 
         // insert random data
         $this->io->text('Inserting random data');
@@ -98,11 +100,7 @@ class TestCompanionCommand extends Command
      */
     private function getRandomItemAndPrices($server, $id)
     {
-        $item = new MarketItem();
-        $item->ID       = "{$server}_{$id}";
-        $item->Server   = $server;
-        $item->ItemID   = $id;
-        $item->Updated  = time();
+        $item = new MarketItem($server, $id);
         
         // add between 1 and 100 prices
         foreach(range(1, mt_rand(1,200)) as $num) {

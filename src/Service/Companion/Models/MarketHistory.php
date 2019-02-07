@@ -18,6 +18,25 @@ class MarketHistory
     public $Quantity;
     
     /**
+     * Build a MarketHistory object from SE API response
+     */
+    public static function build(string $id, \stdClass $data): MarketHistory
+    {
+        $obj                = new MarketHistory();
+        $obj->ID            = $id;
+        $obj->Added         = time();
+        $obj->PurchaseDate  = $data->buyRealDate;
+        $obj->CharacterID   = 1; // todo
+        $obj->CharacterName = $data->buyCharacterName;
+        $obj->IsHq          = $data->hq;
+        $obj->PricePerUnit  = $data->sellPrice;
+        $obj->Quantity      = $data->stack;
+        $obj->PriceTotal    = $obj->PricePerUnit * $obj->Quantity;
+        
+        return $obj;
+    }
+    
+    /**
      * Used for testing purposes.
      */
     public function randomize(): self

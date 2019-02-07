@@ -2,6 +2,7 @@
 
 namespace App\Service\Companion;
 
+use App\Entity\CompanionMarketItem;
 use App\Exception\CompanionMarketItemException;
 use App\Exception\CompanionMarketServerException;
 use App\Service\Common\Arrays;
@@ -66,22 +67,16 @@ class CompanionMarket
     /**
      * Get the current prices for an item
      */
-    public function get(string $server, int $itemId, int $maxHistory): MarketItem
+    public function get(int $server, int $itemId, int $maxHistory = null): ?MarketItem
     {
-        $server = $this->getServer($server);
-        $result = $this->elastic->getDocument(self::INDEX, self::INDEX, "{$server}_{$itemId}");
-        
-        if ($result['found'] === 0) {
-            throw new CompanionMarketItemException();
+        try {
+            $result = $this->elastic->getDocument(self::INDEX, self::INDEX, "{$server}_{$itemId}");
+        } catch (\Exception $ex) {
+            return null;
         }
         
         $source = $result['_source'];
-        
-        $item          = new MarketItem();
-        $item->ID      = $source['ID'];
-        $item->Server  = $source['Server'];
-        $item->ItemID  = $source['ItemID'];
-        $item->Updated = $source['Updated'];
+        $item   = new MarketItem($source['Server'], $source['ItemID'], $source['Updated']);
         
         // sort results
         Arrays::sortBySubKey($source['Prices'], 'PricePerUnit', true);
@@ -102,7 +97,7 @@ class CompanionMarket
         // map out historic prices
         foreach ($source['History'] as $i => $price) {
             // limit history
-            if ($i >= $maxHistory) {
+            if ($maxHistory && $i >= $maxHistory) {
                 break;
             }
             
@@ -139,19 +134,5 @@ class CompanionMarket
         
         print_r($results);
         die;
-    }
-    
-    /**
-     * Get a server id from a server string
-     */
-    private function getServer(string $server): int
-    {
-        $index = array_search(ucwords($server), GameServers::LIST);
-        
-        if ($index === false) {
-            throw new CompanionMarketServerException();
-        }
-        
-        return $index;
     }
 }
