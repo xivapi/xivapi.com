@@ -3,13 +3,12 @@
 namespace App\Service\Companion;
 
 use App\Entity\CompanionMarketItem;
-use App\Exception\CompanionMarketItemException;
+use App\Entity\CompanionMarketItemException;
 use App\Repository\CompanionMarketItemRepository;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
-use App\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -87,13 +86,26 @@ class CompanionMarketUpdater
                     $marketItem = new MarketItem($server, $item->getItem());
                 }
                 
-                // grab prices from companion
-                $section->overwrite("> {$item->getItem()} {$serverName} - Fetching prices ...");
-                $prices  = $this->companion->getItemPrices($serverName, $item->getItem());
+                try {
+                    // grab prices from companion
+                    $section->overwrite("> {$item->getItem()} {$serverName} - Fetching prices ...");
+                    $prices  = $this->companion->getItemPrices($serverName, $item->getItem());
     
-                // grab history from companion
-                $section->overwrite("> {$item->getItem()} {$serverName} - Fetching history ...");
-                $history = $this->companion->getItemHistory($serverName, $item->getItem());
+                    // grab history from companion
+                    $section->overwrite("> {$item->getItem()} {$serverName} - Fetching history ...");
+                    $history = $this->companion->getItemHistory($serverName, $item->getItem());
+                } catch (\Exception $ex) {
+                    $marketItemException = new CompanionMarketItemException();
+                    $marketItemException
+                        ->setItem($item->getItem())
+                        ->setServer($server)
+                        ->setException(get_class($ex))
+                        ->setMessage($ex->getMessage());
+                    
+                    $this->em->persist($marketItemException);
+                    $this->em->flush();
+                    continue;
+                }
                 
                 //
                 // convert prices
@@ -149,6 +161,10 @@ class CompanionMarketUpdater
             }
             
             $section->writeln("Item {$item->getItem()} completed");
+            $item->setUpdated(time());
+            
+            $this->em->persist($item);
+            $this->em->flush();
         }
         
         $this->console->writeln('Ready!');
