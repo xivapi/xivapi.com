@@ -50,3 +50,5 @@ yarn-error.log
 src/Service/Common/Statistics\.php\.log
 
 exceptions\.log
+
+vm/ssh\.exe\.stackdump
