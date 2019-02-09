@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionPriority
 {
-    const SERVER = 'Phoenix';
+    const SERVER = 'Balmung';
     const CACHE_MARKET_ITEM_IDS = __DIR__.'/CompanionPriority_MarketItemIds.json';
     
     /** @var EntityManagerInterface */
