@@ -3,7 +3,7 @@
 namespace App\Command\Feeds;
 
 use App\Command\CommandHelperTrait;
-use App\Service\Redis\Cache;
+use App\Service\Redis\Redis;
 use Lodestone\Api;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,15 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class GenerateLodestoneJsonCommand extends Command
 {
     use CommandHelperTrait;
-    
-    /** @var Cache $cache */
-    private $cache;
-    
-    public function __construct(?string $name = null, Cache $cache)
-    {
-        parent::__construct($name);
-        $this->cache = $cache;
-    }
     
     protected function configure()
     {
@@ -81,7 +72,7 @@ class GenerateLodestoneJsonCommand extends Command
         }
 
         // cache for 24 hours (it's overwritten every 15 minutes)
-        $this->cache->set('lodestone', $data, (60*60*24));
+        Redis::Cache()->set('lodestone', $data, (60*60*24));
         $this->complete();
     }
 }

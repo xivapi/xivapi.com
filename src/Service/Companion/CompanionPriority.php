@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionPriority
 {
-    const SERVER = 'Balmung';
+    const SERVER = 'Gilgamesh';
     const CACHE_MARKET_ITEM_IDS = __DIR__.'/CompanionPriority_MarketItemIds.json';
     
     /** @var EntityManagerInterface */
@@ -39,14 +39,14 @@ class CompanionPriority
         $this->console->writeln('-----------------------------');
         
         // grab item ids
-        $ids   = $this->getMarketItems();
+        $ids   = CompanionItems::items();
         $total = count($ids);
         
         $section = $this->console->section();
         $section->writeln("Processing item priority for: {$total} items");
         
         foreach ($ids as $i => $id) {
-            // if we're just doing 1 item, skip ones we havent set
+            // if we're just doing 1 item, skip ones we haven't set
             if ($itemId && $itemId != $id) {
                 continue;
             }
@@ -68,7 +68,13 @@ class CompanionPriority
             
             // get market history
             $section->overwrite("{$lead} Getting purchase history ...");
-            $response = $this->companion->getItemHistory(self::SERVER, $id);
+            try {
+                $response = $this->companion->getItemHistory(self::SERVER, $id);
+            } catch (\Exception $ex) {
+                $section->overwrite("{$lead} !!! Exception thrown, skipping ....");
+                sleep(5);
+                continue;
+            }
             
             // set history count
             $obj->setHistoryCount(count($response->history));
@@ -139,6 +145,8 @@ class CompanionPriority
         }
     
         $this->em->flush();
+        $this->em->clear();
+        
         $section->writeln('Done!');
     }
     
@@ -222,6 +230,11 @@ class CompanionPriority
         /** @var CompanionMarketItem $item */
         $section = $this->console->section();
         foreach ($items as $i => $item) {
+            // if we're calculating the priority for a specific item
+            if ($itemId && $item->getItem() !== $itemId) {
+                continue;
+            }
+            
             // set priority to a default 99
             $item->setPriority(99);
             
@@ -236,58 +249,16 @@ class CompanionPriority
                 }
             }
             
-            
             $section->overwrite("[{$i}] Item {$item->getItem()} = {$item->getPriority()}");
             $this->em->merge($item);
             
-            if ($i % 100 == 0) {
+            if ($i % 50 == 0) {
                 $this->em->flush();
                 $this->em->clear();
             }
         }
     
         $this->em->flush();
-    }
-    
-    /**
-     * Get the market items
-     */
-    private function getMarketItems()
-    {
-        // check if a cache exists
-        if (file_exists(self::CACHE_MARKET_ITEM_IDS)) {
-            $modified     = filemtime(self::CACHE_MARKET_ITEM_IDS);
-            $modifiedDate = date('Y-m-d H:i:s');
-    
-            $this->console->writeln("Market item cache found, generated: {$modifiedDate}");
-            
-            // if the modified date is under 1 day, keep it
-            if ($modified > time() - (60*60*24)) {
-                return json_decode(file_get_contents(self::CACHE_MARKET_ITEM_IDS));
-            }
-    
-            $this->console->writeln('Market item cache time is older than 24 hours, creating a new one.');
-        }
-        
-        // build a new market item cache
-        $arr   = [];
-        $ids   = Redis::Cache()->get('ids_Item');
-        $total = count($ids);
-        
-        $section = $this->console->section();
-        
-        foreach ($ids as $i => $id) {
-            $item = Redis::Cache()->get("xiv_Item_{$id}");
-            $section->overwrite("{$i} / {$total} :: {$id} :: {$item->Name_en}");
-            
-            if (isset($item->ItemSearchCategory->ID)) {
-                $arr[] = $id;
-            }
-        }
-        
-        $section->overwrite('Caching marketable items');
-        file_put_contents(self::CACHE_MARKET_ITEM_IDS, json_encode($arr));
-        
-        return $arr;
+        $this->em->clear();
     }
 }

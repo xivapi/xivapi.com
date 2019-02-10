@@ -4,7 +4,6 @@ namespace App\Service\Content;
 
 use App\Service\Common\Arrays;
 use App\Service\Common\Language;
-use App\Service\Redis\Cache;
 use App\Service\Redis\Redis;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

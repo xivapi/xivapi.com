@@ -4,6 +4,7 @@ namespace App\Service\DataCustom;
 
 use App\Service\Data\DataHelper;
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class Icons extends ManualHelper
 {
@@ -96,9 +97,9 @@ class Icons extends ManualHelper
     public function setQuestIcons()
     {
         $this->io->text(__METHOD__);
-        foreach ($this->redis->get('ids_Quest') as $id) {
+        foreach (Redis::Cache()->get('ids_Quest') as $id) {
             $key = "xiv_Quest_{$id}";
-            $content = $this->redis->get($key);
+            $content = Redis::Cache()->get($key);
             
             $content->Banner    = $content->Icon;
             $content->IconID    = 71221;
@@ -133,7 +134,7 @@ class Icons extends ManualHelper
                 $content->IconID    = $content->IconSpecialID;
             }
     
-            $this->redis->set($key, $content, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $content, self::REDIS_DURATION);
         }
     }
     
@@ -144,19 +145,19 @@ class Icons extends ManualHelper
     {
         $this->io->text(__METHOD__);
         
-        foreach ($this->redis->get('ids_Recipe') as $id) {
+        foreach (Redis::Cache()->get('ids_Recipe') as $id) {
             $key = "xiv_Recipe_{$id}";
-            $content = $this->redis->get($key);
+            $content = Redis::Cache()->get($key);
             
             if (!isset($content->ItemResult->ID)) {
                 continue;
             }
             
-            $resultItem = $this->redis->get("xiv_Item_{$content->ItemResult->ID}");
+            $resultItem = Redis::Cache()->get("xiv_Item_{$content->ItemResult->ID}");
             $content->Icon = $resultItem->Icon;
             $content->IconID = $resultItem->IconID;
     
-            $this->redis->set($key, $content, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $content, self::REDIS_DURATION);
         }
     }
 }

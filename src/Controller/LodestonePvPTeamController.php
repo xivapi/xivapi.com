@@ -22,16 +22,6 @@ class LodestonePvPTeamController extends Controller
     }
     
     /**
-     * todo - temp
-     * @Route("/pvpteam/{lodestoneId}/add")
-     */
-    public function add($lodestoneId)
-    {
-        PvPTeamQueue::request($lodestoneId, 'pvp_team_add');
-        return $this->json(1);
-    }
-    
-    /**
      * @Route("/PvPTeam/Search")
      * @Route("/PvpTeam/Search")
      * @Route("/pvpteam/search")

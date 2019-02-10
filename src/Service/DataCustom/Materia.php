@@ -3,6 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class Materia extends ManualHelper
 {
@@ -14,13 +15,13 @@ class Materia extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_Materia_{$id}";
-            $materia = $this->redis->get($key);
+            $materia = Redis::Cache()->get($key);
         
             // attach materia to item
             $this->attachMateriaToItem($materia);
         
             // save
-            $this->redis->set($key, $materia, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $materia, self::REDIS_DURATION);
         }
     }
     
@@ -35,7 +36,7 @@ class Materia extends ManualHelper
             
             if ($item) {
                 $key = "xiv_Item_{$item->ID}";
-                $item = $this->redis->get($key);
+                $item = Redis::Cache()->get($key);
                 $item->Materia = [
                     'ID'        => $materia->ID,
                     'BaseParam' => $materia->BaseParam,
@@ -43,7 +44,7 @@ class Materia extends ManualHelper
                 ];
                 
                 // save
-                $this->redis->set($key, $item, self::REDIS_DURATION);
+                Redis::Cache()->set($key, $item, self::REDIS_DURATION);
             }
         }
     }

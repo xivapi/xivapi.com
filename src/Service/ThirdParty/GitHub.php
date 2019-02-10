@@ -2,7 +2,7 @@
 
 namespace App\Service\ThirdParty;
 
-use App\Service\Redis\Cache;
+use App\Service\Redis\Redis;
 
 class GitHub
 {
@@ -11,9 +11,7 @@ class GitHub
      */
     public static function getGithubCommitHistory()
     {
-        $key     = 'github_commits';
-        $cache   = new Cache();
-        $commits = $cache->get($key);
+        $commits = Redis::Cache()->get('github_commits');
 
         if (!$commits) {
             $client  = new \Github\Client();
@@ -24,7 +22,7 @@ class GitHub
             ];
 
             // cache for an hour, I don't commit that often!
-            $cache->set($key, $commits, 60*60);
+            Redis::Cache()->set('github_commits', $commits, 60*60);
         }
 
         return $commits;

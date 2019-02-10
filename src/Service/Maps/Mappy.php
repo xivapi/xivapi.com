@@ -4,7 +4,6 @@ namespace App\Service\Maps;
 
 use App\Entity\MapPosition;
 use App\Entity\MemoryData;
-use App\Service\Redis\Cache;
 use Doctrine\ORM\EntityManagerInterface;
 
 class Mappy
@@ -21,14 +20,11 @@ class Mappy
         'dec187b1a95f4064aff6a723'
     ];
     
-    /** @var Cache */
-    private $cache;
     /** @var EntityManagerInterface */
     private $em;
     
-    public function __construct(EntityManagerInterface $em, Cache $cache)
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->cache = $cache;
         $this->em = $em;
     }
 

@@ -29,17 +29,6 @@ class LodestoneFreeCompanyController extends Controller
     }
     
     /**
-     * todo - temp
-     * @Route("/freecompany/{lodestoneId}/add")
-     */
-    public function add($lodestoneId)
-    {
-        FreeCompanyQueue::request($lodestoneId, 'free_company_add');
-        return $this->json(1);
-    }
-    
-    
-    /**
      * @Route("/FreeCompany/Search")
      * @Route("/freecompany/search")
      */

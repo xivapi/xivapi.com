@@ -6,8 +6,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class AccountNotLoggedInException extends HttpException
 {
-    public function __construct()
-    {
-        parent::__construct(401, "You must be logged in to view this resource.");
-    }
+    use ExceptionTrait;
+    
+    const CODE    = 401;
+    const MESSAGE = 'You must be logged in to view this resource.';
 }

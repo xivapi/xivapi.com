@@ -26,7 +26,7 @@ class CompanionMarket
     
     public function __construct(GameData $gamedata)
     {
-        $this->elastic = new ElasticSearch('ELASTIC_SERVER_COMPANION');
+        $this->elastic  = new ElasticSearch('ELASTIC_SERVER_COMPANION');
         $this->gamedata = $gamedata;
     }
     

@@ -3,9 +3,9 @@
 namespace App\Command\Search;
 
 use App\Command\CommandHelperTrait;
-use App\Service\Common\DataType;
+use App\Service\Common\Arrays;
 use App\Service\Common\Language;
-use App\Service\Redis\Cache;
+use App\Service\Redis\Redis;
 use App\Service\Search\SearchContent;
 use App\Service\SearchElastic\ElasticSearch;
 use Symfony\Component\Console\Command\Command;
@@ -42,7 +42,6 @@ class UpdateSearchCommand extends Command
         }
         
         $elastic = new ElasticSearch($environment);
-        $cache   = new Cache();
         
         // import documents to ElasticSearch
         try {
@@ -53,7 +52,7 @@ class UpdateSearchCommand extends Command
                 }
         
                 $index  = strtolower($contentName);
-                $ids    = $cache->get("ids_{$contentName}");
+                $ids    = Redis::Cache()->get("ids_{$contentName}");
                 
                 if (empty($ids)) {
                     $this->io->error('No IDs for content: '. $contentName);
@@ -78,7 +77,7 @@ class UpdateSearchCommand extends Command
                     $count++;
     
                     // grab content
-                    $content = $cache->get("xiv_{$contentName}_{$id}");
+                    $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
                     
                     // if no name_en, skip it!
                     if (empty($content->Name_en)) {
@@ -96,7 +95,7 @@ class UpdateSearchCommand extends Command
                     $content = json_decode(json_encode($content), true);
                     
                     // ensure content types are correctly assigned
-                    $content = DataType::ensureStrictDataTypes($content);
+                    $content = Arrays::ensureStrictDataTypes($content);
                     
                     // handle custom string columns
                     $content = $this->handleCustomStringColumns($contentName, $content);

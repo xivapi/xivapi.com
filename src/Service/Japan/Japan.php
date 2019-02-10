@@ -2,7 +2,7 @@
 
 namespace App\Service\Japan;
 
-use App\Service\Redis\Cache;
+use App\Service\Redis\Redis;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 
@@ -16,9 +16,8 @@ class Japan
      */
     public static function query($uri, $query)
     {
-        $cache = new Cache();
         $key = __METHOD__ . sha1($uri . implode(',', $query));
-        if ($data = $cache->get($key)) {
+        if ($data = Redis::Cache()->get($key)) {
             return $data;
         }
 
@@ -32,7 +31,7 @@ class Japan
         ]);
 
         $data = json_decode((string)$res->getBody());
-        $cache->set($key, $data, (60*60*3));
+        Redis::Cache()->set($key, $data, (60*60*3));
         return $data;
     }
 }

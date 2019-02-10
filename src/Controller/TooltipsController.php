@@ -2,46 +2,35 @@
 
 namespace App\Controller;
 
-use App\Service\Redis\Redis;
-use App\Service\Tooltips\Tooltips;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use App\Exception\InvalidTooltipsRequestException;
+use App\Service\Content\Tooltips;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TooltipsController extends Controller
+class TooltipsController extends AbstractController
 {
+    /** @var Tooltips */
+    private $tooltips;
+    
+    public function __construct(Tooltips $tooltips)
+    {
+        $this->tooltips = $tooltips;
+    }
+    
     /**
-     * @Route("/tooltips", methods="POST")
+     * @Route("/tooltips")
      */
     public function Tooltips(Request $request)
     {
         // decode request
         $json = json_decode($request->getContent());
 
-        if (!$json) {
-            return $this->json([
-                'error' => 'No content data in JSON request'
-            ]);
+        if (empty($json)) {
+            throw new InvalidTooltipsRequestException();
         }
-
-        // build tooltip response
-        $response = [];
-        foreach ($json as $contentName => $ids) {
-            foreach ($ids as $id) {
-                // grab content
-                $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
-
-                if (!$content) {
-                    continue;
-                }
-
-                // build tooltip view
-                $view = Tooltips::get($contentName, $content);
-
-                // set response
-                $response[$contentName][$id] = $view;
-            }
-        }
+        
+        $response = $this->tooltips->handle($json);
 
         return $this->json($response);
     }

@@ -3,6 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class ItemAction extends ManualHelper
 {
@@ -17,12 +18,12 @@ class ItemAction extends ManualHelper
         
         foreach ($ids as $id) {
             $key = "xiv_ItemAction_{$id}";
-            $itemAction = $this->redis->get($key);
+            $itemAction = Redis::Cache()->get($key);
             
             // todo ---
             
             // save
-            $this->redis->set($key, $itemAction, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $itemAction, self::REDIS_DURATION);
         }
     }
 }

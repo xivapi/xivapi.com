@@ -85,7 +85,7 @@ class ResponseListener
                 //
                 // Ensure data types are enforced cleanly
                 //
-                $json = DataType::ensureStrictDataTypes($json);
+                $json = Arrays::ensureStrictDataTypes($json);
 
                 //
                 // Sort data

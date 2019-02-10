@@ -5,6 +5,7 @@ namespace App\Service\DataCustom;
 use App\Service\Common\Arrays;
 use App\Service\Content\ManualHelper;
 use App\Service\Common\Language;
+use App\Service\Redis\Redis;
 
 class Quest extends ManualHelper
 {
@@ -19,9 +20,9 @@ class Quest extends ManualHelper
         
         // pre-warm NPCs
         $this->io->text("Warming ENpcResidents");
-        foreach ($this->redis->get('ids_ENpcResident') as $id) {
+        foreach (Redis::Cache()->get('ids_ENpcResident') as $id) {
             $npc  = Arrays::minification(
-                $this->redis->get("xiv_ENpcResident_{$id}")
+                Redis::Cache()->get("xiv_ENpcResident_{$id}")
             );
             $name = preg_replace('/[0-9]+/', null, str_ireplace(' ', null, strtolower($npc->Name_en)));
             
@@ -38,7 +39,7 @@ class Quest extends ManualHelper
         $ids = $this->getContentIds('Quest');
         foreach ($ids as $id) {
             $key = "xiv_Quest_{$id}";
-            $quest = $this->redis->get($key);
+            $quest = Redis::Cache()->get($key);
             
             // Add to all quests
             $quest->ExperiencePoints = 0;
@@ -51,7 +52,7 @@ class Quest extends ManualHelper
             #$this->addPreAndPostQuests($quest);
     
             // save
-            $this->redis->set($key, $quest, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $quest, self::REDIS_DURATION);
         }
     }
     
@@ -234,7 +235,7 @@ class Quest extends ManualHelper
             return;
         }
         
-        $paramGrow  = $this->redis->get("xiv_ParamGrow_{$quest->ClassJobLevel0}");
+        $paramGrow  = Redis::Cache()->get("xiv_ParamGrow_{$quest->ClassJobLevel0}");
         
         // CORE = Quest.ExpFactor * ParamGrow.QuestExpModifier * (45 + (5 * Quest.ClassJobLevel0)) / 100
         $EXP = $quest->ExpFactor * $paramGrow->QuestExpModifier * (45 + (5 * $quest->ClassJobLevel0)) / 100;

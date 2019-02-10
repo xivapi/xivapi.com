@@ -4,6 +4,7 @@ namespace App\Service\DataCustom;
 
 use App\Service\Common\Arrays;
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class Schema extends ManualHelper
 {
@@ -12,7 +13,7 @@ class Schema extends ManualHelper
     
     public function handle()
     {
-        $content = $this->redis->get('content');
+        $content = Redis::Cache()->get('content');
         $this->io->progressStart(count($content));
         
         foreach ($content as $contentName) {
@@ -23,7 +24,7 @@ class Schema extends ManualHelper
                 'data'   => null,
             ];
     
-            $ids = $this->redis->get("ids_{$contentName}");
+            $ids = Redis::Cache()->get("ids_{$contentName}");
             
             if (!$ids) {
                 continue;
@@ -32,7 +33,7 @@ class Schema extends ManualHelper
             // pick a random one, sod it :D
             $id = $ids[array_rand($ids)];
             
-            $content = $this->redis->get("xiv_{$contentName}_{$id}");
+            $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
 
             // count total fields
             $schemaObject       = json_decode(json_encode($content), true);
@@ -56,7 +57,7 @@ class Schema extends ManualHelper
             }
     
             // save
-            $this->redis->set("schema_{$contentName}", $schema['data'], self::REDIS_DURATION);
+            Redis::Cache()->set("schema_{$contentName}", $schema['data'], self::REDIS_DURATION);
         }
     
         $this->io->progressFinish();

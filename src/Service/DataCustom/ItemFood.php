@@ -3,6 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class ItemFood extends ManualHelper
 {
@@ -14,12 +15,12 @@ class ItemFood extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_ItemFood_{$id}";
-            $itemFood = $this->redis->get($key);
+            $itemFood = Redis::Cache()->get($key);
 
             // todo
         
             // save
-            $this->redis->set($key, $itemFood, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $itemFood, self::REDIS_DURATION);
         }
     }
 }

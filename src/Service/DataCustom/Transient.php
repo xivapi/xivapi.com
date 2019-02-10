@@ -3,6 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class Transient extends ManualHelper
 {
@@ -37,7 +38,7 @@ class Transient extends ManualHelper
     {
         foreach (self::TRANSIENT_TABLES as $contentName) {
             // Grab transient keys
-            $transientKeys = $this->redis->get("ids_{$contentName}Transient");
+            $transientKeys = Redis::Cache()->get("ids_{$contentName}Transient");
 
             if (!$transientKeys) {
                 $this->io->text("No Transient for: ". $contentName);
@@ -45,8 +46,8 @@ class Transient extends ManualHelper
             }
 
             foreach ($transientKeys as $id) {
-                $content    = $this->redis->get("xiv_{$contentName}_{$id}");
-                $transient  = $this->redis->get("xiv_{$contentName}Transient_{$id}");
+                $content    = Redis::Cache()->get("xiv_{$contentName}_{$id}");
+                $transient  = Redis::Cache()->get("xiv_{$contentName}Transient_{$id}");
                 
                 unset($transient->ID);
                 unset($transient->Url);
@@ -64,7 +65,7 @@ class Transient extends ManualHelper
                 }
                 
                 // save content
-                $this->redis->set("xiv_{$contentName}_{$id}", $content, self::REDIS_DURATION);
+                Redis::Cache()->set("xiv_{$contentName}_{$id}", $content, self::REDIS_DURATION);
             }
         }
     }

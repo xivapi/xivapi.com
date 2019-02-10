@@ -44,28 +44,35 @@ class AutoBanCheckCommand extends Command
 
         // requests threshold in 1 hour to auto ban
         $threshold = 15000;
+        $timelimit = time() - (60*60*24*7);
         $bans = 0;
 
         /** @var UserApp $app */
         foreach($apps as $app) {
-            $key   = "app_autoban_count_{$app->getApiKey()}";
-            $count = Redis::Cache()->getCount($key);
-
-            // if count below 1000, ignore
-            if ($count < 1000) {
+            $requestKey   = "app_autoban_count_{$app->getApiKey()}";
+            $requestCount = Redis::Cache()->getCount($requestKey);
+    
+            /**
+             * Ignore if:
+             * - Request count below 1000
+             * - App is older than 7 days
+             * - App is "locked"
+             * - App is already banned
+             */
+            if ($requestCount < 1000 || $app->isLocked() || $app->getAdded() < $timelimit) {
                 continue;
             }
 
-            $this->io->text("{$count} requests by: {$app->getName()} <comment>{$app->getApiKey()}</comment>");
+            $this->io->text("{$requestCount} requests by: {$app->getName()} <comment>{$app->getApiKey()}</comment>");
 
-            if ($count > $threshold) {
+            if ($requestCount > $threshold) {
                 $bans++;
 
                 /** @var User $user */
                 $user = $app->getUser();
                 $user->setBanned(true);
                 $user->setAppsMax(0);
-                $user->setNotes("Auto banned for: {$count} requests within 1 hour.");
+                $user->setNotes("Auto banned for: {$requestCount} requests within 1 hour.");
 
                 // reduce all other apps down to 0
                 foreach ($user->getApps() as $userApp) {
@@ -76,12 +83,12 @@ class AutoBanCheckCommand extends Command
                 $this->em->persist($user);
 
                 $subject = "XIVAPI - Banned: {$app->getUser()->getUsername()}";
-                $message = "Auto-Banned: {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()} for: {$count} api requests in 1 hour.";
+                $message = "Auto-Banned: {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()} for: {$requestCount} api requests in 1 hour.";
                 $this->mail->send('josh@viion.co.uk', $subject, $message);
                 Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
             }
 
-            Redis::Cache()->delete($key);
+            Redis::Cache()->delete($requestKey);
         }
 
         $this->em->flush();

@@ -3,7 +3,7 @@
 namespace App\Command\Lodestone;
 
 use App\Service\LodestoneQueue\CharacterConverter;
-use App\Service\Redis\Cache;
+use App\Service\Redis\Redis;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,8 +16,6 @@ class BuildCharacterData extends Command
 {
     /** @var SymfonyStyle */
     private $io;
-    /** @var Cache */
-    private $cache;
     /** @var array */
     private $data;
     
@@ -28,9 +26,6 @@ class BuildCharacterData extends Command
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->cache = new Cache();
-        $this->cache->checkConnection();
-        
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title('Building character data');
     
@@ -66,8 +61,8 @@ class BuildCharacterData extends Command
     private function cacheGeneric($contentName)
     {
         $this->io->text("Cache: {$contentName}");
-        foreach ($this->cache->get("ids_{$contentName}") as $id) {
-            $content = $this->cache->get("xiv_{$contentName}_{$id}");
+        foreach (Redis::Cache()->get("ids_{$contentName}") as $id) {
+            $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
             $this->data[$contentName][CharacterConverter::convert($content->Name_en)] = $content->ID;
             
             if (isset($content->NameFemale_en)) {
@@ -79,8 +74,8 @@ class BuildCharacterData extends Command
     private function CacheMounts()
     {
         $this->io->text("Cache: Mount");
-        foreach ($this->cache->get("ids_Mount") as $id) {
-            $content = $this->cache->get("xiv_Mount_{$id}");
+        foreach (Redis::Cache()->get("ids_Mount") as $id) {
+            $content = Redis::Cache()->get("xiv_Mount_{$id}");
             
             if ($content->Order == -1) {
                 continue;
@@ -93,14 +88,14 @@ class BuildCharacterData extends Command
     private function cacheItems()
     {
         $this->io->text('Cache: Item');
-        $ids = $this->cache->get('ids_Item');
+        $ids = Redis::Cache()->get('ids_Item');
         
         $this->io->progressStart(count($ids));
         
         foreach ($ids as $id) {
             $this->io->progressAdvance();
             
-            $item = $this->cache->get("xiv_Item_{$id}");
+            $item = Redis::Cache()->get("xiv_Item_{$id}");
             
             // no name? skip
             if (empty($item->Name_en)) {

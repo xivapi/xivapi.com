@@ -6,5 +6,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ContentGoneException extends HttpException
 {
-    const CODE = 410;
+    use ExceptionTrait;
+    
+    const CODE    = 410;
+    const MESSAGE = 'It gone!';
 }

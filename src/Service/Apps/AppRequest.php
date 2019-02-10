@@ -146,8 +146,8 @@ class AppRequest
         GoogleAnalytics::trackAppRouteAccess($app, $request);
 
         // If the app has Google Analytics, send a hit request.
-        if ($googleAnalyticsId = $app->getGoogleAnalyticsId()) {
-            GoogleAnalytics::hit($googleAnalyticsId, $request->getPathInfo());
+        if ($app->hasGoogleAnalytics()) {
+            GoogleAnalytics::hit($app, $request->getPathInfo());
         }
 
         // handle app rate limit
@@ -164,12 +164,10 @@ class AppRequest
     {
         $app  = self::app();
 
-        if ($app && $app->getGoogleAnalyticsId()) {
-            $id = $app->getGoogleAnalyticsId();
-
+        if ($app && $app->hasGoogleAnalytics()) {
             // custom events
-            GoogleAnalytics::event($id, 'Requests', 'Endpoint', explode('/', $request->getPathInfo())[1] ?? 'Home');
-            GoogleAnalytics::event($id, 'Requests', 'Language', Language::current());
+            GoogleAnalytics::event($app, 'Requests', 'Endpoint', explode('/', $request->getPathInfo())[1] ?? 'Home');
+            GoogleAnalytics::event($app, 'Requests', 'Language', Language::current());
         }
     }
 
@@ -238,7 +236,7 @@ class AppRequest
                 }
             }
 
-            throw new ApiRateLimitException($count, $limit);
+            throw new ApiRateLimitException();
         }
     }
 
@@ -251,7 +249,6 @@ class AppRequest
             // if the app has Google Analytics, send an event
             if ($id = $app->getGoogleAnalyticsId()) {
                 GoogleAnalytics::event($id, 'Exceptions', 'ApiServiceErrorException', $json->Message);
-                GoogleAnalytics::event($id, 'Exceptions', 'ApiServiceCodeException', $json->Debug->Code);
             }
         }
     }

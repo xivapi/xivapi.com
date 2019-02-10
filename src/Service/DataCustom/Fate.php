@@ -3,6 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class Fate extends ManualHelper
 {
@@ -12,13 +13,13 @@ class Fate extends ManualHelper
     {
         foreach ($this->getContentIds('Fate') as $id) {
             $key = "xiv_Fate_{$id}";
-            $fate = $this->redis->get($key);
+            $fate = Redis::Cache()->get($key);
             
             // set icon
             $this->setIcon($fate);
     
             // save
-            $this->redis->set($key, $fate, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $fate, self::REDIS_DURATION);
         }
     }
 

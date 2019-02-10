@@ -23,7 +23,7 @@ class ItemDescriptions extends ManualHelper
         foreach ($ids as $id) {
             $this->io->progressStart();
             $key = "xiv_Item_{$id}";
-            $item = $this->redis->get($key);
+            $item = Redis::Cache()->get($key);
             
             if (empty($item->Description_en)) {
                 continue;
@@ -43,7 +43,7 @@ class ItemDescriptions extends ManualHelper
             }
             
             // save
-            $this->redis->set($key, $item, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $item, self::REDIS_DURATION);
         }
         
         $this->io->progressFinish();

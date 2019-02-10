@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Character;
 use App\Exception\ContentGoneException;
 use App\Service\Japan\Japan;
 use App\Service\Lodestone\CharacterService;
@@ -33,19 +32,6 @@ class LodestoneCharacterController extends Controller
         $this->pvpService = $pvpService;
     }
     
-    /**
-     * todo - temp
-     * @Route("/character/{lodestoneId}/add")
-     */
-    public function add($lodestoneId)
-    {
-        CharacterQueue::request($lodestoneId, 'character_add');
-        CharacterFriendQueue::request($lodestoneId, 'character_friends_add');
-        CharacterAchievementQueue::request($lodestoneId, 'character_achievements_add');
-        return $this->json(1);
-    }
-    
-
     /**
      * @Route("/Character/Search")
      * @Route("/character/search")

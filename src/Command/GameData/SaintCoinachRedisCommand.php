@@ -4,7 +4,6 @@ namespace App\Command\GameData;
 
 use App\Command\CommandHelperTrait;
 use App\Service\Common\Arrays;
-use App\Service\Redis\Cache;
 use App\Service\Redis\Redis;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -106,7 +105,7 @@ class SaintCoinachRedisCommand extends Command
         $total = count($chunkySchema);
         
         // start a pipeline
-        Redis::Cache()->initPipeline();
+        Redis::Cache()->startPipeline();
         foreach ($chunkySchema as $contentName => $contentSchema) {
             $count++;
             
@@ -160,7 +159,7 @@ class SaintCoinachRedisCommand extends Command
         }
         $this->io->newLine();
         $this->io->text('Pushing to redis');
-        Redis::Cache()->execPipeline();
+        Redis::Cache()->executePipeline();
         $this->complete();
     
         //
@@ -168,11 +167,11 @@ class SaintCoinachRedisCommand extends Command
         //
         
         $this->io->text('<fg=cyan>Caching content ID lists</>');
-        Redis::Cache()->initPipeline();
+        Redis::Cache()->startPipeline();
         foreach ($this->ids as $contentName => $idList) {
             Redis::Cache()->set("ids_{$contentName}", $idList, self::REDIS_DURATION);
         }
-        Redis::Cache()->execPipeline();
+        Redis::Cache()->executePipeline();
         $this->complete();
         
         //
@@ -418,6 +417,8 @@ class SaintCoinachRedisCommand extends Command
             unset($linkData);
             return null;
         }
+        
+        return null;
     }
     
     /**

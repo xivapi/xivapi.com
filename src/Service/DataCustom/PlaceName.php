@@ -3,6 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class PlaceName extends ManualHelper
 {
@@ -18,14 +19,14 @@ class PlaceName extends ManualHelper
         // reset the map state of all PlaceNames, this is so if the script is ran
         // multiple times it doesn't append on duplicates, also all PlaceNames
         // get this field, even if no maps.
-        foreach ($this->redis->get("ids_PlaceName") as $id) {
-            $placename = $this->redis->get("xiv_PlaceName_{$id}");
+        foreach (Redis::Cache()->get("ids_PlaceName") as $id) {
+            $placename = Redis::Cache()->get("xiv_PlaceName_{$id}");
             $placename->Maps = [];
-            $this->redis->set("xiv_PlaceName_{$id}", $placename, self::REDIS_DURATION);
+            Redis::Cache()->set("xiv_PlaceName_{$id}", $placename, self::REDIS_DURATION);
         }
         
-        foreach ($this->redis->get("ids_Map") as $id) {
-            $map = $this->redis->get("xiv_Map_{$id}");
+        foreach (Redis::Cache()->get("ids_Map") as $id) {
+            $map = Redis::Cache()->get("xiv_Map_{$id}");
             
             // remove content links, to much data for a nested entity
             unset($map->GameContentLinks);
@@ -47,13 +48,13 @@ class PlaceName extends ManualHelper
             return;
         }
     
-        $placename = $this->redis->get("xiv_PlaceName_{$id}");
+        $placename = Redis::Cache()->get("xiv_PlaceName_{$id}");
         
         // append on this map and remove any junk
         $placename->Maps[] = $map;
         $placename->Maps = array_filter($placename->Maps);
         
         // save
-        $this->redis->set("xiv_PlaceName_{$id}", $placename, self::REDIS_DURATION);
+        Redis::Cache()->set("xiv_PlaceName_{$id}", $placename, self::REDIS_DURATION);
     }
 }

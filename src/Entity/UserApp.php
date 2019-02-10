@@ -134,6 +134,11 @@ class UserApp
 
         return $this;
     }
+    
+    public function hasGoogleAnalytics(): bool
+    {
+        return !empty($this->googleAnalyticsId);
+    }
 
     public function getDescription(): ?string
     {

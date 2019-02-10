@@ -3,6 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class Leve extends ManualHelper
 {
@@ -11,9 +12,9 @@ class Leve extends ManualHelper
     
     public function handle()
     {
-        foreach ($this->redis->get("ids_Leve") as $id) {
+        foreach (Redis::Cache()->get("ids_Leve") as $id) {
             $key  = "xiv_Leve_{$id}";
-            $leve = $this->redis->get($key);
+            $leve = Redis::Cache()->get($key);
             // ---------------------------------------------------
             
             // defaults
@@ -24,26 +25,26 @@ class Leve extends ManualHelper
             
             // CraftLeve = 917500 > 918500
             if ($leve->DataId >= 917500 && $leve->DataId <= 918500) {
-                $leve->CraftLeve = $this->redis->get("xiv_CraftLeve_{$leve->DataId}");
+                $leve->CraftLeve = Redis::Cache()->get("xiv_CraftLeve_{$leve->DataId}");
             }
             
             // CompanyLeve = 196600 > 196700
             if ($leve->DataId >= 196600 && $leve->DataId <= 196700) {
-                $leve->CompanyLeve = $this->redis->get("xiv_CompanyLeve_{$leve->DataId}");
+                $leve->CompanyLeve = Redis::Cache()->get("xiv_CompanyLeve_{$leve->DataId}");
             }
             
             // GatheringLeve = 131070 > 131300
             if ($leve->DataId >= 131070 && $leve->DataId <= 131300) {
-                $leve->GatheringLeve = $this->redis->get("xiv_GatheringLeve_{$leve->DataId}");
+                $leve->GatheringLeve = Redis::Cache()->get("xiv_GatheringLeve_{$leve->DataId}");
             }
             
             // BattleLeve = 65530 > 65800
             if ($leve->DataId >= 65530 && $leve->DataId <= 65800) {
-                $leve->BattleLeve = $this->redis->get("xiv_BattleLeve_{$leve->DataId}");
+                $leve->BattleLeve = Redis::Cache()->get("xiv_BattleLeve_{$leve->DataId}");
             }
     
             // ---------------------------------------------------
-            $this->redis->set($key, $leve, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $leve, self::REDIS_DURATION);
         }
     }
 }

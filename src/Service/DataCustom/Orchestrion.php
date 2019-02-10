@@ -3,6 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class Orchestrion extends ManualHelper
 {
@@ -16,11 +17,11 @@ class Orchestrion extends ManualHelper
             $key = "xiv_Orchestrion_{$id}";
             
             // append OrchestrationUiParam
-            $Orchestrion = $this->redis->get($key);
-            $Orchestrion->OrchestrionUiparam = $this->redis->get("xiv_OrchestrionUiparam_{$id}");
+            $Orchestrion = Redis::Cache()->get($key);
+            $Orchestrion->OrchestrionUiparam = Redis::Cache()->get("xiv_OrchestrionUiparam_{$id}");
             
             // save
-            $this->redis->set($key, $Orchestrion, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $Orchestrion, self::REDIS_DURATION);
         }
     }
 }

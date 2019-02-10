@@ -4,7 +4,6 @@ namespace App\Service\Maps;
 
 use App\Entity\MapPosition;
 use App\Repository\MapPositionRepository;
-use App\Service\Redis\Cache;
 use Doctrine\ORM\EntityManagerInterface;
 use Intervention\Image\ImageManager;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,8 +17,6 @@ class PreviewGenerator
 
     /** @var EntityManagerInterface */
     private $em;
-    /** @var Cache */
-    private $cache;
     /** @var ImageManager */
     private $image;
     /** @var SymfonyStyle */
@@ -28,7 +25,6 @@ class PreviewGenerator
     public function __construct(EntityManagerInterface $em)
     {
         $this->em    = $em;
-        $this->cache = new Cache();
         $this->image = new ImageManager([
             'driver' => 'imagick',
         ]);

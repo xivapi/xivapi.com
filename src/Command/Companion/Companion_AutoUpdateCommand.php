@@ -4,18 +4,17 @@ namespace App\Command\Companion;
 
 use App\Command\CommandHelperTrait;
 use App\Service\Companion\CompanionMarketUpdater;
-use App\Service\Companion\CompanionPriority;
+use App\Service\Companion\CompanionMarketUpdaterRequest;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UpdateItemPricesCommand extends Command
+class Companion_AutoUpdateCommand extends Command
 {
     use CommandHelperTrait;
 
-    const NAME = 'UpdateItemPricesCommand';
-    const DESCRIPTION = 'Auto-update the item prices based on priority';
+    const NAME = 'Companion_AutoUpdateCommand';
 
     /** @var CompanionMarketUpdater */
     private $companionMarketUpdater;
@@ -30,19 +29,17 @@ class UpdateItemPricesCommand extends Command
     {
         $this
             ->setName(self::NAME)
-            ->setDescription(self::DESCRIPTION)
-            ->addArgument('data_center', InputArgument::OPTIONAL, 'Data center to process')
-            ->addArgument('priority', InputArgument::OPTIONAL, 'Process a priority queue')
-            ->addArgument('item_id', InputArgument::OPTIONAL, 'Update a specific item');
-            
+            ->addArgument('priority',    InputArgument::OPTIONAL, 'Priority')
+            ->addArgument('limit',       InputArgument::OPTIONAL, 'DB Limit')
+            ->addArgument('offset',      InputArgument::OPTIONAL, 'DB Offset');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->companionMarketUpdater->process(
-            $input->getArgument('data_center'),
             $input->getArgument('priority'),
-            $input->getArgument('item_id')
+            $input->getArgument('limit'),
+            $input->getArgument('offset')
         );
     }
 }

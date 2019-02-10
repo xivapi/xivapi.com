@@ -2,9 +2,9 @@
 
 namespace App\Service\Companion;
 
-use App\Entity\CompanionMarketItem;
+use App\Entity\CompanionMarketItemEntry;
 use App\Entity\CompanionMarketItemException;
-use App\Repository\CompanionMarketItemRepository;
+use App\Repository\CompanionMarketItemEntryRepository;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
@@ -12,13 +12,19 @@ use App\Service\Content\GameServers;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
+/**
+ * Auto-Update item price + history
+ * 1 item takes 3 seconds
+ * 1 cronjob can do ~20 items.
+ * - around 30,750 CronJobs to handle
+ */
 class CompanionMarketUpdater
 {
     /** @var EntityManagerInterface */
     private $em;
     /** @var ConsoleOutput */
     private $console;
-    /** @var CompanionMarketItemRepository */
+    /** @var CompanionMarketItemEntryRepository */
     private $repository;
     /** @var Companion */
     private $companion;
@@ -30,143 +36,149 @@ class CompanionMarketUpdater
         $this->em               = $em;
         $this->companion        = $companion;
         $this->companionMarket  = $companionMarket;
-        $this->repository       = $this->em->getRepository(CompanionMarketItem::class);
+        $this->repository       = $this->em->getRepository(CompanionMarketItemEntry::class);
         $this->console          = new ConsoleOutput();
     }
     
-    public function process(string $dataCenter, int $priority = null, int $itemId = null)
+    public function process(int $priority, int $offset, int $limit)
     {
-        $items = false;
-    
-        // grab servers to parse
-        $servers = GameServers::LIST_DC[$dataCenter] ?? false;
-        if ($servers === false) {
-            $this->console->writeln('Invalid data center provided');
-            return;
-        }
-
-        // if doing a single item (eg manual update)
-        if ($itemId) {
-            $items = $this->repository->findOneBy([ 'item' => $itemId ]);
-        }
+        $start = time();
         
-        // if doing a priority list of items
-        if ($priority) {
-            $items = $this->repository->findBy([ 'priority' => $priority ]);
-        }
+        $serverId = GameServers::getServerId('Phoenix');
         
-        if (empty($items)) {
-            $this->console->writeln('No items');
+        /** @var CompanionMarketItemEntry[] $entries */
+        $entries = $this->repository->findBy(
+            [ 'priority' => $priority, 'server' => $serverId ], [ 'updated' => 'asc' ], $limit, $offset
+        );
+        
+        // no items???
+        if (empty($entries)) {
+            $this->console->writeln('ERROR: No items to update!? Da fook!');
             return;
         }
     
-        $total = count($items);
+        $total = count($entries);
         $this->console->writeln("Total Items: {$total}");
-        $this->console->writeln('Getting item prices and history');
+        $this->console->writeln('Updating Prices + History');
+        $section = $this->console->section();
         
-        // loop through items
-        /** @var CompanionMarketItem $item */
-        foreach ($items as $item) {
-            $section = $this->console->section();
-
-            // loop through servers
-            foreach ($servers as $server) {
-                // convert server to an int
-                $serverName = $server;
-                $server = GameServers::getServerId($server);
-
-                $section->overwrite("> {$item->getItem()} {$serverName}");
-
-                // try get existing item
-                $marketItem = $this->companionMarket->get($server, $item->getItem());
-                
-                // if no market item, create one!
-                if ($marketItem === null) {
-                    $section->overwrite("> {$item->getItem()} {$serverName} - new item created");
-                    $marketItem = new MarketItem($server, $item->getItem());
-                }
-                
-                try {
-                    // grab prices from companion
-                    $section->overwrite("> {$item->getItem()} {$serverName} - Fetching prices ...");
-                    $prices  = $this->companion->getItemPrices($serverName, $item->getItem());
+        /** @var CompanionMarketItemEntry $item */
+        foreach ($entries as $entry) {
+            // if we're close to the cronjob minute mark, end
+            if ((time() - $start) > 55) {
+                $this->console->writeln('Ending auto-update as 55 seconds reached.');
+                return;
+            }
     
-                    // grab history from companion
-                    $section->overwrite("> {$item->getItem()} {$serverName} - Fetching history ...");
-                    $history = $this->companion->getItemHistory($serverName, $item->getItem());
-                } catch (\Exception $ex) {
-                    $marketItemException = new CompanionMarketItemException();
-                    $marketItemException
-                        ->setItem($item->getItem())
-                        ->setServer($server)
-                        ->setException(get_class($ex))
-                        ->setMessage($ex->getMessage());
-                    
-                    $this->em->persist($marketItemException);
-                    $this->em->flush();
-                    continue;
-                }
-                
-                //
-                // convert prices
-                //
-                $section->overwrite("> {$item->getItem()} {$serverName} - Converting price data");
-                
-                // reset prices
-                $marketItem->Prices = [];
+            $time = date('H:i:s');
+            $serverName = GameServers::LIST[$serverId];
+            $section->overwrite("> [{$time}] [{$entry->getPriority()}] Server: {$entry->getServer()} {$serverName} - ItemID: {$entry->getItem()} ");
     
-                // append current prices
-                foreach ($prices->entries as $row) {
-                    $marketItem->Prices[] = MarketListing::build($row);
-                }
-                
-                //
-                // convert historic data
-                //
-                $section->overwrite("> {$item->getItem()} {$serverName} - Converting history data");
-                if ($history->history) {
-                    foreach ($history->history as $row) {
-                        // build a custom ID based on a few factors (History can't change)
-                        // we don't include character name as I'm unsure if it changes if you rename yourself
-                        $id = sha1(vsprintf("%s_%s_%s_%s_%s", [
-                            $item->getItem(),
-                            $row->stack,
-                            $row->hq,
-                            $row->sellPrice,
-                            $row->buyRealDate
-                        ]));
-                        
-                        // if this entry is in our history, then just finish
-                        $found = false;
-                        foreach ($marketItem->History as $existing) {
-                            if ($existing->ID == $id) {
-                                $found = true;
-                                break;
-                            }
-                        }
-                        
-                        // once we've found an existing entry we don't need to add anymore
-                        if ($found) {
-                            break;
-                        }
+            // try get existing item, otherwise create a new one
+            $marketItem = $this->companionMarket->get($entry->getServer(), $entry->getItem());
+            $marketItem = $marketItem ?: new MarketItem($entry->getServer(), $entry->getItem());
 
-                        // add history to front
-                        array_unshift($marketItem->History, MarketHistory::build($id, $row));
-                    }
-                }
-                
-                // put
-                $section->overwrite("> {$item->getItem()} {$serverName} - Saved");
-                $this->companionMarket->set($marketItem);
+            // grab prices + history from sight api
+            $sightData = $this->getCompanionMarketData($entry->getServer(), $entry->getItem());
+            
+            if ($sightData === null) {
+                $this->console->writeln("No market data for: {$entry->getItem()} on server: {$entry->getServer()}");
+                continue;
             }
             
-            $section->writeln("Item {$item->getItem()} completed");
-            $item->setUpdated(time());
+            [ $prices, $history ] = $sightData;
+    
+            //
+            // convert prices
+            //
+
+            // reset prices
+            $marketItem->Prices = [];
+    
+            // append current prices
+            foreach ($prices->entries as $row) {
+                $marketItem->Prices[] = MarketListing::build($row);
+            }
+    
+            //
+            // convert historic data
+            //
+            if ($history->history) {
+                foreach ($history->history as $row) {
+                    // build a custom ID based on a few factors (History can't change)
+                    // we don't include character name as I'm unsure if it changes if you rename yourself
+                    $id = sha1(vsprintf("%s_%s_%s_%s_%s", [
+                        $entry->getItem(),
+                        $row->stack,
+                        $row->hq,
+                        $row->sellPrice,
+                        $row->buyRealDate,
+                    ]));
             
-            $this->em->persist($item);
+                    // if this entry is in our history, then just finish
+                    $found = false;
+                    foreach ($marketItem->History as $existing) {
+                        if ($existing->ID == $id) {
+                            $found = true;
+                            break;
+                        }
+                    }
+            
+                    // once we've found an existing entry we don't need to add anymore
+                    if ($found) {
+                        break;
+                    }
+            
+                    // add history to front
+                    array_unshift($marketItem->History, MarketHistory::build($id, $row));
+                }
+            }
+    
+            // put
+            $this->companionMarket->set($marketItem);
+            
+            // update entry
+            $entry->setUpdated(time());
+            
+            $this->em->persist($entry);
             $this->em->flush();
         }
+    
+        $this->em->clear();
+
+        $this->console->writeln('Finished!');
+    }
+    
+    /**
+     * Returns the Prices + History for an item on a specific server, or returns null
+     */
+    private function getCompanionMarketData($serverId, $itemId)
+    {
+        $serverName = GameServers::LIST[$serverId];
+    
+        try {
+            $prices  = $this->companion->getItemPrices($serverName, $itemId);
+            $history = $this->companion->getItemHistory($serverName, $itemId);
+            
+            return [ $prices, $history ];
+        } catch (\Exception $ex) {
+            // record failed attempts
+            $marketItemException = new CompanionMarketItemException();
+            $marketItemException
+                ->setItem($itemId)
+                ->setServer($serverId)
+                ->setException(get_class($ex))
+                ->setMessage($ex->getMessage());
         
-        $this->console->writeln('Ready!');
+            $this->em->persist($marketItemException);
+            $this->em->flush();
+        }
+
+        return null;
+    }
+    
+    private function one(int $serverId, int $itemId)
+    {
+        // todo - implement logic for updating 1 item on 1 server
     }
 }

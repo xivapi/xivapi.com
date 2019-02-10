@@ -13,13 +13,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\Service\User\UserService;
 use App\Service\User\SSO\DiscordSignIn;
 use App\Entity\UserApp;
-use App\Entity\MapCompletion;
-use App\Entity\MapPosition;
 use App\Entity\User;
 use App\Form\AppForm;
-use App\Repository\MapPositionRepository;
 use App\Service\Apps\AppManager;
-use App\Service\Redis\Cache;
 
 class ApplicationsController extends Controller
 {
@@ -31,21 +27,17 @@ class ApplicationsController extends Controller
     private $session;
     /** @var AppManager */
     private $apps;
-    /** @var Cache */
-    private $cache;
     
     public function __construct(
         EntityManagerInterface $em,
         UserService $userService,
         SessionInterface $session,
-        AppManager $apps,
-        Cache $cache
+        AppManager $apps
     ) {
         $this->em          = $em;
         $this->userService = $userService;
         $this->session     = $session;
         $this->apps        = $apps;
-        $this->cache       = $cache;
     }
 
     /**

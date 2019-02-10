@@ -55,6 +55,7 @@ class CompanionMarketItemException
     public function __construct()
     {
         $this->id = Uuid::uuid4();
+        $this->added = time();
     }
     
     public function getId(): string

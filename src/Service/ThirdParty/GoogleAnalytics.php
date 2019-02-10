@@ -48,17 +48,15 @@ class GoogleAnalytics
     /**
      * Post a hit to Google Analytics
      */
-    public static function hit(string $trackingId, string $url): void
+    public static function hit($account, string $url): void
     {
-        $trackingId = str_ireplace('{XIVAPI}', getenv('SITE_CONFIG_GOOGLE_ANALYTICS'), $trackingId);
-
         self::query([
             't'   => 'pageview',
             'v'   => self::VERSION,
             'cid' => Uuid::uuid4()->toString(),
             'z'   => mt_rand(0, 999999),
 
-            'tid' => $trackingId,
+            'tid' => self::getTrackingId($account),
             'dp'  => $url,
         ]);
     }
@@ -66,22 +64,34 @@ class GoogleAnalytics
     /**
      * Record an event
      */
-    public static function event(string $trackingId, string $category, string $action, string $label = '', int $value = 1): void
+    public static function event($account, string $category, string $action, string $label = '', int $value = 1): void
     {
-        $trackingId = str_ireplace('{XIVAPI}', getenv('SITE_CONFIG_GOOGLE_ANALYTICS'), $trackingId);
-
         self::query([
             't'   => 'event',
             'v'   => self::VERSION,
             'cid' => Uuid::uuid4()->toString(),
             'z'   => mt_rand(0, 999999),
 
-            'tid' => $trackingId,
+            'tid' => self::getTrackingId($account),
             'ec'  => $category,
             'ea'  => $action,
             'el'  => $label,
             'ev'  => $value,
         ]);
+    }
+    
+    /**
+     * Get tracking ID from provided account
+     */
+    private static function getTrackingId($account)
+    {
+        // if we pass a user app, get the google analytics ID from it
+        if (is_object($account) && get_class($account) === UserApp::class) {
+            /** @var UserApp $account */
+            return $account->getGoogleAnalyticsId();
+        } else {
+            return str_ireplace('{XIVAPI}', getenv('SITE_CONFIG_GOOGLE_ANALYTICS'), $account);
+        }
     }
 
     // --------------------------------

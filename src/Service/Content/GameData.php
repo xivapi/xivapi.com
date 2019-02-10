@@ -2,7 +2,6 @@
 
 namespace App\Service\Content;
 
-use App\Service\Redis\Cache;
 use App\Service\Redis\Redis;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

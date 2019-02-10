@@ -7,6 +7,7 @@ use App\Entity\CharacterAchievements;
 use App\Entity\CharacterFriends;
 use App\Entity\Entity;
 use App\Service\Content\LodestoneData;
+use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterAchievementQueue;
 use App\Service\LodestoneQueue\CharacterConverter;
 use App\Service\LodestoneQueue\CharacterFriendQueue;
@@ -33,7 +34,7 @@ class CharacterService extends Service
                 CharacterConverter::handle($data);
                 
                 if ($extended) {
-                    LodestoneData::extendCharacterData($data);
+                    LodestoneCharacter::extendCharacterData($data);
                 }
             }
             
@@ -65,7 +66,7 @@ class CharacterService extends Service
                 $data = LodestoneData::load('character', 'achievements', $lodestoneId);
                 
                 if ($extended) {
-                    LodestoneData::extendAchievementData($data);
+                    LodestoneCharacter::extendAchievementData($data);
                 }
             }
     

@@ -25,16 +25,6 @@ class LodestoneLinkshellController extends Controller
     }
     
     /**
-     * todo - temp
-     * @Route("/linkshell/{lodestoneId}/add")
-     */
-    public function add($lodestoneId)
-    {
-        LinkshellQueue::request($lodestoneId, 'linkshell_add');
-        return $this->json(1);
-    }
-    
-    /**
      * @Route("/Linkshell/Search")
      * @Route("/linkshell/search")
      */

@@ -3,6 +3,7 @@
 namespace App\Service\GamePatch;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 /**
  * Tracks patch info for each piece of content
@@ -62,7 +63,7 @@ class PatchContent extends ManualHelper
             }
             
             $this->io->text("{$current}/{$total} <comment>Tracked: {$contentName}</comment>");
-            $ids = $this->redis->get("ids_{$contentName}");
+            $ids = Redis::Cache()->get("ids_{$contentName}");
             
             if (!$ids) {
                 $this->io->text('No ids for: '. $contentName);
@@ -80,14 +81,14 @@ class PatchContent extends ManualHelper
     
                 // grab content
                 $key     = "xiv_{$contentName}_{$contentId}";
-                $content = $this->redis->get($key);
+                $content = Redis::Cache()->get($key);
 
                 // set patch
                 $content->GamePatchID   = $patchId;
                 $content->GamePatch     = $patchService->getPatchAtID((int)$patchId);
                 
                 // re-save content
-                $this->redis->set($key, $content, self::REDIS_DURATION);
+                Redis::Cache()->set($key, $content, self::REDIS_DURATION);
             }
         }
         
@@ -104,7 +105,7 @@ class PatchContent extends ManualHelper
         // latest patch
         $patch = (new Patch())->getLatest();
         
-        $content = (array)$this->redis->get('content');
+        $content = (array)Redis::Cache()->get('content');
         $total   = count($content);
         $current = 0;
         foreach ($content as $contentName) {
@@ -113,8 +114,8 @@ class PatchContent extends ManualHelper
             $filename = sprintf(self::FILENAME, $contentName);
         
             // grab all content ids
-            $ids    = $this->redis->get("ids_{$contentName}");
-            $schema = $this->redis->get("schema_{$contentName}");
+            $ids    = Redis::Cache()->get("ids_{$contentName}");
+            $schema = Redis::Cache()->get("schema_{$contentName}");
             
             if (!$schema) {
                 $this->io->text('!!! Error: No schema for: '. $contentName);
@@ -146,7 +147,7 @@ class PatchContent extends ManualHelper
             // loop through all content ids
             foreach ($ids as $id) {
                 // grab content
-                $content = $this->redis->get("xiv_{$contentName}_{$id}");
+                $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
                 
                 if (!isset($content->{$stringColumn})) {
                     continue;

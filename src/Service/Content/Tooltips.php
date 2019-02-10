@@ -2,77 +2,67 @@
 
 namespace App\Service\Content;
 
+use App\Exception\InvalidTooltipsColumnCountException;
+use App\Exception\InvalidTooltipsContentCountException;
+use App\Exception\InvalidTooltipsIdCountException;
+use App\Service\Common\Arrays;
+use App\Service\Common\Language;
+
 class Tooltips
 {
-    public static function get($category, $content)
+    const MAX_CONTENT   = 10;
+    const MAX_IDS       = 100;
+    const MAX_COLUMNS   = 50;
+    
+    /** @var array */
+    private $response = [];
+    /** @var array */
+    private $globalColumns = [];
+    /** @var GameData */
+    private $gamedata;
+    
+    public function __construct(GameData $gamedata)
     {
-        switch ($category) {
-            case 'Achievement':     return self::Achievement($content);
-            case 'Item':            return self::Item($content);
+        $this->gamedata = $gamedata;
+    }
+    
+    /**
+     * Handle tooltip requests
+     */
+    public function handle($json)
+    {
+        // grab global columns
+        $this->globalColumns = $json->_columns ?? [];
+        unset($json->_columns);
+        
+        if (count($json) > self::MAX_CONTENT) {
+            throw new InvalidTooltipsContentCountException();
         }
-    }
-
-    public static function Achievement($content)
-    {
-        return [
-            $content->ID,
-            $content->Name_en,
-            $content->Icon,
-            1, // rarity
-
-            $content->AchievementCategory->Name_en ?? null,
-            $content->AchievementCategory->AchievementKind->Name_en ?? null,
-            $content->Description_en,
-            $content->Points,
-        ];
-    }
-
-    public static function Item($content)
-    {
-        return [
-            $content->ID,
-            $content->Name_en,
-            $content->Icon,
-            $content->Rarity,
-
-            $content->Description_en,
-            $content->LevelEquip,
-            $content->LevelItem,
-            $content->ClassJobCategory->Name_en ?? null,
-            $content->ClassJobUse->NameEnglish_en ?? null,
-            $content->ItemUICategory->Name_en ?? null,
-
-            // is
-            $content->IsAdvancedMeldingPermitted,
-            $content->IsCollectable,
-            $content->IsCrestWorthy,
-            $content->IsDyeable,
-            $content->IsGlamourous,
-            $content->IsPvP,
-            $content->IsUnique,
-            $content->IsUntradable,
-
-            // stats
-            $content->Block,
-            $content->BlockRate,
-            $content->CooldownS,
-            $content->DamageMag,
-            $content->DamagePhys,
-            $content->DefenseMag,
-            $content->DefensePhys,
-            $content->DelayMs,
-            $content->BaseParam0->Name_en ?? null,
-            $content->BaseParam1->Name_en ?? null,
-            $content->BaseParam2->Name_en ?? null,
-            $content->BaseParam3->Name_en ?? null,
-            $content->BaseParam4->Name_en ?? null,
-            $content->BaseParam5->Name_en ?? null,
-            $content->BaseParamValue0 ?? null,
-            $content->BaseParamValue1 ?? null,
-            $content->BaseParamValue2 ?? null,
-            $content->BaseParamValue3 ?? null,
-            $content->BaseParamValue4 ?? null,
-            $content->BaseParamValue5 ?? null,
-        ];
+        
+        // loop through content
+        foreach ($json as $contentName => $request) {
+            $columns = $request->columns ?? [];
+            $columns = array_merge($columns, $this->globalColumns);
+            
+            if (count($request->ids) > self::MAX_IDS) {
+                throw new InvalidTooltipsIdCountException();
+            }
+            
+            if (count($columns) > self::MAX_COLUMNS) {
+                throw new InvalidTooltipsColumnCountException();
+            }
+            
+            foreach ($request->ids as $id) {
+                $content = $this->gamedata->one($contentName, $id);
+                $content = Language::handle($content);
+                $columns = Arrays::extractColumnsCount($content, $columns);
+                $columns = Arrays::extractMultiLanguageColumns($columns);
+                $content = Arrays::extractColumns($content, $columns);
+                $this->response[$contentName][$id] = $content;
+                unset($content);
+            }
+        }
+        
+        return $this->response;
     }
 }

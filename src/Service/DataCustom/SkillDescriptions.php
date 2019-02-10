@@ -5,6 +5,7 @@ namespace App\Service\DataCustom;
 use App\Service\Content\DescriptionFormatter;
 use App\Service\Content\ManualHelper;
 use App\Service\Common\Language;
+use App\Service\Redis\Redis;
 
 class SkillDescriptions extends ManualHelper
 {
@@ -27,12 +28,12 @@ class SkillDescriptions extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_Action_{$id}";
-            $action = $this->redis->get($key);
+            $action = Redis::Cache()->get($key);
         
             $this->formatDescription($action);
         
             // save
-            $this->redis->set($key, $action, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $action, self::REDIS_DURATION);
         }
     }
     
@@ -46,12 +47,12 @@ class SkillDescriptions extends ManualHelper
         
         foreach ($ids as $id) {
             $key = "xiv_Trait_{$id}";
-            $action = $this->redis->get($key);
+            $action = Redis::Cache()->get($key);
             
             $this->formatDescription($action);
             
             // save
-            $this->redis->set($key, $action, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $action, self::REDIS_DURATION);
         }
     }
     
@@ -62,12 +63,12 @@ class SkillDescriptions extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_CraftAction_{$id}";
-            $action = $this->redis->get($key);
+            $action = Redis::Cache()->get($key);
         
             $this->formatDescription($action);
         
             // save
-            $this->redis->set($key, $action, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $action, self::REDIS_DURATION);
         }
 
     }
