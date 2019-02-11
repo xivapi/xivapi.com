@@ -300,13 +300,55 @@ class DescriptionFormatter
     public function getPlayerParameterContext($param, $value)
     {
         $key = "{$param}_{$value}";
-        switch($key) {
-            default: return "UNKNOWN_{$key}";
-            case 'PlayerParameter_68': return 'class_job_id';
-            case 'PlayerParameter_69': return 'class_job_level';
-            case 'PlayerParameter_70': return 'starting_city_id';
-            case 'PlayerParameter_71': return 'race';
-            case 'PlayerParameter_72': return 'class_job_level';
-        }
+        
+        $playerParameters = [
+            0  => 'reset',
+            1  => 'reset_bold',
+            4  => 'is_woman',
+            5  => 'action_target_is_woman',
+
+            11 => 'in_game_hours',
+            12 => 'in_game_minutes',
+            13 => 'say_color',
+            14 => 'shout_color',
+            15 => 'tell_color',
+            16 => 'party_color',
+            18 => 'linkshell_1_color',
+            19 => 'linkshell_2_color',
+            20 => 'linkshell_3_color',
+            21 => 'linkshell_4_color',
+            22 => 'linkshell_5_color',
+            23 => 'linkshell_6_color',
+            24 => 'linkshell_7_color',
+            25 => 'linkshell_8_color',
+            26 => 'free_company_color',
+            30 => 'custom_emotes_color',
+            31 => 'standard_emotes_color',
+
+            68 => 'class_job_id',
+            69 => 'class_job_level',
+            70 => 'starting_city_id',
+            71 => 'race',
+            72 => 'class_job_level',
+            
+            216 => 'milliseconds',
+            217 => 'seconds',
+            218 => 'minutes',
+            219 => 'hours',
+            220 => 'day',
+            221 => 'week_day',
+            222 => 'month',
+            223 => 'year',
+            224 => '>=',
+            225 => '>',
+            226 => '<=',
+            227 => '<',
+            228 => '==',
+            229 => '!=',
+            235 => 'color',
+            236 => 'reset_color',
+        ];
+        
+        return $playerParameters[$value] ?? "Unknown: {$key}";
     }
 }
