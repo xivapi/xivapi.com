@@ -10,7 +10,7 @@ use App\Service\Redis\Redis;
  */
 class Links extends ManualHelper
 {
-    const PRIORITY = 100;
+    const PRIORITY = 9998;
     
     public function handle()
     {

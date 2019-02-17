@@ -20,6 +20,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 class CompanionMarketUpdater
 {
+    const MAX_PER_CRONJOB = 18;
+    const MAX_QUERY_DURATION = 3;
+    const MAX_CRONJOB_DURATION = 55;
+    
     /** @var EntityManagerInterface */
     private $em;
     /** @var ConsoleOutput */
@@ -30,26 +34,32 @@ class CompanionMarketUpdater
     private $companion;
     /** @var CompanionMarket */
     private $companionMarket;
+    /** @var CompanionMarket */
+    private $companionTokenManager;
     
-    public function __construct(EntityManagerInterface $em, Companion $companion, CompanionMarket $companionMarket)
-    {
-        $this->em               = $em;
-        $this->companion        = $companion;
-        $this->companionMarket  = $companionMarket;
-        $this->repository       = $this->em->getRepository(CompanionMarketItemEntry::class);
-        $this->console          = new ConsoleOutput();
+    public function __construct(
+        EntityManagerInterface $em,
+        Companion $companion,
+        CompanionMarket $companionMarket,
+        CompanionTokenManager $companionTokenManager
+    ) {
+        $this->em = $em;
+        $this->companion = $companion;
+        $this->companionMarket = $companionMarket;
+        $this->companionTokenManager = $companionTokenManager;
+        $this->repository = $this->em->getRepository(CompanionMarketItemEntry::class);
+        $this->console = new ConsoleOutput();
     }
     
-    public function process(int $priority, int $offset, int $limit)
+    public function process(int $priority, int $queue)
     {
-        $start = time();
-        
-        $serverId = GameServers::getServerId('Phoenix');
+        $start  = time();
+        $limit  = self::MAX_PER_CRONJOB;
+        $offset = self::MAX_PER_CRONJOB * $queue;
+        $tokens = $this->companionTokenManager->getCompanionTokensPerServer();
         
         /** @var CompanionMarketItemEntry[] $entries */
-        $entries = $this->repository->findBy(
-            [ 'priority' => $priority, 'server' => $serverId ], [ 'updated' => 'asc' ], $limit, $offset
-        );
+        $entries = $this->repository->findItemsToUpdate($priority, $limit, $offset);
         
         // no items???
         if (empty($entries)) {
@@ -65,27 +75,35 @@ class CompanionMarketUpdater
         /** @var CompanionMarketItemEntry $item */
         foreach ($entries as $entry) {
             // if we're close to the cronjob minute mark, end
-            if ((time() - $start) > 55) {
-                $this->console->writeln('Ending auto-update as 55 seconds reached.');
+            if ((time() - $start) > self::MAX_CRONJOB_DURATION) {
+                $this->console->writeln('Ending auto-update as time limit seconds reached.');
                 return;
             }
-    
+
+            // start
             $time = date('H:i:s');
-            $serverName = GameServers::LIST[$serverId];
+            $serverName = GameServers::LIST[$entry->getServer()];
             $section->overwrite("> [{$time}] [{$entry->getPriority()}] Server: {$entry->getServer()} {$serverName} - ItemID: {$entry->getItem()} ");
     
+            // set the companion API token
+            $token = $tokens[$serverName];
+            $this->companion->setCompanionApiToken($token->getToken());
+            
             // try get existing item, otherwise create a new one
             $marketItem = $this->companionMarket->get($entry->getServer(), $entry->getItem());
             $marketItem = $marketItem ?: new MarketItem($entry->getServer(), $entry->getItem());
 
             // grab prices + history from sight api
-            $sightData = $this->getCompanionMarketData($entry->getServer(), $entry->getItem());
+            $sightData = $this->getCompanionMarketData($entry->getItem());
             
             if ($sightData === null) {
+                file_put_contents(__DIR__.'/CompanionMarketUpdater_Error.txt', time() . PHP_EOL, FILE_APPEND);
                 $this->console->writeln("No market data for: {$entry->getItem()} on server: {$entry->getServer()}");
                 continue;
             }
-            
+    
+            file_put_contents(__DIR__.'/CompanionMarketUpdater_Success.txt', time() . PHP_EOL, FILE_APPEND);
+    
             [ $prices, $history ] = $sightData;
     
             //
@@ -136,6 +154,7 @@ class CompanionMarketUpdater
     
             // put
             $this->companionMarket->set($marketItem);
+            file_put_contents(__DIR__.'/CompanionMarket.json', "{$marketItem->ItemID} {$marketItem->Server} \n", FILE_APPEND);
             
             // update entry
             $entry->setUpdated(time());
@@ -152,21 +171,17 @@ class CompanionMarketUpdater
     /**
      * Returns the Prices + History for an item on a specific server, or returns null
      */
-    private function getCompanionMarketData($serverId, $itemId)
+    private function getCompanionMarketData($itemId)
     {
-        $serverName = GameServers::LIST[$serverId];
-    
         try {
-            $prices  = $this->companion->getItemPrices($serverName, $itemId);
-            $history = $this->companion->getItemHistory($serverName, $itemId);
+            $prices  = $this->companion->getItemPrices($itemId);
+            $history = $this->companion->getItemHistory($itemId);
             
             return [ $prices, $history ];
         } catch (\Exception $ex) {
             // record failed attempts
             $marketItemException = new CompanionMarketItemException();
             $marketItemException
-                ->setItem($itemId)
-                ->setServer($serverId)
                 ->setException(get_class($ex))
                 ->setMessage($ex->getMessage());
         

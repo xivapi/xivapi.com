@@ -7,36 +7,37 @@ use Companion\CompanionApi;
 
 class Companion
 {
-    /**
-     * Grab
-     */
-    private function getCompanionApi($server): CompanionApi
+    /** @var CompanionApi */
+    private $api;
+    
+    public function setCompanionApiToken(\stdClass $token): self
     {
-        return new CompanionApi("xivapi_{$server}", CompanionTokenManager::PROFILE_FILENAME);
+        $this->api = new CompanionApi($token);
+        return $this;
     }
     
     /**
      * Get prices for a specific item
      */
-    public function getItemPrices(string $server, int $itemId)
+    public function getItemPrices(int $itemId)
     {
-        return $this->getCompanionApi($server)->Market()->getItemMarketListings($itemId);
+        return $this->api->Market()->getItemMarketListings($itemId);
     }
     
     /**
      * Get history for a specific item
      */
-    public function getItemHistory(string $server, int $itemId)
+    public function getItemHistory(int $itemId)
     {
-        return $this->getCompanionApi($server)->Market()->getTransactionHistory($itemId);
+        return $this->api->Market()->getTransactionHistory($itemId);
     }
     
     /**
      * Get category listings for an item
      */
-    public function getCategoryList(string $server, int $categoryId)
+    public function getCategoryList(int $categoryId)
     {
-        return $this->getCompanionApi($server)->Market()->getMarketListingsByCategory($categoryId);
+        return $this->api->Market()->getMarketListingsByCategory($categoryId);
     }
     
     /**

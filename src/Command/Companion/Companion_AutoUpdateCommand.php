@@ -4,7 +4,6 @@ namespace App\Command\Companion;
 
 use App\Command\CommandHelperTrait;
 use App\Service\Companion\CompanionMarketUpdater;
-use App\Service\Companion\CompanionMarketUpdaterRequest;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,17 +28,15 @@ class Companion_AutoUpdateCommand extends Command
     {
         $this
             ->setName(self::NAME)
-            ->addArgument('priority',    InputArgument::OPTIONAL, 'Priority')
-            ->addArgument('limit',       InputArgument::OPTIONAL, 'DB Limit')
-            ->addArgument('offset',      InputArgument::OPTIONAL, 'DB Offset');
+            ->addArgument('priority', InputArgument::OPTIONAL, 'Priority')
+            ->addArgument('queue',    InputArgument::OPTIONAL, 'Queue Number');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->companionMarketUpdater->process(
             $input->getArgument('priority'),
-            $input->getArgument('limit'),
-            $input->getArgument('offset')
+            $input->getArgument('queue')
         );
     }
 }

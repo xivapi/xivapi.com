@@ -24,6 +24,24 @@
 
         <br>
 
+        {# App rate limited! #}
+        {% if app.apiRateLimitAutoModified %}
+            <div class="warning">
+                <h3>Rate Limit automatically modified</h3>
+                <p>
+                    Due to excessive requests, your apps rate limit was automatically modified
+                    on: {{ app.apiRateLimitAutoModifiedDate|date }}. Your new values are:
+                    {{ app.apiRateLimit }}, with a burst of: {{ app.apiRateLimitBurst }}. Your
+                    requests are monitored every 5 minutes. If you reduce your requests your
+                    rate limit will be restored gradually over time.
+                </p>
+                <br><br>
+                <p>
+                    <strong>Notes:</strong> {{ app.notes }}
+                </p>
+            </div>
+        {% endif %}
+
         {# App is new! #}
         {% if app.new %}
         <div class="warning">

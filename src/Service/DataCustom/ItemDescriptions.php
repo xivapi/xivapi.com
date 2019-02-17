@@ -17,11 +17,9 @@ class ItemDescriptions extends ManualHelper
     public function handle()
     {
         $ids = Redis::Cache()->get('ids_Item');
-        $this->io->progressStart(count($ids));
         $formatter = new DescriptionFormatter();
         
         foreach ($ids as $id) {
-            $this->io->progressStart();
             $key = "xiv_Item_{$id}";
             $item = Redis::Cache()->get($key);
             
@@ -30,7 +28,7 @@ class ItemDescriptions extends ManualHelper
             }
     
             foreach (Language::LANGUAGES as $lang) {
-                if (!isset($object->{'Description_'. $lang})) {
+                if (!isset($item->{'Description_'. $lang})) {
                     $item->{'Description_'. $lang}     = null;
                     $item->{'DescriptionJSON_'. $lang} = null;
                     continue;
@@ -45,7 +43,5 @@ class ItemDescriptions extends ManualHelper
             // save
             Redis::Cache()->set($key, $item, self::REDIS_DURATION);
         }
-        
-        $this->io->progressFinish();
     }
 }

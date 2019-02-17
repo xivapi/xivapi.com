@@ -40,15 +40,6 @@ Server3:
   user: dalamud
   port: 22
 
-Server4:
-  hostname: 45.76.216.187
-  user: dalamud
-  port: 22
-
-Server5:
-  hostname: 45.32.254.10
-  user: dalamud
-  port: 22
 
 Server6:
   hostname: 198.13.61.206
@@ -77,10 +68,5 @@ Server10:
 
 Server11:
   hostname: 198.13.34.9
-  user: dalamud
-  port: 22
-
-Server12:
-  hostname: 43.224.35.194
   user: dalamud
   port: 22

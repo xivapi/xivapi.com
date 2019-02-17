@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "a2db32763b31473e8000641d106334c8",
+    "content-hash": "c54aec2f62a1cdf20ea9af3ecd35527b",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -7630,16 +7630,16 @@
         },
         {
             "name": "xivapi/companion-php",
-            "version": "0.1.8",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/xivapi/companion-php.git",
-                "reference": "b6f9196f53e3288257f7706315972b7c324db2ab"
+                "reference": "22e37f4dde00fb407e227c61d83c4b46d345f4b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/xivapi/companion-php/zipball/b6f9196f53e3288257f7706315972b7c324db2ab",
-                "reference": "b6f9196f53e3288257f7706315972b7c324db2ab",
+                "url": "https://api.github.com/repos/xivapi/companion-php/zipball/22e37f4dde00fb407e227c61d83c4b46d345f4b0",
+                "reference": "22e37f4dde00fb407e227c61d83c4b46d345f4b0",
                 "shasum": ""
             },
             "require": {
@@ -7665,7 +7665,7 @@
                 "ffxiv",
                 "php"
             ],
-            "time": "2019-01-08T13:49:17+00:00"
+            "time": "2019-02-15T16:40:05+00:00"
         },
         {
             "name": "xivapi/lodestone-parser",

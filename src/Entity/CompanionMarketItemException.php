@@ -11,8 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
  *     name="companion_market_item_exception",
  *     indexes={
  *          @ORM\Index(name="added", columns={"added"}),
- *          @ORM\Index(name="item", columns={"item"}),
- *          @ORM\Index(name="server", columns={"server"}),
  *          @ORM\Index(name="exception", columns={"exception"})
  *     }
  * )
@@ -31,16 +29,6 @@ class CompanionMarketItemException
      * @ORM\Column(type="integer")
      */
     private $added;
-    /**
-     * @var int
-     * @ORM\Column(type="integer")
-     */
-    private $item;
-    /**
-     * @var int
-     * @ORM\Column(type="integer")
-     */
-    private $server;
     /**
      * @var string
      * @ORM\Column(type="string", nullable=true)
@@ -78,30 +66,6 @@ class CompanionMarketItemException
     public function setAdded(int $added)
     {
         $this->added = $added;
-        
-        return $this;
-    }
-    
-    public function getItem(): int
-    {
-        return $this->item;
-    }
-    
-    public function setItem(int $item)
-    {
-        $this->item = $item;
-        
-        return $this;
-    }
-    
-    public function getServer(): int
-    {
-        return $this->server;
-    }
-    
-    public function setServer(int $server)
-    {
-        $this->server = $server;
         
         return $this;
     }

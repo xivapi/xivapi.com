@@ -56,7 +56,11 @@ class SaintCoinachRedisCustomCommand extends Command
         // process each custom data
         foreach ($customClassList as $priority => $classes) {
             foreach ($classes as $class) {
-                $class->init($this->io)->handle();
+                try {
+                    $class->init($this->io)->handle();
+                } catch (\Exception $ex) {
+                    $this->io->error("Error: {$ex->getMessage()}");
+                }
             }
         }
         

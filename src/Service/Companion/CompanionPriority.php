@@ -3,15 +3,111 @@
 namespace App\Service\Companion;
 
 use App\Entity\CompanionMarketItem;
+use App\Entity\CompanionMarketItemEntry;
 use App\Repository\CompanionMarketItemRepository;
+use App\Service\Common\Time;
 use App\Service\Redis\Redis;
+use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionPriority
 {
     const SERVER = 'Gilgamesh';
     const CACHE_MARKET_ITEM_IDS = __DIR__.'/CompanionPriority_MarketItemIds.json';
+    
+    // This is a cronjob boost per priority
+    const CRONJOB_BOOSTS = [
+        10  => 2,
+        11  => 1,
+        12  => 4,
+        13  => 2,
+        14  => 2,
+        15  => 3,
+        16  => 2,
+        17  => 0,
+        18  => 0,
+        19  => 2,
+        20  => 0,
+        22  => 0,
+        23  => 0,
+        24  => 0,
+        25  => 0,
+        26  => 0,
+        27  => 0,
+        28  => 0,
+        29  => 0,
+        30  => 0,
+    ];
+    
+    const CRONJOB_CMD = '* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand [priority] [queue] > /home/dalamud/dalamud/Companion_AutoUpdateCommand/[priority]_[queue].txt';
+    
+    // Priority values against a slot of time
+    const PRIORITY_VALUES = [
+        // 30 minutes
+        1800 => 10,
+    
+        // 1 hour
+        3600 => 11,
+    
+        // 4 hours
+        14400 => 12,
+    
+        // 6 hours
+        21600 => 13,
+    
+        // 12 hours
+        43200 => 14,
+    
+        // 18 hours
+        64800 => 15,
+    
+        // 24 hours
+        86400 => 16,
+    
+        // 30 hours
+        108000 => 17,
+    
+        // 40 hours
+        144000 => 18,
+    
+        // 60 hours
+        216000 => 19,
+    
+        // 80 hours
+        288000 => 20,
+    
+        // 100 hours
+        360000 => 21,
+    
+        // 5 days
+        432000 => 22,
+    
+        // 7 days
+        604800 => 23,
+    
+        // 10 days
+        864000 => 24,
+    
+        // 15 days
+        1296000 => 25,
+    
+        // 20 days
+        1728000 => 26,
+    
+        // 25 days
+        2160000 => 27,
+    
+        // 30 days
+        2592000 => 28,
+    
+        // 40 days
+        3456000 => 29,
+    
+        // 50 days
+        4320000 => 30,
+    ];
     
     /** @var EntityManagerInterface */
     private $em;
@@ -160,73 +256,6 @@ class CompanionPriority
         
         $items = $this->repository->findAll();
         
-        // priority is based on seconds
-        // default is 99
-        $priority = [
-            // 30 minutes
-            1800 => 10,
-            
-            // 1 hour
-            3600 => 11,
-            
-            // 4 hours
-            14400 => 12,
-            
-            // 6 hours
-            21600 => 13,
-            
-            // 12 hours
-            43200 => 14,
-            
-            // 18 hours
-            64800 => 15,
-            
-            // 24 hours
-            86400 => 16,
-            
-            // 30 hours
-            108000 => 17,
-            
-            // 40 hours
-            144000 => 18,
-
-            // 60 hours
-            216000 => 19,
-            
-            // 80 hours
-            288000 => 20,
-            
-            // 100 hours
-            360000 => 21,
-        
-            // 5 days
-            432000 => 22,
-            
-            // 7 days
-            604800 => 23,
-        
-            // 10 days
-            864000 => 24,
-
-            // 15 days
-            1296000 => 25,
-            
-            // 20 days
-            1728000 => 26,
-            
-            // 25 days
-            2160000 => 27,
-
-            // 30 days
-            2592000 => 28,
-
-            // 40 days
-            3456000 => 29,
-
-            // 50 days
-            4320000 => 30,
-        ];
-    
         /** @var CompanionMarketItem $item */
         $section = $this->console->section();
         foreach ($items as $i => $item) {
@@ -240,7 +269,8 @@ class CompanionPriority
             
             // loop through priority times.
             if ($item->getAvgSaleDuration() > 1) {
-                foreach ($priority as $unix => $value) {
+                // priority is based on seconds, default is 99
+                foreach (self::PRIORITY_VALUES as $unix => $value) {
                     // calculate avg sale duration
                     if ($item->getAvgSaleDuration() < $unix) {
                         $item->setPriority($value);
@@ -260,5 +290,81 @@ class CompanionPriority
     
         $this->em->flush();
         $this->em->clear();
+    }
+    
+    /**
+     * Calculate the priority cronjob allocation
+     */
+    public function calculatePriorityCronJobs()
+    {
+        $repo = $this->em->getRepository(CompanionMarketItemEntry::class);
+        
+        $tableData = [];
+        $totalCronJobs = 0;
+        
+        $this->console->writeln('Calculating cronjob table...');
+        foreach (self::PRIORITY_VALUES as $time => $priority) {
+            $items = $repo->findBy([ 'priority' => $priority ]);
+            $total = count($items);
+            
+            $boost = self::CRONJOB_BOOSTS[$priority] ?? 1;
+
+            // takes about 3 seconds to do
+            $timeToComplete      = ceil($total * CompanionMarketUpdater::MAX_QUERY_DURATION);
+            $timeToCompleteFinal = Carbon::createFromTimestamp(time() + ($timeToComplete / ($boost ?: 1)));
+            $cronjobs = ceil($timeToComplete / $time) + $boost;
+
+            $this->em->clear();
+            
+            $tableData[] = [
+                $priority,
+                Time::countdown($time),
+                number_format($total),
+                Time::countdown(ceil($timeToComplete / ($boost ?: 1))),
+                $timeToCompleteFinal,
+                $cronjobs
+            ];
+    
+            $totalCronJobs += $cronjobs;
+        }
+    
+        // Print table
+        $table = new Table($this->console);
+        $table
+            ->setHeaders([
+                'Priority',
+                'Time Interval',
+                'Total Items',
+                'TTC',
+                'TTC Date',
+                'Cronjobs'
+            ])
+            ->setRows($tableData)
+            ->render();
+        
+        $this->console->writeln([
+            '', 'Crons', ''
+        ]);
+          
+        // print cronjob files and save to txt file
+        unlink(__DIR__.'/CronJobs.txt');
+        foreach ($tableData as $data) {
+            [$priority, $a, $b, $c, $d, $totalCronJobs] = $data;
+            
+            foreach(range(1, $totalCronJobs) as $cronjobNumber) {
+                $arguments = [
+                    '[priority]' => $priority,
+                    '[queue]'    => $cronjobNumber,
+                ];
+                
+                $cron = str_ireplace(array_keys($arguments), $arguments, self::CRONJOB_CMD);
+                
+                $this->console->writeln(" {$cron}");
+                file_put_contents(__DIR__.'/CronJobs.txt', $cron . PHP_EOL, FILE_APPEND);
+            }
+    
+            $this->console->writeln("");
+            file_put_contents(__DIR__.'/CronJobs.txt', PHP_EOL, FILE_APPEND);
+        }
     }
 }

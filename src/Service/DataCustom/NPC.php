@@ -69,6 +69,12 @@ class NPC extends ManualHelper
             $npc->Base = Redis::Cache()->get("xiv_ENpcBase_{$npc->ID}");
             
             foreach (range(0, 31) as $dataNumber) {
+                if (!isset($npc->Base->{"ENpcData{$dataNumber}"})) {
+                    print_r($npc->Base);
+                    die;
+                }
+                
+                
                 $dataValue = $npc->Base->{"ENpcData{$dataNumber}"};
                 
                 //

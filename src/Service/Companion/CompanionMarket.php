@@ -2,15 +2,11 @@
 
 namespace App\Service\Companion;
 
-use App\Entity\CompanionMarketItem;
-use App\Exception\CompanionMarketItemException;
-use App\Exception\CompanionMarketServerException;
 use App\Service\Common\Arrays;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameData;
-use App\Service\Content\GameServers;
 use App\Service\SearchElastic\ElasticQuery;
 use App\Service\SearchElastic\ElasticSearch;
 

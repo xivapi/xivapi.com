@@ -39,6 +39,14 @@ class LodestoneCharacterController extends Controller
     public function search(Request $request)
     {
         return $this->json(
+            (new Api())->searchCharacter(
+                $request->get('name'),
+                ucwords($request->get('server')),
+                $request->get('page') ?: 1
+            )
+        );
+        
+        return $this->json(
             Japan::query('/japan/search/character', [
                 'name'   => $request->get('name'),
                 'server' => ucwords($request->get('server')),
