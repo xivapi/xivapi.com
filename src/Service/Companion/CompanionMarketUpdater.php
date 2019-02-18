@@ -53,6 +53,9 @@ class CompanionMarketUpdater
     
     public function process(int $priority, int $queue)
     {
+        // random sleep at start, this is so not all queries against sight start at the same time.
+        usleep( mt_rand(10, 1500) * 1000 );
+        
         $start  = time();
         $limit  = self::MAX_PER_CRONJOB;
         $offset = self::MAX_PER_CRONJOB * $queue;
