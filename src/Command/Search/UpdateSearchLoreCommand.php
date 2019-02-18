@@ -123,10 +123,10 @@ class UpdateSearchLoreCommand extends Command
         $this->count++;
         $this->entries[$id] = [
             'ID'        => $id,
-            'Text_en'   => strip_tags($text['en']),
-            'Text_de'   => strip_tags($text['de']),
-            'Text_fr'   => strip_tags($text['fr']),
-            'Text_ja'   => strip_tags($text['ja']),
+            'Text_en'   => $text['en'],
+            'Text_de'   => $text['de'],
+            'Text_fr'   => $text['fr'],
+            'Text_ja'   => $text['ja'],
             'Text_cn'   => null,
             'Text_kr'   => null,
             'Context'   => $context,
