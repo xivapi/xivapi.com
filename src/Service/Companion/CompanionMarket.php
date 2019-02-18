@@ -65,14 +65,16 @@ class CompanionMarket
      */
     public function get(int $server, int $itemId, int $maxHistory = null): ?MarketItem
     {
+        $item = new MarketItem($server, $itemId);
+        
         try {
             $result = $this->elastic->getDocument(self::INDEX, self::INDEX, "{$server}_{$itemId}");
         } catch (\Exception $ex) {
-            return null;
+            return $item;
         }
         
         $source = $result['_source'];
-        $item   = new MarketItem($source['Server'], $source['ItemID'], $source['Updated']);
+        $item->Updated = $result['Updated'];
         
         // sort results
         Arrays::sortBySubKey($source['Prices'], 'PricePerUnit', true);

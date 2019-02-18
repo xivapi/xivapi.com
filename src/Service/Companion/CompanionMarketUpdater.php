@@ -83,7 +83,7 @@ class CompanionMarketUpdater
             // start
             $time = date('H:i:s');
             $serverName = GameServers::LIST[$entry->getServer()];
-            $section->overwrite("> [{$time}] [{$entry->getPriority()}] Server: {$entry->getServer()} {$serverName} - ItemID: {$entry->getItem()} ");
+            $section->writeln("> [{$time}] [Priority: {$entry->getPriority()}] Server: ({$entry->getServer()}) {$serverName} - ItemID: {$entry->getItem()}");
     
             // set the companion API token
             $token = $tokens[$serverName];
@@ -97,12 +97,9 @@ class CompanionMarketUpdater
             $sightData = $this->getCompanionMarketData($entry->getItem());
             
             if ($sightData === null) {
-                file_put_contents(__DIR__.'/CompanionMarketUpdater_Error.txt', time() . PHP_EOL, FILE_APPEND);
                 $this->console->writeln("No market data for: {$entry->getItem()} on server: {$entry->getServer()}");
                 continue;
             }
-    
-            file_put_contents(__DIR__.'/CompanionMarketUpdater_Success.txt', time() . PHP_EOL, FILE_APPEND);
     
             [ $prices, $history ] = $sightData;
     
@@ -154,10 +151,9 @@ class CompanionMarketUpdater
     
             // put
             $this->companionMarket->set($marketItem);
-            file_put_contents(__DIR__.'/CompanionMarket.json', "{$marketItem->ItemID} {$marketItem->Server} \n", FILE_APPEND);
             
             // update entry
-            $entry->setUpdated(time());
+            $entry->setUpdated(time())->incUpdates();
             
             $this->em->persist($entry);
             $this->em->flush();

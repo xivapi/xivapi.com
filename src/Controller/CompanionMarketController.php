@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Service\Companion\Companion;
 use App\Service\Companion\CompanionMarket;
+use App\Service\Content\GameServers;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,7 +33,7 @@ class CompanionMarketController extends Controller
     {
         return $this->json(
             $this->companionMarket->get(
-                $server,
+                GameServers::getServerId($server),
                 $itemId,
                 $request->get('max_history') ?: 50
             )

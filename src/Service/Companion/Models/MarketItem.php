@@ -25,6 +25,6 @@ class MarketItem
         $this->ID       = "{$server}_{$itemId}";
         $this->Server   = $server;
         $this->ItemID   = $itemId;
-        $this->Updated  = $updated ?: time();
+        $this->Updated  = $updated;
     }
 }

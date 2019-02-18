@@ -46,6 +46,10 @@ class CompanionMarketItemEntry
      * @ORM\Column(type="integer")
      */
     private $server;
+    /**
+     * @ORM\Column(type="integer", length=16)
+     */
+    public $updates = 0;
     
     public function __construct()
     {
@@ -61,7 +65,6 @@ class CompanionMarketItemEntry
     public function setId(string $id)
     {
         $this->id = $id;
-        
         return $this;
     }
     
@@ -73,7 +76,6 @@ class CompanionMarketItemEntry
     public function setUpdated(int $updated)
     {
         $this->updated = $updated;
-        
         return $this;
     }
     
@@ -85,7 +87,6 @@ class CompanionMarketItemEntry
     public function setItem(int $item)
     {
         $this->item = $item;
-        
         return $this;
     }
     
@@ -97,7 +98,6 @@ class CompanionMarketItemEntry
     public function setPriority(int $priority)
     {
         $this->priority = $priority;
-        
         return $this;
     }
     
@@ -109,7 +109,23 @@ class CompanionMarketItemEntry
     public function setServer(int $server)
     {
         $this->server = $server;
-        
+        return $this;
+    }
+    
+    public function getUpdates()
+    {
+        return $this->updates;
+    }
+    
+    public function setUpdates($updates)
+    {
+        $this->updates = $updates;
+        return $this;
+    }
+    
+    public function incUpdates()
+    {
+        $this->updates++;
         return $this;
     }
 }
