@@ -4,18 +4,18 @@ namespace App\Controller;
 
 use App\Exception\ContentGoneException;
 use App\Service\Apps\AppManager;
-use App\Service\Japan\Japan;
 use App\Service\Lodestone\FreeCompanyService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\FreeCompanyQueue;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Lodestone\Api;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package App\Controller
  */
-class LodestoneFreeCompanyController extends Controller
+class LodestoneFreeCompanyController extends AbstractController
 {
     /** @var AppManager */
     private $apps;
@@ -35,11 +35,11 @@ class LodestoneFreeCompanyController extends Controller
     public function search(Request $request)
     {
         return $this->json(
-            Japan::query('/japan/search/freecompany', [
-                'name'   => $request->get('name'),
-                'server' => ucwords($request->get('server')),
-                'page'   => $request->get('page') ?: 1
-            ])
+            (new Api())->searchFreeCompany(
+                $request->get('name'),
+                ucwords($request->get('server')),
+                $request->get('page') ?: 1
+            )
         );
     }
     

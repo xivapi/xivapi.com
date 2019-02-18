@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Exception\ContentGoneException;
-use App\Service\Japan\Japan;
 use App\Service\Lodestone\CharacterService;
 use App\Service\Lodestone\FreeCompanyService;
 use App\Service\Lodestone\PvPTeamService;
@@ -12,11 +11,11 @@ use App\Service\LodestoneQueue\CharacterAchievementQueue;
 use App\Service\LodestoneQueue\CharacterFriendQueue;
 use App\Service\LodestoneQueue\CharacterQueue;
 use Lodestone\Api;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class LodestoneCharacterController extends Controller
+class LodestoneCharacterController extends AbstractController
 {
     /** @var CharacterService */
     private $service;
@@ -44,14 +43,6 @@ class LodestoneCharacterController extends Controller
                 ucwords($request->get('server')),
                 $request->get('page') ?: 1
             )
-        );
-        
-        return $this->json(
-            Japan::query('/japan/search/character', [
-                'name'   => $request->get('name'),
-                'server' => ucwords($request->get('server')),
-                'page'   => $request->get('page') ?: 1
-            ])
         );
     }
 
