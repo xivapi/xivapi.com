@@ -41,7 +41,7 @@ class CompanionPriority
         30  => 0,
     ];
     
-    const CRONJOB_CMD = '* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand [priority] [queue] > /home/dalamud/dalamud/Companion_AutoUpdateCommand/[priority]_[queue].txt';
+    const CRONJOB_CMD = '* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand [priority] [queue] >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt';
     
     // Priority values against a slot of time
     const PRIORITY_VALUES = [

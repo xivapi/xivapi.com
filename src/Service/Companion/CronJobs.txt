@@ -1,81 +1,81 @@
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 10 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/10_1.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 10 2 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/10_2.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 10 3 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/10_3.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 10 4 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/10_4.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 10 5 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/10_5.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 10 6 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/10_6.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 10 7 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/10_7.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 10 8 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/10_8.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 10 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 10 2 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 10 3 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 10 4 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 10 5 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 10 6 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 10 7 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 10 8 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 11 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/11_1.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 11 2 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/11_2.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 11 3 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/11_3.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 11 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 11 2 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 11 3 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 12 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/12_1.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 12 2 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/12_2.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 12 3 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/12_3.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 12 4 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/12_4.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 12 5 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/12_5.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 12 6 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/12_6.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 12 7 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/12_7.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 12 8 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/12_8.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 12 9 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/12_9.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 12 10 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/12_10.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 12 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 12 2 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 12 3 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 12 4 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 12 5 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 12 6 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 12 7 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 12 8 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 12 9 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 12 10 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 13 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/13_1.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 13 2 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/13_2.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 13 3 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/13_3.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 13 4 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/13_4.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 13 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 13 2 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 13 3 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 13 4 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 14 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/14_1.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 14 2 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/14_2.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 14 3 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/14_3.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 14 4 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/14_4.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 14 5 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/14_5.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 14 6 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/14_6.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 14 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 14 2 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 14 3 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 14 4 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 14 5 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 14 6 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 15 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/15_1.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 15 2 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/15_2.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 15 3 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/15_3.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 15 4 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/15_4.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 15 5 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/15_5.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 15 6 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/15_6.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 15 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 15 2 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 15 3 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 15 4 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 15 5 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 15 6 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 16 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/16_1.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 16 2 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/16_2.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 16 3 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/16_3.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 16 4 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/16_4.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 16 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 16 2 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 16 3 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 16 4 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 17 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/17_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 17 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 18 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/18_1.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 18 2 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/18_2.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 18 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 18 2 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 19 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/19_1.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 19 2 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/19_2.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 19 3 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/19_3.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 19 4 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/19_4.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 19 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 19 2 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 19 3 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 19 4 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 20 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/20_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 20 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 21 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/21_1.txt
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 21 2 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/21_2.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 21 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 21 2 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 22 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/22_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 22 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 23 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/23_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 23 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 24 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/24_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 24 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 25 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/25_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 25 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 26 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/26_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 26 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 27 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/27_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 27 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 28 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/28_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 28 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 29 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/29_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 29 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 
-* * * * * /usr/bin/php /home/dalamud/dalamud/bin/console Companion_AutoUpdateCommand 30 1 > /home/dalamud/dalamud/Companion_AutoUpdateCommand/30_1.txt
+* * * * * /usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoUpdateCommand 30 1 >> /home/dalamud/xivapi.com/Companion_AutoUpdateCommand.txt
 

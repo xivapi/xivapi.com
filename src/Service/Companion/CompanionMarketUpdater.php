@@ -70,11 +70,6 @@ class CompanionMarketUpdater
             return;
         }
     
-        $total = count($entries);
-        $this->console->writeln("Total Items: {$total}");
-        $this->console->writeln('Updating Prices + History');
-        $section = $this->console->section();
-        
         /** @var CompanionMarketItemEntry $item */
         foreach ($entries as $entry) {
             // if we're close to the cronjob minute mark, end
@@ -86,7 +81,8 @@ class CompanionMarketUpdater
             // start
             $time = date('H:i:s');
             $serverName = GameServers::LIST[$entry->getServer()];
-            $section->writeln("> [{$time}] [Priority: {$entry->getPriority()}] Server: ({$entry->getServer()}) {$serverName} - ItemID: {$entry->getItem()}");
+            $prefix = "[{$time} -- Priority: {$priority} -- Queue: {$queue}]";
+            $this->console->writeln("{$prefix} Server: ({$entry->getServer()}) {$serverName} - ItemID: {$entry->getItem()}");
     
             // set the companion API token
             $token = $tokens[$serverName];
@@ -98,9 +94,8 @@ class CompanionMarketUpdater
 
             // grab prices + history from sight api
             $sightData = $this->getCompanionMarketData($entry->getItem());
-            
             if ($sightData === null) {
-                $this->console->writeln("No market data for: {$entry->getItem()} on server: {$entry->getServer()}");
+                $this->console->writeln("{$prefix} No market data for: {$entry->getItem()} on server: {$entry->getServer()}");
                 continue;
             }
     
@@ -157,14 +152,11 @@ class CompanionMarketUpdater
             
             // update entry
             $entry->setUpdated(time())->incUpdates();
-            
             $this->em->persist($entry);
             $this->em->flush();
         }
     
         $this->em->clear();
-
-        $this->console->writeln('Finished!');
     }
     
     /**
