@@ -70,10 +70,8 @@ class NPC extends ManualHelper
             
             foreach (range(0, 31) as $dataNumber) {
                 if (!isset($npc->Base->{"ENpcData{$dataNumber}"})) {
-                    print_r($npc->Base);
-                    die;
+                    break;
                 }
-                
                 
                 $dataValue = $npc->Base->{"ENpcData{$dataNumber}"};
                 
