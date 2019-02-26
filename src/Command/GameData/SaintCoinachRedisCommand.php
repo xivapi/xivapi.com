@@ -211,6 +211,11 @@ class SaintCoinachRedisCommand extends Command
         // if we have a schema, build the data
         if ($contentSchema) {
             foreach ($contentSchema->definitions as $definition) {
+                if (!isset($definition->name) && !isset($definition->type)) {
+                    continue;
+                }
+                
+                
                 // is this a repeater definition?
                 if (!isset($definition->name) && $definition->type === 'repeat') {
                     $this->handleSingleRepeat($contentId, $contentName, $content, $depth, $definition);

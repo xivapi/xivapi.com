@@ -32,7 +32,6 @@ class UpdateItemPriorityCommand extends Command
             ->setDescription(self::DESCRIPTION)
             ->addArgument('skip', InputArgument::OPTIONAL, 'Should it skip already prioritised data?')
             ->addArgument('item_id', InputArgument::OPTIONAL, 'Should calculation be done on a specific item id?');
-            
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

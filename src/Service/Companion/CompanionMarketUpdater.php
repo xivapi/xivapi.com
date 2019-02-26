@@ -4,11 +4,14 @@ namespace App\Service\Companion;
 
 use App\Entity\CompanionMarketItemEntry;
 use App\Entity\CompanionMarketItemException;
+use App\Entity\CompanionToken;
 use App\Repository\CompanionMarketItemEntryRepository;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
+use Companion\CompanionApi;
+use Companion\Config\CompanionConfig;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -20,9 +23,14 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 class CompanionMarketUpdater
 {
-    const MAX_PER_CRONJOB = 18;
-    const MAX_QUERY_DURATION = 3;
+    const MAX_PER_CRONJOB = 100;
+    const MAX_PER_CHUNK = 10; // 2x this, as price + history
     const MAX_CRONJOB_DURATION = 55;
+    const MAX_QUERY_SLEEP = 3; // in seconds
+    
+    // deprecated - used in companion priority math
+    const MAX_QUERY_DURATION = 3;
+    
     
     /** @var EntityManagerInterface */
     private $em;
@@ -36,6 +44,10 @@ class CompanionMarketUpdater
     private $companionMarket;
     /** @var CompanionMarket */
     private $companionTokenManager;
+    /** @var array */
+    private $tokens;
+    /** @var int */
+    private $start;
     
     public function __construct(
         EntityManagerInterface $em,
@@ -49,85 +61,169 @@ class CompanionMarketUpdater
         $this->companionTokenManager = $companionTokenManager;
         $this->repository = $this->em->getRepository(CompanionMarketItemEntry::class);
         $this->console = new ConsoleOutput();
+        $this->start = time();
     }
     
-    public function process(int $priority, int $queue)
+    public function update(int $priority, int $queue)
     {
         // random sleep at start, this is so not all queries against sight start at the same time.
         usleep( mt_rand(10, 1500) * 1000 );
-        
-        $start  = time();
-        $limit  = self::MAX_PER_CRONJOB;
-        $offset = self::MAX_PER_CRONJOB * $queue;
-        $tokens = $this->companionTokenManager->getCompanionTokensPerServer();
+
+        // grab our companion tokens
+        $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
         
         /** @var CompanionMarketItemEntry[] $entries */
-        $entries = $this->repository->findItemsToUpdate($priority, $limit, $offset);
+        $items = $this->repository->findItemsToUpdate(
+            $priority,
+            self::MAX_PER_CRONJOB,
+            self::MAX_PER_CRONJOB * $queue
+        );
         
         // no items???
-        if (empty($entries)) {
+        if (empty($items)) {
             $this->console->writeln('ERROR: No items to update!? Da fook!');
             return;
         }
-    
-        /** @var CompanionMarketItemEntry $item */
-        foreach ($entries as $entry) {
+
+        // loop through chunks
+        foreach (array_chunk($items, self::MAX_PER_CHUNK) as $i => $itemChunk) {
             // if we're close to the cronjob minute mark, end
-            if ((time() - $start) > self::MAX_CRONJOB_DURATION) {
+            if ((time() - $this->start) > self::MAX_CRONJOB_DURATION) {
                 $this->console->writeln('Ending auto-update as time limit seconds reached.');
                 return;
             }
-
-            // start
-            $time = date('H:i:s');
-            $serverName = GameServers::LIST[$entry->getServer()];
-            $prefix = "[{$time} -- Priority: {$priority} -- Queue: {$queue}]";
-            $this->console->writeln("{$prefix} Server: ({$entry->getServer()}) {$serverName} - ItemID: {$entry->getItem()}");
-    
-            // set the companion API token
-            $token = $tokens[$serverName];
-            $this->companion->setCompanionApiToken($token->getToken());
             
-            // try get existing item, otherwise create a new one
-            $marketItem = $this->companionMarket->get($entry->getServer(), $entry->getItem());
-            $marketItem = $marketItem ?: new MarketItem($entry->getServer(), $entry->getItem());
+            // handle the chunk
+            $this->console->writeln("Start: ". date('Y-m-d H:i:s'));
+            $this->updateChunk($i, $itemChunk);
+            $this->console->writeln("Finish: ". date('Y-m-d H:i:s'));
+            
+            die;
+        }
+    
+        $this->em->clear();
+    }
+    
+    /**
+     * Update a group of items
+     */
+    private function updateChunk($chunkNumber, $chunkList)
+    {
+        $this->console->writeln("Processing chunk: {$chunkNumber}");
+        $start = microtime(true);
+        
+        // initialize Companion API, no token provided as we set it later on
+        // also enable async
+        $api = new CompanionApi();
+        $api->useAsync();
+        
+        /** @var CompanionMarketItemEntry $item */
+        $requests = [];
+        foreach ($chunkList as $item) {
+            $itemId = $item->getItem();
+            $server = GameServers::LIST[$item->getServer()];
+            
+            /** @var CompanionToken $token */
+            $token  = $this->tokens[$server];
 
-            // grab prices + history from sight api
-            $sightData = $this->getCompanionMarketData($entry->getItem());
-            if ($sightData === null) {
-                $this->console->writeln("{$prefix} No market data for: {$entry->getItem()} on server: {$entry->getServer()}");
-                continue;
-            }
-    
-            [ $prices, $history ] = $sightData;
-    
-            //
-            // convert prices
-            //
+            // set the Sight token for these requests (required so it switches server)
+            $api->Token()->set($token->getToken());
+            
+            // add requests
+            $requests["{$itemId}_{$server}_prices"]  = $api->Market()->getItemMarketListings($itemId);
+            $requests["{$itemId}_{$server}_history"] = $api->Market()->getTransactionHistory($itemId);
+        }
+        
+        // run the requests, we don't care on response because the first time nothing will be there.
+        $this->console->writeln("<info>Part 1: Sending Requests</info>");
+        $a = microtime(true);
 
-            // reset prices
-            $marketItem->Prices = [];
+        $api->Sight()->settle($requests)->wait();
     
-            // append current prices
-            foreach ($prices->entries as $row) {
-                $marketItem->Prices[] = MarketListing::build($row);
+        # --------------------------------------------------------------------------------------------------------------
+        $duration = round(microtime(true) - $a, 2);
+        $reqSec = round(1 / round($duration / (self::MAX_PER_CHUNK * 2), 2), 1);
+        $this->console->writeln("--| duration = {$duration} @ req/sec: {$reqSec}");
+        # --------------------------------------------------------------------------------------------------------------
+        
+        // we only wait if the execution of the above requests was faster than our default timeout
+        $sleep = ceil(self::MAX_QUERY_SLEEP - $duration);
+        if ($sleep > 1) {
+            $this->console->writeln("--| wait: {$sleep}");
+            sleep($sleep);
+        }
+        
+        // run the requests again, the Sight API should give us our response this time.
+        $this->console->writeln("<info>Part 2: Fetching Responses</info>");
+        $a = microtime(true);
+
+        $results = $api->Sight()->settle($requests)->wait();
+
+        # --------------------------------------------------------------------------------------------------------------
+        $duration = round(microtime(true) - $a, 2);
+        $reqSec = round(1 / round($duration / (self::MAX_PER_CHUNK * 2), 2), 1);
+        $this->console->writeln("--| duration = {$duration} @ req/sec: {$reqSec}");
+        # --------------------------------------------------------------------------------------------------------------
+        
+        // handle the results of the response
+        $results = $api->Sight()->handle($results);
+    
+        # --------------------------------------------------------------------------------------------------------------
+        $duration = round(microtime(true) - $start, 2);
+        $this->console->writeln("--| final duration = {$duration}");
+        # --------------------------------------------------------------------------------------------------------------
+        
+        $this->updateItems($chunkList, $results);
+    }
+    
+    /**
+     * Update a chunk of items to the document storage
+     */
+    private function updateItems($chunkList, $results)
+    {
+        // process the chunk list from our results
+        /** @var CompanionMarketItemEntry $item */
+        foreach ($chunkList as $item) {
+            $itemId = $item->getItem();
+            $server = GameServers::LIST[$item->getServer()];
+        
+            // grab our prices and history
+            /** @var \stdClass $prices */
+            /** @var \stdClass $history */
+            $prices  = $results->{"{$itemId}_{$server}_prices"} ?? null;
+            $history = $results->{"{$itemId}_{$server}_history"} ?? null;
+        
+            // grab market item document
+            $marketItem = $this->getMarketItemDocument($item);
+        
+            // ------------------------------
+            // CURRENT PRICES
+            // ------------------------------
+            if ($prices && isset($prices->error) === false && $prices->entries) {
+                // reset prices
+                $marketItem->Prices = [];
+            
+                // append current prices
+                foreach ($prices->entries as $row) {
+                    $marketItem->Prices[] = MarketListing::build($row);
+                }
             }
-    
-            //
-            // convert historic data
-            //
-            if ($history->history) {
+        
+            // ------------------------------
+            // CURRENT HISTORY
+            // ------------------------------
+            if ($history && isset($prices->error) === false && $history->history) {
                 foreach ($history->history as $row) {
                     // build a custom ID based on a few factors (History can't change)
                     // we don't include character name as I'm unsure if it changes if you rename yourself
                     $id = sha1(vsprintf("%s_%s_%s_%s_%s", [
-                        $entry->getItem(),
+                        $itemId,
                         $row->stack,
                         $row->hq,
                         $row->sellPrice,
                         $row->buyRealDate,
                     ]));
-            
+                
                     // if this entry is in our history, then just finish
                     $found = false;
                     foreach ($marketItem->History as $existing) {
@@ -136,28 +232,50 @@ class CompanionMarketUpdater
                             break;
                         }
                     }
-            
+                
                     // once we've found an existing entry we don't need to add anymore
                     if ($found) {
                         break;
                     }
-            
+                
                     // add history to front
                     array_unshift($marketItem->History, MarketHistory::build($id, $row));
                 }
             }
-    
+        
             // put
             $this->companionMarket->set($marketItem);
-            
+        
             // update entry
-            $entry->setUpdated(time())->incUpdates();
-            $this->em->persist($entry);
+            $item->setUpdated(time())->incUpdates();
+            $this->em->persist($item);
             $this->em->flush();
+        
+            $this->console->writeln("<comment>✓</comment> Updated prices + history for item: {$itemId} on {$server}");
         }
-    
-        $this->em->clear();
     }
+    
+    /**
+     * Get the elastic search document
+     */
+    private function getMarketItemDocument(CompanionMarketItemEntry $entry): MarketItem
+    {
+        $marketItem = $this->companionMarket->get($entry->getServer(), $entry->getItem());
+        $marketItem = $marketItem ?: new MarketItem($entry->getServer(), $entry->getItem());
+        return $marketItem;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     /**
      * Returns the Prices + History for an item on a specific server, or returns null

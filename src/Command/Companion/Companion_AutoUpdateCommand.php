@@ -2,7 +2,7 @@
 
 namespace App\Command\Companion;
 
-use App\Command\CommandHelperTrait;
+use App\Command\CommandConfigureTrait;
 use App\Service\Companion\CompanionMarketUpdater;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,9 +11,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Companion_AutoUpdateCommand extends Command
 {
-    use CommandHelperTrait;
-
-    const NAME = 'Companion_AutoUpdateCommand';
+    use CommandConfigureTrait;
+    
+    const COMMAND = [
+        'name' => 'Companion_AutoUpdateCommand',
+        'desc' => 'Auto-Update prices and history of all items on all servers.',
+        'args' => [
+            [ 'priority', InputArgument::OPTIONAL, 'Item priority queue to process' ],
+            [ 'queue', InputArgument::OPTIONAL, 'Queue number, this should be incremental' ]
+        ]
+    ];
 
     /** @var CompanionMarketUpdater */
     private $companionMarketUpdater;
@@ -24,17 +31,12 @@ class Companion_AutoUpdateCommand extends Command
         parent::__construct($name);
     }
 
-    protected function configure()
-    {
-        $this
-            ->setName(self::NAME)
-            ->addArgument('priority', InputArgument::OPTIONAL, 'Priority')
-            ->addArgument('queue',    InputArgument::OPTIONAL, 'Queue Number');
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->companionMarketUpdater->process(
+        /**
+         * eg: php bin/console Companion_AutoUpdateCommand 10 1
+         */
+        $this->companionMarketUpdater->update(
             $input->getArgument('priority'),
             $input->getArgument('queue')
         );

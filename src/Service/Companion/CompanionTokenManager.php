@@ -116,13 +116,6 @@ class CompanionTokenManager
         $this->console = new ConsoleOutput();
     }
     
-    public function auto()
-    {
-        // get the last logged in account
-        $server = $this->repository->findOneBy([], [ 'lastOnline' => 'asc' ]);
-        $this->login($server->getServer());
-    }
-    
     public function account($accountId)
     {
         foreach (self::SERVERS_ACCOUNTS as $server => $account) {
@@ -163,8 +156,7 @@ class CompanionTokenManager
         
         try {
             // initialize API and create a new token
-            $api = new CompanionApi(Uuid::uuid4()->toString());
-            CompanionConfig::getToken()->name = "{$username}_{$server}";
+            $api = new CompanionApi("{$username}_{$server}");
             
             // login
             $this->console->writeln("- Account Login: {$username}");
@@ -206,7 +198,7 @@ class CompanionTokenManager
                 ->setLastOnline(time())
                 ->setMessage('Online')
                 ->setOnline(true)
-                ->setToken(CompanionConfig::getToken()->toArray());
+                ->setToken($api->Token()->get()->toArray());
             
             $this->console->writeln('- Complete');
         } catch (\Exception $ex) {
@@ -243,6 +235,22 @@ class CompanionTokenManager
         
         return $list;
     }
+    
+    /**
+     * @param string $server
+     * @return CompanionToken
+     * @throws \Exception
+     */
+    public function getCompanionTokenForServer(string $server): CompanionToken
+    {
+        foreach ($this->getCompanionTokens() as $entity) {
+            if ($entity->getServer() === $server) {
+                return $entity;
+            }
+        }
+        
+        throw new \Exception('No token found for server: '. $server);
+    }
 
     /**
      * Post companion login status on discord (if any failed)
@@ -262,7 +270,7 @@ class CompanionTokenManager
             return;
         }
         
-        $message = "<@42667995159330816> [Companion Login Status] Failed to login to: {$server} - Will try again in 10 minutes. Reason: {$ex->getMessage()}";
+        $message = "<@42667995159330816> [Companion Login Status] Failed to login to: **{$server}** - Will try again in 10 minutes. Reason: `{$ex->getMessage()}`";
         Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
     }
 }

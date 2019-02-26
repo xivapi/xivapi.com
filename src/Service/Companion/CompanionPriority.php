@@ -4,6 +4,7 @@ namespace App\Service\Companion;
 
 use App\Entity\CompanionMarketItem;
 use App\Entity\CompanionMarketItemEntry;
+use App\Entity\CompanionToken;
 use App\Repository\CompanionMarketItemRepository;
 use App\Service\Common\Time;
 use App\Service\Redis\Redis;
@@ -117,13 +118,19 @@ class CompanionPriority
     private $repository;
     /** @var Companion */
     private $companion;
+    /** @var CompanionTokenManager */
+    private $companionTokenManager;
 
-    public function __construct(EntityManagerInterface $em, Companion $companion)
-    {
-        $this->em           = $em;
-        $this->companion    = $companion;
-        $this->repository   = $this->em->getRepository(CompanionMarketItem::class);
-        $this->console      = new ConsoleOutput();
+    public function __construct(
+        EntityManagerInterface $em,
+        Companion $companion,
+        CompanionTokenManager $companionTokenManager
+    ) {
+        $this->em                    = $em;
+        $this->companion             = $companion;
+        $this->companionTokenManager = $companionTokenManager;
+        $this->repository            = $this->em->getRepository(CompanionMarketItem::class);
+        $this->console               = new ConsoleOutput();
     }
     
     /**
@@ -140,6 +147,11 @@ class CompanionPriority
         
         $section = $this->console->section();
         $section->writeln("Processing item priority for: {$total} items");
+        
+        // Set token to a specific one
+        $this->companion->setCompanionApiToken(
+            $this->companionTokenManager->getCompanionTokenForServer(self::SERVER)->getToken()
+        );
         
         foreach ($ids as $i => $id) {
             // if we're just doing 1 item, skip ones we haven't set
@@ -165,7 +177,7 @@ class CompanionPriority
             // get market history
             $section->overwrite("{$lead} Getting purchase history ...");
             try {
-                $response = $this->companion->getItemHistory(self::SERVER, $id);
+                $response = $this->companion->getItemHistory($id);
             } catch (\Exception $ex) {
                 $section->overwrite("{$lead} !!! Exception thrown, skipping ....");
                 sleep(5);

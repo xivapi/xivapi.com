@@ -2,6 +2,7 @@
 
 namespace App\Command\Companion;
 
+use App\Command\CommandConfigureTrait;
 use App\Service\Companion\CompanionTokenManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,8 +11,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Companion_AutoLoginAccountsCommand extends Command
 {
-    const NAME = 'Companion_AutoLoginAccountsCommand';
-    const DESCRIPTION = 'Re-login to each character to obtain a companion token';
+    use CommandConfigureTrait;
+    
+    const COMMAND = [
+        'name' => 'Companion_AutoLoginAccountsCommand',
+        'desc' => 'Re-login to each character to obtain a companion token.',
+        'args' => [
+            [ 'action', InputArgument::OPTIONAL, '(Optional) Either a list of servers or an account.' ]
+        ]
+    ];
 
     /** @var CompanionTokenManager */
     private $companionTokenManager;
@@ -22,25 +30,23 @@ class Companion_AutoLoginAccountsCommand extends Command
         parent::__construct($name);
     }
 
-    protected function configure()
-    {
-        $this
-            ->setName(self::NAME)
-            ->setDescription(self::DESCRIPTION)
-            ->addArgument('action', InputArgument::OPTIONAL, '(Optional) Either a list of servers or an account.')
-        ;
-    }
-    
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        /**
+         * php bin/console Companion_AutoLoginAccountsCommand COMPANION_APP_ACCOUNT_A
+         * php bin/console Companion_AutoLoginAccountsCommand COMPANION_APP_ACCOUNT_B
+         *
+         * php bin/console Companion_AutoLoginAccountsCommand Cerberus,Lich,Phoenix
+         */
         if ($action = $input->getArgument('action')) {
-            
+            // if an account is provided
             if (in_array($action, CompanionTokenManager::SERVERS_ACCOUNTS)) {
                 $this->companionTokenManager->account($action);
                 return;
             }
 
             // loop through supplied servers, THEY MUST BE ON SAME ACC
+            $output->writeln('If your servers are not on the same account, this will fail.');
             foreach (explode(',', $action) as $server) {
                 $this->companionTokenManager->login($server);
             }
@@ -48,6 +54,6 @@ class Companion_AutoLoginAccountsCommand extends Command
             return;
         }
         
-        $this->companionTokenManager->auto();
+        $output->writeln('You must provide either a SERVER or an ACCOUNT.');
     }
 }
