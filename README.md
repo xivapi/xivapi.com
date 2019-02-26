@@ -46,7 +46,9 @@ If you are interested in building a service using the API, there are some librar
   
 | Language | Repository |  
 | --- | --- |  
-| GoLang | https://github.com/xivapi/xivapi-go |  
+| Golang | https://github.com/xivapi/xivapi-go |  
+| Ruby | https://github.com/xivapi/xivapi-ruby |  
+| JavsScript | https://github.com/xivapi/xivapi-js |  
 | Angular | https://github.com/xivapi/angular-client |  
 | PHP (WIP) | https://github.com/xivapi/xivapi-php |  
   
