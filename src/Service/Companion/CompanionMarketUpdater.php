@@ -291,9 +291,10 @@ class CompanionMarketUpdater
     {
         $this->console->writeln("!!! EXCEPTION: {$type}, {$itemId}, {$server} - {$error}");
 
-        $marketItemException = new CompanionMarketItemException();
-        $marketItemException->setException($error)->setMessage("{$type}, {$itemId}, {$server}");
-        $this->em->persist($marketItemException);
+        $exception = new CompanionMarketItemException();
+        $exception->setException("{$type}, {$itemId}, {$server}")->setMessage($error);
+        
+        $this->em->persist($exception);
         $this->em->flush();
     }
 }
