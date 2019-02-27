@@ -289,6 +289,8 @@ class CompanionMarketUpdater
      */
     private function recordException($type, $itemId, $server, $error)
     {
+        $this->console->writeln("!!! EXCEPTION: {$type}, {$itemId}, {$server} - {$error}");
+
         $marketItemException = new CompanionMarketItemException();
         $marketItemException->setException($error)->setMessage("{$type}, {$itemId}, {$server}");
         $this->em->persist($marketItemException);
