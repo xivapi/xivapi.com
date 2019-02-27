@@ -144,6 +144,10 @@ class CompanionTokenManager
         $account = self::SERVERS_ACCOUNTS[$server];
         [$username, $password] = explode(',', getenv($account));
         
+        if (empty($username) || empty($password)) {
+            throw new \Exception('SE Account Username OR Password was empty.');
+        }
+        
         // grab saved token in db
         $entity = $this->repository->findOneBy([ 'server' => $server ]);
         $entity = $entity ?: new CompanionToken();

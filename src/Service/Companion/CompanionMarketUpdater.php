@@ -23,10 +23,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 class CompanionMarketUpdater
 {
-    const MAX_PER_CRONJOB = 100;
-    const MAX_PER_CHUNK = 10; // 2x this, as price + history
-    const MAX_CRONJOB_DURATION = 55;
-    const MAX_QUERY_SLEEP = 3; // in seconds
+    const MAX_PER_CRONJOB       = 100;
+    const MAX_PER_CHUNK         = 11; // Does around 88 items
+    const MAX_CRONJOB_DURATION  = 55;
+    const MAX_QUERY_SLEEP       = 3; // in seconds
     
     // deprecated - used in companion priority math
     const MAX_QUERY_DURATION = 3;
@@ -86,6 +86,9 @@ class CompanionMarketUpdater
         }
 
         // loop through chunks
+        $this->console->writeln("Start: ". date('Y-m-d H:i:s'));
+        $a = microtime(true);
+        
         foreach (array_chunk($items, self::MAX_PER_CHUNK) as $i => $itemChunk) {
             // if we're close to the cronjob minute mark, end
             if ((time() - $this->start) > self::MAX_CRONJOB_DURATION) {
@@ -94,12 +97,14 @@ class CompanionMarketUpdater
             }
             
             // handle the chunk
-            $this->console->writeln("Start: ". date('Y-m-d H:i:s'));
             $this->updateChunk($i, $itemChunk);
-            $this->console->writeln("Finish: ". date('Y-m-d H:i:s'));
-            
-            die;
         }
+    
+        # --------------------------------------------------------------------------------------------------------------
+        $duration = round(microtime(true) - $a, 2);
+        $reqSec = round(1 / round($duration / (self::MAX_PER_CHUNK * 2), 2), 1);
+        $this->console->writeln("Finish: ". date('Y-m-d H:i:s') ." - duration = {$duration} @ req/sec: {$reqSec}");
+        # --------------------------------------------------------------------------------------------------------------
     
         $this->em->clear();
     }
@@ -125,6 +130,12 @@ class CompanionMarketUpdater
             
             /** @var CompanionToken $token */
             $token  = $this->tokens[$server];
+            
+            if ($api->Token()->hasExpired($token->getToken())) {
+                $this->console->writeln("!!! Error: Token has expired for server: {$server}. Run: Companion_AutoLoginAccountsCommand");
+                $this->console->writeln("!!! Error: Script forcefully exiting.");
+                exit;
+            }
 
             // set the Sight token for these requests (required so it switches server)
             $api->Token()->set($token->getToken());
