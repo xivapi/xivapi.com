@@ -8,9 +8,7 @@ use App\Service\Common\Mog;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;
-use Companion\Config\CompanionConfig;
 use Doctrine\ORM\EntityManagerInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionTokenManager

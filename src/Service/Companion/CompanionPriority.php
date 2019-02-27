@@ -322,7 +322,7 @@ class CompanionPriority
             $boost = self::CRONJOB_BOOSTS[$priority] ?? 1;
 
             // takes about 3 seconds to do
-            $timeToComplete      = ceil($total * CompanionMarketUpdater::MAX_QUERY_DURATION);
+            $timeToComplete      = ceil($total * CompanionMarketUpdater::ESTIMATED_QUERY_TIME);
             $timeToCompleteFinal = Carbon::createFromTimestamp(time() + ($timeToComplete / ($boost ?: 1)));
             $cronjobs = ceil($timeToComplete / $time) + $boost;
 

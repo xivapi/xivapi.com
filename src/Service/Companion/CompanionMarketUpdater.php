@@ -23,13 +23,13 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 class CompanionMarketUpdater
 {
-    const MAX_PER_CRONJOB       = 100;
-    const MAX_PER_CHUNK         = 11; // Does around 88 items
+    const MAX_PER_CRONJOB       = 80;
+    const MAX_PER_CHUNK         = 12;
     const MAX_CRONJOB_DURATION  = 55;
-    const MAX_QUERY_SLEEP       = 3; // in seconds
+    const MAX_QUERY_SLEEP_SEC   = 3;
     
-    // deprecated - used in companion priority math
-    const MAX_QUERY_DURATION = 3;
+    // estimated to be able to do 4 per second
+    const ESTIMATED_QUERY_TIME = 0.25;
     
     
     /** @var EntityManagerInterface */
@@ -158,7 +158,7 @@ class CompanionMarketUpdater
         # --------------------------------------------------------------------------------------------------------------
         
         // we only wait if the execution of the above requests was faster than our default timeout
-        $sleep = ceil(self::MAX_QUERY_SLEEP - $duration);
+        $sleep = ceil(self::MAX_QUERY_SLEEP_SEC - $duration);
         if ($sleep > 1) {
             $this->console->writeln("--| wait: {$sleep}");
             sleep($sleep);
