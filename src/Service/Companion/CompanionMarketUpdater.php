@@ -203,13 +203,21 @@ class CompanionMarketUpdater
             /** @var \stdClass $history */
             $prices  = $results->{"{$itemId}_{$server}_prices"} ?? null;
             $history = $results->{"{$itemId}_{$server}_history"} ?? null;
+            
+            if (isset($prices->error)) {
+                $this->recordException('prices', $itemId, $server, $prices->reason);
+            }
+            
+            if (isset($history->error)) {
+                $this->recordException('history', $itemId, $server, $history->reason);
+            }
         
             // grab market item document
             $marketItem = $this->getMarketItemDocument($item);
         
-            // ------------------------------
+            // ---------------------------------------------------------------------------------------------------------
             // CURRENT PRICES
-            // ------------------------------
+            // ---------------------------------------------------------------------------------------------------------
             if ($prices && isset($prices->error) === false && $prices->entries) {
                 // reset prices
                 $marketItem->Prices = [];
@@ -220,10 +228,10 @@ class CompanionMarketUpdater
                 }
             }
         
-            // ------------------------------
+            // ---------------------------------------------------------------------------------------------------------
             // CURRENT HISTORY
-            // ------------------------------
-            if ($history && isset($prices->error) === false && $history->history) {
+            // ---------------------------------------------------------------------------------------------------------
+            if ($history && isset($history->error) === false && $history->history) {
                 foreach ($history->history as $row) {
                     // build a custom ID based on a few factors (History can't change)
                     // we don't include character name as I'm unsure if it changes if you rename yourself
@@ -276,44 +284,14 @@ class CompanionMarketUpdater
         return $marketItem;
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
-     * Returns the Prices + History for an item on a specific server, or returns null
+     * Record failed queries
      */
-    private function getCompanionMarketData($itemId)
+    private function recordException($type, $itemId, $server, $error)
     {
-        try {
-            $prices  = $this->companion->getItemPrices($itemId);
-            $history = $this->companion->getItemHistory($itemId);
-            
-            return [ $prices, $history ];
-        } catch (\Exception $ex) {
-            // record failed attempts
-            $marketItemException = new CompanionMarketItemException();
-            $marketItemException
-                ->setException(get_class($ex))
-                ->setMessage($ex->getMessage());
-        
-            $this->em->persist($marketItemException);
-            $this->em->flush();
-        }
-
-        return null;
-    }
-    
-    private function one(int $serverId, int $itemId)
-    {
-        // todo - implement logic for updating 1 item on 1 server
+        $marketItemException = new CompanionMarketItemException();
+        $marketItemException->setException($error)->setMessage("{$type}, {$itemId}, {$server}");
+        $this->em->persist($marketItemException);
+        $this->em->flush();
     }
 }
