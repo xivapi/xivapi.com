@@ -73,8 +73,11 @@ class CompanionMarket
             return $item;
         }
         
+        // grab document source
         $source = $result['_source'];
-        $item->Updated = $result['Updated'];
+        
+        // grab updated time
+        $item->Updated = $source['Updated'];
         
         // sort results
         Arrays::sortBySubKey($source['Prices'], 'PricePerUnit', true);

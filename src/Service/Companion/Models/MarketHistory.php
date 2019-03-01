@@ -25,7 +25,7 @@ class MarketHistory
         $obj                = new MarketHistory();
         $obj->ID            = $id;
         $obj->Added         = time();
-        $obj->PurchaseDate  = $data->buyRealDate;
+        $obj->PurchaseDate  = round($data->buyRealDate / 1000, 0);
         $obj->CharacterID   = 1; // todo
         $obj->CharacterName = $data->buyCharacterName;
         $obj->IsHq          = $data->hq;
