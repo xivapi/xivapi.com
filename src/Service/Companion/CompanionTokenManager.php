@@ -118,10 +118,10 @@ class CompanionTokenManager
     {
         foreach (self::SERVERS_ACCOUNTS as $server => $account) {
             if ($account == $accountId) {
-                $this->login($server);
+                $ok = $this->login($server);
                 
                 // sleep for a random amount, because SE ?
-                sleep(mt_rand(5, 30));
+                sleep($ok ? mt_rand(5, 30) : 0);
             }
         }
     }
@@ -129,13 +129,13 @@ class CompanionTokenManager
     /**
      * Login to a specific server
      */
-    public function login(string $server): void
+    public function login(string $server): bool
     {
         $this->console->writeln("<comment>Server: {$server}</comment>");
 
         if (in_array($server, self::SERVERS_OFFLINE)) {
             $this->console->writeln('No characters available on this server at this time.');
-            return;
+            return false;
         }
 
         // grab account
@@ -157,7 +157,7 @@ class CompanionTokenManager
 
             if ($api->Token()->hasExpired($entity->getToken()) == false) {
                 $this->console->writeln('Token has not yet expired, skipping.');
-                return;
+                return false;
             }
             
             // ensure some entity stuff is set
@@ -221,6 +221,8 @@ class CompanionTokenManager
     
         $this->em->persist($entity);
         $this->em->flush();
+        
+        return true;
     }
 
     /**
