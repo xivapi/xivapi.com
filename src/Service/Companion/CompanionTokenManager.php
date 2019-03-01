@@ -149,16 +149,22 @@ class CompanionTokenManager
         // grab saved token in db
         $entity = $this->repository->findOneBy([ 'server' => $server ]);
         $entity = $entity ?: new CompanionToken();
-    
-        // ensure some entity stuff is set
-        $entity
-            ->setServer($server)
-            ->setOnline(false)
-            ->setLastOnline(1);
+       
         
         try {
             // initialize API and create a new token
             $api = new CompanionApi("{$username}_{$server}");
+
+            if ($api->Token()->hasExpired($entity->getToken()) == false) {
+                $this->console->writeln('Token has not yet expired, skipping.');
+                return;
+            }
+            
+            // ensure some entity stuff is set
+            $entity
+                ->setServer($server)
+                ->setOnline(false)
+                ->setLastOnline(1);
             
             // login
             $this->console->writeln("- Account Login: {$username}");
