@@ -14,107 +14,105 @@
 {% endif %}
 
 <div class="docs">
-    <aside>
-        <div>
-            <h3>documentation</h3>
-            <small>Version {{ siteVersion().version }}</small>
-        </div>
-
-        <hr>
-
-        <div>
-            <a href="{{ path('docs_page', { page: 'Welcome' }) }}" class="{{ section != 1 ?: 'active' }}">Welcome</a>
-            <a href="{{ path('docs_page', { page: 'API-Keys' }) }}" class="{{ section != 2 ?: 'active' }}">API Keys</a>
-            <a href="{{ path('docs_page', { page: 'Getting-Started' }) }}" class="{{ section != 3 ?: 'active' }}">Getting Started</a>
-            <a href="{{ path('docs_page', { page: 'Common-Features' }) }}" class="{{ section != 4 ?: 'active' }}">Common Features</a>
-            <div class="sub-nav">
-                <a href="{{ path('docs_page', { page: 'Common-Features' }) }}#language">language</a>
-                <a href="{{ path('docs_page', { page: 'Common-Features' }) }}#pretty">pretty</a>
-                <a href="{{ path('docs_page', { page: 'Common-Features' }) }}#snake_case">snake_case</a>
-                <a href="{{ path('docs_page', { page: 'Common-Features' }) }}#columns">columns</a>
-                <a href="{{ path('docs_page', { page: 'Common-Features' }) }}#exceptions">exceptions</a>
-            </div>
-        </div>
-
-        <hr>
-
-        <div>
-            <span>API</span>
-
-            <a href="{{ path('docs_page', { page: 'Search' }) }}" class="{{ section != 7 ?: 'active' }}">Search</a>
-            <div class="sub-nav">
-                <a href="{{ path('docs_page', { page: 'Search' }) }}#search">search</a>
-                <a href="{{ path('docs_page', { page: 'Search' }) }}#filters">filters</a>
-                <a href="{{ path('docs_page', { page: 'Search' }) }}#lore">lore</a>
-                <a href="{{ path('docs_page', { page: 'Search' }) }}#advanced">advanced</a>
+    <div>
+        <aside>
+            <div class="docs-top">
+                <h3>documentation</h3>
+                <small>Version {{ siteVersion().version }}</small>
             </div>
 
-            <a href="{{ path('docs_page', { page: 'Game-Data' }) }}" class="{{ section != 8 ?: 'active' }}">Game Data</a>
-            <div class="sub-nav">
-                <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#content">content</a>
-                <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#lists">lists</a>
-                <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#schema">schema</a>
-                <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#data">data</a>
-                <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#servers">servers</a>
-                <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#data-center">data-center</a>
+            <div class="docs-links">
+                <a href="{{ path('docs_page', { page: 'Welcome' }) }}" class="{{ section != 1 ?: 'active' }}">Welcome</a>
+                <a href="{{ path('docs_page', { page: 'API-Keys' }) }}" class="{{ section != 2 ?: 'active' }}">API Keys</a>
+                <a href="{{ path('docs_page', { page: 'Getting-Started' }) }}" class="{{ section != 3 ?: 'active' }}">Getting Started</a>
+                <a href="{{ path('docs_page', { page: 'Common-Features' }) }}" class="{{ section != 4 ?: 'active' }}">Common Features</a>
+                <div class="sub-nav">
+                    <a href="{{ path('docs_page', { page: 'Common-Features' }) }}#language">language</a>
+                    <a href="{{ path('docs_page', { page: 'Common-Features' }) }}#pretty">pretty</a>
+                    <a href="{{ path('docs_page', { page: 'Common-Features' }) }}#snake_case">snake_case</a>
+                    <a href="{{ path('docs_page', { page: 'Common-Features' }) }}#columns">columns</a>
+                    <a href="{{ path('docs_page', { page: 'Common-Features' }) }}#exceptions">exceptions</a>
+                </div>
             </div>
 
-            <a href="{{ path('docs_page', { page: 'Character' }) }}" class="{{ section != 9 ?: 'active' }}">Character</a>
-            <div class="sub-nav">
-                <a href="{{ path('docs_page', { page: 'Character' }) }}#search">search</a>
-                <a href="{{ path('docs_page', { page: 'Character' }) }}#character">character</a>
-                <a href="{{ path('docs_page', { page: 'Character' }) }}#verification">verification</a>
-                <a href="{{ path('docs_page', { page: 'Character' }) }}#update">update</a>
+            <div class="docs-links">
+                <span>API</span>
+
+                <a href="{{ path('docs_page', { page: 'Search' }) }}" class="{{ section != 7 ?: 'active' }}">Search</a>
+                <div class="sub-nav">
+                    <a href="{{ path('docs_page', { page: 'Search' }) }}#search">search</a>
+                    <a href="{{ path('docs_page', { page: 'Search' }) }}#filters">filters</a>
+                    <a href="{{ path('docs_page', { page: 'Search' }) }}#lore">lore</a>
+                    <a href="{{ path('docs_page', { page: 'Search' }) }}#advanced">advanced</a>
+                </div>
+
+                <a href="{{ path('docs_page', { page: 'Game-Data' }) }}" class="{{ section != 8 ?: 'active' }}">Game Data</a>
+                <div class="sub-nav">
+                    <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#content">content</a>
+                    <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#lists">lists</a>
+                    <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#schema">schema</a>
+                    <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#data">data</a>
+                    <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#servers">servers</a>
+                    <a href="{{ path('docs_page', { page: 'Game-Data' }) }}#data-center">data-center</a>
+                </div>
+
+                <a href="{{ path('docs_page', { page: 'Character' }) }}" class="{{ section != 9 ?: 'active' }}">Character</a>
+                <div class="sub-nav">
+                    <a href="{{ path('docs_page', { page: 'Character' }) }}#search">search</a>
+                    <a href="{{ path('docs_page', { page: 'Character' }) }}#character">character</a>
+                    <a href="{{ path('docs_page', { page: 'Character' }) }}#verification">verification</a>
+                    <a href="{{ path('docs_page', { page: 'Character' }) }}#update">update</a>
+                </div>
+
+                <a href="{{ path('docs_page', { page: 'Free-Company' }) }}" class="{{ section != 10 ?: 'active' }}">Free Company</a>
+                <div class="sub-nav">
+                    <a href="{{ path('docs_page', { page: 'Free-Company' }) }}#search">search</a>
+                    <a href="{{ path('docs_page', { page: 'Free-Company' }) }}#free-company">free-company</a>
+                </div>
+
+                <a href="{{ path('docs_page', { page: 'Linkshell' }) }}" class="{{ section != 11 ?: 'active' }}">Linkshell</a>
+                <div class="sub-nav">
+                    <a href="{{ path('docs_page', { page: 'Linkshell' }) }}#search">search</a>
+                    <a href="{{ path('docs_page', { page: 'Linkshell' }) }}#free-company">free-company</a>
+                </div>
+
+                <a href="{{ path('docs_page', { page: 'PVP-Team' }) }}" class="{{ section != 12 ?: 'active' }}">PVP Team</a>
+                <div class="sub-nav">
+                    <a href="{{ path('docs_page', { page: 'PVP-Team' }) }}#search">search</a>
+                    <a href="{{ path('docs_page', { page: 'PVP-Team' }) }}#linkshell">linkshell</a>
+                </div>
+
+                <a href="{{ path('docs_page', { page: 'Lodestone' }) }}" class="{{ section != 13 ?: 'active' }}">Lodestone</a>
+                <a href="{{ path('docs_page', { page: 'Market' }) }}" class="{{ section != 14 ?: 'active' }}">Market</a>
+                <div class="sub-nav">
+                    <a href="{{ path('docs_page', { page: 'Market' }) }}#prices">prices</a>
+                    <a href="{{ path('docs_page', { page: 'Market' }) }}#history">history</a>
+                    <a href="{{ path('docs_page', { page: 'Market' }) }}#stock">stock</a>
+                    <a href="{{ path('docs_page', { page: 'Market' }) }}#categories">categories</a>
+                    <a href="{{ path('docs_page', { page: 'Market' }) }}#status">status</a>
+                </div>
+
+                {# <a href="{{ path('docs_page', { page: 'Maps' }) }}" class="{{ section != 15 ?: 'active' }}">Maps</a> #}
+                <a href="{{ path('docs_page', { page: 'Patch-List' }) }}" class="{{ section != 16 ?: 'active' }}">Patch List</a>
             </div>
 
-            <a href="{{ path('docs_page', { page: 'Free-Company' }) }}" class="{{ section != 10 ?: 'active' }}">Free Company</a>
-            <div class="sub-nav">
-                <a href="{{ path('docs_page', { page: 'Free-Company' }) }}#search">search</a>
-                <a href="{{ path('docs_page', { page: 'Free-Company' }) }}#free-company">free-company</a>
+            <div class="docs-links">
+                <span>Misc</span>
+
+                <a href="{{ path('docs_page', { page: 'Mappy-Data' }) }}" class="{{ section != 17 ?: 'active' }}">Mappy Data</a>
+                <div class="sub-nav">
+                    <a href="{{ path('docs_page', { page: 'Mappy-Data' }) }}#download">download</a>
+                </div>
+                <a href="{{ path('docs_page', { page: 'Git-Logs' }) }}" class="{{ section != 18 ?: 'active' }}">Git Logs</a>
+                <a href="{{ path('docs_page', { page: 'Icons' }) }}" class="{{ section != 19 ?: 'active' }}">Icons</a>
+                <a href="{{ path('docs_page', { page: 'Costs' }) }}" class="{{ section != 20 ?: 'active' }}">Costs</a>
             </div>
-
-            <a href="{{ path('docs_page', { page: 'Linkshell' }) }}" class="{{ section != 11 ?: 'active' }}">Linkshell</a>
-            <div class="sub-nav">
-                <a href="{{ path('docs_page', { page: 'Linkshell' }) }}#search">search</a>
-                <a href="{{ path('docs_page', { page: 'Linkshell' }) }}#free-company">free-company</a>
-            </div>
-
-            <a href="{{ path('docs_page', { page: 'PVP-Team' }) }}" class="{{ section != 12 ?: 'active' }}">PVP Team</a>
-            <div class="sub-nav">
-                <a href="{{ path('docs_page', { page: 'PVP-Team' }) }}#search">search</a>
-                <a href="{{ path('docs_page', { page: 'PVP-Team' }) }}#linkshell">linkshell</a>
-            </div>
-
-            <a href="{{ path('docs_page', { page: 'Lodestone' }) }}" class="{{ section != 13 ?: 'active' }}">Lodestone</a>
-            <a href="{{ path('docs_page', { page: 'Market' }) }}" class="{{ section != 14 ?: 'active' }}">Market</a>
-            <div class="sub-nav">
-                <a href="{{ path('docs_page', { page: 'Market' }) }}#prices">prices</a>
-                <a href="{{ path('docs_page', { page: 'Market' }) }}#history">history</a>
-                <a href="{{ path('docs_page', { page: 'Market' }) }}#stock">stock</a>
-                <a href="{{ path('docs_page', { page: 'Market' }) }}#categories">categories</a>
-                <a href="{{ path('docs_page', { page: 'Market' }) }}#status">status</a>
-            </div>
-
-            {# <a href="{{ path('docs_page', { page: 'Maps' }) }}" class="{{ section != 15 ?: 'active' }}">Maps</a> #}
-            <a href="{{ path('docs_page', { page: 'Patch-List' }) }}" class="{{ section != 16 ?: 'active' }}">Patch List</a>
-        </div>
-
-        <hr>
-
-        <div>
-            <span>Misc</span>
-
-            <a href="{{ path('docs_page', { page: 'Mappy-Data' }) }}" class="{{ section != 17 ?: 'active' }}">Mappy Data</a>
-            <div class="sub-nav">
-                <a href="{{ path('docs_page', { page: 'Mappy-Data' }) }}#download">download</a>
-            </div>
-            <a href="{{ path('docs_page', { page: 'Git-Logs' }) }}" class="{{ section != 18 ?: 'active' }}">Git Logs</a>
-            <a href="{{ path('docs_page', { page: 'Icons' }) }}" class="{{ section != 19 ?: 'active' }}">Icons</a>
-            <a href="{{ path('docs_page', { page: 'Costs' }) }}" class="{{ section != 20 ?: 'active' }}">Costs</a>
-        </div>
-    </aside>
-    <main>
-        {% block doc %}{% endblock %}
-    </main>
+        </aside>
+    </div>
+    <div>
+        <main>
+            {% block doc %}{% endblock %}
+        </main>
+    </div>
 </div>
 {% endblock %}

@@ -1,0 +1,26 @@
+<header>
+    <div>
+        <nav>
+            <div>
+                <a href="{{ path('home') }}">
+                    <img src="/logo_light.svg">
+                </a>
+            </div>
+            <div>
+                <a href="{{ path('home') }}">Home</a>
+                <a href="{{ path('docs') }}">Docs</a>
+
+                {% if auth.user %}
+                    <a href="{{ path('app') }}">Apps</a>
+                    <em>|</em>
+                    <span class="person">{{ auth.user.username }} <img src="{{ auth.user.avatar }}"></span>
+                {% else %}
+                    <a href="{{ path('app_login_discord') }}" class="btn-login">
+                        Login via <strong>Discord</strong>
+                    </a>
+                {% endif %}
+            </div>
+        </nav>
+    </div>
+</header>
+

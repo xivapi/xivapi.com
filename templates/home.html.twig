@@ -4,6 +4,11 @@
 
 {% block body %}
 
+    <div>
+        <strong>A FINAL FANTASY XIV: Online REST API</strong>
+        <div>Game data, characters, free companies, linkshells, lodestone, markets &amp; maps.</div>
+    </div>
+
     <div class="fake-browser">
         <div>
             <span>
@@ -15,7 +20,7 @@
         </div>
         <div>
             <div>
-                <pre>{
+<pre>{
     "ClassJobCategory": {
         "Name": <span>"PLD"</span>
     },
@@ -169,5 +174,23 @@
             </div>
         </section>
     </div>
+
+    <footer>
+        <div>
+            <div>
+                <strong>Premium Virtue (Phoenix)</strong> <br>
+                Discord: Vekien#3458 <br>
+                Twitter: <a href="https://twitter.com/viion">@viion</a>
+            </div>
+            <div>
+                v{{ siteVersion().version }} - Deployed {{ siteVersion().time }} <br>
+                ALL FINAL FANTASY XIV CONTENT IS PROPERTY OF SQUARE ENIX CO., LTD <br>
+
+                {% if auth.user %}
+                    <a href="{{ path('app_logout') }}" class="btn-logout">LOGOUT</a>
+                {% endif %}
+            </div>
+        </div>
+    </footer>
 
 {% endblock %}

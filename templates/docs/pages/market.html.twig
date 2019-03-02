@@ -20,23 +20,25 @@
     <h6>Notice of usage</h6>
 
     <p class="note">
-        <strong>**DO NOT DO IT**</strong> - Are you thinking of scraping the entire market? Just don't. You can go make your own
-        implementation, you can find all my stuff open source which includes the logic to connect
-        to the Companion App API and you can mass scrape all you want there. If you attempt to mass
-        scrape on XIVAPI side at this time your key will be deleted, continuous abuse will mean a ban on
-        your account. Please consider what you actually need and come into the discord to talk to
-        one of the developers who can guide you into making things much more efficient.
+        <strong>No Scraping</strong>
+        <br>
+        If you want a lot of market data for research, please hop on Discord and talk to Vekien. Scraping will just
+        get you automatically banned from the API. Alternatively, you can look into building your own Companion API tool
+        and obtain the data from SE directly, <a href="https://github.com/viion/ffxiv-datamining/blob/master/docs/CompanionAppApi.md">you can find more here</a>.
     </p>
 
     <p class="note">
-        <strong>**SLOW**</strong> - The Companion API is not fast and will take 1-2 seconds to response so please consider
-        this when building your apps. The cache on XIVAPI is set to 300 seconds for all Companion
-        API calls. It is not know what kind of caching SE use on the app.
+        <strong>Spam</strong>
+        <br>
+        Don't spam the API, this accounts for the entire API (not just /market). Other users are using this API
+        and spamming it with a bunch of requests (even within your Rate Limit) could get you banned. Just because
+        you have 10/sec doesn't mean you should be doing 10/sec 24/7/365...
     </p>
 
     <p class="note">
-        <strong>**SERVERS**</strong> - Most servers are supported, however some servers are congested which is preventing
-        new characters from being created. We are trying our best to get a character made!
+        <strong>Some servers are not supported</strong>
+        <br>
+        Due to world congestion, some servers are not on the API at this time. Please view the full supported servers at the bottom.
     </p>
 
     {{ docs.gap() }}
