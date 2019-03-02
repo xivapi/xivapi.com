@@ -4,21 +4,12 @@
 {% block title %}{{ page_name ?: 'Welcome' }} - XIVAPI{% endblock %}
 
 {% block body %}
-
-{% if environment() == 'staging' %}
-<div class="staging">
-    <h3>You are viewing the Staging API</h3>
-    This has in-development functionality and is not considered stable,
-    please only use this endpoint if you are testing new features.
-</div>
-{% endif %}
-
 <div class="docs">
     <div>
         <aside>
             <div class="docs-top">
                 <h3>documentation</h3>
-                <small>Version {{ siteVersion().version }}</small>
+                <small>Version {{ siteVersion().version }} - {{ environment() == 'staging' ? 'Staging' : 'Production' }}</small>
             </div>
 
             <div class="docs-links">

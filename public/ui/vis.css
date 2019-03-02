@@ -148,10 +148,9 @@ nav {
         nav > div:nth-of-type(2) a:last-of-type {
           margin-right: 0; }
       nav > div:nth-of-type(2) a.btn-login {
-        background-color: var(--blue5);
-        padding: 10px 16px;
-        border-radius: 5px;
-        box-shadow: 0 1px 4px #000; }
+        background-color: #3c1076;
+        padding: 10px 14px;
+        border-radius: 5px; }
       nav > div:nth-of-type(2) span.person {
         display: inline-block; }
 
