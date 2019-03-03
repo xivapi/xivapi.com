@@ -126,7 +126,7 @@ class ElasticSearch
                                     "ID"                    => [ "type" => "text" ],
                                     "Added"                 => [ "type" => "integer" ],
                                     "PurchaseDate"          => [ "type" => "integer" ],
-                                    "PurchaseDateMs"        => [ "type" => "integer" ],
+                                    "PurchaseDateMs"        => [ "type" => "text" ],
                                     "CharacterID"           => [ "type" => "text" ],
                                     "CharacterName"         => [ "type" => "text" ],
                                     "IsHq"                  => [ "type" => "boolean" ],
