@@ -52,7 +52,7 @@ class UpdateSearchLoreCommand extends Command
         
         // recreate index
         $this->elastic->deleteIndex('lore_finder');
-        $this->elastic->addIndex('lore_finder');
+        $this->elastic->addIndexGameData('lore_finder');
     
         /*
          * todo:

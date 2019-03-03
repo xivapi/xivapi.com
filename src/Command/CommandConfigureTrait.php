@@ -15,7 +15,7 @@ trait CommandConfigureTrait
         $this->setDescription($cmd->desc ?? 'No Description');
 
         // add any arguments
-        if (isset($cmd->args)) {
+        if (isset($cmd->args) && $cmd->args) {
             foreach ($cmd->args as $arg) {
                 [ $name, $type, $desc ] = $arg;
                 

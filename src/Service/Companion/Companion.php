@@ -33,14 +33,6 @@ class Companion
     }
     
     /**
-     * Get category listings for an item
-     */
-    public function getCategoryList(int $categoryId)
-    {
-        return $this->api->Market()->getMarketListingsByCategory($categoryId);
-    }
-    
-    /**
      * Get a list of search categories
      */
     public function getCategories(): array

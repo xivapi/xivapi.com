@@ -2,16 +2,21 @@
 
 namespace App\Service\Companion;
 
+use App\Entity\CompanionCharacter;
 use App\Entity\CompanionMarketItemEntry;
 use App\Entity\CompanionMarketItemException;
+use App\Entity\CompanionRetainer;
+use App\Entity\CompanionSignature;
 use App\Entity\CompanionToken;
+use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionMarketItemEntryRepository;
+use App\Repository\CompanionRetainerRepository;
+use App\Repository\CompanionSignatureRepository;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
 use Companion\CompanionApi;
-use Companion\Config\CompanionConfig;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -31,13 +36,18 @@ class CompanionMarketUpdater
     // estimated to be able to do 4 per second
     const ESTIMATED_QUERY_TIME = 0.25;
     
-    
     /** @var EntityManagerInterface */
     private $em;
     /** @var ConsoleOutput */
     private $console;
     /** @var CompanionMarketItemEntryRepository */
     private $repository;
+    /** @var CompanionCharacterRepository */
+    private $repositoryCompanionCharacter;
+    /** @var CompanionRetainerRepository */
+    private $repositoryCompanionRetainer;
+    /** @var CompanionSignatureRepository */
+    private $repositoryCompanionSignature;
     /** @var Companion */
     private $companion;
     /** @var CompanionMarket */
@@ -60,6 +70,9 @@ class CompanionMarketUpdater
         $this->companionMarket = $companionMarket;
         $this->companionTokenManager = $companionTokenManager;
         $this->repository = $this->em->getRepository(CompanionMarketItemEntry::class);
+        $this->repositoryCompanionCharacter = $this->em->getRepository(CompanionCharacter::class);
+        $this->repositoryCompanionRetainer = $this->em->getRepository(CompanionRetainer::class);
+        $this->repositoryCompanionSignature = $this->em->getRepository(CompanionSignature::class);
         $this->console = new ConsoleOutput();
         $this->start = time();
     }
@@ -184,13 +197,13 @@ class CompanionMarketUpdater
         $this->console->writeln("--| final duration = {$duration}");
         # --------------------------------------------------------------------------------------------------------------
         
-        $this->updateItems($chunkList, $results);
+        $this->storeMarketData($chunkList, $results);
     }
     
     /**
      * Update a chunk of items to the document storage
      */
-    private function updateItems($chunkList, $results)
+    private function storeMarketData($chunkList, $results)
     {
         // process the chunk list from our results
         /** @var CompanionMarketItemEntry $item */
@@ -224,6 +237,11 @@ class CompanionMarketUpdater
             
                 // append current prices
                 foreach ($prices->entries as $row) {
+                    // grab internal records
+                    $row->_retainerId = $this->getInternalRetainerId($row->sellRetainerName);
+                    $row->_creatorSignatureId = $this->getInternalSignatureId($row->signatureName);
+                    
+                    // append prices
                     $marketItem->Prices[] = MarketListing::build($row);
                 }
             }
@@ -256,11 +274,17 @@ class CompanionMarketUpdater
                     if ($found) {
                         break;
                     }
+    
+                    // grab internal record
+                    $row->_characterId = $this->getInternalCharacterId($row->buyCharacterName);
                 
                     // add history to front
                     array_unshift($marketItem->History, MarketHistory::build($id, $row));
                 }
             }
+            
+            file_put_contents(__DIR__ .'/test.json', json_encode($marketItem, JSON_PRETTY_PRINT));
+            die('saved');
         
             // put
             $this->companionMarket->set($marketItem);
@@ -296,5 +320,62 @@ class CompanionMarketUpdater
         
         $this->em->persist($exception);
         $this->em->flush();
+    }
+    
+    /**
+     * Returns the ID for internally stored retainers
+     */
+    private function getInternalRetainerId(string $name): ?string
+    {
+        if (empty($name)) {
+            return null;
+        }
+        
+        $obj = $this->repositoryCompanionRetainer->findOneBy([ 'name' => $name ]);
+        
+        if ($obj === null) {
+            $obj = new CompanionRetainer($name);
+            $this->em->persist($obj);
+        }
+        
+        return $obj->getId();
+    }
+    
+    /**
+     * Returns the ID for internally stored signature ids
+     */
+    private function getInternalSignatureId(string $name): ?string
+    {
+        if (empty($name)) {
+            return null;
+        }
+        
+        $obj = $this->repositoryCompanionSignature->findOneBy([ 'name' => $name ]);
+    
+        if ($obj === null) {
+            $obj = new CompanionSignature($name);
+            $this->em->persist($obj);
+        }
+    
+        return $obj->getId();
+    }
+    
+    /**
+     * Returns the ID for internally stored character ids
+     */
+    private function getInternalCharacterId(string $name): ?string
+    {
+        if (empty($name)) {
+            return null;
+        }
+        
+        $obj = $this->repositoryCompanionCharacter->findOneBy([ 'name' => $name ]);
+    
+        if ($obj === null) {
+            $obj = new CompanionCharacter($name);
+            $this->em->persist($obj);
+        }
+    
+        return $obj->getId();
     }
 }

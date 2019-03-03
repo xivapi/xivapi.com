@@ -68,7 +68,7 @@ class UpdateSearchCommand extends Command
                 $elastic->deleteIndex($index);
         
                 // create index
-                $elastic->addIndex($index);
+                $elastic->addIndexGameData($index);
         
                 // Add documents to elastic
                 $count = 0;

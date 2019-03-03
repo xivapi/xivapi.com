@@ -114,11 +114,11 @@ class CompanionTokenManager
         $this->console = new ConsoleOutput();
     }
     
-    public function account($accountId)
+    public function account(string $accountId, bool $force = false)
     {
         foreach (self::SERVERS_ACCOUNTS as $server => $account) {
             if ($account == $accountId) {
-                $ok = $this->login($server);
+                $ok = $this->login($server, $force);
                 
                 // sleep for a random amount, because SE ?
                 sleep($ok ? mt_rand(5, 30) : 0);
@@ -129,7 +129,7 @@ class CompanionTokenManager
     /**
      * Login to a specific server
      */
-    public function login(string $server): bool
+    public function login(string $server, bool $force = false): bool
     {
         $this->console->writeln("<comment>Server: {$server}</comment>");
 
@@ -155,7 +155,7 @@ class CompanionTokenManager
             // initialize API and create a new token
             $api = new CompanionApi("{$username}_{$server}");
 
-            if ($api->Token()->hasExpired($entity->getToken()) == false) {
+            if ($force === false && $api->Token()->hasExpired($entity->getToken()) === false) {
                 $this->console->writeln('Token has not yet expired, skipping.');
                 return false;
             }

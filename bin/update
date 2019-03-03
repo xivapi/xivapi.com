@@ -30,6 +30,10 @@ sleep 5
 /usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 425 25 1
 /usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 450 25 1
 
+# Populate market items
+sleep 5
+/usr/bin/php /vagrant/bin/console Companion_AutoPopulateItemsCommand
+
 # Add custom data
 sleep 5
 /usr/bin/php /vagrant/bin/console SaintCoinachRedisCustomCommand

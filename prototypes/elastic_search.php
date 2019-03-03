@@ -32,7 +32,7 @@ $mapping = [
 ];
 
 // create index
-$elastic->addIndex('test', $mapping, $settings);
+$elastic->addIndexGameData('test', $mapping, $settings);
 
 //////////////////////////////////////////////////////////////////
 

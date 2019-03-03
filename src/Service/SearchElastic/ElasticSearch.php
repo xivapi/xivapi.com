@@ -30,8 +30,11 @@ class ElasticSearch
             throw new \Exception("Could not connect to ElasticSearch.");
         }
     }
-
-    public function addIndex(string $index): void
+    
+    /**
+     * Add index for game data
+     */
+    public function addIndexGameData(string $index): void
     {
         $this->client->indices()->create([
             'index' => $index,
@@ -76,6 +79,9 @@ class ElasticSearch
         ]);
     }
     
+    /**
+     * Add Companion Index
+     */
     public function addIndexCompanion(string $index)
     {
         $this->client->indices()->create([
@@ -93,36 +99,40 @@ class ElasticSearch
                     'companion' => [
                         '_source' => [ "enabled" => true ],
                         'properties' => [
-                            "id"        => [ "type" => "text" ],
-                            "server"    => [ "type" => "integer" ],
-                            "item_id"   => [ "type" => "integer" ],
-                            "prices"    => [
+                            "ID"        => [ "type" => "text" ],
+                            "Server"    => [ "type" => "integer" ],
+                            "ItemID"    => [ "type" => "integer" ],
+                            "Prices"    => [
                                 "type"  => "nested",
                                 "properties" => [
-                                    "id"                 => [ "type" => "text" ],
-                                    "time"               => [ "type" => "integer" ],
-                                    "is_crafted"         => [ "type" => "boolean" ],
-                                    "is_hq"              => [ "type" => "boolean" ],
-                                    "price_per_unit"     => [ "type" => "integer" ],
-                                    "price_total"        => [ "type" => "integer" ],
-                                    "quantity"           => [ "type" => "integer" ],
-                                    "retainer_id"        => [ "type" => "integer" ],
-                                    "craft_signature_id" => [ "type" => "integer" ],
-                                    "town_id"            => [ "type" => "integer" ],
-                                    "stain_id"           => [ "type" => "integer" ],
+                                    "ID"                    => [ "type" => "text" ],
+                                    "Added"                 => [ "type" => "integer" ],
+                                    "IsCrafted"             => [ "type" => "boolean" ],
+                                    "IsHq"                  => [ "type" => "boolean" ],
+                                    "PricePerUnit"          => [ "type" => "integer" ],
+                                    "PriceTotal"            => [ "type" => "integer" ],
+                                    "Quantity"              => [ "type" => "integer" ],
+                                    "RetainerID"            => [ "type" => "text" ],
+                                    "RetainerName"          => [ "type" => "text" ],
+                                    "CreatorSignatureID"    => [ "type" => "text" ],
+                                    "CreatorSignatureName"  => [ "type" => "text" ],
+                                    "TownID"                => [ "type" => "integer" ],
+                                    "StainID"               => [ "type" => "integer" ],
                                 ]
                             ],
-                            "history"   => [
+                            "History"   => [
                                 "type"  => "nested",
                                 "properties" => [
-                                    "id"                 => [ "type" => "text" ],
-                                    "time"               => [ "type" => "integer" ],
-                                    "character_name"     => [ "type" => "integer" ],
-                                    "is_hq"              => [ "type" => "boolean" ],
-                                    "price_per_unit"     => [ "type" => "integer" ],
-                                    "price_total"        => [ "type" => "integer" ],
-                                    "quantity"           => [ "type" => "integer" ],
-                                    "purchase_date"      => [ "type" => "integer" ],
+                                    "ID"                    => [ "type" => "text" ],
+                                    "Added"                 => [ "type" => "integer" ],
+                                    "PurchaseDate"          => [ "type" => "integer" ],
+                                    "PurchaseDateMs"        => [ "type" => "integer" ],
+                                    "CharacterID"           => [ "type" => "text" ],
+                                    "CharacterName"         => [ "type" => "text" ],
+                                    "IsHq"                  => [ "type" => "boolean" ],
+                                    "PricePerUnit"          => [ "type" => "integer" ],
+                                    "PriceTotal"            => [ "type" => "integer" ],
+                                    "Quantity"              => [ "type" => "integer" ],
                                 ]
                             ]
                         ]
