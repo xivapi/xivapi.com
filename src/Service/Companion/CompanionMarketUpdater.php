@@ -283,9 +283,6 @@ class CompanionMarketUpdater
                 }
             }
             
-            file_put_contents(__DIR__ .'/test.json', json_encode($marketItem, JSON_PRETTY_PRINT));
-            die('saved');
-        
             // put
             $this->companionMarket->set($marketItem);
         
