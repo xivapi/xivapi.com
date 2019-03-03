@@ -28,7 +28,7 @@ class MarketHistory
         $obj->Added          = time();
         $obj->PurchaseDate   = (int)(round($data->buyRealDate / 1000, 0));
         $obj->PurchaseDateMs = (int)$data->buyRealDate;
-        $obj->IsHq           = (int)($data->hq ? 1 : 0);
+        $obj->IsHq           = (bool)($data->hq ? true : false);
         $obj->PricePerUnit   = (int)$data->sellPrice;
         $obj->Quantity       = (int)$data->stack;
         $obj->PriceTotal     = (int)($data->sellPrice * $data->stack);

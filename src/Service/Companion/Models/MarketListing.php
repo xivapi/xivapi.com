@@ -32,8 +32,8 @@ class MarketListing
         $obj                        = new MarketListing();
         $obj->ID                    = sha1($data->itemId); // avoid overflow
         $obj->Added                 = time();
-        $obj->IsCrafted             = (int)($data->isCrafted ? 1 : 0);
-        $obj->IsHQ                  = (int)($data->hq ? 1 : 0);
+        $obj->IsCrafted             = (bool)($data->isCrafted ? true : false);
+        $obj->IsHQ                  = (bool)($data->hq ? true : false);
         $obj->PricePerUnit          = (int)$data->sellPrice;
         $obj->Quantity              = (int)$data->stack;
         $obj->PriceTotal            = (int)($data->sellPrice * $data->stack);
