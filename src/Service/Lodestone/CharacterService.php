@@ -42,10 +42,6 @@ class CharacterService extends Service
                 'data' => $data ?? null,
             ];
         }
-        
-        if ($key !== getenv('ALLOWED_LODESTONE')) {
-            die('Character adding is disabled at this time.');
-        }
     
         CharacterQueue::request($lodestoneId, 'character_add');
         CharacterFriendQueue::request($lodestoneId, 'character_friends_add');
