@@ -127,7 +127,7 @@ class CompanionMarketUpdater
      */
     private function updateChunk($chunkNumber, $chunkList)
     {
-        $this->console->writeln("Processing chunk: {$chunkNumber}");
+        $this->console->writeln(date('H:i:s') ."Processing chunk: {$chunkNumber}");
         $start = microtime(true);
         
         // initialize Companion API, no token provided as we set it later on
@@ -146,13 +146,13 @@ class CompanionMarketUpdater
             
             // if token expired, skip
             if ($api->Token()->hasExpired($token->getLastOnline())) {
-                $this->console->writeln("!!! Error: Token has expired for server: {$server}.");
+                $this->console->writeln(date('H:i:s') ." !!! Error: Token has expired for server: {$server}.");
                 continue;
             }
             
             // if token offline, skip
             if ($token->isOnline() === false) {
-                $this->console->writeln("!!! Skipped: Token for server: {$server} is offline, skipping...");
+                $this->console->writeln(date('H:i:s') ." !!! Skipped: Token for server: {$server} is offline, skipping...");
                 continue;
             }
 
@@ -170,7 +170,7 @@ class CompanionMarketUpdater
         }
         
         // run the requests, we don't care on response because the first time nothing will be there.
-        $this->console->writeln("<info>Part 1: Sending Requests</info>");
+        $this->console->writeln(date('H:i:s') ." | <info>Part 1: Sending Requests</info>");
         $a = microtime(true);
 
         // 1st pass
@@ -178,28 +178,28 @@ class CompanionMarketUpdater
     
         # --------------------------------------------------------------------------------------------------------------
         $duration = round(microtime(true) - $a, 2);
-        $reqSec = round(1 / round($duration / (self::MAX_PER_CHUNK * 2), 2), 1);
-        $this->console->writeln("--| duration = {$duration} @ req/sec: {$reqSec}");
+        #$reqSec = round(1 / round($duration / (self::MAX_PER_CHUNK * 2), 2), 1);
+        #$this->console->writeln("--| duration = {$duration} @ req/sec: {$reqSec}");
         # --------------------------------------------------------------------------------------------------------------
         
         // we only wait if the execution of the above requests was faster than our default timeout
         $sleep = ceil(self::MAX_QUERY_SLEEP_SEC - $duration);
         if ($sleep > 1) {
-            $this->console->writeln("--| wait: {$sleep}");
+            #$this->console->writeln("--| wait: {$sleep}");
             sleep($sleep);
         }
         
         // run the requests again, the Sight API should give us our response this time.
-        $this->console->writeln("<info>Part 2: Fetching Responses</info>");
+        $this->console->writeln(date('H:i:s') ." | <info>Part 2: Fetching Responses</info>");
         $a = microtime(true);
 
         // second pass
         $results = $api->Sight()->settle($requests)->wait();
 
         # --------------------------------------------------------------------------------------------------------------
-        $duration = round(microtime(true) - $a, 2);
-        $reqSec = round(1 / round($duration / (self::MAX_PER_CHUNK * 2), 2), 1);
-        $this->console->writeln("--| duration = {$duration} @ req/sec: {$reqSec}");
+        #$duration = round(microtime(true) - $a, 2);
+        #$reqSec = round(1 / round($duration / (self::MAX_PER_CHUNK * 2), 2), 1);
+        #$this->console->writeln("--| duration = {$duration} @ req/sec: {$reqSec}");
         # --------------------------------------------------------------------------------------------------------------
         
         // handle the results of the response
@@ -207,7 +207,7 @@ class CompanionMarketUpdater
     
         # --------------------------------------------------------------------------------------------------------------
         $duration = round(microtime(true) - $start, 2);
-        $this->console->writeln("--| final duration = {$duration}");
+        #$this->console->writeln("--| final duration = {$duration}");
         # --------------------------------------------------------------------------------------------------------------
         
         $this->storeMarketData($chunkList, $results);
@@ -304,7 +304,7 @@ class CompanionMarketUpdater
             $this->em->persist($item);
             $this->em->flush();
         
-            $this->console->writeln("<comment>✓</comment> Updated prices + history for item: {$itemId} on {$server}");
+            $this->console->writeln(date('H:i:s') ." | <comment>✓</comment> Updated prices + history for item: {$itemId} on {$server}");
         }
     }
     
