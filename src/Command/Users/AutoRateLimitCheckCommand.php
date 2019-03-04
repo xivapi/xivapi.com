@@ -12,6 +12,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * todo - Add a rate limit count to the user, if they hit their rate limit often then ban their account after X resets
+ */
 class AutoRateLimitCheckCommand extends Command
 {
     use CommandHelperTrait;
@@ -39,80 +42,58 @@ class AutoRateLimitCheckCommand extends Command
         $this->setSymfonyStyle($input, $output);
         $this->io->text('Running auto rate limit check');
 
-        $filters = [
+        $apps = $this->em->getRepository(UserApp::class)->findBy([
             'new'    => false,
             'locked' => false,
             'banned' => false,
-        ];
+        ]);
 
-        $apps = $this->em->getRepository(UserApp::class)->findBy($filters);
-
-        // requests threshold in 5 minute period to monitor
-        // bursts will go down to 1
-        $bans = 0;
-        $thresholds = [
-            // 5 requests a second for 5 minutes consecutively.
-            1500 => 5,
-            // 8 requests a second for 5 minutes consecutively
-            2400 => 2,
-            // 12 requests a second for 5 minutes consecutively
-            3600 => 1,
-            // 15 requests a second for 5 minutes consecutively
-            4500 => 0,
-        ];
-    
-        // timeouts for rate limits
-        $twoHourTimeout = time() - (60*60*2);
-        $oneDayTimeout  = time() - (60*60*24*1);
-        $oneWeekTimeout = time() - (60*60*24*7);
+        $bans    = 0;
+        $timeout = time() - (60 * 60 * 24);
 
         /** @var UserApp $app */
         foreach($apps as $app) {
-            $key   = "app_autolimit_count_{$app->getApiKey()}";
-            $count = Redis::Cache()->getCount($key);
+            // grab count and reset count.
+            $count = Redis::Cache()->getCount("app_autolimit_count_{$app->getApiKey()}");
+            Redis::Cache()->delete("app_autolimit_count_{$app->getApiKey()}");
 
-            // if count below 1000, we can ignore
-            if ($count < 1000) {
-                // if the user was auto rate limited before, return them to 5/5
-                if ($app->isApiRateLimitAutoModified()) {
-                    $app->rateLimits(1, 1);
-    
-                    if ($app->getApiRateLimitAutoModifiedDate() < $twoHourTimeout) {
-                        $app->rateLimits(3, 2);
-                    } else if ($app->getApiRateLimitAutoModifiedDate() < $oneDayTimeout) {
-                        $app->rateLimits(5, 5);
-                    } else if ($app->getApiRateLimitAutoModifiedDate() < $oneWeekTimeout) {
-                        $app->rateLimits(10, 10);
-                    }
-                    
-                    $app->setApiRateLimitAutoModifiedDate(time())
-                        ->setNotes("Rate limit has been automatically increased to a soft limit.");
+            // App has done less than 1000 requests
+            // and has been previously rate limited
+            // and it has been over 24 hours
+            // restore back to 10/10
+            if ($count < 1000 &&
+                $app->isApiRateLimitAutoModified() &&
+                $app->getApiRateLimitAutoModifiedDate() < $timeout
+            ) {
+                $app->rateLimits(10, 10)
+                    ->setApiRateLimitAutoModified(false)
+                    ->setApiRateLimitAutoModifiedDate(time())
+                    ->setNotes("Rate Limit has been restored.");
 
-                    $this->em->persist($app);
-                    $this->em->flush();
-                }
+                $this->em->persist($app);
+                $this->em->flush();
+            }
+
+            // if the user requests are below 2000, skip
+            if ($count < 2000) {
                 continue;
             }
 
-            // loop through thresholds
-            $limit = false;
-            foreach ($thresholds as $requestLimit => $rateLimit) {
-                if ($count > $requestLimit) {
-                    $limit = $rateLimit;
-                    $bans++;
-                }
+            if ($count > 2000) {
+                $app->rateLimits(2, 1)
+                    ->setApiRateLimitAutoModified(false)
+                    ->setApiRateLimitAutoModifiedDate(time())
+                    ->setNotes("Rate Limit was automatically reduce due to spam detection.");
+
+                $this->em->persist($app);
+                $this->em->flush();
+
+                $message = "<:status:474543481377783810> [XIVAPI] - RATE LIMIT REDUCTION";
+                $message .= " - **{$app->getUser()->getUsername()}** `{$app->getApiKey()}`, App Name: {$app->getName()}";
+                $message .= " - Requests: {$count}. Rate limit reduced to 2 with 1 burst.";
+
+                Mog::send($message);
             }
-            
-            if ($limit) {
-                Mog::send("<:status:474543481377783810> [XIVAPI] Auto-reduced ratelimit to `{$limit}` for: **{$app->getUser()->getUsername()}** `{$app->getApiKey()}`, App Name: {$app->getName()} - Requests in 5 minutes: {$count}");
-                
-                $app->rateLimits($limit, 1)
-                    ->setApiRateLimitAutoModified(true)
-                    ->setNotes("Rate limit has been reduced to: {$limit}/sec due to excessive use: {$count} requests in a 5 minute period.");
-            }
-            
-            $this->em->persist($app);
-            Redis::Cache()->delete($key);
         }
 
         $this->em->flush();

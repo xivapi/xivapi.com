@@ -13,6 +13,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * todo - delete this, technically can't hit 15,000
+ */
 class AutoBanCheckCommand extends Command
 {
     use CommandHelperTrait;
@@ -75,8 +78,12 @@ class AutoBanCheckCommand extends Command
                 $user->setNotes("Auto banned for: {$requestCount} requests within 1 hour.");
 
                 // reduce all other apps down to 0
+                /** @var UserApp $userApp */
                 foreach ($user->getApps() as $userApp) {
-                    $userApp->rateLimits(0,0)->setBanned(true);
+                    $userApp
+                        ->rateLimits(0,0)
+                        ->setBanned(true);
+
                     $this->em->persist($userApp);
                 }
 
@@ -84,6 +91,7 @@ class AutoBanCheckCommand extends Command
 
                 $subject = "XIVAPI - Banned: {$app->getUser()->getUsername()}";
                 $message = "Auto-Banned: {$app->getUser()->getUsername()} {$app->getApiKey()} {$app->getName()} for: {$requestCount} api requests in 1 hour.";
+
                 $this->mail->send('josh@viion.co.uk', $subject, $message);
                 Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
             }
