@@ -20,8 +20,8 @@ class CompanionItems
         }
     
         // build a new market item cache
-        $arr   = [];
-        $ids   = Redis::Cache()->get('ids_Item');
+        $arr = [];
+        $ids = Redis::Cache()->get('ids_Item');
     
         foreach ($ids as $i => $id) {
             $item = Redis::Cache()->get("xiv_Item_{$id}");

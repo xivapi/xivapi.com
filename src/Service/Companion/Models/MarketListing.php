@@ -29,7 +29,6 @@ class MarketListing
      */
     public static function build(\stdClass $data): MarketListing
     {
-        
         $obj                        = new MarketListing();
         $obj->ID                    = sha1($data->itemId); // avoid overflow
         $obj->Added                 = time();
@@ -55,9 +54,6 @@ class MarketListing
                 $obj->Materia[] = (int)$item->ID;
             }
         }
-    
-        // fix for old stuff
-        unset($obj->IsHq);
         
         return $obj;
     }

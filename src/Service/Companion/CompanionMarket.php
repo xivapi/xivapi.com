@@ -95,9 +95,6 @@ class CompanionMarket
                 $obj->{$key} = $value;
             }
     
-            // fix for old stuff
-            unset($obj->IsHq);
-            
             $item->Prices[] = $obj;
         }
         
@@ -115,9 +112,6 @@ class CompanionMarket
                 $obj->{$key} = $value;
             }
     
-            // fix for old stuff
-            unset($obj->IsHq);
-        
             $item->History[] = $obj;
         }
         
