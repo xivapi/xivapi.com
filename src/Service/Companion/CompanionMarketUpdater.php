@@ -127,7 +127,7 @@ class CompanionMarketUpdater
      */
     private function updateChunk($chunkNumber, $chunkList)
     {
-        $this->console->writeln(date('H:i:s') ."Processing chunk: {$chunkNumber}");
+        $this->console->writeln(date('H:i:s') ." | Processing chunk: {$chunkNumber}");
         $start = microtime(true);
         
         // initialize Companion API, no token provided as we set it later on
@@ -323,7 +323,7 @@ class CompanionMarketUpdater
      */
     private function recordException($type, $itemId, $server, $error)
     {
-        $this->console->writeln("!!! EXCEPTION: {$type}, {$itemId}, {$server} - {$error}");
+        $this->console->writeln(date('H:i:s') ." !!! EXCEPTION: {$type}, {$itemId}, {$server}");
 
         $exception = new CompanionMarketItemException();
         $exception->setException("{$type}, {$itemId}, {$server}")->setMessage($error);
