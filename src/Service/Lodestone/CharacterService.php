@@ -19,7 +19,7 @@ class CharacterService extends Service
     /**
      * Get a character; this will add the character if they do not exist
      */
-    public function get($lodestoneId, bool $extended = null): \stdClass
+    public function get($lodestoneId, bool $extended = null, string $key): \stdClass
     {
         if (!is_numeric($lodestoneId) || $lodestoneId < 0 || preg_match("/[a-z]/i", $lodestoneId) || strlen($lodestoneId) > 16) {
             throw new NotAcceptableHttpException("Invalid character id: {$lodestoneId}");
@@ -41,6 +41,10 @@ class CharacterService extends Service
                 'ent'  => $ent,
                 'data' => $data ?? null,
             ];
+        }
+        
+        if ($key !== getenv('ALLOWED_LODESTONE')) {
+            die('Character adding is disabled at this time.');
         }
     
         CharacterQueue::request($lodestoneId, 'character_add');
