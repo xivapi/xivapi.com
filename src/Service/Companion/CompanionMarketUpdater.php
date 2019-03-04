@@ -99,7 +99,6 @@ class CompanionMarketUpdater
         }
 
         // loop through chunks
-        $this->console->writeln("Start: ". date('Y-m-d H:i:s'));
         $a = microtime(true);
         
         foreach (array_chunk($items, self::MAX_PER_CHUNK) as $i => $itemChunk) {
