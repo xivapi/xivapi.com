@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "fa9a171e6510a8739bcbf9e6344578e0",
+    "content-hash": "2ebda325f2fb227c9add8c0d48c6915a",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.87.22",
+            "version": "3.87.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "e644b25cbd15a3e335bb115cbf1f78ec48d6b200"
+                "reference": "4f042410335c06aa7ab81365194782a30c144bc2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/e644b25cbd15a3e335bb115cbf1f78ec48d6b200",
-                "reference": "e644b25cbd15a3e335bb115cbf1f78ec48d6b200",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/4f042410335c06aa7ab81365194782a30c144bc2",
+                "reference": "4f042410335c06aa7ab81365194782a30c144bc2",
                 "shasum": ""
             },
             "require": {
@@ -86,7 +86,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-03-01T21:11:22+00:00"
+            "time": "2019-03-04T19:19:05+00:00"
         },
         {
             "name": "cboden/ratchet",
@@ -7636,16 +7636,16 @@
         },
         {
             "name": "xivapi/companion-php",
-            "version": "1.1.3",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/xivapi/companion-php.git",
-                "reference": "828137d16bbdd420d7442ab5411edb076215aaf7"
+                "reference": "2da1c8e3e4fd883d30bd572c072d8294fb5ba302"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/xivapi/companion-php/zipball/828137d16bbdd420d7442ab5411edb076215aaf7",
-                "reference": "828137d16bbdd420d7442ab5411edb076215aaf7",
+                "url": "https://api.github.com/repos/xivapi/companion-php/zipball/2da1c8e3e4fd883d30bd572c072d8294fb5ba302",
+                "reference": "2da1c8e3e4fd883d30bd572c072d8294fb5ba302",
                 "shasum": ""
             },
             "require": {
@@ -7671,7 +7671,7 @@
                 "ffxiv",
                 "php"
             ],
-            "time": "2019-02-25T17:48:24+00:00"
+            "time": "2019-03-04T19:15:24+00:00"
         },
         {
             "name": "xivapi/lodestone-parser",

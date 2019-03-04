@@ -58,7 +58,7 @@ class Companion_AutoLoginAccountsCommand extends Command
             return;
         }
         
-        $output->writeln('You must provide either a SERVER or an ACCOUNT.');
-        $output->writeln('Accounts: COMPANION_APP_ACCOUNT_A, COMPANION_APP_ACCOUNT_B, COMPANION_APP_ACCOUNT_C');
+        $output->writeln('Logging into the last logged in account.');
+        $this->companionTokenManager->auto();
     }
 }

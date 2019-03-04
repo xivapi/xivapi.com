@@ -5,6 +5,7 @@ namespace App\Service\Companion;
 use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
 use App\Service\Common\Mog;
+use App\Service\Redis\Redis;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;
@@ -13,7 +14,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionTokenManager
 {
-    const MAX_LOGIN_ATTEMPTS = 3;
+    const MAX_LOGIN_ATTEMPTS = 1;
     
     /**
      * Current servers that are offline due to character restrictions
@@ -116,6 +117,9 @@ class CompanionTokenManager
         $this->console = new ConsoleOutput();
     }
     
+    /**
+     * Login to an entire account characters.
+     */
     public function account(string $accountId, bool $force = false)
     {
         foreach (self::SERVERS_ACCOUNTS as $server => $account) {
@@ -129,10 +133,26 @@ class CompanionTokenManager
     }
     
     /**
+     * Automatically select the last updated account and login to it.
+     */
+    public function auto()
+    {
+        $server = $this->repository->findLastUpdated()['server'];
+        
+        $this->login($server, true);
+    }
+    
+    /**
      * Login to a specific server
      */
     public function login(string $server, bool $force = false, int $attempts = 0): bool
     {
+        $errorCount = Redis::Cache()->getCount('companion_token_manager_failures');
+        
+        if ($errorCount > 6) {
+            return false;
+        }
+        
         $this->console->writeln("<comment>Server: {$server}</comment>");
 
         if (in_array($server, self::SERVERS_OFFLINE)) {
@@ -151,13 +171,13 @@ class CompanionTokenManager
         // grab saved token in db
         $entity = $this->repository->findOneBy([ 'server' => $server ]);
         $entity = $entity ?: new CompanionToken();
-       
         
         try {
             // initialize API and create a new token
             $api = new CompanionApi("{$username}_{$server}");
 
-            if ($force === false && $api->Token()->hasExpired($entity->getToken()) === false) {
+            // token has not yet expired
+            if ($force === false && $api->Token()->hasExpired($entity->getLastOnline()) === false) {
                 $this->console->writeln('Token has not yet expired, skipping.');
                 return false;
             }
@@ -166,7 +186,7 @@ class CompanionTokenManager
             $entity
                 ->setServer($server)
                 ->setOnline(false)
-                ->setLastOnline(1);
+                ->setLastOnline(0);
             
             // login
             $this->console->writeln("- Account Login: {$username}");
@@ -215,7 +235,7 @@ class CompanionTokenManager
         } catch (\Exception $ex) {
             // check if we can still try again to login
             if ($attempts < self::MAX_LOGIN_ATTEMPTS) {
-                $this->console->writeln("Failed to login to server: {$server} - Attempts: {$attempts}, trying again ...");
+                $this->console->writeln("Failed to login to server: {$server} - Attempts: {$attempts}/". self::MAX_LOGIN_ATTEMPTS .", trying again ...");
 
                 // try again in 10-30 seconds
                 sleep( mt_rand(10, 30) );
@@ -229,6 +249,15 @@ class CompanionTokenManager
     
             $this->postCompanionStatusOnDiscord($ex, $server);
             $this->console->writeln('- Character failed to login: '. $ex->getMessage());
+            
+            // record number of failures
+            Redis::Cache()->increment('companion_token_manager_failures');
+            $errorCount = Redis::Cache()->getCount('companion_token_manager_failures');
+
+            // if we fail more than 6 times, jus stop
+            if ($errorCount > 6) {
+                $this->postFinalErrorStateOnDiscord();
+            }
         }
     
         $this->em->persist($entity);
@@ -293,6 +322,12 @@ class CompanionTokenManager
         }
         
         $message = "<@42667995159330816> [Companion Login Status] Failed to login to: **{$server}** - Will try again in 10 minutes. Reason: `{$ex->getMessage()}`";
+        Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
+    }
+    
+    private function postFinalErrorStateOnDiscord()
+    {
+        $message = "<@42667995159330816> [Companion Login Status] Account login attempts have failed 6 times in a row, I won't be doing anymore.";
         Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
     }
 }

@@ -12,4 +12,15 @@ class CompanionTokenRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, CompanionToken::class);
     }
+    
+    public function findLastUpdated()
+    {
+        $sql = $this->createQueryBuilder('a');
+        $sql->select('a.server')
+            ->orderBy('a.lastOnline', 'asc')
+            ->setMaxResults(1)
+            ->setFirstResult(0);
+    
+        return $sql->getQuery()->getSingleResult();
+    }
 }
