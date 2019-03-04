@@ -13,7 +13,7 @@ class MarketHistory
     public $PurchaseDateMs;
     public $CharacterID;
     public $CharacterName;
-    public $IsHq = false;
+    public $IsHQ = false;
     public $PricePerUnit;
     public $PriceTotal;
     public $Quantity;
@@ -28,7 +28,7 @@ class MarketHistory
         $obj->Added          = time();
         $obj->PurchaseDate   = (int)(round($data->buyRealDate / 1000, 0));
         $obj->PurchaseDateMs = $data->buyRealDate;
-        $obj->IsHq           = (bool)($data->hq ? true : false);
+        $obj->IsHQ           = (bool)($data->hq ? true : false);
         $obj->PricePerUnit   = (int)$data->sellPrice;
         $obj->Quantity       = (int)$data->stack;
         $obj->PriceTotal     = (int)($data->sellPrice * $data->stack);
@@ -36,6 +36,9 @@ class MarketHistory
         // these are internally tracked ids
         $obj->CharacterID    = $data->_characterId;
         $obj->CharacterName  = $data->buyCharacterName;
+    
+        // fix for old stuff
+        unset($obj->IsHq);
         
         return $obj;
     }
