@@ -83,7 +83,7 @@ class LodestoneCharacterController extends Controller
             ],
         ];
 
-        $character = $this->service->get($lodestoneId, $request->get('extended'), $request->get('key'));
+        $character = $this->service->get($lodestoneId, $request->get('extended'));
         $response->Character = $character->data;
         $response->Info->Character = [
             'State'     => $character->ent->getState(),
