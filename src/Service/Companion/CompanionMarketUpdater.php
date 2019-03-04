@@ -94,7 +94,7 @@ class CompanionMarketUpdater
         
         // no items???
         if (empty($items)) {
-            $this->console->writeln('ERROR: No items to update!? Da fook!');
+            $this->console->writeln(date('H:i:s') .' | ERROR: No items to update!? Da fook!');
             return;
         }
 
@@ -105,7 +105,7 @@ class CompanionMarketUpdater
         foreach (array_chunk($items, self::MAX_PER_CHUNK) as $i => $itemChunk) {
             // if we're close to the cronjob minute mark, end
             if ((time() - $this->start) > self::MAX_CRONJOB_DURATION) {
-                $this->console->writeln('Ending auto-update as time limit seconds reached.');
+                $this->console->writeln(date('H:i:s') .' | Ending auto-update as time limit seconds reached.');
                 return;
             }
             
