@@ -13,6 +13,8 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionTokenManager
 {
+    const MAX_LOGIN_ATTEMPTS = 3;
+    
     /**
      * Current servers that are offline due to character restrictions
      */
@@ -129,7 +131,7 @@ class CompanionTokenManager
     /**
      * Login to a specific server
      */
-    public function login(string $server, bool $force = false): bool
+    public function login(string $server, bool $force = false, int $attempts = 0): bool
     {
         $this->console->writeln("<comment>Server: {$server}</comment>");
 
@@ -182,7 +184,8 @@ class CompanionTokenManager
 
             // couldn't find a valid character
             if ($cid === null) {
-                throw new \Exception("Could not find a character for server.");
+                $this->console->writeln('- Error: No character on this server...');
+                return false;
             }
     
             // login with our chosen character!
@@ -210,6 +213,15 @@ class CompanionTokenManager
             
             $this->console->writeln('- Complete');
         } catch (\Exception $ex) {
+            // check if we can still try again to login
+            if ($attempts < self::MAX_LOGIN_ATTEMPTS) {
+                $this->console->writeln("Failed to login to server: {$server} - Attempts: {$attempts}, trying again ...");
+
+                // try again in 10-30 seconds
+                sleep( mt_rand(10, 30) );
+                return $this->login($server, $force, $attempts + 1);
+            }
+            
             $entity
                 ->setLastOnline(time())
                 ->setMessage('Failed to login: '. $ex->getMessage())

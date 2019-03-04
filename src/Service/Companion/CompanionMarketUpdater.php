@@ -144,10 +144,16 @@ class CompanionMarketUpdater
             /** @var CompanionToken $token */
             $token  = $this->tokens[$server];
             
+            // if token expired, skip
             if ($api->Token()->hasExpired($token->getToken())) {
-                $this->console->writeln("!!! Error: Token has expired for server: {$server}. Run: Companion_AutoLoginAccountsCommand");
-                $this->console->writeln("!!! Error: Script forcefully exiting.");
-                exit;
+                $this->console->writeln("!!! Error: Token has expired for server: {$server}.");
+                continue;
+            }
+            
+            // if token offline, skip
+            if ($token->isOnline() === false) {
+                $this->console->writeln("!!! Skipped: Token for server: {$server} is offline, skipping...");
+                continue;
             }
 
             // set the Sight token for these requests (required so it switches server)
@@ -158,10 +164,16 @@ class CompanionMarketUpdater
             $requests["{$itemId}_{$server}_history"] = $api->Market()->getTransactionHistory($itemId);
         }
         
+        // if failed to pull any requests, skip!
+        if (empty($requests)) {
+            return;
+        }
+        
         // run the requests, we don't care on response because the first time nothing will be there.
         $this->console->writeln("<info>Part 1: Sending Requests</info>");
         $a = microtime(true);
 
+        // 1st pass
         $api->Sight()->settle($requests)->wait();
     
         # --------------------------------------------------------------------------------------------------------------
@@ -181,6 +193,7 @@ class CompanionMarketUpdater
         $this->console->writeln("<info>Part 2: Fetching Responses</info>");
         $a = microtime(true);
 
+        // second pass
         $results = $api->Sight()->settle($requests)->wait();
 
         # --------------------------------------------------------------------------------------------------------------
