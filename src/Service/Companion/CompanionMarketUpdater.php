@@ -145,7 +145,7 @@ class CompanionMarketUpdater
             $token  = $this->tokens[$server];
             
             // if token expired, skip
-            if ($api->Token()->hasExpired($token->getToken())) {
+            if ($api->Token()->hasExpired($token->getLastOnline())) {
                 $this->console->writeln("!!! Error: Token has expired for server: {$server}.");
                 continue;
             }
