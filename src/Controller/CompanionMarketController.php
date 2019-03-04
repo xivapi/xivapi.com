@@ -31,6 +31,7 @@ class CompanionMarketController extends Controller
      * Obtain price + history for an item on a specific server
      *
      * @Route("/market/{server}/items/{itemId}")
+     * @Route("/market/{server}/item/{itemId}")
      */
     public function itemByServer(Request $request, string $server, int $itemId)
     {

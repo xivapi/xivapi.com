@@ -41,6 +41,8 @@ class CompanionMarket
      */
     public function set(MarketItem $marketItem)
     {
+        $marketItem->Updated = time();
+    
         $data = json_decode(json_encode($marketItem), true);
         $this->elastic->addDocument(self::INDEX, self::INDEX, $marketItem->ID, $data);
     }
@@ -54,6 +56,7 @@ class CompanionMarket
     {
         $documents = [];
         foreach ($marketItems as $i => $marketItem) {
+            $marketItem->Updated = time();
             $documents[$marketItem->ID] = json_decode(json_encode($marketItem), true);
         }
         
