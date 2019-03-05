@@ -7,6 +7,7 @@ use App\Service\Japan\Japan;
 use App\Service\Lodestone\LinkshellService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\LinkshellQueue;
+use Lodestone\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -41,11 +42,11 @@ class LodestoneLinkshellController extends Controller
     public function search(Request $request)
     {
         return $this->json(
-            Japan::query('/japan/search/linkshell', [
-                'name'   => $request->get('name'),
-                'server' => ucwords($request->get('server')),
-                'page'   => $request->get('page') ?: 1
-            ])
+            (new Api())->searchLinkshell(
+                $request->get('name'),
+                ucwords($request->get('server')),
+                $request->get('page') ?: 1
+            )
         );
     }
     

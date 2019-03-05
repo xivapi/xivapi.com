@@ -7,6 +7,7 @@ use App\Service\Japan\Japan;
 use App\Service\Lodestone\PvPTeamService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\PvPTeamQueue;
+use Lodestone\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,11 +40,11 @@ class LodestonePvPTeamController extends Controller
     public function search(Request $request)
     {
         return $this->json(
-            Japan::query('/japan/search/pvpteam', [
-                'name'   => $request->get('name'),
-                'server' => ucwords($request->get('server')),
-                'page'   => $request->get('page') ?: 1
-            ])
+            (new Api())->searchPvPTeam(
+                $request->get('name'),
+                ucwords($request->get('server')),
+                $request->get('page') ?: 1
+            )
         );
     }
     
