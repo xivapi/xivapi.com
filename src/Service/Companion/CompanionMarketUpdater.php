@@ -22,19 +22,13 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
  * Auto-Update item price + history
- * 1 item takes 3 seconds
- * 1 cronjob can do ~20 items.
- * - around 30,750 CronJobs to handle
  */
 class CompanionMarketUpdater
 {
-    const MAX_PER_CRONJOB       = 80;
-    const MAX_PER_CHUNK         = 12;
-    const MAX_CRONJOB_DURATION  = 55;
+    const MAX_PER_CRONJOB       = 40;
+    const MAX_PER_CHUNK         = 5;
+    const MAX_CRONJOB_DURATION  = 50;
     const MAX_QUERY_SLEEP_SEC   = 3;
-    
-    // estimated to be able to do 4 per second
-    const ESTIMATED_QUERY_TIME = 0.25;
     
     /** @var EntityManagerInterface */
     private $em;
@@ -80,7 +74,7 @@ class CompanionMarketUpdater
     public function update(int $priority, int $queue)
     {
         // random sleep at start, this is so not all queries against sight start at the same time.
-        usleep( mt_rand(10, 1500) * 1000 );
+        usleep( mt_rand(100, 3000) * 1000 );
 
         // grab our companion tokens
         $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
@@ -112,12 +106,6 @@ class CompanionMarketUpdater
             $this->updateChunk($i, $itemChunk);
         }
     
-        # --------------------------------------------------------------------------------------------------------------
-        $duration = round(microtime(true) - $a, 2);
-        $reqSec = round(1 / round($duration / (self::MAX_PER_CHUNK * 2), 2), 1);
-        $this->console->writeln("Finish: ". date('Y-m-d H:i:s') ." - duration = {$duration} @ req/sec: {$reqSec}");
-        # --------------------------------------------------------------------------------------------------------------
-    
         $this->em->clear();
     }
     
@@ -127,7 +115,6 @@ class CompanionMarketUpdater
     private function updateChunk($chunkNumber, $chunkList)
     {
         $this->console->writeln(date('H:i:s') ." | Processing chunk: {$chunkNumber}");
-        $start = microtime(true);
         
         // initialize Companion API, no token provided as we set it later on
         // also enable async
@@ -170,45 +157,21 @@ class CompanionMarketUpdater
         
         // run the requests, we don't care on response because the first time nothing will be there.
         $this->console->writeln(date('H:i:s') ." | <info>Part 1: Sending Requests</info>");
-        $a = microtime(true);
 
         // 1st pass
         $api->Sight()->settle($requests)->wait();
     
-        # --------------------------------------------------------------------------------------------------------------
-        $duration = round(microtime(true) - $a, 2);
-        #$reqSec = round(1 / round($duration / (self::MAX_PER_CHUNK * 2), 2), 1);
-        #$this->console->writeln("--| duration = {$duration} @ req/sec: {$reqSec}");
-        # --------------------------------------------------------------------------------------------------------------
-        
-        // we only wait if the execution of the above requests was faster than our default timeout
-        $sleep = ceil(self::MAX_QUERY_SLEEP_SEC - $duration);
-        if ($sleep > 1) {
-            #$this->console->writeln("--| wait: {$sleep}");
-            sleep($sleep);
-        }
+        // Wait for the results
+        sleep(5);
         
         // run the requests again, the Sight API should give us our response this time.
         $this->console->writeln(date('H:i:s') ." | <info>Part 2: Fetching Responses</info>");
-        $a = microtime(true);
 
         // second pass
         $results = $api->Sight()->settle($requests)->wait();
 
-        # --------------------------------------------------------------------------------------------------------------
-        #$duration = round(microtime(true) - $a, 2);
-        #$reqSec = round(1 / round($duration / (self::MAX_PER_CHUNK * 2), 2), 1);
-        #$this->console->writeln("--| duration = {$duration} @ req/sec: {$reqSec}");
-        # --------------------------------------------------------------------------------------------------------------
-        
         // handle the results of the response
         $results = $api->Sight()->handle($results);
-    
-        # --------------------------------------------------------------------------------------------------------------
-        $duration = round(microtime(true) - $start, 2);
-        #$this->console->writeln("--| final duration = {$duration}");
-        # --------------------------------------------------------------------------------------------------------------
-        
         $this->storeMarketData($chunkList, $results);
     }
     
