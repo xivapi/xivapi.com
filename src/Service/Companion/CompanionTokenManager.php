@@ -252,7 +252,7 @@ class CompanionTokenManager
     {
         $list = [];
         foreach ($this->getCompanionTokens() as $entity) {
-            $list[$entity->getServer()] = $entity;
+            $list[GameServers::getServerId($entity->getServer())] = $entity;
         }
         
         return $list;

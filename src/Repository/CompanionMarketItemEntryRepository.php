@@ -17,18 +17,13 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     }
     
     /**
-     * Returns a list of items that can be updated, ignoring those with a server offline.
+     * Returns a list of items that can be updated with valid servers
      */
-    public function findItemsToUpdate(int $priority, int $limit, int $offset)
+    public function findItemsToUpdate(int $priority, int $limit, int $offset, array $servers)
     {
-        $ignore = [];
-        foreach (CompanionTokenManager::SERVERS_OFFLINE as $server) {
-            $ignore[] = GameServers::getServerId($server);
-        }
-        
         $sql = $this->createQueryBuilder('a');
         $sql->where("a.priority = :a")->setParameter('a', $priority)
-            ->andWhere("a.server NOT IN (:b)")->setParameter('b', $ignore, Connection::PARAM_INT_ARRAY)
+            ->andWhere("a.server IN (:b)")->setParameter('b', $servers, Connection::PARAM_INT_ARRAY)
             ->orderBy('a.updated', 'asc')
             ->setMaxResults($limit)
             ->setFirstResult($offset);

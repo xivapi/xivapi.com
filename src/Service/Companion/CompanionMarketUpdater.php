@@ -69,11 +69,12 @@ class CompanionMarketUpdater
         $this->repositoryCompanionRetainer = $this->em->getRepository(CompanionRetainer::class);
         $this->repositoryCompanionSignature = $this->em->getRepository(CompanionSignature::class);
         $this->console = new ConsoleOutput();
-        $this->start = time();
     }
     
     public function update(int $priority, int $queue)
     {
+        $this->start = time();
+
         // random sleep at start, this is so not all queries against sight start at the same time.
         usleep( mt_rand(100, 3000) * 1000 );
     
@@ -84,37 +85,27 @@ class CompanionMarketUpdater
         $items = $this->repository->findItemsToUpdate(
             $priority,
             self::MAX_PER_ASYNC,
-            self::MAX_PER_ASYNC * $queue
+            self::MAX_PER_ASYNC * $queue,
+            array_keys($this->tokens)
         );
+        
+        $this->console->writeln(date('H:i:s') .' | Total items to update: '. count($items));
     
-        // no items???
-        if (empty($items)) {
-            $this->console->writeln(date('H:i:s') .' | ERROR: No items to update!? Da fook!');
-            return;
-        }
-
-        $this->updateAsync($items);
-    }
-    
-    /**
-     * Update Async
-     */
-    public function updateAsync(array $items)
-    {
+        // loop through chunks
         foreach (array_chunk($items, self::MAX_PER_CHUNK) as $i => $itemChunk) {
             // if we're close to the cronjob minute mark, end
             if ((time() - $this->start) > self::MAX_CRONJOB_DURATION) {
                 $this->console->writeln(date('H:i:s') .' | Ending auto-update as time limit seconds reached.');
                 return;
             }
-            
+        
             // handle the chunk
             $this->updateChunk($i, $itemChunk);
         }
     
         $this->em->clear();
     }
-    
+
     /**
      * Update a group of items
      */
@@ -129,7 +120,7 @@ class CompanionMarketUpdater
         $requests = [];
         foreach ($chunkList as $item) {
             $itemId = $item->getItem();
-            $server = GameServers::LIST[$item->getServer()];
+            $server = $item->getServer();
             
             /** @var CompanionToken $token */
             $token  = $this->tokens[$server];
