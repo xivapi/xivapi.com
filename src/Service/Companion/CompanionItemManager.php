@@ -87,8 +87,6 @@ class CompanionItemManager
                 $this->em->persist(
                     new CompanionMarketItemEntry($itemId, $serverId, 10)
                 );
-
-                $this->output->writeln("Added: {$itemId}");
             }
 
             // flush and clear
