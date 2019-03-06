@@ -65,16 +65,16 @@ class ManageUserRestrictionsCommand extends Command
             $app->setNew(false);
 
             // increase rate limit to 3 + burst 2
-            $app->rateLimits(3, 2);
+            $app->rateLimits(2, 2);
 
             // after 1 day, increase limit to 5 + burst 5
             if ($app->getAdded() > $oneDayTimeout) {
-                $app->rateLimits(5, 5);
+                $app->rateLimits(2, 2);
             }
 
             // after 1 week, increase to 10 + burst 10.
             if ($app->getAdded() > $oneWeekTimeout) {
-                $app->rateLimits(10, 10);
+                $app->rateLimits(2, 2);
             }
 
             // save
@@ -97,12 +97,12 @@ class ManageUserRestrictionsCommand extends Command
 
             // after 1 day, increase app limit to 3
             if ($user->getAdded() > $oneDayTimeout) {
-                $user->setAppsMax(3);
+                $user->setAppsMax(2);
             }
 
             // after 1 week, increase app limit to 10
             if ($user->getAdded() > $oneDayTimeout) {
-                $user->setAppsMax(10);
+                $user->setAppsMax(2);
             }
 
             // save

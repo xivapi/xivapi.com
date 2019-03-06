@@ -78,11 +78,11 @@ class AutoRateLimitCheckCommand extends Command
                     $app->rateLimits(1, 1);
     
                     if ($app->getApiRateLimitAutoModifiedDate() < $twoHourTimeout) {
-                        $app->rateLimits(3, 2);
+                        $app->rateLimits(2, 2);
                     } else if ($app->getApiRateLimitAutoModifiedDate() < $oneDayTimeout) {
-                        $app->rateLimits(5, 5);
+                        $app->rateLimits(2, 2);
                     } else if ($app->getApiRateLimitAutoModifiedDate() < $oneWeekTimeout) {
-                        $app->rateLimits(10, 10);
+                        $app->rateLimits(2, 2);
                     }
                     
                     $app->setApiRateLimitAutoModifiedDate(time())

@@ -4,7 +4,6 @@ namespace App\Service\User;
 
 use App\Entity\User;
 use App\Exception\AccountNotLoggedInException;
-use App\Exception\UnauthorizedAccessException;
 use App\Service\Common\Mog;
 use App\Service\User\SSO\CsrfInvalidException;
 use App\Service\User\SSO\DiscordSignIn;
