@@ -5,6 +5,7 @@ namespace App\Service\Companion;
 use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
 use App\Service\Common\Mog;
+use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
@@ -14,8 +15,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionTokenManager
 {
-    const MAX_LOGIN_ATTEMPTS = 1;
-    
     /**
      * Current servers that are offline due to character restrictions
      */
@@ -124,7 +123,7 @@ class CompanionTokenManager
     {
         foreach (self::SERVERS_ACCOUNTS as $server => $account) {
             if ($account == $accountId) {
-                $ok = $this->login($server, $force);
+                $ok = $this->login($server);
                 
                 // sleep for a random amount, because SE ?
                 sleep($ok ? mt_rand(5, 30) : 0);
@@ -139,13 +138,23 @@ class CompanionTokenManager
     {
         $server = $this->repository->findLastUpdated()['server'];
         
-        $this->login($server, true);
+        $this->login($server);
+    }
+
+    /**
+     * Login to all accounts on a single datacenter
+     */
+    public function datacenter($dc)
+    {
+        foreach(GameServers::LIST_DC[ucwords($dc)] as $server) {
+            $this->login($server);
+        }
     }
     
     /**
      * Login to a specific server
      */
-    public function login(string $server, bool $force = false, int $attempts = 0): bool
+    public function login(string $server): bool
     {
         $errorCount = Redis::Cache()->getCount('companion_token_manager_failures');
         
@@ -175,12 +184,6 @@ class CompanionTokenManager
         try {
             // initialize API and create a new token
             $api = new CompanionApi("{$username}_{$server}");
-
-            // token has not yet expired
-            if ($force === false && $api->Token()->hasExpired($entity->getLastOnline()) === false) {
-                $this->console->writeln('Token has not yet expired, skipping.');
-                return false;
-            }
             
             // ensure some entity stuff is set
             $entity
@@ -233,15 +236,6 @@ class CompanionTokenManager
             
             $this->console->writeln('- Complete');
         } catch (\Exception $ex) {
-            // check if we can still try again to login
-            if ($attempts < self::MAX_LOGIN_ATTEMPTS) {
-                $this->console->writeln("Failed to login to server: {$server} - Attempts: {$attempts}/". self::MAX_LOGIN_ATTEMPTS .", trying again ...");
-
-                // try again in 10-30 seconds
-                sleep( mt_rand(10, 30) );
-                return $this->login($server, $force, $attempts + 1);
-            }
-            
             $entity
                 ->setLastOnline(time())
                 ->setMessage('Failed to login: '. $ex->getMessage())

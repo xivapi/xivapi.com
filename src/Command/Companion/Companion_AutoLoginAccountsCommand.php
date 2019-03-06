@@ -4,6 +4,7 @@ namespace App\Command\Companion;
 
 use App\Command\CommandConfigureTrait;
 use App\Service\Companion\CompanionTokenManager;
+use App\Service\Content\GameServers;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,8 +19,7 @@ class Companion_AutoLoginAccountsCommand extends Command
         'name' => 'Companion_AutoLoginAccountsCommand',
         'desc' => 'Re-login to each character to obtain a companion token.',
         'args' => [
-            [ 'action', InputArgument::OPTIONAL, '(Optional) Either a list of servers or an account.' ],
-            [ 'force', InputArgument::OPTIONAL, '(Optional) Force account login regardless of expiry' ]
+            [ 'action', InputArgument::OPTIONAL, '(Optional) Either a list of servers or an account.' ]
         ]
     ];
 
@@ -45,14 +45,20 @@ class Companion_AutoLoginAccountsCommand extends Command
         if ($action = $input->getArgument('action')) {
             // if an account is provided
             if (in_array($action, CompanionTokenManager::SERVERS_ACCOUNTS)) {
-                $this->companionTokenManager->account($action, $force);
+                $this->companionTokenManager->account($action);
+                return;
+            }
+
+            // if an data-center is provided
+            if (array_key_exists(ucwords($action), GameServers::LIST_DC)) {
+                $this->companionTokenManager->datacenter($action);
                 return;
             }
 
             // loop through supplied servers, THEY MUST BE ON SAME ACC
             $output->writeln('If your servers are not on the same account, this will fail.');
             foreach (explode(',', $action) as $server) {
-                $this->companionTokenManager->login($server, $force);
+                $this->companionTokenManager->login($server);
             }
             
             return;
