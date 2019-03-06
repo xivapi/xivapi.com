@@ -10,6 +10,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use App\Service\Data\FileSystem;
 use App\Service\Data\FileSystemCache;
 
+/**
+ * @deprecated
+ *
+ * todo - deprecate
+ * This is deprecate, use CommandConfigureTrait for auto command setup,
+ * the rest (saint, game data specific) should be in its own classes
+ */
 trait CommandHelperTrait
 {
     public $schemaFilename = __DIR__ . '/../../data/gametools/SaintCoinach.Cmd/ex.json';

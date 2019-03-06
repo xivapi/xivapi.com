@@ -2,8 +2,6 @@
 
 namespace App\Service\Redis;
 
-use App\Service\Common\Language;
-
 /**
  * Access a static Redis Cache
  */
@@ -26,15 +24,5 @@ class Redis
         }
         
         return self::$instances[$environment];
-    }
-    
-    /**
-     * Get something from cache and convert it for multi-language
-     */
-    public static function get(string $key, string $environment = RedisCache::LOCAL)
-    {
-        $data = self::Cache($environment)->get($key);
-        $data = Language::handle($data);
-        return $data;
     }
 }

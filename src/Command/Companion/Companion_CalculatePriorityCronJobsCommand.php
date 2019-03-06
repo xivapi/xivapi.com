@@ -2,34 +2,34 @@
 
 namespace App\Command\Companion;
 
-use App\Command\CommandHelperTrait;
-use App\Service\Companion\CompanionPriority;
+use App\Command\CommandConfigureTrait;
+use App\Service\Companion\CompanionItemManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Companion_CalculatePriorityCronJobsCommand extends Command
 {
-    use CommandHelperTrait;
+    use CommandConfigureTrait;
+
+    const COMMAND = [
+        'name' => 'Companion_CalculatePriorityCronJobsCommand',
+        'desc' => 'Automatically calculate the priority for cronjobs',
+    ];
 
     const NAME = 'Companion_CalculatePriorityCronJobsCommand';
 
-    /** @var CompanionPriority */
-    private $companionPriority;
+    /** @var CompanionItemManager */
+    private $companionItemManager;
 
-    public function __construct(CompanionPriority $companionPriority, $name = null)
+    public function __construct(CompanionItemManager $companionItemManager, $name = null)
     {
-        $this->companionPriority = $companionPriority;
+        $this->companionItemManager = $companionItemManager;
         parent::__construct($name);
-    }
-
-    protected function configure()
-    {
-        $this->setName(self::NAME);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->companionPriority->calculatePriorityCronJobs();
+        $this->companionItemManager->calculateItemUpdatePriority();
     }
 }

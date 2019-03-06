@@ -30,6 +30,11 @@ class CompanionMarketItemEntry
      * @var int
      * @ORM\Column(type="integer")
      */
+    private $added;
+    /**
+     * @var int
+     * @ORM\Column(type="integer")
+     */
     private $updated;
     /**
      * @var int
@@ -49,12 +54,15 @@ class CompanionMarketItemEntry
     /**
      * @ORM\Column(type="integer", length=16)
      */
-    public $updates = 0;
+    private $updates = 0;
     
-    public function __construct()
+    public function __construct(int $itemId = null, int $serverId = null, int $priority = null)
     {
-        $this->id = Uuid::uuid4();
-        $this->updated = time();
+        $this->id       = Uuid::uuid4();
+        $this->updated  = time();
+        $this->item     = $itemId;
+        $this->server   = $serverId;
+        $this->priority = $priority;
     }
     
     public function getId(): string
