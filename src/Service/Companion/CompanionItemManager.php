@@ -129,16 +129,16 @@ class CompanionItemManager
                 // Calculate
                 // ------------------------------------------------------------
 
-                // if the item is still "new" (15 days)
-                if ($obj->getAdded() > (time() - (60*60*24*15))) {
-                    $obj->setPriority(120);
+                // if the item is still "new" (7 days)
+                if ($obj->getAdded() > (time() - (60 * 60 * 24 * 7))) {
+                    $obj->setPriority(100);
                     $this->em->persist($obj);
                     continue;
                 }
 
                 // if no history, it has never been sold
                 if (empty($document->History)) {
-                    $obj->setPriority(120);
+                    $obj->setPriority(130);
                     $this->em->persist($obj);
                     continue;
                 }
@@ -163,7 +163,7 @@ class CompanionItemManager
 
                 // item has had less than 5 sales, too low to make a call against
                 if (count($saleHistoryAverage) < 5) {
-                    $obj->setPriority(120);
+                    $obj->setPriority(130);
                     $this->em->persist($obj);
                     continue;
                 }

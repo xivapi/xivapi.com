@@ -8,15 +8,11 @@ class CompanionItemManagerPriorityTimes
     
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
-        // 2 hours
-        (60 * 60 * 2) => 100,
-        // 6 hours
-        (60 * 60 * 6) => 110,
+        // 3 hours
+        (60 * 60 * 3)       => 100,
         // 24 hours
-        (60 * 60 * 24) => 120,
+        (60 * 60 * 24)      => 120,
         // 3 days
-        (60 * 60 * 24 * 3) => 130,
-        // 7 days
-        (60 * 60 * 24 * 3) => 140,
+        (60 * 60 * 24 * 3)  => 130,
     ];
 }
