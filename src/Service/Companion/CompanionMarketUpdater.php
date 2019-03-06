@@ -17,6 +17,7 @@ use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
 use Companion\CompanionApi;
+use Companion\Config\CompanionSight;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -25,8 +26,8 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 class CompanionMarketUpdater
 {
-    const MAX_PER_CRONJOB       = 40;
-    const MAX_PER_CHUNK         = 5;
+    const MAX_PER_ASYNC         = 40;
+    const MAX_PER_CHUNK         = 2;
     const MAX_CRONJOB_DURATION  = 50;
     const MAX_QUERY_SLEEP_SEC   = 3;
     
@@ -75,26 +76,31 @@ class CompanionMarketUpdater
     {
         // random sleep at start, this is so not all queries against sight start at the same time.
         usleep( mt_rand(100, 3000) * 1000 );
-
+    
         // grab our companion tokens
         $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
-        
+    
         /** @var CompanionMarketItemEntry[] $entries */
         $items = $this->repository->findItemsToUpdate(
             $priority,
-            self::MAX_PER_CRONJOB,
-            self::MAX_PER_CRONJOB * $queue
+            self::MAX_PER_ASYNC,
+            self::MAX_PER_ASYNC * $queue
         );
-        
+    
         // no items???
         if (empty($items)) {
             $this->console->writeln(date('H:i:s') .' | ERROR: No items to update!? Da fook!');
             return;
         }
 
-        // loop through chunks
-        $a = microtime(true);
-        
+        $this->updateAsync($items);
+    }
+    
+    /**
+     * Update Async
+     */
+    public function updateAsync(array $items)
+    {
         foreach (array_chunk($items, self::MAX_PER_CHUNK) as $i => $itemChunk) {
             // if we're close to the cronjob minute mark, end
             if ((time() - $this->start) > self::MAX_CRONJOB_DURATION) {
