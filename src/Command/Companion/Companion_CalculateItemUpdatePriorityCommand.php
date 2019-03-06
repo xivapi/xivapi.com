@@ -8,16 +8,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Companion_CalculatePriorityCronJobsCommand extends Command
+class Companion_CalculateItemUpdatePriorityCommand extends Command
 {
     use CommandConfigureTrait;
 
     const COMMAND = [
-        'name' => 'Companion_CalculatePriorityCronJobsCommand',
+        'name' => 'Companion_CalculateItemUpdatePriorityCommand',
         'desc' => 'Automatically calculate the priority for cronjobs',
     ];
-
-    const NAME = 'Companion_CalculatePriorityCronJobsCommand';
 
     /** @var CompanionItemManager */
     private $companionItemManager;
