@@ -120,8 +120,6 @@ class CompanionMarketUpdater
      */
     private function updateChunk($chunkNumber, $chunkList)
     {
-        $this->console->writeln(date('H:i:s') ." | Processing chunk: {$chunkNumber}");
-        
         // initialize Companion API, no token provided as we set it later on
         // also enable async
         $api = new CompanionApi();
@@ -136,15 +134,8 @@ class CompanionMarketUpdater
             /** @var CompanionToken $token */
             $token  = $this->tokens[$server];
             
-            // if token expired, skip
-            if ($api->Token()->hasExpired($token->getLastOnline())) {
-                $this->console->writeln(date('H:i:s') ." !!! Error: Token has expired for server: {$server}.");
-                continue;
-            }
-            
-            // if token offline, skip
-            if ($token->isOnline() === false) {
-                $this->console->writeln(date('H:i:s') ." !!! Skipped: Token for server: {$server} is offline, skipping...");
+            // if token expired OR token offline
+            if ($api->Token()->hasExpired($token->getLastOnline()) || $token->isOnline() === false) {
                 continue;
             }
 
@@ -160,6 +151,9 @@ class CompanionMarketUpdater
         if (empty($requests)) {
             return;
         }
+
+        $totalRequests = count($requests);
+        $this->console->writeln(date('H:i:s') ." | Processing chunk: {$chunkNumber} - Total Requests: {$totalRequests}");
         
         // run the requests, we don't care on response because the first time nothing will be there.
         $this->console->writeln(date('H:i:s') ." | <info>Part 1: Sending Requests</info>");
