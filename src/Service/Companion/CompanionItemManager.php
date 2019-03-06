@@ -129,16 +129,16 @@ class CompanionItemManager
                 // Calculate
                 // ------------------------------------------------------------
 
-                // if the item is still "new" (15 days), set it to priority 40
+                // if the item is still "new" (15 days)
                 if ($obj->getAdded() > (time() - (60*60*24*15))) {
-                    $obj->setPriority(40);
+                    $obj->setPriority(120);
                     $this->em->persist($obj);
                     continue;
                 }
 
-                // if no history, it has never been sold, Set priority 50
+                // if no history, it has never been sold
                 if (empty($document->History)) {
-                    $obj->setPriority(50);
+                    $obj->setPriority(120);
                     $this->em->persist($obj);
                     continue;
                 }
@@ -163,12 +163,15 @@ class CompanionItemManager
 
                 // item has had less than 5 sales, too low to make a call against
                 if (count($saleHistoryAverage) < 5) {
-                    $obj->setPriority(50);
+                    $obj->setPriority(120);
                     $this->em->persist($obj);
                     continue;
                 }
 
                 $saleAverage = round(array_sum($saleHistoryAverage) / count($saleHistoryAverage));
+                
+                // set default
+                $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_TIMES_DEFAULT);
 
                 // find where it fits in our table
                 foreach (CompanionItemManagerPriorityTimes::PRIORITY_TIMES as $time => $priority) {
@@ -179,9 +182,10 @@ class CompanionItemManager
 
                     // sale avg is below the priority time, set the value
                     $obj->setPriority($priority);
-                    $this->em->persist($obj);
                     break;
                 }
+
+                $this->em->persist($obj);
             }
 
             // flush and clear
