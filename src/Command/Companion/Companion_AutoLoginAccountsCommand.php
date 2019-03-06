@@ -34,8 +34,6 @@ class Companion_AutoLoginAccountsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $force = $input->getArgument('force') ?: false;
-        
         /**
          * php bin/console Companion_AutoLoginAccountsCommand COMPANION_APP_ACCOUNT_A
          * php bin/console Companion_AutoLoginAccountsCommand COMPANION_APP_ACCOUNT_B
