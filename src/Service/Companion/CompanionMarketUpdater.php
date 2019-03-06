@@ -168,7 +168,7 @@ class CompanionMarketUpdater
         $api->Sight()->settle($requests)->wait();
     
         // Wait for the results
-        sleep(5);
+        sleep(self::MAX_QUERY_SLEEP_SEC);
         
         // run the requests again, the Sight API should give us our response this time.
         $this->console->writeln(date('H:i:s') ." | <info>Part 2: Fetching Responses</info>");
