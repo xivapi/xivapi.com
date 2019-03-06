@@ -27,9 +27,9 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 class CompanionMarketUpdater
 {
     const MAX_PER_ASYNC         = 40;
-    const MAX_PER_CHUNK         = 3;
+    const MAX_PER_CHUNK         = 2;
     const MAX_CRONJOB_DURATION  = 50;
-    const MAX_QUERY_SLEEP_SEC   = 2;
+    const MAX_QUERY_SLEEP_SEC   = 3;
     
     /** @var EntityManagerInterface */
     private $em;
