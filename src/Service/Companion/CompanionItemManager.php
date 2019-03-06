@@ -131,8 +131,14 @@ class CompanionItemManager
                 // Calculate
                 // ------------------------------------------------------------
 
-                // if no history, it has never been sold. Bump to 50
-                // todo - setup a new consumer for items on 50
+                // if the item is still "new" (15 days), set it to priority 40
+                if ($obj->getAdded() > (time() - (60*60*24*15))) {
+                    $obj->setPriority(40);
+                    $this->em->persist($obj);
+                    continue;
+                }
+
+                // if no history, it has never been sold, Set priority 50
                 if (empty($document->History)) {
                     $obj->setPriority(50);
                     $this->em->persist($obj);

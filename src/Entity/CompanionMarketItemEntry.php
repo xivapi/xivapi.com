@@ -60,6 +60,7 @@ class CompanionMarketItemEntry
     {
         $this->id       = Uuid::uuid4();
         $this->updated  = time();
+        $this->added    = time();
         $this->item     = $itemId;
         $this->server   = $serverId;
         $this->priority = $priority;
@@ -134,6 +135,17 @@ class CompanionMarketItemEntry
     public function incUpdates()
     {
         $this->updates++;
+        return $this;
+    }
+
+    public function getAdded(): int
+    {
+        return $this->added;
+    }
+
+    public function setAdded(int $added)
+    {
+        $this->added = $added;
         return $this;
     }
 }
