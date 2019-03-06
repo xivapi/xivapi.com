@@ -52,6 +52,9 @@ class CompanionMarketController extends Controller
      */
     public function itemPrices(string $server, int $itemId)
     {
+        throw new \Exception('This endpoint has been disabled at this time.');
+
+        /*
         $key = 'companion_market_items_'. md5($server . $itemId);
         if (!$data = $this->cache->get($key)) {
             $data = $this->companion->setServer($server)->getItemPrices($itemId);
@@ -59,6 +62,7 @@ class CompanionMarketController extends Controller
         }
         
         return $this->json($data);
+        */
     }
     
     /**
@@ -76,6 +80,9 @@ class CompanionMarketController extends Controller
      */
     public function itemHistory(string $server, int $itemId)
     {
+        throw new \Exception('This endpoint has been disabled at this time.');
+
+        /*
         $key = 'companion_market_items_history_'. md5($server . $itemId);
         if (!$data = $this->cache->get($key)) {
             $data = $this->companion->setServer($server)->getItemHistory($itemId);
@@ -83,6 +90,7 @@ class CompanionMarketController extends Controller
         }
     
         return $this->json($data);
+        */
     }
     
     /**
@@ -90,6 +98,9 @@ class CompanionMarketController extends Controller
      */
     public function categoryList(string $server, int $category)
     {
+        throw new \Exception('This endpoint has been disabled at this time.');
+
+        /*
         $key = 'companion_market_category_'. md5($server . $category);
         if (!$data = $this->cache->get($key)) {
             $data = $this->companion->setServer($server)->getCategoryList($category);
@@ -97,6 +108,7 @@ class CompanionMarketController extends Controller
         }
     
         return $this->json($data);
+        */
     }
     
     /**
