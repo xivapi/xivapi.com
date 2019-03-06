@@ -80,6 +80,11 @@ class CompanionMarketUpdater
     
         // grab our companion tokens
         $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
+        
+        if (empty($this->tokens)) {
+            $this->console->writeln(date('H:i:s') .' | All tokens have expired, cannot auto-update');
+            return;
+        }
     
         /** @var CompanionMarketItemEntry[] $entries */
         $items = $this->repository->findItemsToUpdate(
@@ -124,11 +129,6 @@ class CompanionMarketUpdater
             
             /** @var CompanionToken $token */
             $token  = $this->tokens[$server];
-            
-            // if token expired OR token offline
-            if ($api->Token()->hasExpired($token->getLastOnline()) || $token->isOnline() === false) {
-                continue;
-            }
 
             // set the Sight token for these requests (required so it switches server)
             $api->Token()->set($token->getToken());

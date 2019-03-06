@@ -250,9 +250,17 @@ class CompanionTokenManager
      */
     public function getCompanionTokensPerServer(): array
     {
+        $api = new CompanionApi();
+        
         $list = [];
         foreach ($this->getCompanionTokens() as $entity) {
-            $list[GameServers::getServerId($entity->getServer())] = $entity;
+            // skip offline or expired tokens
+            if ($api->Token()->hasExpired($entity->getLastOnline()) || $entity->isOnline() === false) {
+                continue;
+            }
+            
+            $serverId        = GameServers::getServerId($entity->getServer());
+            $list[$serverId] = $entity;
         }
         
         return $list;
