@@ -5,11 +5,11 @@ namespace App\Controller;
 use App\Entity\MapPosition;
 use App\Entity\User;
 use App\Entity\MapCompletion;
-use App\Exception\UnauthorizedAccessException;
+use App\Exception\ApiUnauthorizedAccessException;
 use App\Repository\MapPositionRepository;
 use App\Service\Maps\Mappy;
 use App\Service\Redis\Redis;
-use App\Service\User\UserService;
+use App\Service\User\Users;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -20,12 +20,12 @@ class MappyController extends Controller
 {
     /** @var EntityManagerInterface */
     private $em;
-    /** @var UserService */
+    /** @var Users */
     private $userService;
     /** @var Mappy */
     private $mappy;
     
-    public function __construct(EntityManagerInterface $em, UserService $userService, Mappy $mappy)
+    public function __construct(EntityManagerInterface $em, Users $userService, Mappy $mappy)
     {
         $this->em = $em;
         $this->userService = $userService;
@@ -252,7 +252,7 @@ class MappyController extends Controller
         $json = json_decode($request->getContent());
 
         if ($request->getMethod() !== 'POST' || empty($json)) {
-            throw new UnauthorizedAccessException();
+            throw new ApiUnauthorizedAccessException();
         }
 
         return $this->json([

@@ -4,7 +4,8 @@ namespace App\Service\User;
 
 use App\Entity\User;
 use App\Exception\AccountNotLoggedInException;
-use App\Exception\UnauthorizedAccessException;
+use App\Exception\ApiUnauthorizedAccessException;
+use App\Repository\UserRepository;
 use App\Service\Common\Mog;
 use App\Service\User\SSO\CsrfInvalidException;
 use App\Service\User\SSO\DiscordSignIn;
@@ -13,17 +14,38 @@ use App\Service\User\SSO\SSOAccess;
 use Delight\Cookie\Cookie;
 use Doctrine\ORM\EntityManagerInterface;
 
-class UserService
+class Users
 {
     /** @var EntityManagerInterface */
     private $em;
     /** @var DiscordSignIn */
     private $sso;
+    /** @var  UserRepository */
+    private $repository;
     
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
+        $this->repository = $em->getRepository(User::class);
     }
+
+    /**
+     * Obtain a user account via their API key.
+     */
+    public function getUserByApiKey(string $key)
+    {
+        $user = $this->repository->findOneBy([ 'apiPublicKey' => $key ]);
+
+        if (empty($user)) {
+            throw new ApiUnauthorizedAccessException();
+        }
+
+        return $user;
+    }
+
+
+
+
     
     /**
      * Get the user

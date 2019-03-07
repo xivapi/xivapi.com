@@ -86,50 +86,26 @@ class GoogleAnalytics
     private static function getTrackingId($account)
     {
         // if we pass a user app, get the google analytics ID from it
-        if (is_object($account) && get_class($account) === UserApp::class) {
-            /** @var UserApp $account */
-            return $account->getGoogleAnalyticsId();
+        if (is_object($account) && get_class($account) === User::class) {
+            /** @var User $account */
+            return $account->getApiAnalyticsKey();
         } else {
             return str_ireplace('{XIVAPI}', getenv('SITE_CONFIG_GOOGLE_ANALYTICS'), $account);
         }
     }
 
-    // --------------------------------
-    // -- common tracking events
-    // --------------------------------
-
-    public static function trackHits(Request $request)
+    public static function trackHits(string $url)
     {
-        self::hit('{XIVAPI}', $request->getPathInfo());
+        self::hit('{XIVAPI}', $url);
     }
 
-    public static function trackBaseEndpoint(Request $request)
+    public static function trackBaseEndpoint(string $endpoint)
     {
-        self::event('{XIVAPI}', 'Requests', 'Endpoint', explode('/', $request->getPathInfo())[1] ?? 'Home');
+        self::event('{XIVAPI}', 'Requests', 'Endpoint', $endpoint);
     }
 
     public static function trackLanguage()
     {
         self::event('{XIVAPI}', 'Requests', 'Language', Language::current());
-    }
-
-    public static function trackUserBanned(User $user)
-    {
-        self::event('{XIVAPI}', 'Denied', 'User Banned',"{$user->getUsername()}");
-    }
-
-    public static function trackAppBanned(UserApp $userApp)
-    {
-        self::event('{XIVAPI}', 'Denied', 'API Key Banned', "{$userApp->getApiKey()}");
-    }
-
-    public static function trackAppUsage(UserApp $userApp)
-    {
-        self::event('{XIVAPI}', 'Apps', $userApp->getApiKey(), "{$userApp->getName()} - {$userApp->getUser()->getUsername()}");
-    }
-
-    public static function trackAppRouteAccess(UserApp $userApp, Request $request)
-    {
-        self::event('{XIVAPI}', 'Endpoints', "{$userApp->getApiKey()}", $request->getPathInfo());
     }
 }

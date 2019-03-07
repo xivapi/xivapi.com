@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Ramsey\Uuid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -11,30 +10,54 @@ use Doctrine\ORM\Mapping as ORM;
  *     name="users",
  *     indexes={
  *          @ORM\Index(name="added", columns={"added"}),
- *          @ORM\Index(name="is_new", columns={"is_new"}),
- *          @ORM\Index(name="is_banned", columns={"is_banned"}),
- *          @ORM\Index(name="is_locked", columns={"is_locked"}),
- *
  *          @ORM\Index(name="sso", columns={"sso"}),
  *          @ORM\Index(name="sso_id", columns={"sso_id"}),
  *          @ORM\Index(name="session", columns={"session"}),
  *          @ORM\Index(name="username", columns={"username"}),
  *          @ORM\Index(name="email", columns={"email"}),
- *          @ORM\Index(name="apps_max", columns={"apps_max"})
+ *          @ORM\Index(name="is_new", columns={"is_new"}),
+ *          @ORM\Index(name="is_banned", columns={"is_banned"}),
+ *          @ORM\Index(name="is_locked", columns={"is_locked"}),
+ *          @ORM\Index(name="api_public_key", columns={"apps_max"}),
+ *          @ORM\Index(name="api_endpoint_access_granted", columns={"apps_max"}),
+ *          @ORM\Index(name="api_endpoint_access_suspended", columns={"apps_max"})
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User
 {
-    use UserTrait;
-
     /**
      * @var string
      * @ORM\Id
      * @ORM\Column(type="guid")
      */
     private $id;
+    /**
+     * @var int
+     * @ORM\Column(type="integer")
+     */
+    private $added;
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", name="is_new", options={"default" : 1})
+     */
+    private $new = true;
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", name="is_banned", options={"default" : 0})
+     */
+    private $banned = false;
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", name="is_locked", options={"default" : 0})
+     */
+    private $locked = false;
+    /**
+     * @var string
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $notes;
     /**
      * The name of the SSO provider
      * @var string
@@ -47,27 +70,27 @@ class User
      */
     private $ssoId;
     /**
-     * @var string
      * A random hash saved to cookie to retrieve the token
+     * @var string
      * @ORM\Column(type="string", length=128, unique=true)
      */
     private $session;
     /**
-     * @var string
      * The token provided by the SSO provider
+     * @var string
      * @ORM\Column(type="text", length=512, nullable=true)
      */
     private $token;
     /**
-     * @var string
      * Username provided by the SSO provider (updates on token refresh)
+     * @var string
      * @ORM\Column(type="string", length=64)
      */
     private $username;
     /**
-     * @var string
      * Email provided by the SSO token, this is considered "unique", if someone changes their
      * email then this would in-affect create a new account.
+     * @var string
      * @ORM\Column(type="string", length=128)
      */
     private $email;
@@ -80,52 +103,63 @@ class User
      * @ORM\Column(type="string", length=60, nullable=true)
      */
     private $avatar;
-
-    // -- Apps
-
     /**
-     * @ORM\OneToMany(targetEntity="UserApp", mappedBy="user")
-     * @ORM\OrderBy({"name" = "ASC"})
+     * User has 1 Key
+     * @var string
+     * @ORM\Column(type="string", length=64)
      */
-    private $apps;
+    private $apiPublicKey = null;
+    /**
+     * Google Analytics Key
+     * @var string
+     * @ORM\Column(type="string", length=64)
+     */
+    private $apiAnalyticsKey = null;
     /**
      * @var int
-     * @ORM\Column(type="integer", length=16)
+     * @ORM\Column(type="integer")
      */
-    private $appsMax = 1;
-
-    // -- Mappy
-
+    private $apiRateLimit = 0;
     /**
+     * API Endpoint Access
+     * @var array
+     * @ORM\Column(type="json")
+     */
+    private $apiEndpointAccess;
+    /**
+     * API Permissions
+     * @var array
+     * @ORM\Column(type="array")
+     */
+    private $apiEndpointPermissions = [];
+    /**
+     * API Access has been granted
      * @var bool
-     * @ORM\Column(type="boolean", name="has_mappy_access", options={"default" : 0})
+     * @ORM\Column(type="boolean", name="api_endpoint_access_granted", options={"default" : 0})
      */
-    private $mappyAccessEnabled = false;
+    private $apiEndpointAccessGranted = false;
     /**
-     * @var int
-     * @ORM\Column(type="integer", options={"default" : 0})
+     * User has been suspended from the API
+     * @var bool
+     * @ORM\Column(type="boolean", name="api_endpoint_access_suspended", options={"default" : 0})
      */
-    private $mappyAccessCode = 0;
+    private $apiEndpointAccessSuspended = false;
 
     public function __construct()
     {
-        $this->id = Uuid::uuid4();
-        $this->added = time();
-        $this->session = Uuid::uuid4()->toString() . Uuid::uuid4()->toString() . Uuid::uuid4()->toString();
-        $this->apps = new ArrayCollection();
+        $this->id           = Uuid::uuid4();
+        $this->added        = time();
+        $this->session      = $this->generateRandomKey();
+        $this->apiPublicKey = $this->generateRandomKey();
     }
 
-    // -------------------------------------------------------
-
-    /**
-     * Check ban status (will redirect if they're ban)
-     */
-    public function checkBannedStatusAndRedirectUserToDiscord()
+    private function generateRandomKey()
     {
-        if ($this->isBanned()) {
-            header("Location: https://discord.gg/MFFVHWC");
-            die();
-        }
+        return str_ireplace('-', null,
+            Uuid::uuid4()->toString() .
+            Uuid::uuid4()->toString() .
+            Uuid::uuid4()->toString()
+        );
     }
 
     public function getAvatar(): string
@@ -150,6 +184,80 @@ class User
     }
 
     // -------------------------------------------------------
+    // Auto Generated Methods
+    // -------------------------------------------------------
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function setId(string $id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getAdded(): int
+    {
+        return $this->added;
+    }
+
+    public function setAdded(int $added)
+    {
+        $this->added = $added;
+
+        return $this;
+    }
+
+    public function isNew(): bool
+    {
+        return $this->new;
+    }
+
+    public function setNew(bool $new)
+    {
+        $this->new = $new;
+
+        return $this;
+    }
+
+    public function isBanned(): bool
+    {
+        return $this->banned;
+    }
+
+    public function setBanned(bool $banned)
+    {
+        $this->banned = $banned;
+
+        return $this;
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(bool $locked)
+    {
+        $this->locked = $locked;
+
+        return $this;
+    }
+
+    public function getNotes(): string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(string $notes)
+    {
+        $this->notes = $notes;
+
+        return $this;
+    }
 
     public function getSso(): string
     {
@@ -187,13 +295,6 @@ class User
         return $this;
     }
 
-    public function setToken(string $token)
-    {
-        $this->token = $token;
-
-        return $this;
-    }
-
     public function getUsername(): string
     {
         return $this->username;
@@ -218,57 +319,86 @@ class User
         return $this;
     }
 
-    public function setAvatar(string $avatar)
+    public function getApiPublicKey(): string
     {
-        $this->avatar = $avatar;
+        return $this->apiPublicKey;
+    }
+
+    public function setApiPublicKey(string $apiPublicKey)
+    {
+        $this->apiPublicKey = $apiPublicKey;
 
         return $this;
     }
 
-    public function getApps()
+    public function getApiAnalyticsKey(): string
     {
-        return $this->apps;
+        return $this->apiAnalyticsKey;
     }
 
-    public function setApps($apps)
+    public function setApiAnalyticsKey(string $apiAnalyticsKey)
     {
-        $this->apps = $apps;
+        $this->apiAnalyticsKey = $apiAnalyticsKey;
 
         return $this;
     }
 
-    public function getAppsMax(): int
+    public function getApiRateLimit(): int
     {
-        return $this->appsMax;
+        return $this->apiRateLimit;
     }
 
-    public function setAppsMax(int $appsMax)
+    public function setApiRateLimit(int $apiRateLimit)
     {
-        $this->appsMax = $appsMax;
+        $this->apiRateLimit = $apiRateLimit;
 
         return $this;
     }
 
-    public function isMappyAccessEnabled(): bool
+    public function getApiEndpointAccess(): array
     {
-        return $this->mappyAccessEnabled;
+        return $this->apiEndpointAccess;
     }
 
-    public function setMappyAccessEnabled(bool $mappyAccessEnabled)
+    public function setApiEndpointAccess(array $apiEndpointAccess)
     {
-        $this->mappyAccessEnabled = $mappyAccessEnabled;
+        $this->apiEndpointAccess = $apiEndpointAccess;
 
         return $this;
     }
 
-    public function getMappyAccessCode(): int
+    public function getApiEndpointPermissions()
     {
-        return $this->mappyAccessCode;
+        return $this->apiEndpointPermissions;
     }
 
-    public function setMappyAccessCode(int $mappyAccessCode)
+    public function setApiEndpointPermissions($apiEndpointPermissions)
     {
-        $this->mappyAccessCode = $mappyAccessCode;
+        $this->apiEndpointPermissions = $apiEndpointPermissions;
+
+        return $this;
+    }
+
+    public function isApiEndpointAccessGranted(): bool
+    {
+        return $this->apiEndpointAccessGranted;
+    }
+
+    public function setApiEndpointAccessGranted(bool $apiEndpointAccessGranted)
+    {
+        $this->apiEndpointAccessGranted = $apiEndpointAccessGranted;
+
+        return $this;
+    }
+
+    public function isApiEndpointAccessSuspended(): bool
+    {
+        return $this->apiEndpointAccessSuspended;
+    }
+
+    public function setApiEndpointAccessSuspended(bool $apiEndpointAccessSuspended)
+    {
+        $this->apiEndpointAccessSuspended = $apiEndpointAccessSuspended;
 
         return $this;
     }

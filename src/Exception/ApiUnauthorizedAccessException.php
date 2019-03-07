@@ -4,7 +4,7 @@ namespace App\Exception;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class UnauthorizedAccessException extends HttpException
+class ApiUnauthorizedAccessException extends HttpException
 {
     use ExceptionTrait;
     

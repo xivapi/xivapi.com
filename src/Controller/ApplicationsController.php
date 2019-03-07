@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use App\Service\User\UserService;
+use App\Service\User\Users;
 use App\Service\User\SSO\DiscordSignIn;
 use App\Entity\UserApp;
 use App\Entity\User;
@@ -21,7 +21,7 @@ class ApplicationsController extends Controller
 {
     /** @var EntityManagerInterface $em */
     private $em;
-    /** @var UserService */
+    /** @var Users */
     private $userService;
     /** @var Session */
     private $session;
@@ -30,7 +30,7 @@ class ApplicationsController extends Controller
     
     public function __construct(
         EntityManagerInterface $em,
-        UserService $userService,
+        Users $userService,
         SessionInterface $session,
         AppManager $apps
     ) {
