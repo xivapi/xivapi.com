@@ -18,9 +18,9 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="is_new", columns={"is_new"}),
  *          @ORM\Index(name="is_banned", columns={"is_banned"}),
  *          @ORM\Index(name="is_locked", columns={"is_locked"}),
- *          @ORM\Index(name="api_public_key", columns={"apps_max"}),
- *          @ORM\Index(name="api_endpoint_access_granted", columns={"apps_max"}),
- *          @ORM\Index(name="api_endpoint_access_suspended", columns={"apps_max"})
+ *          @ORM\Index(name="api_public_key", columns={"api_public_key"}),
+ *          @ORM\Index(name="api_endpoint_access_granted", columns={"api_endpoint_access_granted"}),
+ *          @ORM\Index(name="api_endpoint_access_suspended", columns={"api_endpoint_access_suspended"})
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -95,15 +95,6 @@ class User
      */
     private $email;
     /**
-     * Either provided by SSO provider or default
-     *
-     *  DISCORD: https://cdn.discordapp.com/avatars/<USER ID>/<AVATAR ID>.png?size=256
-     *
-     * @var string
-     * @ORM\Column(type="string", length=60, nullable=true)
-     */
-    private $avatar;
-    /**
      * User has 1 Key
      * @var string
      * @ORM\Column(type="string", length=64)
@@ -165,22 +156,19 @@ class User
     public function getAvatar(): string
     {
         $token = $this->getToken();
-
-        if (empty($token->avatar) || stripos($this->avatar, 'xivapi.com') !== false) {
-            return 'http://xivapi.com/img-misc/chat_messengericon_goldsaucer.png';
-        }
-
-        $this->avatar = sprintf("https://cdn.discordapp.com/avatars/%s/%s.png?size=256",
-            $token->id,
-            $token->avatar
-        );
-
-        return $this->avatar;
+    
+        return "https://cdn.discordapp.com/avatars/{$token->id}/{$token->avatar}.png?t=". time();
     }
 
     public function getToken(): ?\stdClass
     {
         return json_decode($this->token);
+    }
+    
+    public function setToken(string $token)
+    {
+        $this->token = $token;
+        return $this;
     }
 
     // -------------------------------------------------------
@@ -294,6 +282,7 @@ class User
 
         return $this;
     }
+    
 
     public function getUsername(): string
     {

@@ -27,7 +27,7 @@ a {
 
 header {
     text-shadow: 0 1px 5px #000;
-    box-shadow: 0 5px 0 rgba(0,0,0,0.1);
+    box-shadow: 0 2px 15px rgba(0,0,0,0.3);
     background: -moz-linear-gradient(top, #6e3ab4 0%, #6723b2 100%);
     background: -webkit-linear-gradient(top, #6e3ab4 0%, #6723b2 100%);
     background: linear-gradient(to bottom, #6e3ab4 0%, #6723b2 100%);
@@ -93,7 +93,6 @@ nav {
                 font-size: 20px;
                 font-weight: 300;
                 text-decoration: none;
-                margin-right: 25px;
 
                 &:hover {
                     text-decoration: underline;
@@ -105,9 +104,10 @@ nav {
             }
 
             a.btn-login {
-                background-color: #3c1076;
+                background-color: #5b259b;
                 padding: 10px 14px;
                 border-radius: 5px;
+                margin-left: 50px;
             }
 
             span.person {
@@ -118,17 +118,17 @@ nav {
 }
 
 footer {
-    background-color: var(--blue3);
-    padding: 30px 0;
+    background-color: var(--blue1);
+    padding: 50px 0;
 
     > div {
         width: 100%;
         max-width: 1280px;
         display: flex;
-        font-size: 13px;
-        line-height: 22px;
+        font-size: 14px;
+        line-height: 30px;
         margin: 0 auto;
-        color: #c9e4e9;
+        color: #666;
 
         > div {
             flex: 0 1 50%;
@@ -240,6 +240,12 @@ ul {
 // ---------------------
 // docs
 // ---------------------
+:root {
+    --aside-depth: 380px;
+    --aside-width: 170px;
+    --main-width: 930px;
+}
+
 
 main .docs {
     min-height: calc(100vh - 100px);
@@ -252,18 +258,18 @@ main .docs {
     }
 
     > div:first-of-type {
-        flex: 1 1 calc(50% - 340px);
+        flex: 1 1 calc(50% - var(--aside-depth));
     }
 
     > div:last-of-type {
-        flex: 1 1 calc(50% + 340px);
+        flex: 1 1 calc(50% + var(--aside-depth));
         background-color: var(--background2);
         border-left: solid 1px var(--background3);
     }
 
     aside {
         width: 100%;
-        max-width: 210px;
+        max-width: var(--aside-width);
         float: right;
         padding-bottom: 100px;
 
@@ -286,6 +292,7 @@ main .docs {
             color: var(--link);
             font-weight: 500;
             padding: 5px 0;
+            font-size: 18px;
         }
 
         span {
@@ -308,7 +315,7 @@ main .docs {
         }
 
         .sub-nav {
-            padding: 10px 0 20px 20px;
+            padding: 5px 0 40px 15px;
 
             a {
                 color: #888;
@@ -320,7 +327,7 @@ main .docs {
 
     main {
         width: 100%;
-        max-width: 840px;
+        max-width: var(--main-width);
         padding-bottom: 100px;
 
         h1 {
@@ -492,6 +499,250 @@ main .docs {
                     color: #007bff;
                     text-decoration: none;
                     background-color: transparent;
+                }
+            }
+        }
+    }
+}
+
+main .home-top {
+    background-color: #05080f;
+    background-image: url("/ui/bg5.png");
+    overflow: hidden;
+    text-align: center;
+    position: relative;
+
+    .home-top-shadow {
+        position: absolute;
+        left: -50px;
+        right: -50px;
+        bottom: 0;
+        z-index: 10;
+        box-shadow: 0 0 10px 2px rgba(0,0,0,0.4);
+    }
+
+    .heading {
+        padding: 80px 0;
+
+        h1 {
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 15px;
+        }
+    }
+
+    .fake-browser {
+        width: 100%;
+        max-width: 840px;
+        background-color: #222;
+        border-radius: 6px 6px 0 0;
+        box-shadow: 0 0 10px rgba(0,0,0,.8), inset 0 0 1px rgba(255,255,255,0.2);
+        margin: 0 auto;
+        margin-bottom: -3px;
+
+        > div:first-of-type {
+            display: flex;
+            padding: 6px;
+
+            > span:first-of-type {
+                flex: 0 1 80px;
+                text-align: center;
+
+                em {
+                    display: inline-block;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 40px;
+                    margin: 10px 6px 0 0;
+                    opacity: .5;
+
+                    &:nth-of-type(1) {
+                        background-color: #ff3f46;
+                    }
+
+                    &:nth-of-type(2) {
+                        background-color: #ffda47;
+                    }
+
+                    &:nth-of-type(3) {
+                        background-color: #90ff5c;
+                    }
+                }
+            }
+
+            > span:last-of-type {
+                flex: 0 1 calc(100% - 80px);
+                font-family: Roboto Mono, monospace;
+                font-size: 13px;
+                font-weight: 400;
+                color: #aaa;
+
+                background-color: #333;
+                border-radius: 3px;
+                height: 32px;
+                line-height: 32px;
+                padding-left: 10px;
+                text-align: left;
+
+                em {
+                    opacity: 0.5;
+                }
+            }
+        }
+
+        > div:last-of-type {
+            font-family: Roboto Mono, monospace;
+            font-size: 15px;
+            line-height: 22px;
+            letter-spacing: 2px;
+            background-color: #333;
+            color: #d9e3b1;
+            text-align: left;
+            padding: 25px 30px 50px 30px;
+            padding-left: 50px;
+            border-top: solid 1px #000;
+
+            box-shadow: inset 0 0 1px rgba(255,255,255,0.2);
+
+            span {
+                color: #9cd7fc;
+            }
+        }
+    }
+}
+
+main .mid-section {
+    border-top: solid 2px #111;
+
+    > div {
+        display: flex;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 1000px;
+        padding: 120px 0;
+
+        div {
+            flex: 0 1 33%;
+            text-align: center;
+
+            > div:nth-of-type(1) {
+                margin-bottom: 30px;
+            }
+
+            img {
+                height: 42px;
+            }
+
+            h2 {
+                font-size: 36px;
+                font-weight: 300;
+                margin-bottom: 10px;
+            }
+
+            p {
+                display: block;
+                margin-bottom: 50px;
+                font-size: 18px;
+                color: #888;
+            }
+
+            a {
+                display: inline-block;
+                border: solid 1px #555;
+                border-radius: 3px;
+                padding: 14px 24px;
+                font-size: 18px;
+
+                &:hover {
+                    background-color: #222;
+                }
+            }
+        }
+    }
+}
+main .low-section {
+    background-color: #111;
+    background-image: url("/ui/bg.png");
+    background-repeat: repeat-x;
+    background-size: 500px;
+    background-position: top center;
+    border-top: solid 1px #213d5d;
+    border-bottom: solid 1px #000;
+    box-shadow: 0 0 20px rgba(0,0,0,.2);
+
+    > div {
+        display: flex;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 1000px;
+        padding: 150px 0;
+
+        > div:first-of-type {
+            flex: 0 1 35%;
+        }
+
+        > div:last-of-type{
+            flex: 0 1 65%;
+            padding-left: 50px;
+
+             img {
+                 width: 100%;
+                 border-radius: 6px;
+                 box-shadow: 0 1px 5px #000
+             }
+        }
+
+        h3 {
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            line-height: 22px;
+        }
+    }
+}
+
+main .paymysub-section {
+    > div {
+        display: flex;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 1000px;
+        padding: 100px 0;
+
+        > div {
+            flex: 0 1 50%;
+            text-align: center;
+
+            h3 {
+                font-size: 28px;
+                font-weight: 600;
+                margin: 30px 0;
+            }
+
+            p {
+                line-height: 25px;
+            }
+
+            small {
+                display: block;
+                opacity: 0.5;
+                padding: 10px 0 50px 0;
+            }
+
+            p a {
+                display: inline-block;
+                border: solid 1px #ddaaff;
+                color: #ddaaff;
+                border-radius: 3px;
+                padding: 14px 24px;
+                font-size: 18px;
+
+                &:hover {
+                    background-color: #222;
                 }
             }
         }

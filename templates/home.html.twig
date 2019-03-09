@@ -2,24 +2,7 @@
 
 {% block title %}XIVAPI - A FINAL FANTASY XIV: Online REST API{% endblock %}
 
-{% block body %}
-
-    <div>
-        <strong>A FINAL FANTASY XIV: Online REST API</strong>
-        <div>Game data, characters, free companies, linkshells, lodestone, markets &amp; maps.</div>
-    </div>
-
-    <div class="fake-browser">
-        <div>
-            <span>
-                <em></em>
-                <em></em>
-                <em></em>
-            </span>
-            <span>xivapi.com/item/1675?columns=ID,Name,Description,LevelItem,ClassJobCategory.Name</span>
-        </div>
-        <div>
-            <div>
+{% set homeCodeBlock %}
 <pre>{
     "ClassJobCategory": {
         "Name": <span>"PLD"</span>
@@ -29,168 +12,136 @@
     "LevelItem": <span>80</span>,
     "Name": <span>"Curtana"</span>
 }</pre>
-            </div>
+{% endset %}
+
+{% block body %}
+
+<div class="home-top">
+    <div class="heading">
+        <h1>A FINAL FANTASY XIV: Online REST API</h1>
+        <div>All the data you need, under 1 source.</div>
+    </div>
+
+    <div class="fake-browser">
+        <div>
+            <span>
+                <em></em>
+                <em></em>
+                <em></em>
+            </span>
+            <span>xivapi.com/item/1675?<em>columns=</em>ID,Name,Description,LevelItem,ClassJobCategory.Name</span>
+        </div>
+        <div>
+            <div>{{ homeCodeBlock }}</div>
         </div>
     </div>
 
-    {# API Docs, Apps, Github #}
-    <div class="section-one">
-        <section>
-            <div>
-                <div>
-                    <img src="/img-svg/1.svg" height="80">
-                </div>
-                <div>
-                    <h2>REST API</h2>
-                    <p>v{{ siteVersion().version }}</p>
-                    <a href="{{ path('docs') }}" class="btn btn-lg btn-primary">Documentation</a>
-                </div>
-            </div>
-            <div>
-                <div>
-                    <img src="/img-svg/2.svg" height="80">
-                </div>
-                <div>
-                    <h2>Developer Apps</h2>
-                    <p>Expand your powers</p>
-                    <a href="{{ path('app') }}" class="btn btn-lg btn-primary">Create &amp; Manage</a>
-                </div>
-            </div>
-            <div>
-                <div>
-                    <img src="/img-svg/3.svg" height="80">
-                </div>
-                <div>
-                    <h2>Open Source SDKs</h2>
-                    <p>Libraries, tools &amp; research</p>
-                    <a href="https://github.com/xivapi" class="btn btn-lg btn-primary">Github.com</a>
-                </div>
-            </div>
-        </section>
-    </div>
+    <div class="home-top-shadow"></div>
+</div>
 
-    {# Code your way! #}
-    <div class="section-two">
-        <section>
-            <div>
-                <h3>Code your way</h3>
-                <p>
-                    The API provides a boat load of FINAL FANTASY XIV data
-                    in the common format JSON.
-                </p>
-                <p>
-                    PHP, JavaScript, C#, Go, Python or if you're a Scala mage, the API is super accessible.
-                </p>
-            </div>
-            <div>
-                <div class="home-code">
-                    <img src="/img-code/php.png" class="active">
-                    <img src="/img-code/csharp.png">
-                    <img src="/img-code/javascript.png">
-                    <img src="/img-code/jquery.png">
-                    <img src="/img-code/python.png">
-                </div>
-            </div>
-        </section>
-    </div>
-
-    {# Stuff on the API #}
-    <div class="section-three">
-        <section>
-            <h3>ALL OF THE DATA</h3>
-
-            <div>
-                <table>
-                    <tr>
-                        <td width="20%">Market Board</td>
-                        <td>
-                            Get access to the full market board through the use of "Sight" which is the Companion Apps API. This provides real-time
-                            on-demand prices and history for all items, on any server.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Game Data</td>
-                        <td>
-                            The API Boasts a huge range of game data with in-depth linking and a variety of customisation. Behind the scenes
-                            the powerful ElasticSearch is at your finger tips to find any data you need
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Lodestone</td>
-                        <td>
-                            <p>
-                                Need Characters, Free Companies, Linkshells or even a PVP Team info? It's all available. The dynamic nature of
-                                accessing this content on the API means that any new or old lodestone content is available immediately.
-                            </p>
-                            <p>
-                                In addition, if you just need Lodestone news, Blog posts, Dev Forum posts or want access to Feast/Deep Dungeon
-                                leaderboards then these are all available!
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Maps</td>
-                        <td>
-                            Want to know where something is? Thanks to huge community effort and mapping tools the API provides very
-                            accurate position data for much of the game data, you can also download the full lot in CSV at any time!
-
-                            <br><br><br><br><br>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </section>
-    </div>
-
-    {# Support #}
-    <div class="section-four">
-        <section>
-            <div>
-                <img src="/discord/name_purple.png" height="52">
-                <h3>Community Driven</h3>
-                <p>
-                    The FFXIV API is 100% community driven, <br> whatever you
-                    need the API is there for you. <br>
-                </p>
-                <small>Unless you need a White Mage.</small>
-                <p>
-                    <a href="https://discord.gg/MFFVHWC" class="btn btn-lg btn-primary">Join Discord</a>
-                </p>
-            </div>
-            <div>
-                <div align="center">
-                    <a href="https://www.patreon.com/bePatron?u=13230932" target="_blank">
-                        <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png">
-                    </a>
-                </div>
-                <h3>Patreon Funded</h3>
-                <p>Consider becoming a patron and supporting XIVAPI + Mogboard.com</p>
-                <p>Your contribution improves features and the reliance of the API!</p>
-                <small>Including Reddit Hug-Of-Death</small>
-
-                <p>
-                    <a href="https://www.patreon.com/bePatron?u=13230932" target="_blank">Become a Patron</a>
-                </p>
-            </div>
-        </section>
-    </div>
-
-    <footer>
+<div class="mid-section">
+    <div>
         <div>
             <div>
-                <strong>Premium Virtue (Phoenix)</strong> <br>
-                Discord: Vekien#3458 <br>
-                Twitter: <a href="https://twitter.com/viion">@viion</a>
+                <img src="/img-svg/1.svg">
             </div>
             <div>
-                v{{ siteVersion().version }} - Deployed {{ siteVersion().time }} <br>
-                ALL FINAL FANTASY XIV CONTENT IS PROPERTY OF SQUARE ENIX CO., LTD <br>
-
-                {% if auth.user %}
-                    <a href="{{ path('app_logout') }}" class="btn-logout">LOGOUT</a>
-                {% endif %}
+                <h2>REST API</h2>
+                <p>v{{ siteVersion().version }}</p>
+                <a href="{{ path('docs') }}" class="btn btn-lg btn-primary">Documentation</a>
             </div>
         </div>
-    </footer>
+        <div>
+            <div>
+                <img src="/img-svg/2.svg">
+            </div>
+            <div>
+                <h2>Developer Access</h2>
+                <p>Expand your powers</p>
+                <a href="{{ path('account') }}" class="btn btn-lg btn-primary">Manage Account</a>
+            </div>
+        </div>
+        <div>
+            <div>
+                <img src="/img-svg/3.svg">
+            </div>
+            <div>
+                <h2>Open Source SDKs</h2>
+                <p>Libraries, tools &amp; research</p>
+                <a href="https://github.com/xivapi" class="btn btn-lg btn-primary">Github.com</a>
+            </div>
+        </div>
+    </div>
+</div>
 
+<div class="low-section">
+    <div class="section-two">
+        <div>
+            <h3>Code your way</h3>
+            <p>
+                The API provides a boat load of FINAL FANTASY XIV data
+                in the common format JSON.
+            </p>
+            <p>
+                PHP, JavaScript, C#, Go, Python or if you're a Scala mage, the API is super accessible.
+            </p>
+        </div>
+        <div>
+            <div class="home-code">
+                <img src="/ui/code/javascript.png">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="paymysub-section">
+    <div>
+        <div>
+            <img src="/discord/name_purple.png" height="52">
+            <h3>Community Driven</h3>
+            <p>
+                The FFXIV API is 100% community driven, <br> whatever you
+                need the API is there for you. <br>
+            </p>
+            <small>Unless you need a White Mage.</small>
+            <p>
+                <a href="https://discord.gg/MFFVHWC" class="btn btn-lg btn-primary">Join Discord</a>
+            </p>
+        </div>
+        <div>
+            <div align="center">
+                <a href="https://www.patreon.com/bePatron?u=13230932" target="_blank">
+                    <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png">
+                </a>
+            </div>
+            <h3>Patreon Funded</h3>
+            <p>Consider becoming a patron and supporting XIVAPI + Mogboard.com</p>
+            <p>Your contribution improves features and the reliance of the API!</p>
+            <small>Including Reddit Hug-Of-Death</small>
+
+            <p>
+                <a href="https://www.patreon.com/bePatron?u=13230932" target="_blank">Become a Patron</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<footer>
+    <div>
+        <div>
+            <strong>Premium Virtue (Phoenix)</strong> <br>
+            Discord: Vekien#3458 <br>
+            Twitter: <a href="https://twitter.com/viion">@viion</a>
+        </div>
+        <div>
+            v{{ siteVersion().version }} - Deployed {{ siteVersion().time }} <br>
+            ALL FINAL FANTASY XIV CONTENT IS PROPERTY OF SQUARE ENIX CO., LTD <br>
+
+            {% if auth.user %}
+                <a href="{{ path('account_logout') }}" class="btn-logout">LOGOUT</a>
+            {% endif %}
+        </div>
+    </div>
+</footer>
 {% endblock %}

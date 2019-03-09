@@ -10,7 +10,7 @@ class DiscordSignIn implements SignInInterface
 {
     const NAME            = 'discord';
     const STATE_KEY       = 'oauth2state';
-    const CLIENT_RETURN   = '/app/login/discord/success';
+    const CLIENT_RETURN   = '/account/login/discord/success';
     CONST CLIENT_OPTIONS  = [
         'scope' => ['identify','email']
     ];
@@ -41,7 +41,7 @@ class DiscordSignIn implements SignInInterface
         $ssoAccess->username        = $user->getUsername();
         $ssoAccess->email           = $user->getEmail() ?: 'none';
         $ssoAccess->avatar          = $user->getAvatarHash();
-        $ssoAccess->expires         = $token->getToken();
+        $ssoAccess->expires         = $token->getExpires();
         $ssoAccess->tokenAccess     = $token->getToken();
         $ssoAccess->tokenRefresh    = $token->getRefreshToken();
         return $ssoAccess;

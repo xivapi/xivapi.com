@@ -7,14 +7,14 @@ use App\Exception\InvalidCompanionMarketRequestServerSizeException;
 use App\Service\Companion\Companion;
 use App\Service\Companion\CompanionMarket;
 use App\Service\Content\GameServers;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package App\Controller
  */
-class CompanionMarketController extends Controller
+class CompanionMarketController extends AbstractController
 {
     /** @var CompanionMarket */
     private $companionMarket;

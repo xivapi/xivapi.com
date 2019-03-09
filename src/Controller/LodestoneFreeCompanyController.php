@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Exception\ContentGoneException;
-use App\Service\Apps\AppManager;
 use App\Service\Lodestone\FreeCompanyService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\FreeCompanyQueue;
@@ -17,14 +16,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class LodestoneFreeCompanyController extends AbstractController
 {
-    /** @var AppManager */
-    private $apps;
     /** @var FreeCompanyService */
     private $service;
     
-    public function __construct(AppManager $apps, FreeCompanyService $service)
+    public function __construct(FreeCompanyService $service)
     {
-        $this->apps = $apps;
         $this->service = $service;
     }
     

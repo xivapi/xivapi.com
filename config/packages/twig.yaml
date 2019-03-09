@@ -3,6 +3,6 @@ twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
     globals:
-        auth: '@App\Service\User\UserService'
+        auth: '@App\Service\User\Users'
     form_themes:
         - 'bootstrap_4_layout.html.twig'

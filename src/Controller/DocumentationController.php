@@ -12,7 +12,7 @@ use App\Service\ThirdParty\GitHub;
 use App\Service\ThirdParty\DigitalOcean;
 use App\Service\ThirdParty\Vultr;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @package App\Controller
  */
-class DocumentationController extends Controller
+class DocumentationController extends AbstractController
 {
     /** @var EntityManagerInterface */
     private $em;

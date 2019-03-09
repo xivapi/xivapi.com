@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Service\Apps\AppManager;
 use App\Service\Redis\Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,14 +11,6 @@ use Lodestone\Api;
 class LodestoneController extends Controller
 {
     const CACHE_DURATION = (60 * 60);
-
-    /** @var AppManager */
-    private $apps;
-
-    public function __construct(AppManager $apps)
-    {
-        $this->apps = $apps;
-    }
 
     /**
      * @Route("/lodestone")

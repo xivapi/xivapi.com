@@ -2,9 +2,7 @@
 
 namespace App\EventListener;
 
-use App\Service\Apps\AppRequest;
 use App\Service\Common\Environment;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,11 +27,11 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
             return null;
         }
         
-        $ex         = $event->getException();
-        $path       = $event->getRequest()->getPathInfo();
-        $pathinfo   = pathinfo($path);
+        $ex   = $event->getException();
+        $path = $event->getRequest()->getPathInfo();
+        $pi   = pathinfo($path);
     
-        if (isset($pathinfo['extension']) && strlen($pathinfo['extension'] > 2)) {
+        if (isset($pi['extension']) && strlen($pi['extension'] > 2)) {
             $event->setResponse(new Response("File not found: ". $path, 404));
             return null;
         }
@@ -41,14 +39,6 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
         $file = str_ireplace('/home/dalamud/dalamud', '', $ex->getFile());
         $file = str_ireplace('/home/dalamud/dalamud_staging', '', $file);
         $message = $ex->getMessage() ?: '(no-exception-message)';
-
-        // ensure key is not posted
-        $event->getRequest()->query->remove('key');
-        $event->getRequest()->request->remove('key');
-
-        // grab json body if one provided
-        $json = json_decode($event->getRequest()->getContent(), true);
-        unset($json['key']);
 
         $json = (Object)[
             'Error'   => true,
@@ -60,26 +50,16 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
                 'Method'  => $event->getRequest()->getMethod(),
                 'Path'    => $event->getRequest()->getPathInfo(),
                 'Action'  => $event->getRequest()->attributes->get('_controller'),
-                'JSON'    => $json,
                 'Code'    => method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : 500,
                 'Date'    => date('Y-m-d H:i:s'),
-                'Note'    => "Get on discord: https://discord.gg/MFFVHWC and complain to @Vekien :)",
+                'Note'    => "Get on discord: https://discord.gg/MFFVHWC and complain to @Vekien :) - Please remove your key from any url provided in the discord.",
                 'Env'     => constant(Environment::CONSTANT),
             ]
         ];
-        
-        file_put_contents(
-            __DIR__.'/../../exceptions.log',
-            "[{$json->Debug->Date}] {$json->Hash} {$event->getRequest()->get('key')} {$json->Message}\n",
-            FILE_APPEND
-        );
 
         $response = new JsonResponse($json, $json->Debug->Code);
         $response->headers->set('Content-Type','application/json');
         $response->headers->set('Access-Control-Allow-Origin','*');
         $event->setResponse($response);
-
-        // log
-        AppRequest::handleException($json);
     }
 }

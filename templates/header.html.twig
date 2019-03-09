@@ -8,14 +8,16 @@
             </div>
             <div>
                 <a href="{{ path('home') }}">Home</a>
+                &nbsp;&nbsp;&nbsp;&nbsp;
                 <a href="{{ path('docs') }}">Docs</a>
 
                 {% if auth.user %}
-                    <a href="{{ path('app') }}">Apps</a>
+                    <em>|</em>
+                    <a href="{{ path('account') }}">Dev Account</a>
                     <em>|</em>
                     <span class="person">{{ auth.user.username }} <img src="{{ auth.user.avatar }}"></span>
                 {% else %}
-                    <a href="{{ path('app_login_discord') }}" class="btn-login">
+                    <a href="{{ path('account_login_discord') }}" class="btn-login">
                         Login via <strong>Discord</strong>
                     </a>
                 {% endif %}

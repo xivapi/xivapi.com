@@ -118,9 +118,11 @@ class Users
 
         // update user
         $user
+            ->setSso($this->sso::NAME)
+            ->setSsoId($ssoAccess->id)
+            ->setToken(json_encode($ssoAccess))
             ->setUsername($ssoAccess->username)
-            ->setEmail($ssoAccess->email)
-            ->setAvatar($ssoAccess->avatar ?: 'http://xivapi.com/img-misc/chat_messengericon_goldsaucer.png');
+            ->setEmail($ssoAccess->email);
 
         $this->updateUser($user);
         $this->setCookie($user->getSession());
@@ -187,8 +189,7 @@ class Users
             ->setSsoId($ssoAccess->id)
             ->setToken(json_encode($ssoAccess))
             ->setUsername($ssoAccess->username)
-            ->setEmail($ssoAccess->email)
-            ->setAvatar($ssoAccess->avatar ?: 'http://xivapi.com/img-misc/chat_messengericon_goldsaucer.png');
+            ->setEmail($ssoAccess->email);
     
         // save user
         $this->updateUser($user);

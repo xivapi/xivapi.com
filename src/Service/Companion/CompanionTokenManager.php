@@ -156,31 +156,37 @@ class CompanionTokenManager
     {
         $this->console->writeln("<comment>Server: {$server}</comment>");
 
+        // grab saved token in db
+        $entity = $this->repository->findOneBy([ 'server' => $server ]);
+        $entity = $entity ?: new CompanionToken();
+    
+        // ensure some entity stuff is set
+        $entity
+            ->setServer($server)
+            ->setOnline(false)
+            ->setLastOnline(time());
+    
+        $this->em->persist($entity);
+        $this->em->flush();
+    
+        // check if server is an "offline" server
         if (in_array($server, self::SERVERS_OFFLINE)) {
             $this->console->writeln('No characters available on this server at this time.');
             return false;
         }
-
-        // grab account
-        $account = self::SERVERS_ACCOUNTS[$server];
-        $account = getenv($account);
+    
+        // check if an account exists
+        $account = getenv(self::SERVERS_ACCOUNTS[$server]);
         if (empty($account)) {
             $this->console->writeln("No account for the server: {$server}");
             return false;
         }
-        
+    
         [$username, $password] = explode(',', $account);
-        
-        // grab saved token in db
-        $entity = $this->repository->findOneBy([ 'server' => $server ]);
-        $entity = $entity ?: new CompanionToken();
         
         try {
             // initialize API and create a new token
             $api = new CompanionApi("{$username}_{$server}");
-            
-            // ensure some entity stuff is set
-            $entity->setServer($server)->setOnline(false)->setLastOnline(0);
             
             // login
             $this->console->writeln("- Account Login: {$username}");
@@ -219,11 +225,13 @@ class CompanionTokenManager
             $this->console->writeln('- Market fetch confirmed.');
     
             // confirm success
-            $entity->setLastOnline(time())->setMessage('Online')->setOnline(true)->setToken($api->Token()->get()->toArray());
-            $this->console->writeln('- Complete');
+            $entity
+                ->setMessage('Online')
+                ->setOnline(true)
+                ->setToken($api->Token()->get()->toArray());
+            
         } catch (\Exception $ex) {
             $entity
-                ->setLastOnline(time())
                 ->setMessage('Failed to login: '. $ex->getMessage())
                 ->setOnline(false);
     
@@ -255,7 +263,7 @@ class CompanionTokenManager
         $list = [];
         foreach ($this->getCompanionTokens() as $entity) {
             // skip offline or expired tokens
-            if ($api->Token()->hasExpired($entity->getLastOnline()) || $entity->isOnline() === false) {
+            if ($entity->isOnline() === false) {
                 continue;
             }
             
