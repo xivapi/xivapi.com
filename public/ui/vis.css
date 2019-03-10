@@ -5,7 +5,7 @@
   --info: #4223a3;
   --link: #64bfff;
   --highlight1: #d6bef9;
-  --background: #25272a;
+  --background: #212326;
   --background2: #36393f;
   --background3: #404349;
   --background4: #999faa;
@@ -416,7 +416,7 @@ main .docs {
 
 main .home-top {
   background-color: #05080f;
-  background-image: url("/ui/bg5.png");
+  background-image: url("/ui/bg6.png");
   overflow: hidden;
   text-align: center;
   position: relative; }
