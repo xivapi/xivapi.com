@@ -15,7 +15,7 @@
                     <em>|</em>
                     <a href="{{ path('account') }}">Dev Account</a>
                     <em>|</em>
-                    <span class="person">{{ auth.user.username }} <img src="{{ auth.user.avatar }}"></span>
+                    <span class="person">{{ auth.user.username }} <span><img src="{{ auth.user.avatar }}"></span></span>
                 {% else %}
                     <a href="{{ path('account_login_discord') }}" class="btn-login">
                         Login via <strong>Discord</strong>

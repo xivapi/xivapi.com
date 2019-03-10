@@ -97,13 +97,13 @@ class User
     /**
      * User has 1 Key
      * @var string
-     * @ORM\Column(type="string", length=64)
+     * @ORM\Column(type="string", length=64, unique=true)
      */
     private $apiPublicKey = null;
     /**
      * Google Analytics Key
      * @var string
-     * @ORM\Column(type="string", length=64)
+     * @ORM\Column(type="string", length=64, nullable=true)
      */
     private $apiAnalyticsKey = null;
     /**
@@ -114,13 +114,13 @@ class User
     /**
      * API Endpoint Access
      * @var array
-     * @ORM\Column(type="json")
+     * @ORM\Column(type="json", nullable=true)
      */
     private $apiEndpointAccess;
     /**
      * API Permissions
      * @var array
-     * @ORM\Column(type="array")
+     * @ORM\Column(type="array", nullable=true)
      */
     private $apiEndpointPermissions = [];
     /**
@@ -168,10 +168,13 @@ class User
 
     private function generateRandomKey()
     {
-        return str_ireplace('-', null,
-            Uuid::uuid4()->toString() .
-            Uuid::uuid4()->toString() .
-            Uuid::uuid4()->toString()
+        return substr(
+            str_ireplace('-', null,
+                Uuid::uuid4()->toString() .
+                Uuid::uuid4()->toString() .
+                Uuid::uuid4()->toString()
+            ),
+            -50
         );
     }
 

@@ -112,6 +112,12 @@ nav {
 
             span.person {
                 display: inline-block;
+
+                > span {
+                    display: inline-block;
+                    width: 42px;
+                    height: 42px;
+                }
             }
         }
     }

@@ -153,6 +153,10 @@ nav {
         margin-left: 50px; }
       nav > div:nth-of-type(2) span.person {
         display: inline-block; }
+        nav > div:nth-of-type(2) span.person > span {
+          display: inline-block;
+          width: 42px;
+          height: 42px; }
 
 footer {
   background-color: var(--blue1);
