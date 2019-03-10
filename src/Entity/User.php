@@ -147,6 +147,14 @@ class User
      * @ORM\Column(type="integer", length=16)
      */
     private $appsMax = 1;
+    /**
+     * @ORM\Column(type="boolean", name="has_mappy_access", options={"default" : 0})
+     */
+    private $mappyAccessEnabled = false;
+    /**
+     * @ORM\Column(type="integer", options={"default" : 0})
+     */
+    private $mappyAccessCode = 0;
     
     // todo legacy ----------------------
 
