@@ -248,6 +248,15 @@ ul {
     --main-width: 930px;
 }
 
+.sidebar {
+    will-change: min-height;
+}
+
+.sidebar__inner {
+    transform: translate(0, 0); /* For browsers don't support translate3d. */
+    transform: translate3d(0, 0, 0);
+    will-change: position, transform;
+}
 
 main .docs {
     min-height: calc(100vh - 100px);
@@ -271,6 +280,8 @@ main .docs {
 
     aside {
         width: 100%;
+        height: 100%;
+        position: relative;
         max-width: var(--aside-width);
         float: right;
         padding-bottom: 100px;
