@@ -135,6 +135,20 @@ class User
      * @ORM\Column(type="boolean", name="api_endpoint_access_suspended", options={"default" : 0})
      */
     private $apiEndpointAccessSuspended = false;
+    
+    
+    // todo legacy ----------------------
+    
+    /**
+     * @ORM\Column(type="string", length=60, nullable=true)
+     */
+    private $avatar;
+    /**
+     * @ORM\Column(type="integer", length=16)
+     */
+    private $appsMax = 1;
+    
+    // todo legacy ----------------------
 
     public function __construct()
     {
