@@ -114,13 +114,13 @@ class User
     /**
      * API Endpoint Access
      * @var array
-     * @ORM\Column(type="json", nullable=true)
+     * @ORM\Column(type="array")
      */
-    private $apiEndpointAccess;
+    private $apiEndpointAccess = [];
     /**
      * API Permissions
      * @var array
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\Column(type="array")
      */
     private $apiEndpointPermissions = [];
     /**
@@ -162,7 +162,7 @@ class User
     {
         $this->id           = Uuid::uuid4();
         $this->added        = time();
-        $this->session      = $this->generateRandomKey();
+        $this->session      = $this->generateRandomKey() . $this->generateRandomKey();
         $this->apiPublicKey = $this->generateRandomKey();
     }
 
