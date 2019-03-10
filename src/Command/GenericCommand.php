@@ -13,10 +13,10 @@ class GenericCommand extends Command
     use CommandConfigureTrait;
     
     const COMMAND = [
-        'name' => 'Companion_AutoLoginAccountsCommand',
-        'desc' => 'Re-login to each character to obtain a companion token.',
+        'name' => 'GenericCommand',
+        'desc' => 'Desc',
         'args' => [
-            [ 'action', InputArgument::OPTIONAL, '(Optional) Either a list of servers or an account.' ]
+            [ 'action', InputArgument::OPTIONAL, 'xxxxx' ]
         ]
     ];
     
