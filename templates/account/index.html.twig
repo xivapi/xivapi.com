@@ -4,6 +4,12 @@
 
 {% block body %}
 
-    Your Account
+    {% if auth.user %}
+
+        Your key: {{ auth.user.apiPublicKey }}
+
+    {% else %}
+        Plz Login
+    {% endif %}
 
 {% endblock %}

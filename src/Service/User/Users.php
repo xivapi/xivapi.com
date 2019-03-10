@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Exception\AccountNotLoggedInException;
 use App\Exception\ApiUnauthorizedAccessException;
 use App\Repository\UserRepository;
-use App\Service\Common\Mog;
 use App\Service\User\SSO\CsrfInvalidException;
 use App\Service\User\SSO\DiscordSignIn;
 use App\Service\User\SSO\SignInInterface;
@@ -18,8 +17,8 @@ class Users
 {
     /** @var EntityManagerInterface */
     private $em;
-    /** @var DiscordSignIn */
-    private $sso;
+    /** @var SignInInterface */
+    private $provider;
     /** @var  UserRepository */
     private $repository;
     
@@ -27,6 +26,51 @@ class Users
     {
         $this->em = $em;
         $this->repository = $em->getRepository(User::class);
+    }
+    
+    /**
+     * Return all users
+     */
+    public function getUsers()
+    {
+        return $this->repository->findAll();
+    }
+    
+    /**
+     * Alias for twig
+     */
+    public function user()
+    {
+        return $this->getCurrentUser();
+    }
+    
+    /**
+     * Get the current logged in user
+     */
+    public function getCurrentUser(bool $enforce = false): ?User
+    {
+        $session = Cookie::get('session');
+        
+        if (!$session || $session === 'x') {
+            if ($enforce) {
+                throw new AccountNotLoggedInException();
+            }
+            
+            return null;
+        }
+        
+        $repo = $this->em->getRepository(User::class);
+        
+        /** @var User $user */
+        $user = $repo->findOneBy([
+            'session' => $session
+        ]);
+        
+        if ($user == null && $enforce) {
+            throw new AccountNotLoggedInException();
+        }
+        
+        return $user;
     }
 
     /**
@@ -42,92 +86,49 @@ class Users
 
         return $user;
     }
-
-
-
-
     
     /**
-     * Get the user
+     * Create a new user
      */
-    public function user(): ?User
+    public function create(string $sso, SSOAccess $ssoAccess): User
     {
-        return $this->getUser();
+        $user = new User();
+        $user
+            ->setSso($sso)
+            ->setSsoId($ssoAccess->id)
+            ->setToken(json_encode($ssoAccess))
+            ->setUsername($ssoAccess->username)
+            ->setEmail($ssoAccess->email);
+        
+        // save user
+        $this->save($user);
+        return $user;
     }
     
     /**
-     * Get the current logged in user
+     * Save a user
      */
-    public function getUser(bool $enforce = false): ?User
+    public function save(User $user)
     {
-        $session = Cookie::get('session');
-        
-        if (!$session || $session === 'x') {
-            if ($enforce) {
-                throw new AccountNotLoggedInException();
-            }
-            return null;
-        }
-        
-        $repo = $this->em->getRepository(User::class);
-        
-        /** @var User $user */
-        $user = $repo->findOneBy([
-            'session' => $session
-        ]);
-
-        if ($user == null && $enforce) {
-            throw new AccountNotLoggedInException();
-        }
-        
-        return $user;
+        $this->em->persist($user);
+        $this->em->flush();
     }
     
     /**
      * Sign in
      */
-    public function signIn()
+    public function login()
     {
-        return $this->sso->getLoginAuthorizationUrl()->getUrl();
+        return $this->provider->getLoginAuthorizationUrl()->getUrl();
     }
     
     /**
-     * Authenticate
-     * @throws CsrfInvalidException
+     * Set the single sign in provider
      */
-    public function authenticate(): User
+    public function setLoginProvider(SignInInterface $provider)
     {
-        // todo - debug this, sometimes CSRF fails, maybe implement Symfony CSRF.
-        // todo - migrate mogboard authenticate over, it has been fixed there.
-        /** @var DiscordSignIn $sso */
-        if (!$this->sso->isCsrfValid()) {
-            //throw new CsrfInvalidException();
-        }
-
-        $ssoAccess = $this->sso->setLoginAuthorizationState();
-        
-        $repo = $this->em->getRepository(User::class);
-        $user = $repo->findOneBy([
-            'ssoId' => $ssoAccess->id
-        ]);
-        
-        if (!$user) {
-            $user = $this->createUser($this->sso::NAME, $ssoAccess);
-            Mog::send("<:updates:474543481738625035> [XIVAPI] New account has been created: {$ssoAccess->username}");
-        }
-
-        // update user
-        $user
-            ->setSso($this->sso::NAME)
-            ->setSsoId($ssoAccess->id)
-            ->setToken(json_encode($ssoAccess))
-            ->setUsername($ssoAccess->username)
-            ->setEmail($ssoAccess->email);
-
-        $this->updateUser($user);
-        $this->setCookie($user->getSession());
-
-        return $user;
+        $this->provider = $provider;
+        return $this;
     }
     
     /**
@@ -139,12 +140,35 @@ class Users
     }
     
     /**
-     * Set the single sign in provider
+     * Authenticate
+     * @throws CsrfInvalidException
      */
-    public function setSsoProvider(SignInInterface $sso)
+    public function authenticate(): User
     {
-        $this->sso = $sso;
-        return $this;
+        // todo - debug this, sometimes CSRF fails, maybe implement Symfony CSRF.
+        // todo - migrate mogboard authenticate over, it has been fixed there.
+        /** @var DiscordSignIn $sso */
+        if (!$this->provider->isCsrfValid()) {
+            //throw new CsrfInvalidException();
+        }
+        
+        $ssoAccess = $this->provider->setLoginAuthorizationState();
+        
+        // get user or create a new one
+        $user = $this->repository->findOneBy([ 'ssoId' => $ssoAccess->id ])
+            ?: $this->create($this->provider->getName(), $ssoAccess);
+        
+        // update user
+        $user
+            ->setSso($this->provider->getName())
+            ->setSsoId($ssoAccess->id)
+            ->setToken(json_encode($ssoAccess))
+            ->setUsername($ssoAccess->username)
+            ->setEmail($ssoAccess->email);
+        
+        $this->save($user);
+        $this->setCookie($user->getSession());
+        return $user;
     }
     
     /**
@@ -153,12 +177,7 @@ class Users
     public function setCookie($sid)
     {
         $cookie = new Cookie('session');
-        $cookie
-            ->setValue($sid)
-            ->setMaxAge(60 * 60 * 24 * 30)
-            ->setPath('/')
-            ->setDomain(getenv('COOKIE_DOMAIN'))
-            ->save();
+        $cookie->setValue($sid)->setMaxAge(60 * 60 * 24 * 30)->setDomain(getenv('COOKIE_DOMAIN'))->save();
     }
     
     /**
@@ -168,41 +187,7 @@ class Users
     {
         //$request->get
         $cookie = new Cookie('session');
-        $cookie
-            ->setValue('x')
-            ->setMaxAge(-1)
-            ->setPath('/')
-            ->setDomain(getenv('COOKIE_DOMAIN'))
-            ->save();
-        
+        $cookie->setValue('x')->setMaxAge(-1)->setDomain(getenv('COOKIE_DOMAIN'))->save();
         $cookie->delete();
-    }
-    
-    /**
-     * Create a new user
-     */
-    public function createUser(string $sso, SSOAccess $ssoAccess): User
-    {
-        $user = new User();
-        $user
-            ->setSso($sso)
-            ->setSsoId($ssoAccess->id)
-            ->setToken(json_encode($ssoAccess))
-            ->setUsername($ssoAccess->username)
-            ->setEmail($ssoAccess->email);
-    
-        // save user
-        $this->updateUser($user);
-        
-        return $user;
-    }
-    
-    /**
-     * Update a user
-     */
-    public function updateUser(User $user)
-    {
-        $this->em->persist($user);
-        $this->em->flush();
     }
 }

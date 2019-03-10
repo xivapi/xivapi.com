@@ -2,19 +2,17 @@
 
 namespace App\Service\API;
 
-use App\Controller\CompanionMarketController;
+use App\Controller\MarketController;
 use App\Controller\TooltipsController;
 use App\Controller\LodestoneCharacterController;
 use App\Controller\LodestoneController;
 use App\Controller\LodestoneFreeCompanyController;
 use App\Controller\LodestonePvPTeamController;
-use App\Controller\LodestoneStatisticsController;
 use App\Controller\SearchController;
 use App\Controller\XivGameContentController;
 use App\Entity\User;
 use App\Exception\ApiAppBannedException;
 use App\Exception\ApiRateLimitException;
-use App\Exception\ApiRestrictedException;
 use App\Exception\ApiUnauthorizedAccessException;
 use App\Service\Common\Language;
 use App\Service\Redis\Redis;
@@ -27,17 +25,18 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ApiRequest
 {
+    const MAX_RATE_LIMIT_GLOBAL = 2;
+    
     /**
      * List of controllers that require a API Key
      */
     const API_CONTROLLERS = [
-        CompanionMarketController::class,
+        MarketController::class,
         TooltipsController::class,
         LodestoneCharacterController::class,
         LodestoneController::class,
         LodestoneFreeCompanyController::class,
         LodestonePvPTeamController::class,
-        LodestoneStatisticsController::class,
         SearchController::class,
         XivGameContentController::class
     ];
@@ -79,26 +78,28 @@ class ApiRequest
         if ($this->isApiController() === false) {
             return;
         }
+        
+        // send usage analytics
+        $this->sendUsageAnalyticData();
 
-        $this->checkApiKeyExists();
+        // if no key, handle per ip
+        if ($this->hasApiKey() === false) {
+            $this->checkUserRateLimit();
+            return;
+        }
 
         /** @var User $user */
         $this->user = $this->users->getUserByApiKey($this->request->get('key'));
 
         // checks
         $this->checkUserIsNotBanned();
-        $this->checkApiAccessGranted();
         $this->checkApiAccessNotSuspended();
-        $this->checkApiAccessToEndpoint();
 
         // rate limit
-        $this->checkRateLimit();
+        $this->checkDeveloperRateLimit();
 
-        // send any Google Analytics data
-        $this->sendAnalyticData();
-
-        // register the users permissions
-        ApiRequestPermissions::registerPermissions($this->user);
+        // send any developer Google Analytics data
+        $this->sendDeveloperAnalyticData();
     }
 
     /**
@@ -113,6 +114,14 @@ class ApiRequest
 
         return true;
     }
+    
+    /**
+     * States if an API key exists in the request
+     */
+    private function hasApiKey(): bool
+    {
+        return !empty($this->request->get('key'));
+    }
 
     /**
      * A single account gets X number of requests per second, this is account wide so they
@@ -120,54 +129,63 @@ class ApiRequest
      *
      * Rate limits are for the individual user and are account wide.
      */
-    private function checkRateLimit()
+    private function checkDeveloperRateLimit()
     {
-        $key = "api_rate_limit_{$this->user->getId()}";
-
-        // Increment the users request count
-        $count = Redis::Cache()->get($key);
-        $count = $count ? $count + 1 : 1;
-        Redis::Cache()->set($key, $count, 2);
-
-        if ($count > $this->user->getApiRateLimit()) {
-            // Record the rate limit event on XIVAPI Google Analytics account.
-            GoogleAnalytics::event('{XIVAPI}', 'RateLimited', $this->user->getUsername(), $this->getRequestEndpoint());
-
+        $key = "api_rate_limit_developer_{$this->user->getId()}";
+        $this->handleRateLimit($key, $this->user->getApiRateLimit());
+    }
+    
+    /**
+     * Check a users rate limit
+     */
+    private function checkUserRateLimit()
+    {
+        $ip  = md5($this->request->getClientIp());
+        $key = "api_rate_limit_user_{$ip}";
+        
+        $this->handleRateLimit($key);
+    }
+    
+    /**
+     * Handle rate limit tracking
+     */
+    private function handleRateLimit($key, $limit = self::MAX_RATE_LIMIT_GLOBAL)
+    {
+        $nowSecond  = (int)date('s');
+        $lastSecond = ($nowSecond - 1) < 0 ? 59 : $nowSecond - 1;
+    
+        // current and last second
+        $nowKey  = $key .'__'. $nowSecond;
+        $lastKey = $key .'__'. ($lastSecond);
+        
+        // delete the last key, dun need it anymore
+        Redis::Cache()->delete($lastKey);
+        
+        // increment the count of the current second
+        Redis::Cache()->increment($nowKey);
+        
+        // throw exception if hit count too high
+        if (Redis::Cache()->getCount($nowKey) > $limit) {
             throw new ApiRateLimitException();
         }
     }
-
-    private function checkApiKeyExists()
-    {
-        if (empty($this->request->get('key'))) {
-            throw new ApiRestrictedException();
-        }
-    }
-
+    
+    /**
+     * Check that the user is not banned, if they provided a key
+     */
     private function checkUserIsNotBanned()
     {
         if ($this->user->isBanned()) {
             throw new ApiAppBannedException();
         }
     }
-
-    private function checkApiAccessGranted()
-    {
-        if ($this->user->isApiEndpointAccessGranted() === false) {
-            throw new ApiUnauthorizedAccessException();
-        }
-    }
-
+    
+    /**
+     * Check that the API key has not been suspended
+     */
     private function checkApiAccessNotSuspended()
     {
         if ($this->user->isApiEndpointAccessSuspended()) {
-            throw new ApiUnauthorizedAccessException();
-        }
-    }
-
-    private function checkApiAccessToEndpoint()
-    {
-        if (in_array($this->getRequestEndpoint(), $this->user->getApiEndpointAccess()) === false) {
             throw new ApiUnauthorizedAccessException();
         }
     }
@@ -185,16 +203,25 @@ class ApiRequest
      */
     private function getRequestEndpoint()
     {
-        return strtolower(explode('/', $this->request->getPathInfo())[1]) ?? 'home';
+        return strtolower(explode('/', $this->request->getPathInfo())[1]) ?? 'x';
     }
-
-    private function sendAnalyticData()
+    
+    /**
+     * Send xivapi usage analytic data
+     */
+    private function sendUsageAnalyticData()
     {
         // XIVAPI Google Analytics
         GoogleAnalytics::trackHits($this->request->getPathInfo());
         GoogleAnalytics::trackBaseEndpoint($this->getRequestEndpoint());
         GoogleAnalytics::trackLanguage();
-
+    }
+    
+    /**
+     * Send developer specific analytic data
+     */
+    private function sendDeveloperAnalyticData()
+    {
         // check if user has an analytics key
         if (empty($this->user->getApiAnalyticsKey())) {
             return;

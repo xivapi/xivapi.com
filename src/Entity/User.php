@@ -112,18 +112,6 @@ class User
      */
     private $apiRateLimit = 0;
     /**
-     * API Endpoint Access
-     * @var array
-     * @ORM\Column(type="array")
-     */
-    private $apiEndpointAccess = [];
-    /**
-     * API Permissions
-     * @var array
-     * @ORM\Column(type="array")
-     */
-    private $apiEndpointPermissions = [];
-    /**
      * API Access has been granted
      * @var bool
      * @ORM\Column(type="boolean", name="api_endpoint_access_granted", options={"default" : 0})
@@ -345,7 +333,7 @@ class User
         return $this;
     }
 
-    public function getApiAnalyticsKey(): string
+    public function getApiAnalyticsKey(): ?string
     {
         return $this->apiAnalyticsKey;
     }
@@ -365,30 +353,6 @@ class User
     public function setApiRateLimit(int $apiRateLimit)
     {
         $this->apiRateLimit = $apiRateLimit;
-
-        return $this;
-    }
-
-    public function getApiEndpointAccess(): array
-    {
-        return $this->apiEndpointAccess;
-    }
-
-    public function setApiEndpointAccess(array $apiEndpointAccess)
-    {
-        $this->apiEndpointAccess = $apiEndpointAccess;
-
-        return $this;
-    }
-
-    public function getApiEndpointPermissions()
-    {
-        return $this->apiEndpointPermissions;
-    }
-
-    public function setApiEndpointPermissions($apiEndpointPermissions)
-    {
-        $this->apiEndpointPermissions = $apiEndpointPermissions;
 
         return $this;
     }

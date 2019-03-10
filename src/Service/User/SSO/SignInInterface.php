@@ -4,6 +4,8 @@ namespace App\Service\User\SSO;
 
 interface SignInInterface
 {
+    public function getName(): string;
+    
     public function getLoginAuthorizationUrl(): SSOAuth;
     
     public function setLoginAuthorizationState(): SSOAccess;

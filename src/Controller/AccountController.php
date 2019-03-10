@@ -49,7 +49,7 @@ class AccountController extends AbstractController
      */
     public function loginDiscord(Request $request)
     {
-        $url = $this->users->setSsoProvider(new DiscordSignIn($request))->signIn();
+        $url = $this->users->setLoginProvider(new DiscordSignIn($request))->login();
         return $this->redirect($url);
     }
     
@@ -62,9 +62,7 @@ class AccountController extends AbstractController
             return $this->redirectToRoute('account');
         }
         
-        $this->users->setSsoProvider(new DiscordSignIn($request))->authenticate();
+        $this->users->setLoginProvider(new DiscordSignIn($request))->authenticate();
         return $this->redirectToRoute('account');
     }
-    
-    
 }

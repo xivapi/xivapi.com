@@ -30,6 +30,11 @@ class DiscordSignIn implements SignInInterface
         ]);
     }
     
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+    
     /**
      * Get the access token
      */
