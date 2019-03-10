@@ -97,7 +97,7 @@ class User
     /**
      * User has 1 Key
      * @var string
-     * @ORM\Column(type="string", length=64, unique=true)
+     * @ORM\Column(type="string", length=64, unique=true, nullable=true)
      */
     private $apiPublicKey = null;
     /**
