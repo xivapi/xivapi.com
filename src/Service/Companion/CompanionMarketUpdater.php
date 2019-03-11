@@ -354,13 +354,14 @@ class CompanionMarketUpdater
     }
 
     /**
-     * Returns true if there have been over 2 exceptions.
+     * Returns true if there is an exception threshold met
      */
     private function hasExceptionsExceededLimit()
     {
         $exceptions = $this->repositoryExceptions->findAll();
 
-        if (empty($exceptions) || count($exceptions) < 2) {
+        // limit of 1 set for now just for monitoring purposes.
+        if (empty($exceptions) || count($exceptions) < 1) {
             return false;
         }
 
