@@ -111,12 +111,12 @@ class CompanionMarketUpdater
         foreach (array_chunk($items, self::MAX_PER_CHUNK) as $i => $itemChunk) {
             // if we're close to the cronjob minute mark, end
             if ((time() - $this->start) > self::MAX_CRONJOB_DURATION) {
-                $this->console->writeln(date('H:i:s') .' | Ending auto-update as time limit seconds reached.');
+                $this->console->writeln(date('H:i:s') ." | [{$queue}] Ending auto-update as time limit seconds reached.");
                 return;
             }
         
             // handle the chunk
-            $this->updateChunk($i, $itemChunk);
+            $this->updateChunk($i, $itemChunk, $queue);
         }
     
         $this->em->clear();
@@ -125,7 +125,7 @@ class CompanionMarketUpdater
     /**
      * Update a group of items
      */
-    private function updateChunk($chunkNumber, $chunkList)
+    private function updateChunk($chunkNumber, $chunkList, $queue)
     {
         // initialize Companion API, no token provided as we set it later on
         // also enable async
@@ -163,10 +163,10 @@ class CompanionMarketUpdater
         }
 
         $totalRequests = count($requests);
-        $this->console->writeln(date('H:i:s') ." | Processing chunk: {$chunkNumber} - Total Requests: {$totalRequests}");
+        $this->console->writeln(date('H:i:s') ." | [{$queue}] Processing chunk: {$chunkNumber} - Total Requests: {$totalRequests}");
         
         // run the requests, we don't care on response because the first time nothing will be there.
-        $this->console->writeln(date('H:i:s') ." | <info>Part 1: Sending Requests</info>");
+        $this->console->writeln(date('H:i:s') ." | [{$queue}] <info>Part 1: Sending Requests</info>");
 
         // 1st pass
         $api->Sight()->settle($requests)->wait();
@@ -175,20 +175,20 @@ class CompanionMarketUpdater
         sleep(self::MAX_QUERY_SLEEP_SEC);
         
         // run the requests again, the Sight API should give us our response this time.
-        $this->console->writeln(date('H:i:s') ." | <info>Part 2: Fetching Responses</info>");
+        $this->console->writeln(date('H:i:s') ." | [{$queue}] <info>Part 2: Fetching Responses</info>");
 
         // second pass
         $results = $api->Sight()->settle($requests)->wait();
 
         // handle the results of the response
         $results = $api->Sight()->handle($results);
-        $this->storeMarketData($chunkList, $results);
+        $this->storeMarketData($chunkList, $results, $queue);
     }
     
     /**
      * Update a chunk of items to the document storage
      */
-    private function storeMarketData($chunkList, $results)
+    private function storeMarketData($chunkList, $results, $queue)
     {
         // process the chunk list from our results
         /** @var CompanionMarketItemEntry $item */
@@ -276,7 +276,7 @@ class CompanionMarketUpdater
             $this->em->persist($item);
             $this->em->flush();
         
-            $this->console->writeln(date('H:i:s') ." | <comment>✓</comment> Updated prices + history for item: {$itemId} on {$server}");
+            $this->console->writeln(date('H:i:s') ." | [{$queue}] <comment>✓</comment> Updated prices + history for item: {$itemId} on {$server}");
         }
     }
     

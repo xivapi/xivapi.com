@@ -56,8 +56,8 @@ class CompanionStatistics
             $items = $this->repository->findBy([ 'priority' => 1 ]);
             $stats->total_items = count($items);
 
-            $reqPerMin = [];
             $reqPerSec = [];
+            $reqPerMin = [];
             $reqPerHrs = [];
 
             /** @var CompanionMarketItemEntry $item */
@@ -78,7 +78,7 @@ class CompanionStatistics
                 }
             }
 
-            print_r($reqPerSec);
+            print_r($reqPerHrs);
 
             $stats->req_per_sec = ceil(array_sum($reqPerSec) / count(array_filter($reqPerSec)));
             $stats->req_per_min = ceil(array_sum($reqPerMin) / count(array_filter($reqPerMin)));
