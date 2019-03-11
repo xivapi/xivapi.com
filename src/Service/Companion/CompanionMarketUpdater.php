@@ -33,8 +33,7 @@ class CompanionMarketUpdater
     const MAX_PER_CHUNK         = 2;
     const MAX_CRONJOB_DURATION  = 50;
     const MAX_QUERY_SLEEP_SEC   = 2;
-    const MAX_UPDATE_DELAY      = (60 * 10);
-    
+
     /** @var EntityManagerInterface */
     private $em;
     /** @var ConsoleOutput */
@@ -134,7 +133,7 @@ class CompanionMarketUpdater
         $api->useAsync();
 
         // a single item will not update faster than X minutes.
-        $updateTimeout = time() - self::MAX_UPDATE_DELAY;
+        $updateTimeout = time() - CompanionItemManagerPriorityTimes::ITEM_UPDATE_DELAY;
         
         /** @var CompanionMarketItemEntry $item */
         $requests = [];

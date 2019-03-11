@@ -168,7 +168,7 @@ class CompanionItemManager
                 }
 
                 // item has had less than 5 sales, too low to make a call against
-                if (count($average) < 3) {
+                if (count($average) < CompanionItemManagerPriorityTimes::ITEM_HISTORY_AVG_REQUIREMENT) {
                     $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_ITEM_LOW_SALES);
                     $this->em->persist($obj);
                     continue;

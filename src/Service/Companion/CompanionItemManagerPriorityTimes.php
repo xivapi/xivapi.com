@@ -4,7 +4,14 @@ namespace App\Service\Companion;
 
 class CompanionItemManagerPriorityTimes
 {
+    // Avoid updating an item if it was updated 10 minutes ago
+    const ITEM_UPDATE_DELAY = (60 * 10);
+
+    // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;
+
+    // Any items with a lower history value than this, are put in their own queue.
+    const ITEM_HISTORY_AVG_REQUIREMENT = 3;
 
     // Item has less than 5 sales
     const PRIORITY_ITEM_LOW_SALES = 7;
