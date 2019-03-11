@@ -165,11 +165,12 @@ class CompanionItemManager
                     }
 
                     // if the person who bought it is same person, skip...
-                    // reduces market manipulation
+                    /*
                     if ($saleLastBuyerName == $history->CharacterName) {
                         $saleLastBuyerName = $history->CharacterName;
                         continue;
                     }
+                    */
 
                     $saleLastBuyerName = $history->CharacterName;
                     $diff = $saleHistoryLastOne - $history->PurchaseDate;
