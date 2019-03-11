@@ -204,17 +204,17 @@ class CompanionMarketUpdater
             $prices  = $results->{"{$itemId}_{$server}_prices"} ?? null;
             $history = $results->{"{$itemId}_{$server}_history"} ?? null;
             
-            if ($prices === null && $history == null) {
-                $this->console->writeln(date('H:i:s') ." | [{$priority}] Price + History empty: {$item->getItem()}");
-                return;
-            }
-            
             if (isset($prices->error)) {
                 $this->recordException('prices', $itemId, $server, $prices->reason);
             }
             
             if (isset($history->error)) {
                 $this->recordException('history', $itemId, $server, $history->reason);
+            }
+    
+            if ($prices === null && $history == null) {
+                $this->console->writeln(date('H:i:s') ." | [{$priority}] Price + History empty: {$item->getItem()}");
+                return;
             }
         
             // grab market item document
