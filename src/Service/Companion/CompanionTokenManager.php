@@ -258,8 +258,6 @@ class CompanionTokenManager
      */
     public function getCompanionTokensPerServer(): array
     {
-        $api = new CompanionApi();
-        
         $list = [];
         foreach ($this->getCompanionTokens() as $entity) {
             // skip offline or expired tokens

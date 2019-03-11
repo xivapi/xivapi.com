@@ -13,6 +13,7 @@ use App\Repository\CompanionMarketItemEntryRepository;
 use App\Repository\CompanionMarketItemExceptionRepository;
 use App\Repository\CompanionRetainerRepository;
 use App\Repository\CompanionSignatureRepository;
+use App\Service\Common\Arrays;
 use App\Service\Common\Mog;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
@@ -31,8 +32,8 @@ class CompanionMarketUpdater
 {
     const MAX_PER_ASYNC         = 50;
     const MAX_PER_CHUNK         = 2;
-    const MAX_CRONJOB_DURATION  = 50;
-    const MAX_QUERY_SLEEP_SEC   = 2;
+    const MAX_CRONJOB_DURATION  = 55;
+    const MAX_QUERY_SLEEP_SEC   = 2000;
 
     /** @var EntityManagerInterface */
     private $em;
@@ -87,7 +88,7 @@ class CompanionMarketUpdater
         $this->start = time();
 
         // random sleep at start, this is so not all queries start at the same time.
-        usleep( mt_rand(10, 1500) * 1000 );
+        usleep( mt_rand(10, 800) * 1000 );
     
         // grab our companion tokens
         $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
@@ -173,7 +174,7 @@ class CompanionMarketUpdater
         $api->Sight()->settle($requests)->wait();
     
         // Wait for the results
-        sleep(self::MAX_QUERY_SLEEP_SEC);
+        usleep( self::MAX_QUERY_SLEEP_SEC * 1000 );
         
         // run the requests again, the Sight API should give us our response this time.
         $this->console->writeln(date('H:i:s') ." | [{$priority}] <info>Part 2: Fetching Responses</info>");
@@ -195,13 +196,18 @@ class CompanionMarketUpdater
         /** @var CompanionMarketItemEntry $item */
         foreach ($chunkList as $item) {
             $itemId = $item->getItem();
-            $server = GameServers::LIST[$item->getServer()];
+            $server = $item->getServer();
         
             // grab our prices and history
             /** @var \stdClass $prices */
             /** @var \stdClass $history */
             $prices  = $results->{"{$itemId}_{$server}_prices"} ?? null;
             $history = $results->{"{$itemId}_{$server}_history"} ?? null;
+            
+            if ($prices === null && $history == null) {
+                $this->recordException('prices', $itemId, $server, 'BOTH PRICES + HISTORY ARE EMPTY');
+                return;
+            }
             
             if (isset($prices->error)) {
                 $this->recordException('prices', $itemId, $server, $prices->reason);

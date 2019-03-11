@@ -36,7 +36,7 @@ class MarketController extends AbstractController
     public function itemByServer(Request $request, string $server, int $itemId)
     {
         // options
-        $maxHistory = $request->get('max_history') ?: 50;
+        $maxHistory = $request->get('max_history') ?: 100;
         
         // build response
         $serverId = GameServers::getServerId($server);

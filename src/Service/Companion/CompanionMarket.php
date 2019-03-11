@@ -102,7 +102,7 @@ class CompanionMarket
         foreach ($source['History'] as $i => $price) {
             // limit history
             if ($maxHistory && $i >= $maxHistory) {
-                break;
+                //break;
             }
             
             $obj = new MarketHistory();
