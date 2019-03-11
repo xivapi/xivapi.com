@@ -187,10 +187,11 @@ class CompanionItemManager
                     continue;
                 }
 
-                $saleAverage = round(array_sum($saleHistoryAverage) / count($saleHistoryAverage));
+                $saleAverage = floor(array_sum($saleHistoryAverage) / count($saleHistoryAverage));
                 
                 // set default
-                $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_TIMES_DEFAULT);
+                $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_TIMES_DEFAULT)
+                    ->setAvgSaleDuration($saleAverage);
 
                 // find where it fits in our table
                 foreach (CompanionItemManagerPriorityTimes::PRIORITY_TIMES as $time => $priority) {
