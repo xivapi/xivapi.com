@@ -155,6 +155,7 @@ class CompanionItemManager
 
                 $saleHistoryLastOne = 0;
                 $saleHistoryAverage = [];
+                $saleLastBuyerName  = null;
 
                 foreach ($document->History as $history) {
                     // 1st one? just set it and continue
@@ -163,10 +164,18 @@ class CompanionItemManager
                         continue;
                     }
 
+                    // if the person who bought it is same person, skip...
+                    // reduces market manipulation
+                    if ($saleLastBuyerName == $history->CharacterName) {
+                        $saleLastBuyerName = $history->CharacterName;
+                        continue;
+                    }
+
+                    $saleLastBuyerName = $history->CharacterName;
                     $diff = $saleHistoryLastOne - $history->PurchaseDate;
 
-                    // append on sale time difference
-                    if ($diff > 0) {
+                    // append on sale time difference, only done if diff is above the threshold
+                    if ($diff > CompanionItemManagerPriorityTimes::ITEM_HISTORY_THRESHOLD) {
                         $saleHistoryAverage[] = $diff;
                     }
                 }
