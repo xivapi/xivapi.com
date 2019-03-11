@@ -7,7 +7,7 @@ class CompanionItemManagerPriorityTimes
     const PRIORITY_TIMES_DEFAULT = 9;
 
     // Item was added to the database within the past 7 days
-    const PRIORITY_ITEM_IS_NEW = 1;
+    const PRIORITY_ITEM_IS_NEW = 8;
 
     // Item has not update
     const PRIORITY_ITEM_NEVER_SOLD = 10;
