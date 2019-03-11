@@ -65,6 +65,10 @@ class CompanionStatistics
                 // split up time
                 [$sec, $min, $hrs] = explode(':', date('G:i:s', $item->getUpdated()));
 
+                $sec = (int)$sec;
+                $min = (int)$min;
+                $hrs = (int)$hrs;
+
                 $reqPerSec[$sec] = isset($reqPerSec[$sec]) ? $reqPerSec[$sec] + 1 : 1;
                 $reqPerMin[$min] = isset($reqPerMin[$min]) ? $reqPerMin[$min] + 1 : 1;
                 $reqPerHrs[$hrs] = isset($reqPerHrs[$hrs]) ? $reqPerHrs[$hrs] + 1 : 1;
