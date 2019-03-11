@@ -153,42 +153,30 @@ class CompanionItemManager
                     continue;
                 }
 
-                $saleHistoryLastOne = 0;
-                $saleHistoryAverage = [];
-                $saleLastBuyerName  = null;
+                // record sale histories, we start with the time the item was last updated.
+                $lastDate = 0;
+                $average  = [
+                    $obj->getUpdated()
+                ];
 
                 foreach ($document->History as $history) {
-                    // 1st one? just set it and continue
-                    if ($saleHistoryLastOne == 0) {
-                        $saleHistoryLastOne = $history->PurchaseDate;
-                        continue;
-                    }
-
-                    // if the person who bought it is same person, skip...
-                    /*
-                    if ($saleLastBuyerName == $history->CharacterName) {
-                        $saleLastBuyerName = $history->CharacterName;
-                        continue;
-                    }
-                    */
-
-                    $saleLastBuyerName = $history->CharacterName;
-                    $diff = $saleHistoryLastOne - $history->PurchaseDate;
+                    $diff     = $lastDate - $history->PurchaseDate;
+                    $lastDate = $history->PurchaseDate;
 
                     // append on sale time difference
                     if ($diff > CompanionItemManagerPriorityTimes::ITEM_HISTORY_THRESHOLD) {
-                        $saleHistoryAverage[] = $diff;
+                        $average[] = $diff;
                     }
                 }
 
                 // item has had less than 5 sales, too low to make a call against
-                if (count($saleHistoryAverage) < 5) {
+                if (count($average) < 3) {
                     $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_ITEM_LOW_SALES);
                     $this->em->persist($obj);
                     continue;
                 }
 
-                $saleAverage = floor(array_sum($saleHistoryAverage) / count($saleHistoryAverage));
+                $saleAverage = floor(array_sum($average) / count($average));
                 
                 // set default
                 $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_TIMES_DEFAULT)

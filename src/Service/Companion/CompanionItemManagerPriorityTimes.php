@@ -4,7 +4,7 @@ namespace App\Service\Companion;
 
 class CompanionItemManagerPriorityTimes
 {
-    const ITEM_HISTORY_THRESHOLD = 5;
+    const ITEM_HISTORY_THRESHOLD = 0;
 
     // Item has less than 5 sales
     const PRIORITY_ITEM_LOW_SALES = 7;
