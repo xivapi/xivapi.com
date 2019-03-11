@@ -4,10 +4,14 @@ namespace App\Service\Companion;
 
 class CompanionItemManagerPriorityTimes
 {
-    const PRIORITY_TIMES_DEFAULT = 9;
+    // Item has less than 5 sales
+    const PRIORITY_ITEM_LOW_SALES = 7;
 
     // Item was added to the database within the past 7 days
     const PRIORITY_ITEM_IS_NEW = 8;
+
+    // default value
+    const PRIORITY_TIMES_DEFAULT = 9;
 
     // Item has not update
     const PRIORITY_ITEM_NEVER_SOLD = 10;

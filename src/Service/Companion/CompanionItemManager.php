@@ -121,17 +121,19 @@ class CompanionItemManager
                 /** @var MarketItem $document */
                 $document = $this->companionMarket->get($serverId, $itemId);
 
-                // skip both being empty
-                if (empty($document->History) && empty($document->Prices)) {
-                    continue;
-                }
-
                 // grab market db entry
                 /** @var CompanionMarketItemEntry $obj */
                 $obj = $this->repository->findOneBy([
                     'item' => $itemId,
                     'server' => $serverId
                 ]);
+
+                // skip both being empty
+                if (empty($document->History) && empty($document->Prices)) {
+                    $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_ITEM_NEVER_SOLD);
+                    $this->em->persist($obj);
+                    continue;
+                }
 
                 // ------------------------------------------------------------
                 // Calculate
@@ -171,7 +173,7 @@ class CompanionItemManager
 
                 // item has had less than 5 sales, too low to make a call against
                 if (count($saleHistoryAverage) < 5) {
-                    $obj->setPriority(130);
+                    $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_ITEM_LOW_SALES);
                     $this->em->persist($obj);
                     continue;
                 }
