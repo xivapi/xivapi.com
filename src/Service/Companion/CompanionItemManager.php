@@ -154,10 +154,8 @@ class CompanionItemManager
                 }
 
                 // record sale histories, we start with the time the item was last updated.
-                $lastDate = 0;
-                $average  = [
-                    $obj->getUpdated()
-                ];
+                $lastDate = $obj->getUpdated();
+                $average  = [];
 
                 foreach ($document->History as $history) {
                     $diff     = $lastDate - $history->PurchaseDate;
