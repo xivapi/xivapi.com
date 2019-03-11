@@ -118,6 +118,11 @@ class CompanionItemManager
                 /** @var MarketItem $document */
                 $document = $this->companionMarket->get($serverId, $itemId);
 
+                // skip both being empty
+                if (empty($document->History) && empty($document->Prices)) {
+                    continue;
+                }
+
                 // grab market db entry
                 /** @var CompanionMarketItemEntry $obj */
                 $obj = $this->repository->findOneBy([
