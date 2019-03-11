@@ -62,9 +62,8 @@ class CompanionStatistics
 
             /** @var CompanionMarketItemEntry $item */
             foreach ($items as $item) {
-                $sec = date('s', $item->getUpdated());
-                $min = date('i', $item->getUpdated());
-                $hrs = date('H', $item->getUpdated());
+                // split up time
+                [$sec, $min, $hrs] = explode(':', date('G:i:s', $item->getUpdated()));
 
                 $reqPerSec[$sec] = isset($reqPerSec[$sec]) ? $reqPerSec[$sec] + 1 : 1;
                 $reqPerMin[$min] = isset($reqPerMin[$min]) ? $reqPerMin[$min] + 1 : 1;
@@ -75,9 +74,9 @@ class CompanionStatistics
                 }
             }
 
-            $stats->req_per_sec = array_sum($reqPerSec) / count(array_filter($reqPerSec));
-            $stats->req_per_min = array_sum($reqPerMin) / count(array_filter($reqPerMin));
-            $stats->req_per_hrs = array_sum($reqPerHrs) / count(array_filter($reqPerHrs));
+            $stats->req_per_sec = ceil(array_sum($reqPerSec) / count(array_filter($reqPerSec)));
+            $stats->req_per_min = ceil(array_sum($reqPerMin) / count(array_filter($reqPerMin)));
+            $stats->req_per_hrs = ceil(array_sum($reqPerHrs) / count(array_filter($reqPerHrs)));
 
             $stats->last_updated_item = date('Y-m-d H:i:s', $stats->last_updated_item);
 
