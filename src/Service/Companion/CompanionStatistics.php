@@ -63,7 +63,7 @@ class CompanionStatistics
             /** @var CompanionMarketItemEntry $item */
             foreach ($items as $item) {
                 // split up time
-                [$sec, $min, $hrs] = explode(':', date('G:i:s', $item->getUpdated()));
+                [$hrs, $min, $sec] = explode(':', date('G:i:s', $item->getUpdated()));
 
                 $sec = (int)$sec;
                 $min = (int)$min;
@@ -77,6 +77,8 @@ class CompanionStatistics
                     $stats->last_updated_item = $item->getUpdated();
                 }
             }
+
+            print_r($reqPerSec);
 
             $stats->req_per_sec = ceil(array_sum($reqPerSec) / count(array_filter($reqPerSec)));
             $stats->req_per_min = ceil(array_sum($reqPerMin) / count(array_filter($reqPerMin)));
