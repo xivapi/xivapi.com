@@ -33,7 +33,7 @@ class CompanionMarketUpdater
     const MAX_PER_ASYNC         = 50;
     const MAX_PER_CHUNK         = 2;
     const MAX_CRONJOB_DURATION  = 55;
-    const MAX_QUERY_SLEEP_SEC   = 2000;
+    const MAX_QUERY_SLEEP_SEC   = 2500;
 
     /** @var EntityManagerInterface */
     private $em;
@@ -141,7 +141,7 @@ class CompanionMarketUpdater
         foreach ($chunkList as $item) {
             // skip items that have been updated recently
             if ($item->getUpdated() > $updateTimeout) {
-                $this->console->writeln(date('H:i:s') ." | {$priority} Skipped: {$item->getItem()}");
+                $this->console->writeln(date('H:i:s') ." | [{$priority}] Skipped: {$item->getItem()}");
                 continue;
             }
 
@@ -205,7 +205,7 @@ class CompanionMarketUpdater
             $history = $results->{"{$itemId}_{$server}_history"} ?? null;
             
             if ($prices === null && $history == null) {
-                $this->recordException('prices', $itemId, $server, 'BOTH PRICES + HISTORY ARE EMPTY');
+                $this->console->writeln(date('H:i:s') ." | [{$priority}] Price + History empty: {$item->getItem()}");
                 return;
             }
             
