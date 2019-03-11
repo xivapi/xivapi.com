@@ -93,9 +93,11 @@ class CompanionStatistics
             break;
         }
 
+
+
         $table = new Table($this->console);
         $table
-            ->setHeaders(array_keys(reset($data)))
+            ->setHeaders(array_keys((array)reset($data)))
             ->setRows($data);
 
         $table->render();
