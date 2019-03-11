@@ -53,7 +53,7 @@ class CompanionStatistics
                 'update_speed'      => null,
             ];
 
-            $items = $this->repository->findBy([ 'priority' => 1 ]);
+            $items = $this->repository->findBy([ 'priority' => $queue ]);
             $stats->total_items = count($items);
 
             $reqPerSec = [];
