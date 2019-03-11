@@ -174,7 +174,7 @@ class CompanionItemManager
                     $saleLastBuyerName = $history->CharacterName;
                     $diff = $saleHistoryLastOne - $history->PurchaseDate;
 
-                    // append on sale time difference, only done if diff is above the threshold
+                    // append on sale time difference
                     if ($diff > CompanionItemManagerPriorityTimes::ITEM_HISTORY_THRESHOLD) {
                         $saleHistoryAverage[] = $diff;
                     }
