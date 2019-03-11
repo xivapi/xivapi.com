@@ -85,10 +85,8 @@ class CompanionStatistics
             $stats->last_updated_item = date('Y-m-d H:i:s', $stats->last_updated_item);
 
             // work out update speed
-            $requests = ceil($stats->total_items / $consumers);
-            $requests = $requests * $stats->req_per_sec;
-
-            $future = Carbon::createFromTimestamp(time() + $requests);
+            $totalRequestDuration = ceil($stats->total_items / $stats->req_per_sec);
+            $future = Carbon::createFromTimestamp(time() + $totalRequestDuration);
             $estimation = Carbon::now()->diff($future)->format('%d days, %h hr, %i min and %s sec');
             $stats->update_speed = $estimation;
 
