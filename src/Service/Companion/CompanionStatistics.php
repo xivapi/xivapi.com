@@ -24,6 +24,8 @@ class CompanionStatistics
 
     public function run()
     {
+        // todo - make an enity that is recorded for every "update", then base stats from that
+        
         $data = [];
 
         $queueInfo = [
