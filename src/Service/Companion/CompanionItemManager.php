@@ -131,14 +131,14 @@ class CompanionItemManager
 
                 // if the item is still "new" (7 days)
                 if ($obj->getAdded() > (time() - (60 * 60 * 24 * 7))) {
-                    $obj->setPriority(100);
+                    $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_ITEM_IS_NEW);
                     $this->em->persist($obj);
                     continue;
                 }
 
                 // if no history, it has never been sold
                 if (empty($document->History)) {
-                    $obj->setPriority(130);
+                    $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_ITEM_NEVER_SOLD);
                     $this->em->persist($obj);
                     continue;
                 }

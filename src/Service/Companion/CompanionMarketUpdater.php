@@ -29,10 +29,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 class CompanionMarketUpdater
 {
-    const MAX_PER_ASYNC         = 40;
+    const MAX_PER_ASYNC         = 50;
     const MAX_PER_CHUNK         = 2;
     const MAX_CRONJOB_DURATION  = 50;
-    const MAX_QUERY_SLEEP_SEC   = 3;
+    const MAX_QUERY_SLEEP_SEC   = 2;
     
     /** @var EntityManagerInterface */
     private $em;
@@ -86,8 +86,8 @@ class CompanionMarketUpdater
 
         $this->start = time();
 
-        // random sleep at start, this is so not all queries against sight start at the same time.
-        usleep( mt_rand(100, 3000) * 1000 );
+        // random sleep at start, this is so not all queries start at the same time.
+        usleep( mt_rand(10, 1500) * 1000 );
     
         // grab our companion tokens
         $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
