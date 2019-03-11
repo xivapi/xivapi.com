@@ -89,15 +89,13 @@ class CompanionStatistics
             $estimation = Carbon::now()->diff($future)->format('%d days, %h hr, %i min and %s sec');
             $stats->update_speed = $estimation;
 
-            $data[$queue] = $stats;
+            $data[$queue] = (array)$stats;
             break;
         }
 
-
-
         $table = new Table($this->console);
         $table
-            ->setHeaders(array_keys((array)reset($data)))
+            ->setHeaders(array_keys(reset($data)))
             ->setRows($data);
 
         $table->render();
