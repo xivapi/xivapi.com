@@ -212,7 +212,11 @@ class CompanionMarketUpdater
                 $this->recordException('history', $itemId, $server, $history->reason);
             }
     
-            if ($prices === null && $history == null) {
+            // if responses null or both have errors
+            if (
+                ($prices === null && $history == null) ||
+                (isset($prices->error) && isset($history->error))
+            ) {
                 $this->console->writeln(date('H:i:s') ." | [{$priority}] Price + History empty: {$item->getItem()}");
                 return;
             }
