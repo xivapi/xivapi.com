@@ -108,8 +108,11 @@ class CompanionItemManager
 
         $section = $this->output->section();
 
+        $this->output->writeln("Getting market item ids ...");
+        $items = $this->getMarketItemIds();
+
         // loop through all marketable items.
-        foreach ($this->getMarketItemIds() as $itemId) {
+        foreach ($items as $itemId) {
             $section->overwrite("Calculating priority for item: {$itemId}");
 
             // loop through each server
