@@ -4,8 +4,8 @@ namespace App\Service\Companion;
 
 class CompanionItemManagerPriorityTimes
 {
-    // Avoid updating an item if it was updated 10 minutes ago
-    const ITEM_UPDATE_DELAY = (60 * 10);
+    // Avoid updating an item if it was updated 5 minutes ago
+    const ITEM_UPDATE_DELAY = (60 * 5);
 
     // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;

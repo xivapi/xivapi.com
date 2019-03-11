@@ -78,8 +78,6 @@ class CompanionStatistics
                 }
             }
 
-            print_r($reqPerHrs);
-
             $stats->req_per_sec = ceil(array_sum($reqPerSec) / count(array_filter($reqPerSec)));
             $stats->req_per_min = ceil(array_sum($reqPerMin) / count(array_filter($reqPerMin)));
             $stats->req_per_hrs = ceil(array_sum($reqPerHrs) / count(array_filter($reqPerHrs)));
@@ -95,7 +93,6 @@ class CompanionStatistics
             $stats->update_speed = $estimation;
 
             $data[$queue] = (array)$stats;
-            break;
         }
 
         $table = new Table($this->console);
