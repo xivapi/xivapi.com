@@ -10,12 +10,15 @@ use App\Entity\CompanionSignature;
 use App\Entity\CompanionToken;
 use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionMarketItemEntryRepository;
+use App\Repository\CompanionMarketItemExceptionRepository;
 use App\Repository\CompanionRetainerRepository;
 use App\Repository\CompanionSignatureRepository;
+use App\Service\Common\Mog;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
+use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,6 +46,8 @@ class CompanionMarketUpdater
     private $repositoryCompanionRetainer;
     /** @var CompanionSignatureRepository */
     private $repositoryCompanionSignature;
+    /** @var CompanionMarketItemExceptionRepository */
+    private $repositoryExceptions;
     /** @var Companion */
     private $companion;
     /** @var CompanionMarket */
@@ -68,11 +73,17 @@ class CompanionMarketUpdater
         $this->repositoryCompanionCharacter = $this->em->getRepository(CompanionCharacter::class);
         $this->repositoryCompanionRetainer = $this->em->getRepository(CompanionRetainer::class);
         $this->repositoryCompanionSignature = $this->em->getRepository(CompanionSignature::class);
+        $this->repositoryExceptions = $this->em->getRepository(CompanionMarketItemException::class);
         $this->console = new ConsoleOutput();
     }
     
     public function update(int $priority, int $queue)
     {
+        if ($this->hasExceptionsExceededLimit()) {
+            $this->console->writeln(date('H:i:s') .' | !! Error exceptions exceeded limit. Auto-Update stopped');
+            exit();
+        }
+
         $this->start = time();
 
         // random sleep at start, this is so not all queries against sight start at the same time.
@@ -340,5 +351,24 @@ class CompanionMarketUpdater
         }
     
         return $obj->getId();
+    }
+
+    /**
+     * Returns true if there have been over 2 exceptions.
+     */
+    private function hasExceptionsExceededLimit()
+    {
+        $exceptions = $this->repositoryExceptions->findAll();
+
+        if (empty($exceptions) || count($exceptions) < 2) {
+            return false;
+        }
+
+        if (Redis::Cache()->get('companion_market_updator_mog_warning') == null) {
+            Mog::send('<@42667995159330816> 2 or more exceptions found in Item Updater, all pricing updated stopped.');
+            Redis::Cache()->set('companion_market_updator_mog_warning', 'true', 14400);
+        }
+
+        return true;
     }
 }
