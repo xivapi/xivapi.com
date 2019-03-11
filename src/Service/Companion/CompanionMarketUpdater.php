@@ -23,6 +23,7 @@ use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
@@ -128,6 +129,9 @@ class CompanionMarketUpdater
      */
     private function updateChunk($chunkNumber, $chunkList, $priority)
     {
+        // set request id
+        $requestId = Uuid::uuid4()->toString();
+        
         // initialize Companion API, no token provided as we set it later on
         // also enable async
         $api = new CompanionApi();
@@ -155,8 +159,8 @@ class CompanionMarketUpdater
             $api->Token()->set($token->getToken());
             
             // add requests
-            $requests["{$itemId}_{$server}_prices"]  = $api->Market()->getItemMarketListings($itemId);
-            $requests["{$itemId}_{$server}_history"] = $api->Market()->getTransactionHistory($itemId);
+            $requests["{$requestId}_{$itemId}_{$server}_prices"]  = $api->Market()->getItemMarketListings($itemId);
+            $requests["{$requestId}_{$itemId}_{$server}_history"] = $api->Market()->getTransactionHistory($itemId);
         }
         
         // if failed to pull any requests, skip!
@@ -184,13 +188,13 @@ class CompanionMarketUpdater
 
         // handle the results of the response
         $results = $api->Sight()->handle($results);
-        $this->storeMarketData($chunkList, $results, $priority);
+        $this->storeMarketData($chunkList, $results, $requestId, $priority);
     }
     
     /**
      * Update a chunk of items to the document storage
      */
-    private function storeMarketData($chunkList, $results, $priority)
+    private function storeMarketData($chunkList, $results, $requestId, $priority)
     {
         // process the chunk list from our results
         /** @var CompanionMarketItemEntry $item */
@@ -201,8 +205,8 @@ class CompanionMarketUpdater
             // grab our prices and history
             /** @var \stdClass $prices */
             /** @var \stdClass $history */
-            $prices  = $results->{"{$itemId}_{$server}_prices"} ?? null;
-            $history = $results->{"{$itemId}_{$server}_history"} ?? null;
+            $prices  = $results->{"{$requestId}_{$itemId}_{$server}_prices"} ?? null;
+            $history = $results->{"{$requestId}_{$itemId}_{$server}_history"} ?? null;
             
             if (isset($prices->error)) {
                 $this->recordException('prices', $itemId, $server, $prices->reason);
