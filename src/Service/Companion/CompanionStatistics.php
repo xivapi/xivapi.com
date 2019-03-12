@@ -100,9 +100,9 @@ class CompanionStatistics
             $minutes = (int)floor($itemUpdate->getAdded() / 60);
             $hours   = (int)floor($itemUpdate->getAdded() / 3600);
 
-            $arr->sec_arr[$seconds][] = $seconds;
-            $arr->min_arr[$minutes][] = $minutes;
-            $arr->hrs_arr[$hours][]   = $hours;
+            $arr->sec_arr[$seconds] = isset($arr->sec_arr[$seconds]) ? $arr->sec_arr[$seconds] + 1 : 1;
+            $arr->min_arr[$minutes] = isset($arr->sec_arr[$minutes]) ? $arr->sec_arr[$minutes] + 1 : 1;
+            $arr->hrs_arr[$hours]   = isset($arr->sec_arr[$hours])   ? $arr->sec_arr[$hours] + 1 : 1;
         }
 
         $arr->sec = ceil(array_sum($arr->sec_arr) / count(array_filter($arr->sec_arr)));
