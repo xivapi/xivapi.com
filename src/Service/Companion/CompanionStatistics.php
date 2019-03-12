@@ -15,17 +15,16 @@ class CompanionStatistics
 {
     const QUEUE_INFO = [
         // name, consumers
-        1 => ['< 1 hour',   1],
-        2 => ['< 3 hours',  2],
-        3 => ['< 12 hours', 2],
-        4 => ['< 24 hours', 2],
-        5 => ['< 40 hours', 1],
-        6 => ['< 72 hours', 1],
+        1 => '< 1 hour',
+        2 => '< 3 hours',
+        3 => '< 12 hours',
+        4 => '< 24 hours',
+        5 => '< 40 hours',
+        6 => '< 72 hours',
     ];
 
     const STATS_ARRAY = [
-        'queue'          => null,
-        'name'           => null,
+        'queue_name'           => null,
         'consumers'      => 0,
         'total_items'    => 0,
         'total_requests' => 0,
@@ -61,7 +60,7 @@ class CompanionStatistics
 
         $data = [];
 
-        $data[] = $this->processGlobalStatistics($updates);
+        $data[] = $this->generateStatistics($updates, 'Global', null);
 
         foreach([1,2,3,4,5,6] as $priority) {
             $data[] = $this->processPriorityStatistics($updates, $priority);
@@ -75,26 +74,25 @@ class CompanionStatistics
     }
 
     /**
-     * Build stats on all update entries regardless of priority
+     * Generate statistics for a given update
      */
-    private function processGlobalStatistics($updates)
+    private function generateStatistics($updates, $name, $priority)
     {
-        $this->console->writeln("Global Statistics");
+        $this->console->writeln("Building stats: {$name}");
 
         // stats
         $arr = (object)self::STATS_ARRAY;
 
         [$sec, $min, $hr]     = $this->getRequestSpeeds($updates);
 
-        $arr->name            = 'All';
-        $arr->consumers       = null;
+        $arr->queue_name      = $name;
         $arr->items_per_sec   = $sec;
         $arr->items_per_min   = $min;
         $arr->items_per_hr    = $hr;
         $arr->req_per_sec     = $sec * 4;
         $arr->req_per_min     = $min * 4;
         $arr->req_per_hr      = $hr  * 4;
-        $arr->total_items     = $this->repositoryEntries->findTotalOfItems();
+        $arr->total_items     = $this->repositoryEntries->findTotalOfItems($priority);
         $arr->total_requests  = $arr->total_items * 4;
         $arr->total_updated   = count($updates);
         $arr->last_updated    = $this->getLastUpdateTime($updates);
@@ -117,29 +115,7 @@ class CompanionStatistics
             }
         }
 
-        $this->console->writeln("Priority {$priority} Statistics");
-
-        // stats
-        $arr = (object)self::STATS_ARRAY;
-
-        [$name, $consumers]   = self::QUEUE_INFO[$priority];
-        [$sec, $min, $hr]     = $this->getRequestSpeeds($updates);
-
-        $arr->name            = $name;
-        $arr->consumers       = $consumers;
-        $arr->items_per_sec   = $sec;
-        $arr->items_per_min   = $min;
-        $arr->items_per_hr    = $hr;
-        $arr->req_per_sec     = $sec * 4;
-        $arr->req_per_min     = $min * 4;
-        $arr->req_per_hr      = $hr  * 4;
-        $arr->total_items     = $this->repositoryEntries->findTotalOfItems($priority);
-        $arr->total_requests  = $arr->total_items * 4;
-        $arr->total_updated   = count($updates);
-        $arr->last_updated    = $this->getLastUpdateTime($updates);
-        $arr->cycle_speed     = $this->getCycleSpeed($arr->req_per_sec, $arr->total_requests);
-
-        return (array)$arr;
+        return $this->generateStatistics($filteredUpdates, self::QUEUE_INFO[$priority], $priority);
     }
 
     /**
