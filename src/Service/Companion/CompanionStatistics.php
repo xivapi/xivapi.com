@@ -105,12 +105,12 @@ class CompanionStatistics
         /** @var CompanionMarketItemUpdate $itemUpdate */
         foreach ($updates as $itemUpdate) {
             $seconds = $itemUpdate->getAdded();
-            $minutes = (int)floor($itemUpdate->getAdded() / 60);
-            $hours   = (int)floor($itemUpdate->getAdded() / 3600);
+            $minutes = date('z_H_i', $itemUpdate->getAdded());
+            $hours   = date('z_H', $itemUpdate->getAdded());
 
             $arr->sec_arr[$seconds] = isset($arr->sec_arr[$seconds]) ? $arr->sec_arr[$seconds] + 1 : 1;
-            $arr->min_arr[$minutes] = isset($arr->sec_arr[$minutes]) ? $arr->sec_arr[$minutes] + 1 : 1;
-            $arr->hrs_arr[$hours]   = isset($arr->sec_arr[$hours])   ? $arr->sec_arr[$hours] + 1 : 1;
+            $arr->min_arr[$minutes] = isset($arr->min_arr[$minutes]) ? $arr->min_arr[$minutes] + 1 : 1;
+            $arr->hrs_arr[$hours]   = isset($arr->hrs_arr[$hours])   ? $arr->hrs_arr[$hours] + 1 : 1;
         }
 
         $arr->sec = ceil(array_sum($arr->sec_arr) / count(array_filter($arr->sec_arr)));
