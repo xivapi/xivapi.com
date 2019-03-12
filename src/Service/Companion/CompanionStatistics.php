@@ -40,6 +40,8 @@ class CompanionStatistics
         'cycle_speed'    => null,
     ];
 
+    /** @var EntityManagerInterface */
+    private $em;
     /** @var CompanionMarketItemUpdateRepository */
     private $repository;
     /** @var CompanionMarketItemEntryRepository */
@@ -51,8 +53,9 @@ class CompanionStatistics
 
     public function __construct(EntityManagerInterface $em)
     {
-        $this->repository        = $em->getRepository(CompanionMarketItemUpdate::class);
-        $this->repositoryEntries = $em->getRepository(CompanionMarketItemEntry::class);
+        $this->em                   = $em;
+        $this->repository           = $em->getRepository(CompanionMarketItemUpdate::class);
+        $this->repositoryEntries    = $em->getRepository(CompanionMarketItemEntry::class);
         $this->repositoryExceptions = $em->getRepository(CompanionMarketItemException::class);
 
         $this->console = new ConsoleOutput();
@@ -91,6 +94,14 @@ class CompanionStatistics
     public function getExceptions()
     {
         return $this->repositoryExceptions->findAll();
+    }
+    
+    public function getStatisticsView()
+    {
+        $sql = $this->em->getConnection()->prepare('SELECT *FROM `companion stats` LIMIT 1');
+        $sql->execute();
+        
+        return $sql->fetchAll()[0];
     }
 
     /**

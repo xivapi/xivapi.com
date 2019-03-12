@@ -5,8 +5,42 @@
 {% block body %}
 
     <div class="stats-page">
+        <h1>Status</h1>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Characters</th>
+                <th>Time</th>
+                <th>Last Update</th>
+                <th>Total Updates</th>
+                <th>Tracked Updates</th>
+                <th>Total Items</th>
+                <th>Items Updated</th>
+                <th>Items Not Updated</th>
+                <th>Total Errors</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ companion_view.characters_online }}</td>
+                    <td>{{ companion_view.time }}</td>
+                    <td>{{ companion_view.time_last_update }}</td>
+                    <td>{{ companion_view.total_updates }}</td>
+                    <td>{{ companion_view.total_updates_recorded }}</td>
+                    <td>{{ companion_view.total_entries }}</td>
+                    <td>{{ companion_view.total_items_updated }}</td>
+                    <td>{{ companion_view.total_items_not_updated }}</td>
+                    <td>{{ companion_view.total_errors }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+
         <h1>Stats</h1>
-        <table class="mini-table">
+        <p>Updated every hour</p>
+        <table>
             <thead>
             <tr>
                 <th>Queue</th>

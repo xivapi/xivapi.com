@@ -32,7 +32,8 @@ class HomeController extends Controller
     {
         return $this->render('companion_statistics.html.twig', [
             'companion_statistics' => $this->companionStatistics->getRecordedStatistics(),
-            'companion_exceptions' => $this->companionStatistics->getExceptions()
+            'companion_exceptions' => $this->companionStatistics->getExceptions(),
+            'companion_view'       => $this->companionStatistics->getStatisticsView(),
         ]);
     }
 
