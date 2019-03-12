@@ -61,7 +61,10 @@ class CompanionStatistics
         // stats
         $arr = (object)self::STATS_ARRAY;
 
-        [$arr->req_per_sec, $arr->req_per_min, $arr->req_per_hr] = $this->getRequestSpeeds($updates);
+        [$sec, $min, $hr] = $this->getRequestSpeeds($updates);
+        $arr->req_per_sec = $sec;
+        $arr->req_per_min = $min;
+        $arr->req_per_hr  = $hr;
 
         $arr->total_items  = count($updates);
 
