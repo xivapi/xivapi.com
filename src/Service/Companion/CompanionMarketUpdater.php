@@ -388,9 +388,21 @@ class CompanionMarketUpdater
             return false;
         }
 
+        /** @var CompanionMarketItemException $ex */
+        $errors = [];
+        foreach ($exceptions as $ex) {
+            $date     = date('Y-m-d H:i:s', $ex->getAdded());
+            $errors[] = "# [{$date}] {$ex->getException()} \n {$ex->getMessage()}";
+        }
+
+        $errors = implode("\n\n", $errors);
+
+        $message = '<@42667995159330816> Item-Update shutdown due to error exceptions exceeding limit.';
+        $message .= "\n```markdown\n{$errors}\n````";
+
         if (Redis::Cache()->get('companion_market_updator_mog_warning') == null) {
-            Mog::send('<@42667995159330816> 2 or more exceptions found in Item Updater, all pricing updated stopped.');
             Redis::Cache()->set('companion_market_updator_mog_warning', 'true', 14400);
+            Mog::send($message);
         }
 
         return true;
