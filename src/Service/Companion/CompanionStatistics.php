@@ -60,10 +60,15 @@ class CompanionStatistics
 
         // stats
         $arr = (object)self::STATS_ARRAY;
+
         [$arr->req_per_sec, $arr->req_per_min, $arr->req_per_hr] = $this->getRequestSpeeds($updates);
+
         $arr->total_items  = count($updates);
+
         $arr->last_updated = $this->getLastUpdateTime($updates);
+
         $arr->cycle_speed  = $this->getCycleSpeed($arr->req_per_sec, $arr->total_items);
+
         $arr = (array)$arr;
 
         // table
@@ -125,6 +130,10 @@ class CompanionStatistics
      */
     private function getCycleSpeed($reqPerSec, $totalRequests)
     {
+        if ($reqPerSec == 0|| $totalRequests == 0) {
+            $this->console->writeln("reqPerSec = {$reqPerSec} or totalRequests = {$totalRequests} were zero");
+            return;
+        }
 
         // total requests to perform, divided by the number of req per second
         $future   = Carbon::createFromTimestamp(time() + ceil($totalRequests / $reqPerSec));
