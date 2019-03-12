@@ -97,6 +97,16 @@ class CompanionStatistics
         $arr->last_updated    = $this->getLastUpdateTime($updates);
         $arr->cycle_speed     = $this->getCycleSpeed($arr->req_per_sec, $arr->total_requests);
 
+        $arr->items_per_sec   = number_format($arr->items_per_sec);
+        $arr->items_per_min   = number_format($arr->items_per_min);
+        $arr->items_per_hr    = number_format($arr->items_per_hr);
+        $arr->req_per_sec     = number_format($arr->req_per_sec);
+        $arr->req_per_min     = number_format($arr->req_per_min);
+        $arr->req_per_hr      = number_format($arr->req_per_hr);
+        $arr->total_items     = number_format($arr->total_items);
+        $arr->total_requests  = number_format($arr->total_requests);
+        $arr->total_updated   = number_format($arr->total_updated);
+
         return (array)$arr;
     }
 
