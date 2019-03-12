@@ -24,16 +24,20 @@ class CompanionStatistics
     ];
 
     const STATS_ARRAY = [
-        'queue'         => null,
-        'name'          => null,
-        'consumers'     => 0,
-        'total_items'   => 0,
-        'total_updated' => 0,
-        'last_updated'  => 0,
-        'req_per_sec'   => 0,
-        'req_per_min'   => 0,
-        'req_per_hr'    => 0,
-        'cycle_speed'   => null,
+        'queue'          => null,
+        'name'           => null,
+        'consumers'      => 0,
+        'total_items'    => 0,
+        'total_requests' => 0,
+        'total_updated'  => 0,
+        'last_updated'   => 0,
+        'items_per_sec'  => 0,
+        'items_per_min'  => 0,
+        'items_per_hr'   => 0,
+        'req_per_sec'    => 0,
+        'req_per_min'    => 0,
+        'req_per_hr'     => 0,
+        'cycle_speed'    => null,
     ];
 
     /** @var CompanionMarketItemUpdateRepository */
@@ -55,7 +59,19 @@ class CompanionStatistics
     {
         $updates = $this->repository->findStatisticsForPastDay();
 
-        $this->processGlobalStatistics($updates);
+        $data = [];
+
+        $data[] = $this->processGlobalStatistics($updates);
+
+        foreach([1,2,3,4,5,6] as $priority) {
+            $data[] = $this->processPriorityStatistics($updates, $priority);
+        }
+
+
+        // table
+        $table = new Table($this->console);
+        $table->setHeaders(array_keys(self::STATS_ARRAY))->setRows($data);
+        $table->render();
     }
 
     /**
@@ -68,24 +84,62 @@ class CompanionStatistics
         // stats
         $arr = (object)self::STATS_ARRAY;
 
-        [$sec, $min, $hr] = $this->getRequestSpeeds($updates);
-        $arr->req_per_sec = $sec;
-        $arr->req_per_min = $min;
-        $arr->req_per_hr  = $hr;
+        [$sec, $min, $hr]     = $this->getRequestSpeeds($updates);
 
-        $arr->total_items = $this->repositoryEntries->findTotalOfItems();
-        $arr->total_updated  = count($updates);
+        $arr->name            = 'All';
+        $arr->consumers       = null;
+        $arr->items_per_sec   = $sec;
+        $arr->items_per_min   = $min;
+        $arr->items_per_hr    = $hr;
+        $arr->req_per_sec     = $sec * 4;
+        $arr->req_per_min     = $min * 4;
+        $arr->req_per_hr      = $hr  * 4;
+        $arr->total_items     = $this->repositoryEntries->findTotalOfItems();
+        $arr->total_requests  = $arr->total_items * 4;
+        $arr->total_updated   = count($updates);
+        $arr->last_updated    = $this->getLastUpdateTime($updates);
+        $arr->cycle_speed     = $this->getCycleSpeed($arr->req_per_sec, $arr->total_requests);
 
-        $arr->last_updated = $this->getLastUpdateTime($updates);
+        return (array)$arr;
+    }
 
-        $arr->cycle_speed  = $this->getCycleSpeed($arr->req_per_sec, $arr->total_items);
+    /**
+     * Build stats on all priority based item entries.
+     */
+    private function processPriorityStatistics($updates, $priority)
+    {
+        $filteredUpdates = [];
 
-        $arr = (array)$arr;
+        /** @var CompanionMarketItemUpdate $itemUpdate */
+        foreach ($updates as $itemUpdate) {
+            if ($itemUpdate->getPriority() === $priority) {
+                $filteredUpdates[] = $itemUpdate;
+            }
+        }
 
-        // table
-        $table = new Table($this->console);
-        $table->setHeaders(array_keys($arr))->setRows([ $arr ]);
-        $table->render();
+        $this->console->writeln("Priority {$priority} Statistics");
+
+        // stats
+        $arr = (object)self::STATS_ARRAY;
+
+        [$name, $consumers]   = self::QUEUE_INFO[$priority];
+        [$sec, $min, $hr]     = $this->getRequestSpeeds($updates);
+
+        $arr->name            = $name;
+        $arr->consumers       = $consumers;
+        $arr->items_per_sec   = $sec;
+        $arr->items_per_min   = $min;
+        $arr->items_per_hr    = $hr;
+        $arr->req_per_sec     = $sec * 4;
+        $arr->req_per_min     = $min * 4;
+        $arr->req_per_hr      = $hr  * 4;
+        $arr->total_items     = $this->repositoryEntries->findTotalOfItems($priority);
+        $arr->total_requests  = $arr->total_items * 4;
+        $arr->total_updated   = count($updates);
+        $arr->last_updated    = $this->getLastUpdateTime($updates);
+        $arr->cycle_speed     = $this->getCycleSpeed($arr->req_per_sec, $arr->total_requests);
+
+        return (array)$arr;
     }
 
     /**
@@ -141,7 +195,7 @@ class CompanionStatistics
      */
     private function getCycleSpeed($reqPerSec, $totalRequests)
     {
-        if ($reqPerSec == 0|| $totalRequests == 0) {
+        if ($reqPerSec == 0 || $totalRequests == 0) {
             $this->console->writeln("reqPerSec = {$reqPerSec} or totalRequests = {$totalRequests} were zero");
             return null;
         }
