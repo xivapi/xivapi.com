@@ -22,7 +22,7 @@ class CompanionMarketItemUpdateRepository extends ServiceEntityRepository
 
         $sql = $this->createQueryBuilder('a');
         $sql->where("a.added > :a")->setParameter('a', $oneday)
-            ->orderBy('a.updated', 'desc');
+            ->orderBy('a.added', 'desc');
 
         return $sql->getQuery()->getResult();
     }
