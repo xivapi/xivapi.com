@@ -24,8 +24,7 @@ class CompanionStatistics
     ];
 
     const STATS_ARRAY = [
-        'queue_name'           => null,
-        'consumers'      => 0,
+        'queue_name'     => null,
         'total_items'    => 0,
         'total_requests' => 0,
         'total_updated'  => 0,
