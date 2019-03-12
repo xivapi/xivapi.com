@@ -58,13 +58,17 @@ class CompanionStatistics
         $updates = $this->repository->findStatisticsForPastDay();
 
         $data = [];
-
         $data[] = $this->generateStatistics($updates, 'Global', null);
 
         foreach([1,2,3,4,5,6] as $priority) {
             $data[] = $this->processPriorityStatistics($updates, $priority);
         }
 
+        // store
+        file_put_contents(
+            __DIR__.'/CompanionStatistics.json',
+            json_encode($data, JSON_PRETTY_PRINT)
+        );
 
         // table
         $table = new Table($this->console);
