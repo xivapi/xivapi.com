@@ -192,8 +192,6 @@ table {
     }
 
     &.mini-table {
-        margin: 10px 0;
-
         td {
             padding: 8px;
             font-size: 14px;
@@ -761,4 +759,9 @@ main .paymysub-section {
             }
         }
     }
+}
+
+main .stats-page {
+    width: 100%;
+    padding: 100px;
 }
