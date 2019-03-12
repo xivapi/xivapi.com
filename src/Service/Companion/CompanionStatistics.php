@@ -2,7 +2,9 @@
 
 namespace App\Service\Companion;
 
+use App\Entity\CompanionMarketItemEntry;
 use App\Entity\CompanionMarketItemUpdate;
+use App\Repository\CompanionMarketItemEntryRepository;
 use App\Repository\CompanionMarketItemUpdateRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,6 +28,7 @@ class CompanionStatistics
         'name'          => null,
         'consumers'     => 0,
         'total_items'   => 0,
+        'total_updated' => 0,
         'last_updated'  => 0,
         'req_per_sec'   => 0,
         'req_per_min'   => 0,
@@ -35,12 +38,16 @@ class CompanionStatistics
 
     /** @var CompanionMarketItemUpdateRepository */
     private $repository;
+    /** @var CompanionMarketItemEntryRepository */
+    private $repositoryEntries;
     /** @var ConsoleOutput */
     private $console;
 
     public function __construct(EntityManagerInterface $em)
     {
-        $this->repository = $em->getRepository(CompanionMarketItemUpdate::class);
+        $this->repository        = $em->getRepository(CompanionMarketItemUpdate::class);
+        $this->repositoryEntries = $em->getRepository(CompanionMarketItemEntry::class);
+
         $this->console = new ConsoleOutput();
     }
 
@@ -66,7 +73,8 @@ class CompanionStatistics
         $arr->req_per_min = $min;
         $arr->req_per_hr  = $hr;
 
-        $arr->total_items  = count($updates);
+        $arr->total_items = $this->repositoryEntries->findTotalOfItems();
+        $arr->total_updated  = count($updates);
 
         $arr->last_updated = $this->getLastUpdateTime($updates);
 
@@ -135,7 +143,7 @@ class CompanionStatistics
     {
         if ($reqPerSec == 0|| $totalRequests == 0) {
             $this->console->writeln("reqPerSec = {$reqPerSec} or totalRequests = {$totalRequests} were zero");
-            return;
+            return null;
         }
 
         // total requests to perform, divided by the number of req per second

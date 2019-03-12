@@ -28,4 +28,19 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     
         return $sql->getQuery()->getResult();
     }
+
+    /**
+     * Returns a total item count for a given priority.
+     */
+    public function findTotalOfItems(int $priority = null)
+    {
+        $sql = $this->createQueryBuilder('a');
+        $sql->select('count(a.id)');
+
+        if ($priority) {
+            $sql->where("a.priority = :a")->setParameter('a', $priority);
+        }
+
+        return $sql->getQuery()->getSingleScalarResult();
+    }
 }
