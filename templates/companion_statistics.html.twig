@@ -1,0 +1,57 @@
+{% extends "base.html.twig"  %}
+
+{% block title %}Companion Statistics{% endblock %}
+
+{% block body %}
+
+    <h1>Stats</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Queue</th>
+                <th>Total Items</th>
+                <th>Total Requests</th>
+                <th>Total Updates</th>
+                <th>Last Update</th>
+                <th>Items Per Sec</th>
+                <th>Items Per Min</th>
+                <th>Items per Hr</th>
+                <th>Requests Per Sec</th>
+                <th>Requests Per Min</th>
+                <th>Requests per Hr</th>
+                <th>Cycle Speed</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entries in companion_statistics %}
+            <tr>
+                <td>{{ entries.queue_name }}</td>
+                <td>{{ entries.total_items }}</td>
+                <td>{{ entries.total_requests }}</td>
+                <td>{{ entries.total_updated }}</td>
+                <td>{{ entries.last_updated }}</td>
+                <td>{{ entries.items_per_sec }}</td>
+                <td>{{ entries.items_per_min }}</td>
+                <td>{{ entries.items_per_hr }}</td>
+                <td>{{ entries.req_per_sec }}</td>
+                <td>{{ entries.req_per_min }}</td>
+                <td>{{ entries.req_per_hr }}</td>
+                <td>{{ entries.cycle_speed }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+
+    <h1>Exceptions</h1>
+
+    {% for exception in companion_exceptions %}
+        <div>
+            <strong>{{ exception.exception }}</strong> = {{ exceiption.message }}
+        </div>
+    {% else %}
+        <p>No exceptions thrown</p>
+    {% endfor %}
+
+{% endblock %}

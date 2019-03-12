@@ -3,8 +3,10 @@
 namespace App\Service\Companion;
 
 use App\Entity\CompanionMarketItemEntry;
+use App\Entity\CompanionMarketItemException;
 use App\Entity\CompanionMarketItemUpdate;
 use App\Repository\CompanionMarketItemEntryRepository;
+use App\Repository\CompanionMarketItemExceptionRepository;
 use App\Repository\CompanionMarketItemUpdateRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,6 +44,8 @@ class CompanionStatistics
     private $repository;
     /** @var CompanionMarketItemEntryRepository */
     private $repositoryEntries;
+    /** @var CompanionMarketItemExceptionRepository */
+    private $repositoryExceptions;
     /** @var ConsoleOutput */
     private $console;
 
@@ -49,6 +53,7 @@ class CompanionStatistics
     {
         $this->repository        = $em->getRepository(CompanionMarketItemUpdate::class);
         $this->repositoryEntries = $em->getRepository(CompanionMarketItemEntry::class);
+        $this->repositoryExceptions = $em->getRepository(CompanionMarketItemException::class);
 
         $this->console = new ConsoleOutput();
     }
@@ -66,7 +71,7 @@ class CompanionStatistics
 
         // store
         file_put_contents(
-            __DIR__.'/CompanionStatistics.json',
+            __DIR__ .'/CompanionStatistics.json',
             json_encode($data, JSON_PRETTY_PRINT)
         );
 
@@ -74,6 +79,18 @@ class CompanionStatistics
         $table = new Table($this->console);
         $table->setHeaders(array_keys(self::STATS_ARRAY))->setRows($data);
         $table->render();
+    }
+
+    public function getRecordedStatistics()
+    {
+        return json_decode(
+            file_get_contents(__DIR__ .'/CompanionStatistics.json')
+        );
+    }
+
+    public function getExceptions()
+    {
+        return $this->repositoryExceptions->findAll();
     }
 
     /**
