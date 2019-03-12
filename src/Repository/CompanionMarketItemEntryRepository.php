@@ -3,8 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\CompanionMarketItemEntry;
-use App\Service\Companion\CompanionTokenManager;
-use App\Service\Content\GameServers;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bridge\Doctrine\RegistryInterface;

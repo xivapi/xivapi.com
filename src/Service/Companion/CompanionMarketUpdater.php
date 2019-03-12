@@ -5,6 +5,7 @@ namespace App\Service\Companion;
 use App\Entity\CompanionCharacter;
 use App\Entity\CompanionMarketItemEntry;
 use App\Entity\CompanionMarketItemException;
+use App\Entity\CompanionMarketItemUpdate;
 use App\Entity\CompanionRetainer;
 use App\Entity\CompanionSignature;
 use App\Entity\CompanionToken;
@@ -285,6 +286,9 @@ class CompanionMarketUpdater
             
             // put
             $this->companionMarket->set($marketItem);
+
+            // record
+            $this->recordUpdate($priority, $itemId, $server);
         
             // update entry
             $item->setUpdated(time())->incUpdates();
@@ -303,6 +307,16 @@ class CompanionMarketUpdater
         $marketItem = $this->companionMarket->get($entry->getServer(), $entry->getItem());
         $marketItem = $marketItem ?: new MarketItem($entry->getServer(), $entry->getItem());
         return $marketItem;
+    }
+
+    /**
+     * Record an item update
+     */
+    private function recordUpdate($priority, $item, $server)
+    {
+        $this->em->persist(
+            new CompanionMarketItemUpdate($item, $server, $priority)
+        );
     }
     
     /**
