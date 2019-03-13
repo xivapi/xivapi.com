@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Service\Common\SiteVersion;
 use App\Service\Companion\CompanionStatistics;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
-class HomeController extends Controller
+class HomeController extends AbstractController
 {
     /** @var CompanionStatistics */
     private $companionStatistics;
@@ -34,6 +34,7 @@ class HomeController extends Controller
             'companion_statistics' => $this->companionStatistics->getRecordedStatistics(),
             'companion_exceptions' => $this->companionStatistics->getExceptions(),
             'companion_view'       => $this->companionStatistics->getStatisticsView(),
+            'companion_queues'     => $this->companionStatistics->getCompanionQueuesView(),
         ]);
     }
 

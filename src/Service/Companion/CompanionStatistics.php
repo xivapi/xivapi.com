@@ -104,6 +104,14 @@ class CompanionStatistics
         return $sql->fetchAll()[0];
     }
 
+    public function getCompanionQueuesView()
+    {
+        $sql = $this->em->getConnection()->prepare('SELECT *FROM `companion queues`');
+        $sql->execute();
+
+        return $sql->fetchAll();
+    }
+
     /**
      * Generate statistics for a given update
      */

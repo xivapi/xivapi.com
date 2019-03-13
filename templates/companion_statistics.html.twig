@@ -40,6 +40,8 @@
 
         <h1>Stats</h1>
         <p>Updated every hour</p>
+        <br>
+
         <table>
             <thead>
             <tr>
@@ -79,11 +81,34 @@
 
         <br>
 
+        <h1>Queues</h1>
+        <p>Total number of items per queue</p>
+        <br>
+
+        <table>
+            <thead>
+                <tr>
+                    {% for queue in companion_queues %}
+                    <th>{{ queue.priority }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for queue in companion_queues %}
+                    <th>{{ queue.total|number_format }}</th>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+
         <h1>Exceptions</h1>
 
         {% for exception in companion_exceptions %}
             <div>
-                <strong>{{ exception.exception }}</strong> = {{ exceiption.message }}
+                <strong>[{{ exception.added|date('Y-m-d H:i:s') }}] {{ exception.exception }}</strong> = {{ exception.message }}
             </div>
         {% else %}
             <p>No exceptions thrown</p>
