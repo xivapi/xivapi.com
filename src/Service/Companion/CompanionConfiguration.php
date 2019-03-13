@@ -2,8 +2,23 @@
 
 namespace App\Service\Companion;
 
-class CompanionItemManagerPriorityTimes
+class CompanionConfiguration
 {
+    // If we hit this number of errors, the system will stop.
+    const ERROR_COUNT_THRESHOLD = 5;
+
+    // the total number of items to process per cronjob
+    const MAX_ITEMS_PER_CRONJOB    = 40;
+
+    // the total number of items to process per request
+    const MAX_ITEMS_PER_REQUEST    = 2;
+
+    // the total time a cronjob should stay active
+    const CRONJOB_TIMEOUT_SECONDS  = 55;
+
+    // the delay between sending requests and asking for request response data
+    const CRONJOB_ASYNC_DELAY_MS   = 2750;
+
     // Avoid updating an item if it was updated 5 minutes ago
     const ITEM_UPDATE_DELAY = (60 * 5);
 

@@ -32,11 +32,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 class CompanionMarketUpdater
 {
-    const MAX_PER_ASYNC         = 50;
-    const MAX_PER_CHUNK         = 2;
-    const MAX_CRONJOB_DURATION  = 55;
-    const MAX_QUERY_SLEEP_SEC   = 2500;
-
     /** @var EntityManagerInterface */
     private $em;
     /** @var ConsoleOutput */
@@ -103,17 +98,17 @@ class CompanionMarketUpdater
         /** @var CompanionMarketItemEntry[] $entries */
         $items = $this->repository->findItemsToUpdate(
             $priority,
-            self::MAX_PER_ASYNC,
-            self::MAX_PER_ASYNC * $queue,
+            CompanionConfiguration::MAX_ITEMS_PER_CRONJOB,
+            CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * $queue,
             array_keys($this->tokens)
         );
         
         $this->console->writeln(date('H:i:s') .' | Total items to update: '. count($items));
     
         // loop through chunks
-        foreach (array_chunk($items, self::MAX_PER_CHUNK) as $i => $itemChunk) {
+        foreach (array_chunk($items, CompanionConfiguration::MAX_ITEMS_PER_REQUEST) as $i => $itemChunk) {
             // if we're close to the cronjob minute mark, end
-            if ((time() - $this->start) > self::MAX_CRONJOB_DURATION) {
+            if ((time() - $this->start) > CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS) {
                 $this->console->writeln(date('H:i:s') ." | [{$priority}] Ending auto-update as time limit seconds reached.");
                 return;
             }
@@ -139,7 +134,7 @@ class CompanionMarketUpdater
         $api->useAsync();
 
         // a single item will not update faster than X minutes.
-        $updateTimeout = time() - CompanionItemManagerPriorityTimes::ITEM_UPDATE_DELAY;
+        $updateTimeout = time() - CompanionConfiguration::ITEM_UPDATE_DELAY;
         
         /** @var CompanionMarketItemEntry $item */
         $requests = [];
@@ -179,7 +174,7 @@ class CompanionMarketUpdater
         $api->Sight()->settle($requests)->wait();
     
         // Wait for the results
-        usleep( self::MAX_QUERY_SLEEP_SEC * 1000 );
+        usleep( CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS * 1000 );
         
         // run the requests again, the Sight API should give us our response this time.
         $this->console->writeln(date('H:i:s') ." | [{$priority}] <info>Part 2: Fetching Responses</info>");
@@ -328,6 +323,10 @@ class CompanionMarketUpdater
 
         $exception = new CompanionMarketItemException();
         $exception->setException("{$type}, {$itemId}, {$server}")->setMessage($error);
+
+        $this->sendExceptionAlert(
+            "<@42667995159330816> [Companion Auto-Update Error] - {$type}, {$itemId}, {$server} = {$error}"
+        );
         
         $this->em->persist($exception);
         $this->em->flush();
@@ -398,27 +397,20 @@ class CompanionMarketUpdater
         $exceptions = $this->repositoryExceptions->findAll();
 
         // limit of 1 set for now just for monitoring purposes.
-        if (empty($exceptions) || count($exceptions) < 1) {
+        if (empty($exceptions) || count($exceptions) < CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
             return false;
         }
 
-        /** @var CompanionMarketItemException $ex */
-        $errors = [];
-        foreach ($exceptions as $ex) {
-            $date     = date('Y-m-d H:i:s', $ex->getAdded());
-            $errors[] = "# [{$date}] {$ex->getException()} \n {$ex->getMessage()}";
-        }
+        return true;
+    }
 
-        $errors = implode("\n\n", $errors);
+    private function sendExceptionAlert(string $message)
+    {
+        $key = 'companion_market_updator_mog_warning_'. md5($message);
 
-        $message = '<@42667995159330816> Item-Update shutdown due to error exceptions exceeding limit.';
-        $message .= "\n```markdown\n{$errors}\n````";
-
-        if (Redis::Cache()->get('companion_market_updator_mog_warning') == null) {
-            Redis::Cache()->set('companion_market_updator_mog_warning', 'true', 14400);
+        if (Redis::Cache()->get($key) == null) {
+            Redis::Cache()->set($key, 'true', 43200);
             Mog::send($message);
         }
-
-        return true;
     }
 }

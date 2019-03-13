@@ -130,7 +130,7 @@ class CompanionItemManager
 
                 // skip both being empty
                 if (empty($document->History) && empty($document->Prices)) {
-                    $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_ITEM_NEVER_SOLD);
+                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_NEVER_SOLD);
                     $this->em->persist($obj);
                     continue;
                 }
@@ -141,14 +141,14 @@ class CompanionItemManager
 
                 // if the item is still "new" (7 days)
                 if ($obj->getAdded() > (time() - (60 * 60 * 24 * 7))) {
-                    $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_ITEM_IS_NEW);
+                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_IS_NEW);
                     $this->em->persist($obj);
                     continue;
                 }
 
                 // if no history, it has never been sold
                 if (empty($document->History)) {
-                    $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_ITEM_NEVER_SOLD);
+                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_NEVER_SOLD);
                     $this->em->persist($obj);
                     continue;
                 }
@@ -162,14 +162,14 @@ class CompanionItemManager
                     $lastDate = $history->PurchaseDate;
 
                     // append on sale time difference
-                    if ($diff > CompanionItemManagerPriorityTimes::ITEM_HISTORY_THRESHOLD) {
+                    if ($diff > CompanionConfiguration::ITEM_HISTORY_THRESHOLD) {
                         $average[] = $diff;
                     }
                 }
 
                 // item has had less than 5 sales, too low to make a call against
-                if (count($average) < CompanionItemManagerPriorityTimes::ITEM_HISTORY_AVG_REQUIREMENT) {
-                    $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_ITEM_LOW_SALES);
+                if (count($average) < CompanionConfiguration::ITEM_HISTORY_AVG_REQUIREMENT) {
+                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_LOW_SALES);
                     $this->em->persist($obj);
                     continue;
                 }
@@ -177,11 +177,11 @@ class CompanionItemManager
                 $saleAverage = floor(array_sum($average) / count($average));
                 
                 // set default
-                $obj->setPriority(CompanionItemManagerPriorityTimes::PRIORITY_TIMES_DEFAULT)
+                $obj->setPriority(CompanionConfiguration::PRIORITY_TIMES_DEFAULT)
                     ->setAvgSaleDuration($saleAverage);
 
                 // find where it fits in our table
-                foreach (CompanionItemManagerPriorityTimes::PRIORITY_TIMES as $time => $priority) {
+                foreach (CompanionConfiguration::PRIORITY_TIMES as $time => $priority) {
                     // continue if the avg is above the time
                     if ($saleAverage > $time) {
                         continue;
