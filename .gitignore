@@ -22,6 +22,8 @@
 git_version.txt
 /sites
 /waifu2x
+/src/Service/SaintCoinach/data
+/src/Service/SaintCoinach/documents
 
 #
 # Symfony
@@ -52,3 +54,5 @@ src/Service/Common/Statistics\.php\.log
 exceptions\.log
 
 vm/ssh\.exe\.stackdump
+
+SaintCoinach\.Cmd\.lnk

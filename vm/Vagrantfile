@@ -13,7 +13,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
 
     # high spec for data importing, realistically would be low
-    vb.memory = 8000
+    vb.memory = 12000
     vb.cpus = 4
   end
 

@@ -5,7 +5,7 @@ namespace App\Command\Search;
 use App\Command\CommandHelperTrait;
 use App\Service\Common\Language;
 use App\Service\Data\CsvReader;
-use App\Service\Data\SaintCoinach;
+use App\Service\SaintCoinach\SaintCoinach;
 use App\Service\Redis\Redis;
 use App\Service\SearchElastic\ElasticSearch;
 use Ramsey\Uuid\Uuid;

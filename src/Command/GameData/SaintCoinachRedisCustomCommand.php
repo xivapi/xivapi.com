@@ -30,6 +30,8 @@ class SaintCoinachRedisCustomCommand extends Command
         
         $filelist = scandir(__DIR__ . '/../../Service/DataCustom');
         
+        $force = $input->getArgument('content_name');
+        
         $customClassList = [];
         foreach ($filelist as $file) {
             if (substr($file, -4) !== '.php') {
@@ -39,7 +41,12 @@ class SaintCoinachRedisCustomCommand extends Command
             $class = substr($file, 0, -4);
             
             // skip content_name
-            if ($input->getArgument('content_name') && $input->getArgument('content_name') !== $class) {
+            if ($force && $force !== $class) {
+                continue;
+            }
+            
+            // this one done on its own due to memory issues
+            if (!$force && $class == 'Quest') {
                 continue;
             }
             

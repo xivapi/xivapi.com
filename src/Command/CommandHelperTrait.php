@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Service\Data\SaintCoinach;
+use App\Service\SaintCoinach\SaintCoinach;
 use Carbon\Carbon;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -135,7 +135,7 @@ trait CommandHelperTrait
     protected function checkCache(): self
     {
         $this->io->text("<fg=cyan>Building memory cache ...</>");
-        foreach (FileSystem::list($this->version) as $type => $files) {
+        foreach (FileSystem::list() as $type => $files) {
             foreach ($files as $filename) {
                 $this->filenames[] = $filename;
 

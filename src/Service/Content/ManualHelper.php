@@ -3,7 +3,7 @@
 namespace App\Service\Content;
 
 use App\Command\GameData\SaintCoinachRedisCommand;
-use App\Service\Data\SaintCoinach;
+use App\Service\SaintCoinach\SaintCoinach;
 use App\Service\Redis\Redis;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use App\Service\Data\CsvReader;

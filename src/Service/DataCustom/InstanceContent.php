@@ -94,7 +94,7 @@ class InstanceContent extends ManualHelper
         
         // ContentType
         $instanceContent->ContentType   = $instanceContent->ContentFinderCondition->ContentType;
-        $instanceContent->Icon          = $instanceContent->ContentType->Icon;
+        $instanceContent->Icon          = $instanceContent->ContentType->Icon ?? null;
         $instanceContent->Banner        = $instanceContent->ContentFinderCondition->Image;
     }
     

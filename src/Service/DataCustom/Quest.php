@@ -24,6 +24,7 @@ class Quest extends ManualHelper
             $npc  = Arrays::minification(
                 Redis::Cache()->get("xiv_ENpcResident_{$id}")
             );
+            
             $name = preg_replace('/[0-9]+/', null, str_ireplace(' ', null, strtolower($npc->Name_en)));
             
             if (isset($this->ENpcResidentToName[$name])) {
@@ -31,7 +32,13 @@ class Quest extends ManualHelper
             }
             
             $this->ENpcResidentToName[$name] = $id;
-            $this->ENpcResidentToData[$id]   = $npc;
+            $this->ENpcResidentToData[$id]   = [
+                $npc->ID,
+                $npc->Name_en,
+                $npc->Name_ja,
+                $npc->Name_de,
+                $npc->name_fr
+            ];
         }
         
         // ----

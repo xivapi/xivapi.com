@@ -30,7 +30,7 @@ class Kernel extends BaseKernel
      */
     private function getLocalDirectory()
     {
-        $vagrant = $this->getProjectDir() . '/../vagrant_xivapi/';
+        $vagrant = '/vagrant_xivapi/';
     
         // local env
         if (is_dir($vagrant)) {

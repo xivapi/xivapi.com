@@ -2,11 +2,14 @@
 
 namespace App\Command\GameData;
 
+use App\Command\CommandConfigureTrait;
 use App\Command\CommandHelperTrait;
 use App\Service\Redis\Redis;
+use App\Service\SaintCoinach\SaintCoinach;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Service\Data\FileSystem;
 use App\Service\Data\FileReader;
@@ -14,67 +17,61 @@ use App\Service\DataCustom\Pre\PreHandler;
 
 class SaintCoinachJsonCacheCommand extends Command
 {
-    use CommandHelperTrait;
-
-    protected function configure()
-    {
-        $this
-            ->setName('SaintCoinachJsonCacheCommand')
-            ->setDescription('Converts all CSV files into JSON documents for easier access during the update stage.')
-            ->addArgument('content', InputArgument::OPTIONAL, 'Process only a specific piece of content');
-        ;
-    }
-
+    use CommandConfigureTrait;
+    
+    const COMMAND = [
+        'name' => 'SaintCoinachJsonCacheCommand',
+        'desc' => 'Converts all CSV files into JSON documents for easier access during the update stage.',
+        'args' => [
+            [ 'content', InputArgument::OPTIONAL, '(Optional) Process only a specific piece of content' ]
+        ]
+    ];
+    
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->setSymfonyStyle($input, $output);
-        $this->title('SAINT COINACH CSV -> JSON');
-        $this->startClock();
-
+        $console = new ConsoleOutput();
+        
         // obtain version
-        $this->checkVersion();
-        $this->checkSchema();
-        $files = FileSystem::list($this->version);
-    
+        $files  = SaintCoinach::rawExdFiles();
+
         // store a list of available content
         $content = [];
-        foreach ($this->schema as $sheet) {
+        foreach (SaintCoinach::schema()->sheets as $sheet) {
             $content[] = $sheet->sheet;
         }
-        $this->io->text('Compiled content data');
   
         // save content
         asort($content);
         $content = array_values(array_filter($content));
-        $this->io->text("Saving: ". count($content) ." content entries");
-        Redis::Cache()->set('content', $content, SaintCoinachRedisCommand::REDIS_DURATION);
-    
-        // write out content data
-        $data = [];
-        $this->io->progressStart(count($files->raw) + count($files->gamedata));
+        Redis::Cache()->set('content', $content, SaintCoinach::REDIS_DURATION);
+
+        $section = $console->section();
+        $section->overwrite('Saving content to Serialised Documents');
+        $single = $input->getArgument('content');
+        
+        $total = count($files->gamedata) + count($files->raw);
+        $count = 0;
+        
         foreach($files as $type => $list) {
             foreach($list as $i => $filename) {
-                $this->io->progressAdvance();
+                $count++;
                 
-                if ($input->getArgument('content') && $input->getArgument('content') !== $filename) {
+                // skip if we have a content argument
+                if ($single && $single !== $filename) {
                     continue;
                 }
 
-                $data[] = $filename;
+                // save
+                $section->overwrite("- {$type} {$count}/{$total} :: {$filename}");
 
-                // save data
-                FileSystem::save(
-                    $filename,
-                    'json',
-                    FileReader::open($this->version, $filename, $type === 'raw')
-                );
+                $data = FileReader::open($filename, $type === 'raw');
+                FileSystem::save($filename, 'json', $data);
             }
         }
-        $this->io->progressFinish();
 
-        // Do pre data customisation
-        $this->io->text('Performing pre-data customisation');
+        // Handle pre custom data modifications
+        $console->writeln('Running custom converters');
         PreHandler::CustomDataConverter();
-        $this->complete();
+        $console->writeln('Finished');
     }
 }

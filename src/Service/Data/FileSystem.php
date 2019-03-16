@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Service\Data;
+use App\Service\SaintCoinach\SaintCoinach;
 
 /**
  * Handles game file storage
@@ -12,11 +13,11 @@ class FileSystem extends DataHelper
     /**
      * List all CSV files for a particular version
      */
-    public static function list(string $version)
+    public static function list()
     {
-        $root = __DIR__ .'/../../..'. getenv('GAME_TOOLS_DIRECTORY') . '/SaintCoinach.Cmd';
-        $folder = "{$root}/{$version}/raw-exd-all";
-        $files = array_diff(scandir($folder), ['..', '.']);
+        $root   = SaintCoinach::directory();
+        $folder = "{$root}/raw-exd-all";
+        $files  = array_diff(scandir($folder), ['..', '.']);
 
         $tree = (Object)[
             'raw' => [],
@@ -55,8 +56,7 @@ class FileSystem extends DataHelper
      */
     public static function save($filename, $folder, $data)
     {
-        $root = __DIR__ .'/../../../'. getenv('GAME_DOCUMENTS_DIRECTORY');
-        $folder = "{$root}/{$folder}";
+        $folder = SaintCoinach::DOCUMENTS_FOLDER . $folder;
 
         // check folder exists
         self::checkForFolder($folder);
@@ -70,13 +70,16 @@ class FileSystem extends DataHelper
     /**
      * Load json content
      */
-    public static function load($filename, $folder)
+    public static function load(string $filename, string $folder)
     {
-        $root = __DIR__ .'/../../../'. getenv('GAME_DOCUMENTS_DIRECTORY');
-        $filename = $folder = "{$root}/{$folder}/{$filename}.json";
+        $filename = SaintCoinach::DOCUMENTS_FOLDER . "{$folder}/{$filename}.json";
 
         if (isset(self::$cache[$filename])) {
             return self::$cache[$filename];
+        }
+        
+        if (empty($filename)) {
+            die('empty ??? ');
         }
 
         $data = file_get_contents($filename);

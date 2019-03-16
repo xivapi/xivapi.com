@@ -65,7 +65,7 @@ class Icons extends ManualHelper
         $content->Icon = str_ireplace(array_keys($rep), $rep, $content->Icon);
     }
     
-    public function setMapFilename($content)
+    public static function setMapFilename($content)
     {
         if (!isset($content->Id_en)) {
             return;
