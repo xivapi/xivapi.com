@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\GameData;
 
 use App\Service\GamePatch\Patch;
 use App\Service\GamePatch\PatchContent;

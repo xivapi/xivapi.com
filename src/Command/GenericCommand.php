@@ -19,6 +19,11 @@ class GenericCommand extends Command
             [ 'action', InputArgument::OPTIONAL, 'xxxxx' ]
         ]
     ];
+
+    public function __construct($name = null)
+    {
+        parent::__construct($name);
+    }
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {

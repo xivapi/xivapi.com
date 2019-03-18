@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Service\User\SSO;
+namespace App\Service\User\Discord;
 
+use App\Service\User\SignInInterface;
+use App\Service\User\SSO\SSOAccess;
 use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\Request;
 use Wohali\OAuth2\Client\Provider\Discord;
@@ -10,10 +12,8 @@ class DiscordSignIn implements SignInInterface
 {
     const NAME            = 'discord';
     const STATE_KEY       = 'oauth2state';
-    const CLIENT_RETURN   = '/account/login/discord/success';
-    CONST CLIENT_OPTIONS  = [
-        'scope' => ['identify','email']
-    ];
+    const CLIENT_RETURN   = '/users/login/discord/success';
+    CONST CLIENT_SCOPE    = ['identify','email'];
     
     /** @var Discord */
     private $provider;
@@ -30,11 +30,6 @@ class DiscordSignIn implements SignInInterface
         ]);
     }
     
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-    
     /**
      * Get the access token
      */
@@ -46,7 +41,7 @@ class DiscordSignIn implements SignInInterface
         $ssoAccess->username        = $user->getUsername();
         $ssoAccess->email           = $user->getEmail() ?: 'none';
         $ssoAccess->avatar          = $user->getAvatarHash();
-        $ssoAccess->expires         = $token->getExpires();
+        $ssoAccess->expires         = $token->getToken();
         $ssoAccess->tokenAccess     = $token->getToken();
         $ssoAccess->tokenRefresh    = $token->getRefreshToken();
         return $ssoAccess;
@@ -55,15 +50,16 @@ class DiscordSignIn implements SignInInterface
     /**
      * Get login authorization url
      */
-    public function getLoginAuthorizationUrl(): SSOAuth
+    public function getLoginAuthorizationUrl(): string
     {
-        $url = $this->provider->getAuthorizationUrl(self::CLIENT_OPTIONS);
-        $this->request->getSession()->set(
-            self::STATE_KEY,
-            $this->provider->getState()
-        );
-        
-        return new SSOAuth($url, $this->provider->getState());
+        // generate an authorization url (this also generates the state)
+        $url = $this->provider->getAuthorizationUrl([
+            'scope' => self::CLIENT_SCOPE,
+        ]);
+
+        // set state in session for CSRF checking
+        $this->request->getSession()->set('state', $this->provider->getState());
+        return $url;
     }
     
     /**
@@ -71,6 +67,12 @@ class DiscordSignIn implements SignInInterface
      */
     public function setLoginAuthorizationState(): SSOAccess
     {
+        // check CSRF
+        if ($this->request->get('state') !== $this->request->getSession()->get('state')) {
+            throw new CsrfInvalidException();
+        }
+        
+        // grab token
         $token = $this->provider->getAccessToken('authorization_code', [
             'code' => $this->request->get('code')
         ]);
@@ -110,19 +112,5 @@ class DiscordSignIn implements SignInInterface
 
         $user = $this->provider->getResourceOwner($token);
         return $this->getAccessToken($token, $user);
-    }
-    
-    /**
-     * CSRF validation protection
-     */
-    public function isCsrfValid(): bool
-    {
-        if (empty($this->request->get('state')) ||
-            $this->request->get('state') !== $this->request->getSession()->get(self::STATE_KEY)
-        ) {
-            return false;
-        }
-        
-        return true;
     }
 }

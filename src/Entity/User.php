@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Utils\Random;
 use Ramsey\Uuid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -72,7 +73,7 @@ class User
     /**
      * A random hash saved to cookie to retrieve the token
      * @var string
-     * @ORM\Column(type="string", length=128, unique=true)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private $session;
     /**
@@ -150,20 +151,8 @@ class User
     {
         $this->id           = Uuid::uuid4();
         $this->added        = time();
-        $this->session      = $this->generateRandomKey() . $this->generateRandomKey();
-        $this->apiPublicKey = $this->generateRandomKey();
-    }
-
-    private function generateRandomKey()
-    {
-        return substr(
-            str_ireplace('-', null,
-                Uuid::uuid4()->toString() .
-                Uuid::uuid4()->toString() .
-                Uuid::uuid4()->toString()
-            ),
-            -50
-        );
+        $this->session      = Random::randomSecureString(250);
+        $this->apiPublicKey = Random::randomAccessKey();
     }
 
     public function getAvatar(): string

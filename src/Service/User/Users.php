@@ -3,140 +3,92 @@
 namespace App\Service\User;
 
 use App\Entity\User;
-use App\Exception\AccountNotLoggedInException;
-use App\Exception\ApiUnauthorizedAccessException;
 use App\Repository\UserRepository;
-use App\Service\User\SSO\CsrfInvalidException;
-use App\Service\User\SSO\DiscordSignIn;
-use App\Service\User\SSO\SignInInterface;
+use App\Service\User\Discord\CsrfInvalidException;
+use App\Service\User\Discord\DiscordSignIn;
 use App\Service\User\SSO\SSOAccess;
 use Delight\Cookie\Cookie;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Users
 {
+    const COOKIE_SESSION_NAME     = 'session';
+    const COOKIE_SESSION_DURATION = (60 * 60 * 24 * 30);
+    
     /** @var EntityManagerInterface */
     private $em;
-    /** @var SignInInterface */
-    private $provider;
-    /** @var  UserRepository */
+    /** @var UserRepository */
     private $repository;
-    
+    /** @var DiscordSignIn */
+    private $sso;
+
     public function __construct(EntityManagerInterface $em)
     {
-        $this->em = $em;
+        $this->em         = $em;
         $this->repository = $em->getRepository(User::class);
-    }
-    
-    /**
-     * Return all users
-     */
-    public function getUsers()
-    {
-        return $this->repository->findAll();
-    }
-    
-    /**
-     * Alias for twig
-     */
-    public function user()
-    {
-        return $this->getCurrentUser();
-    }
-    
-    /**
-     * Get the current logged in user
-     */
-    public function getCurrentUser(bool $enforce = false): ?User
-    {
-        $session = Cookie::get('session');
-        
-        if (!$session || $session === 'x') {
-            if ($enforce) {
-                throw new AccountNotLoggedInException();
-            }
-            
-            return null;
-        }
-        
-        $repo = $this->em->getRepository(User::class);
-        
-        /** @var User $user */
-        $user = $repo->findOneBy([
-            'session' => $session
-        ]);
-        
-        if ($user == null && $enforce) {
-            throw new AccountNotLoggedInException();
-        }
-        
-        return $user;
-    }
-
-    /**
-     * Obtain a user account via their API key.
-     */
-    public function getUserByApiKey(string $key)
-    {
-        $user = $this->repository->findOneBy([ 'apiPublicKey' => $key ]);
-
-        if (empty($user)) {
-            throw new ApiUnauthorizedAccessException();
-        }
-
-        return $user;
-    }
-    
-    /**
-     * Create a new user
-     */
-    public function create(string $sso, SSOAccess $ssoAccess): User
-    {
-        $user = new User();
-        $user
-            ->setSso($sso)
-            ->setSsoId($ssoAccess->id)
-            ->setToken(json_encode($ssoAccess))
-            ->setUsername($ssoAccess->username)
-            ->setEmail($ssoAccess->email);
-        
-        // save user
-        $this->save($user);
-        return $user;
-    }
-    
-    /**
-     * Save a user
-     */
-    public function save(User $user)
-    {
-        $this->em->persist($user);
-        $this->em->flush();
-    }
-    
-    /**
-     * Sign in
-     */
-    public function login()
-    {
-        return $this->provider->getLoginAuthorizationUrl()->getUrl();
     }
     
     /**
      * Set the single sign in provider
      */
-    public function setLoginProvider(SignInInterface $provider)
+    public function setSsoProvider(SignInInterface $sso)
     {
-        $this->provider = $provider;
+        $this->sso = $sso;
         return $this;
     }
     
     /**
+     * Get the current logged in user
+     */
+    public function getUser($mustBeOnline = false): ?User
+    {
+        $session = Cookie::get(self::COOKIE_SESSION_NAME);
+        if (!$session || $session === 'x') {
+            if ($mustBeOnline) {
+                throw new NotFoundHttpException();
+            }
+            
+            return null;
+        }
+        
+        /** @var User $user */
+        $user = $this->em->getRepository(User::class)->findOneBy([
+            'session' => $session
+        ]);
+    
+        if ($mustBeOnline && !$user) {
+            throw new NotFoundHttpException();
+        }
+        
+        return $user;
+    }
+
+    /**
+     * Get all users
+     * @return User[]
+     */
+    public function findAll(): array
+    {
+        return $this->repository->findAll();
+    }
+
+    /**
+     * Sign in
+     */
+    public function login(): string
+    {
+        return $this->sso->getLoginAuthorizationUrl();
+    }
+
+    /**
      * Logout a user
      */
-    public function logout()
+    public function logout(): void
     {
-        $this->deleteCookie();
+        $cookie = new Cookie(self::COOKIE_SESSION_NAME);
+        $cookie->setValue('x')->setMaxAge(-1)->setPath('/')->save();
+        $cookie->delete();
     }
     
     /**
@@ -145,49 +97,55 @@ class Users
      */
     public function authenticate(): User
     {
-        // todo - debug this, sometimes CSRF fails, maybe implement Symfony CSRF.
-        // todo - migrate mogboard authenticate over, it has been fixed there.
-        /** @var DiscordSignIn $sso */
-        if (!$this->provider->isCsrfValid()) {
-            //throw new CsrfInvalidException();
+        // look for their user if they already have an account
+        $ssoAccess = $this->sso->setLoginAuthorizationState();
+        $user = $this->em->getRepository(User::class)->findOneBy([
+            'email' => $ssoAccess->email
+        ]);
+        
+        // if they don't have an account, create one!
+        if (!$user) {
+            $user = $this->create($this->sso::NAME, $ssoAccess);
+            // todo - send email?
         }
+    
+        $cookie = new Cookie(self::COOKIE_SESSION_NAME);
+        $cookie->setValue($user->getSession())->setMaxAge(self::COOKIE_SESSION_DURATION)->setPath('/')->save();
         
-        $ssoAccess = $this->provider->setLoginAuthorizationState();
-        
-        // get user or create a new one
-        $user = $this->repository->findOneBy([ 'ssoId' => $ssoAccess->id ])
-            ?: $this->create($this->provider->getName(), $ssoAccess);
-        
-        // update user
+        return $user;
+    }
+
+    /**
+     * Create a new user
+     */
+    public function create(string $sso, SSOAccess $ssoAccess): User
+    {
+        $user = new User();
         $user
-            ->setSso($this->provider->getName())
-            ->setSsoId($ssoAccess->id)
+            ->setSso($sso)
             ->setToken(json_encode($ssoAccess))
             ->setUsername($ssoAccess->username)
-            ->setEmail($ssoAccess->email);
+            ->setEmail($ssoAccess->email)
+            ->setAvatar($ssoAccess->avatar ?: 'http://xivapi.com/img-misc/chat_messengericon_goldsaucer.png');
         
         $this->save($user);
-        $this->setCookie($user->getSession());
         return $user;
     }
     
     /**
-     * Set a cookie
+     * Update a user
      */
-    public function setCookie($sid)
+    public function save(User $user): void
     {
-        $cookie = new Cookie('session');
-        $cookie->setValue($sid)->setMaxAge(60 * 60 * 24 * 30)->setDomain(getenv('COOKIE_DOMAIN'))->save();
+        $this->em->persist($user);
+        $this->em->flush();
     }
-    
+
     /**
-     * Delete a cookie
+     * Is the current user online?
      */
-    public function deleteCookie()
+    public function isOnline()
     {
-        //$request->get
-        $cookie = new Cookie('session');
-        $cookie->setValue('x')->setMaxAge(-1)->setDomain(getenv('COOKIE_DOMAIN'))->save();
-        $cookie->delete();
+        return !empty($this->getUser());
     }
 }

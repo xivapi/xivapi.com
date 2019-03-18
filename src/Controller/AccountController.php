@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\User\Discord\DiscordSignIn;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -9,7 +10,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\User\Users;
-use App\Service\User\SSO\DiscordSignIn;
 
 class AccountController extends AbstractController
 {
@@ -34,23 +34,15 @@ class AccountController extends AbstractController
     {
         return $this->render('account/index.html.twig');
     }
-    
-    /**
-     * @Route("/account/logout", name="account_logout")
-     */
-    public function logout()
-    {
-        $this->users->deleteCookie();
-        return $this->redirectToRoute('home');
-    }
-    
+
     /**
      * @Route("/account/login/discord", name="account_login_discord")
      */
     public function loginDiscord(Request $request)
     {
-        $url = $this->users->setLoginProvider(new DiscordSignIn($request))->login();
-        return $this->redirect($url);
+        return $this->redirect(
+            $this->users->setSsoProvider(new DiscordSignIn($request))->login()
+        );
     }
     
     /**
@@ -59,10 +51,19 @@ class AccountController extends AbstractController
     public function loginDiscordResponse(Request $request)
     {
         if ($request->get('error') == 'access_denied') {
-            return $this->redirectToRoute('account');
+            return $this->redirectToRoute('home');
         }
-        
-        $this->users->setLoginProvider(new DiscordSignIn($request))->authenticate();
-        return $this->redirectToRoute('account');
+
+        $this->users->setSsoProvider(new DiscordSignIn($request))->authenticate();
+        return $this->redirectToRoute('home');
+    }
+
+    /**
+     * @Route("/account/logout", name="account_logout")
+     */
+    public function logout()
+    {
+        $this->users->logout();
+        return $this->redirectToRoute('home');
     }
 }
