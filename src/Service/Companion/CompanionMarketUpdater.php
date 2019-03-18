@@ -390,11 +390,12 @@ class CompanionMarketUpdater
     }
 
     /**
-     * Returns true if there is an exception threshold met
+     * Returns true if there is an exception threshold met, only counted against exceptions within
+     * the past hour.
      */
     private function hasExceptionsExceededLimit()
     {
-        $exceptions = $this->repositoryExceptions->findAll();
+        $exceptions = $this->repositoryExceptions->findAllRecent();
 
         // limit of 1 set for now just for monitoring purposes.
         if (empty($exceptions) || count($exceptions) < CompanionConfiguration::ERROR_COUNT_THRESHOLD) {

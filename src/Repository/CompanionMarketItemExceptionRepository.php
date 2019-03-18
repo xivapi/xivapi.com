@@ -12,4 +12,17 @@ class CompanionMarketItemExceptionRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, CompanionMarketItemException::class);
     }
+
+    /**
+     * Find all exceptions in the past 1 hour.
+     */
+    public function findAllRecent()
+    {
+        $sql = $this->createQueryBuilder('a');
+        $sql->where('added > :timelimit')
+            ->setParameter('timelimit', time() - 3600)
+            ->orderBy('a.added', 'desc');
+
+        return $sql->getQuery()->getResult();
+    }
 }
