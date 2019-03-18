@@ -310,7 +310,7 @@ class User
         return $this;
     }
 
-    public function getApiPublicKey(): string
+    public function getApiPublicKey(): ?string
     {
         return $this->apiPublicKey;
     }
