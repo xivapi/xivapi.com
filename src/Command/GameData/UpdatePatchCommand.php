@@ -2,6 +2,7 @@
 
 namespace App\Command\GameData;
 
+use App\Command\CommandHelperTrait;
 use App\Service\GamePatch\Patch;
 use App\Service\GamePatch\PatchContent;
 use Symfony\Component\Console\Command\Command;
