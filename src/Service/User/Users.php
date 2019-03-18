@@ -7,6 +7,7 @@ use App\Repository\UserRepository;
 use App\Service\User\Discord\CsrfInvalidException;
 use App\Service\User\Discord\DiscordSignIn;
 use App\Service\User\SSO\SSOAccess;
+use App\Utils\Random;
 use Delight\Cookie\Cookie;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -108,9 +109,15 @@ class Users
             $user = $this->create($this->sso::NAME, $ssoAccess);
             // todo - send email?
         }
-    
+
+        // set users session
+        $sessionId = Random::randomSecureString(250);
+        $user->setSession($sessionId);
+        $this->save($user);
+
+        // store session in cookie
         $cookie = new Cookie(self::COOKIE_SESSION_NAME);
-        $cookie->setValue($user->getSession())->setMaxAge(self::COOKIE_SESSION_DURATION)->setPath('/')->save();
+        $cookie->setValue($sessionId)->setMaxAge(self::COOKIE_SESSION_DURATION)->setPath('/')->save();
         
         return $user;
     }
