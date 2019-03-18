@@ -19,8 +19,8 @@ class CompanionMarketItemExceptionRepository extends ServiceEntityRepository
     public function findAllRecent()
     {
         $sql = $this->createQueryBuilder('a');
-        $sql->where('added > :timelimit')
-            ->setParameter('timelimit', time() - 3600)
+        $sql->where('a.added > :limit')
+            ->setParameter('limit', time() - 3600)
             ->orderBy('a.added', 'desc');
 
         return $sql->getQuery()->getResult();
