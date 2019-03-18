@@ -28,10 +28,10 @@ class Random
      */
     public static function randomSecureString(int $length = 100): string
     {
-        $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-+*=[{]}|,.<>?:;@£$%^&~';
-
-        $pieces = [];
-        $max = mb_strlen($keyspace, '8bit') - 1;
+        $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@^&()[]{}_+*=';
+        $pieces   = [];
+        $max      = strlen($keyspace) - 1;
+        
         for ($i = 0; $i < $length; ++$i) {
             $pieces []= $keyspace[random_int(0, $max)];
         }
