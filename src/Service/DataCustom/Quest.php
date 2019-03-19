@@ -37,7 +37,7 @@ class Quest extends ManualHelper
                 $npc->Name_en,
                 $npc->Name_ja,
                 $npc->Name_de,
-                $npc->name_fr
+                $npc->Name_fr
             ];
         }
         
