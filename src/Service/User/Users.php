@@ -3,6 +3,7 @@
 namespace App\Service\User;
 
 use App\Entity\User;
+use App\Exception\ApiUnauthorizedAccessException;
 use App\Repository\UserRepository;
 use App\Service\User\Discord\CsrfInvalidException;
 use App\Service\User\Discord\DiscordSignIn;
@@ -154,5 +155,16 @@ class Users
     public function isOnline()
     {
         return !empty($this->getUser());
+    }
+    
+    public function getUserByApiKey(string $key)
+    {
+        $user = $this->repository->findOneBy([ 'apiPublicKey' => $key ]);
+    
+        if (empty($user)) {
+            throw new ApiUnauthorizedAccessException();
+        }
+    
+        return $user;
     }
 }

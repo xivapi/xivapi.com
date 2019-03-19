@@ -89,7 +89,7 @@ class ApiRequest
         }
 
         /** @var User $user */
-        $this->user = $this->users->getUserByApiKey($this->request->get('key'));
+        $this->user = $this->users->getUserByApiKey($this->request->get('private_key'));
 
         // checks
         $this->checkUserIsNotBanned();
@@ -120,7 +120,7 @@ class ApiRequest
      */
     private function hasApiKey(): bool
     {
-        return !empty($this->request->get('key'));
+        return !empty($this->request->get('private_key'));
     }
 
     /**
