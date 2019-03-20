@@ -129,10 +129,10 @@ class CompanionMarketUpdater
     /**
      * Mark an item to be manually updated on an DC
      */
-    public function updateManual(int $itemId, string $dc)
+    public function updateManual(int $itemId, string $server)
     {
-        $servers = GameServers::LIST_DC[$dc];
-        $items = $this->repository->findItemsInServers($itemId, $servers);
+        $servers = GameServers::getDataCenterServersIds($server);
+        $items   = $this->repository->findItemsInServers($itemId, $servers);
 
         /** @var CompanionMarketItemEntry $item */
         foreach ($items as $item) {

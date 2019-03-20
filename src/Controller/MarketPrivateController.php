@@ -82,9 +82,9 @@ class MarketPrivateController extends AbstractController
         }
 
         $itemId = (int)$request->get('item_id');
-        $dc = ucwords($request->get('dc'));
+        $server = ucwords($request->get('server'));
 
-        $this->companionMarketUpdater->updateManual($itemId, $dc);
+        $this->companionMarketUpdater->updateManual($itemId, $server);
 
         return $this->json(true);
     }

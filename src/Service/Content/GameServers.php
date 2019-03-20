@@ -195,4 +195,18 @@ class GameServers
         $dc = self::getDataCenter($server);
         return $dc ? GameServers::LIST_DC[$dc] : null;
     }
+
+    /**
+     * Get the data center server ids for a specific server
+     */
+    public static function getDataCenterServersIds(string $server): ?array
+    {
+        $servers = self::getDataCenterServers($server);
+
+        foreach ($servers as $i => $server) {
+            $servers[$i] = self::getServerId($server);
+        }
+
+        return $servers;
+    }
 }
