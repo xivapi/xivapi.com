@@ -100,6 +100,4 @@ class MarketController extends AbstractController
             $this->companion->getCategories()
         );
     }
-    
-    
 }
