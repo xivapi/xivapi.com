@@ -18,6 +18,7 @@ use App\Service\Common\Mog;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
+use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Doctrine\ORM\EntityManagerInterface;
@@ -72,7 +73,7 @@ class CompanionMarketUpdater
         $this->console = new ConsoleOutput();
     }
     
-    public function update(int $priority, int $queue)
+    public function update(int $priority, int $queue, $manual = false)
     {
         if ($this->hasExceptionsExceededLimit()) {
             $this->console->writeln(date('H:i:s') .' | !! Error exceptions exceeded limit. Auto-Update stopped');
@@ -93,12 +94,20 @@ class CompanionMarketUpdater
         }
     
         /** @var CompanionMarketItemEntry[] $entries */
-        $items = $this->repository->findItemsToUpdate(
-            $priority,
-            CompanionConfiguration::MAX_ITEMS_PER_CRONJOB,
-            CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * $queue,
-            array_keys($this->tokens)
-        );
+        if ($manual) {
+            $items = $this->repository->findManualItemsToUpdate(
+                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB,
+                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * $queue,
+                array_keys($this->tokens)
+            );
+        } else {
+            $items = $this->repository->findItemsToUpdate(
+                $priority,
+                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB,
+                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * $queue,
+                array_keys($this->tokens)
+            );
+        }
         
         $this->console->writeln(date('H:i:s') .' | Total items to update: '. count($items));
     
@@ -115,6 +124,23 @@ class CompanionMarketUpdater
         }
     
         $this->em->clear();
+    }
+
+    /**
+     * Mark an item to be manually updated on an DC
+     */
+    public function updateManual(int $itemId, string $dc)
+    {
+        $servers = GameServers::LIST_DC[$dc];
+        $items = $this->repository->findItemsInServers($itemId, $servers);
+
+        /** @var CompanionMarketItemEntry $item */
+        foreach ($items as $item) {
+            $item->setManual(true);
+            $this->em->persist($item);
+        }
+
+        $this->em->flush();
     }
 
     /**
@@ -405,6 +431,9 @@ class CompanionMarketUpdater
         return true;
     }
 
+    /**
+     * Send a warning to xivapi discord
+     */
     private function sendExceptionAlert(string $message)
     {
         $key = 'companion_market_updator_mog_warning_'. md5($message);

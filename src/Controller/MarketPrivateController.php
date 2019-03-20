@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\Companion\CompanionMarketUpdater;
 use App\Service\Companion\CompanionTokenManager;
 use Companion\CompanionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,10 +19,15 @@ class MarketPrivateController extends AbstractController
 {
     /** @var CompanionTokenManager */
     private $companionTokenManager;
+    /** @var CompanionMarketUpdater */
+    private $companionMarketUpdater;
 
-    public function __construct(CompanionTokenManager $companionTokenManager)
-    {
-        $this->companionTokenManager = $companionTokenManager;
+    public function __construct(
+        CompanionTokenManager $companionTokenManager,
+        CompanionMarketUpdater $companionMarketUpdater
+    ) {
+        $this->companionTokenManager  = $companionTokenManager;
+        $this->companionMarketUpdater = $companionMarketUpdater;
     }
 
     /**
@@ -64,5 +70,22 @@ class MarketPrivateController extends AbstractController
         return $this->json(
             $api->Market()->getTransactionHistory($itemId)
         );
+    }
+
+    /**
+     * @Route("/private/market/item/update")
+     */
+    public function manualUpdateItem(Request $request)
+    {
+        if ($request->get('companion_access_key') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
+            throw new UnauthorizedHttpException('Denied');
+        }
+
+        $itemId = (int)$request->get('item_id');
+        $dc = ucwords($request->get('dc'));
+
+        $this->companionMarketUpdater->updateManual($itemId, $dc);
+
+        return $this->json(true);
     }
 }

@@ -13,7 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="updated", columns={"updated"}),
  *          @ORM\Index(name="item", columns={"item"}),
  *          @ORM\Index(name="priority", columns={"priority"}),
- *          @ORM\Index(name="server", columns={"server"})
+ *          @ORM\Index(name="server", columns={"server"}),
+ *          @ORM\Index(name="manual", columns={"manual"})
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\CompanionMarketItemEntryRepository")
@@ -55,6 +56,11 @@ class CompanionMarketItemEntry
      * @ORM\Column(type="integer", length=16)
      */
     private $updates = 0;
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", options={"default" : 0})
+     */
+    private $manual = false;
     /**
      * @ORM\Column(type="integer", length=16)
      */
@@ -161,6 +167,18 @@ class CompanionMarketItemEntry
     public function setAvgSaleDuration($avgSaleDuration)
     {
         $this->avgSaleDuration = $avgSaleDuration;
+
+        return $this;
+    }
+
+    public function getManual()
+    {
+        return $this->manual;
+    }
+
+    public function setManual($manual)
+    {
+        $this->manual = $manual;
 
         return $this;
     }

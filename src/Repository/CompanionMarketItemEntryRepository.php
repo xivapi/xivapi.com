@@ -13,6 +13,18 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, CompanionMarketItemEntry::class);
     }
+
+    /**
+     * Find items in DataCenter
+     */
+    public function findItemsInServers(int $itemId, array $servers)
+    {
+        $sql = $this->createQueryBuilder('a');
+        $sql->where("a.item = :a")->setParameter('a', $itemId)
+            ->andWhere("a.server IN (:b)")->setParameter('b', $servers, $servers);
+
+        return $sql->getQuery()->getResult();
+    }
     
     /**
      * Returns a list of items that can be updated with valid servers
@@ -26,6 +38,21 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->setFirstResult($offset);
     
+        return $sql->getQuery()->getResult();
+    }
+
+    /**
+     * Returns a list of items that can be updated with valid servers
+     */
+    public function findManualItemsToUpdate(int $limit, int $offset, array $servers)
+    {
+        $sql = $this->createQueryBuilder('a');
+        $sql->where("a.manual = :a")->setParameter('a', true)
+            ->andWhere("a.server IN (:b)")->setParameter('b', $servers, Connection::PARAM_INT_ARRAY)
+            ->orderBy('a.updated', 'asc')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
         return $sql->getQuery()->getResult();
     }
 
