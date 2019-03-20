@@ -220,18 +220,15 @@ task('sync', function () {
         'branch' => 'master',
     ]);
 })->onHosts(
-
     'Server1',
     'Server2',
     'Server3',
-
+    'Server4',
+    'Server5',
     'Server6',
     'Server7',
     'Server8',
-    'Server9',
-    'Server10',
-    'Server11'
-
+    'Server9'
 );
 
 task('fix', function () {
@@ -241,15 +238,13 @@ task('fix', function () {
         'branch' => 'rabbitmq',
     ]);
 })->onHosts(
-
     'Server1',
     'Server2',
     'Server3',
-
+    'Server4',
+    'Server5',
     'Server6',
     'Server7',
     'Server8',
-    'Server9',
-    'Server10',
-    'Server11'
+    'Server9'
 );

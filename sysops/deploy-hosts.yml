@@ -20,53 +20,42 @@ parser:
 ## -----------------------------------
 
 Sync:
-  hostname: 138.197.201.78
-  user: dalamud
-  port: 22
-
-
-Server1:
-  hostname: 45.32.62.170
-  user: dalamud
-  port: 22
-
-Server2:
-  hostname: 108.61.160.253
-  user: dalamud
-  port: 22
-
-Server3:
-  hostname: 202.182.123.22
-  user: dalamud
-  port: 22
-
-
-Server6:
-  hostname: 198.13.61.206
-  user: dalamud
-  port: 22
-
-Server7:
-  hostname: 207.148.110.192
-  user: dalamud
-  port: 22
-
-Server8:
-  hostname: 45.76.107.66
-  user: dalamud
-  port: 22
-
-Server9:
-  hostname: 45.76.199.186
-  user: dalamud
-  port: 22
-
-Server10:
   hostname: 108.160.137.59
   user: dalamud
   port: 22
-
-Server11:
+Server1:
+  hostname:  202.182.123.22
+  user: dalamud
+  port: 22
+Server2:
+  hostname: 45.32.62.170
+  user: dalamud
+  port: 22
+Server3:
+  hostname: 207.148.110.192
+  user: dalamud
+  port: 22
+Server4:
+  hostname: 45.76.107.66
+  user: dalamud
+  port: 22
+Server5:
   hostname: 198.13.34.9
+  user: dalamud
+  port: 22
+Server6:
+  hostname: 108.61.160.253
+  user: dalamud
+  port: 22
+Server7:
+  hostname: 45.76.197.188
+  user: dalamud
+  port: 22
+Server8:
+  hostname: 198.13.61.206
+  user: dalamud
+  port: 22
+Server9:
+  hostname: 45.76.199.186
   user: dalamud
   port: 22
