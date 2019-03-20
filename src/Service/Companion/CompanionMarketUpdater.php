@@ -324,8 +324,11 @@ class CompanionMarketUpdater
         $exception = new CompanionMarketItemException();
         $exception->setException("{$type}, {$itemId}, {$server}")->setMessage($error);
 
+        $recentErrorCount = count($this->repositoryExceptions->findAllRecent());
+        $maxErrorCount = CompanionConfiguration::ERROR_COUNT_THRESHOLD;
+
         $this->sendExceptionAlert(
-            "<@42667995159330816> [Companion Auto-Update Error] - {$type}, {$itemId}, {$server} = {$error}"
+            "<@42667995159330816> [Companion Auto-Update Error] - ({$recentErrorCount}/{$maxErrorCount}) {$type}, {$itemId}, {$server} = {$error}"
         );
         
         $this->em->persist($exception);
