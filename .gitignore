@@ -19,10 +19,11 @@
 /src/Controller/MemoryData.csv
 /src/EventListener/Exceptions.txt
 /src/Service/Companion/accounts.json
+/src/Service/SaintCoinach/data
+/src/Service/SaintCoinach/documents
 /src/Command/Misc/Icons
 git_version.txt
 /sites
-
 
 #
 # Symfony

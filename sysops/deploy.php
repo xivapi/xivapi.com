@@ -148,7 +148,7 @@ function deploySync($config)
     
     // composer update
     writeln('-> Updating composer libraries (it is normal for this to take a while)...');
-    run('composer require xivapi/lodestone-parser 1.8.18');
+    run('composer require xivapi/lodestone-parser 1.8.19');
     $result = run('composer update');
     result($result);
     
@@ -220,7 +220,6 @@ task('sync', function () {
         'branch' => 'master',
     ]);
 })->onHosts(
-    'Sync',
     'Server1',
     'Server2',
     'Server3',
@@ -228,11 +227,7 @@ task('sync', function () {
     'Server5',
     'Server6',
     'Server7',
-    'Server8',
-    'Server9',
-    'Server10',
-    'Server11',
-    'Server12'
+    'Server8'
 );
 
 task('fix', function () {
@@ -242,7 +237,6 @@ task('fix', function () {
         'branch' => 'rabbitmq',
     ]);
 })->onHosts(
-    'Sync',
     'Server1',
     'Server2',
     'Server3',
@@ -250,9 +244,5 @@ task('fix', function () {
     'Server5',
     'Server6',
     'Server7',
-    'Server8',
-    'Server9',
-    'Server10',
-    'Server11',
-    'Server12'
+    'Server8'
 );
