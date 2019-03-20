@@ -10,6 +10,7 @@ use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\CharacterAchievementQueue;
 use App\Service\LodestoneQueue\CharacterFriendQueue;
 use App\Service\LodestoneQueue\CharacterQueue;
+use App\Service\Redis\Redis;
 use Lodestone\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -161,7 +162,7 @@ class LodestoneCharacterController extends AbstractController
         }
         
         // check if cached, this is to reduce spam
-        if ($data = $this->service->cache->get(__METHOD__ . $lodestoneId)) {
+        if ($data = Redis::Cache()->get(__METHOD__ . $lodestoneId)) {
             return $this->json($data);
         }
 
@@ -175,7 +176,7 @@ class LodestoneCharacterController extends AbstractController
         ];
 
         // small cache time as it's just to prevent "spam"
-        $this->service->cache->set(__METHOD__ . $lodestoneId, $data, 5);
+        Redis::Cache()->set(__METHOD__ . $lodestoneId, $data, 5);
         return $this->json($data);
     }
 
@@ -195,7 +196,7 @@ class LodestoneCharacterController extends AbstractController
             throw new ContentGoneException(ContentGoneException::CODE, 'Not Added');
         }
 
-        if ($lodestoneId != 730968 && $this->service->cache->get(__METHOD__.$lodestoneId)) {
+        if ($lodestoneId != 730968 && Redis::Cache()->get(__METHOD__.$lodestoneId)) {
             return $this->json(0);
         }
     
@@ -204,7 +205,7 @@ class LodestoneCharacterController extends AbstractController
         CharacterFriendQueue::request($lodestoneId, 'character_friends_update');
         CharacterAchievementQueue::request($lodestoneId, 'character_achievements_update');
 
-        $this->service->cache->set(__METHOD__.$lodestoneId, 1, ServiceQueues::UPDATE_TIMEOUT);
+        Redis::Cache()->set(__METHOD__.$lodestoneId, 1, ServiceQueues::UPDATE_TIMEOUT);
         return $this->json(1);
     }
 }

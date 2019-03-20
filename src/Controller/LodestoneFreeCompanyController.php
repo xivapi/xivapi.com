@@ -6,6 +6,7 @@ use App\Exception\ContentGoneException;
 use App\Service\Lodestone\FreeCompanyService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\FreeCompanyQueue;
+use App\Service\Redis\Redis;
 use Lodestone\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -97,13 +98,13 @@ class LodestoneFreeCompanyController extends AbstractController
             throw new ContentGoneException(ContentGoneException::CODE, 'Not Added');
         }
         
-        if ($this->service->cache->get(__METHOD__.$lodestoneId)) {
+        if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {
             return $this->json(0);
         }
 
         FreeCompanyQueue::request($lodestoneId, 'free_company_update');
         
-        $this->service->cache->set(__METHOD__.$lodestoneId, 1, ServiceQueues::UPDATE_TIMEOUT);
+        Redis::Cache()->set(__METHOD__.$lodestoneId, 1, ServiceQueues::UPDATE_TIMEOUT);
         return $this->json(1);
     }
 }

@@ -2,12 +2,10 @@
 
 namespace App\Exception;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-
 trait ExceptionTrait
 {
-    public function __construct()
+    public function __construct(int $code = null, string $message = null)
     {
-        parent::__construct(self::CODE, self::MESSAGE);
+        parent::__construct($code ?: self::CODE, $message ?: self::MESSAGE);
     }
 }

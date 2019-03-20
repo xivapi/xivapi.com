@@ -6,6 +6,7 @@ use App\Exception\ContentGoneException;
 use App\Service\Lodestone\PvPTeamService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\PvPTeamQueue;
+use App\Service\Redis\Redis;
 use Lodestone\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -79,13 +80,13 @@ class LodestonePvPTeamController extends AbstractController
             throw new ContentGoneException(ContentGoneException::CODE, 'Not Added');
         }
     
-        if ($this->service->cache->get(__METHOD__.$lodestoneId)) {
+        if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {
             return $this->json(0);
         }
 
         PvPTeamQueue::request($lodestoneId, 'pvp_team_update');
 
-        $this->service->cache->set(__METHOD__.$lodestoneId, ServiceQueues::UPDATE_TIMEOUT);
+        Redis::Cache()->set(__METHOD__.$lodestoneId, ServiceQueues::UPDATE_TIMEOUT);
         return $this->json(1);
     }
 }
