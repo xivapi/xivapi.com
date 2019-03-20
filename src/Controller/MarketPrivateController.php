@@ -30,7 +30,7 @@ class MarketPrivateController extends AbstractController
     public function itemPrices(Request $request)
     {
         if ($request->get('companion_access_key') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
-            throw new UnauthorizedHttpException();
+            throw new UnauthorizedHttpException('Denied');
         }
 
         $itemId = (int)$request->get('item_id');
@@ -51,7 +51,7 @@ class MarketPrivateController extends AbstractController
     public function itemHistory(Request $request)
     {
         if ($request->get('companion_access_key') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
-            throw new UnauthorizedHttpException();
+            throw new UnauthorizedHttpException('Denied');
         }
 
         $itemId = (int)$request->get('item_id');
