@@ -21,7 +21,7 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     {
         $sql = $this->createQueryBuilder('a');
         $sql->where("a.item = :a")->setParameter('a', $itemId)
-            ->andWhere("a.server IN (:b)")->setParameter('b', $servers, $servers);
+            ->andWhere("a.server IN (:b)")->setParameter('b', $servers, Connection::PARAM_INT_ARRAY);
 
         return $sql->getQuery()->getResult();
     }
