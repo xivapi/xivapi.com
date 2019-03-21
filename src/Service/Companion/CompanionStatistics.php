@@ -68,7 +68,7 @@ class CompanionStatistics
         $data = [];
         $data[] = $this->generateStatistics($updates, 'Global', null);
 
-        foreach([1,2,3,4,5,6] as $priority) {
+        foreach([1,2,3,4,5,6,7,8,9,10] as $priority) {
             $data[] = $this->processPriorityStatistics($updates, $priority);
         }
 
@@ -98,7 +98,7 @@ class CompanionStatistics
     
     public function getStatisticsView()
     {
-        $sql = $this->em->getConnection()->prepare('SELECT *FROM `companion stats` LIMIT 1');
+        $sql = $this->em->getConnection()->prepare('SELECT * FROM `companion stats` LIMIT 1');
         $sql->execute();
         
         return $sql->fetchAll()[0];
@@ -106,7 +106,7 @@ class CompanionStatistics
 
     public function getCompanionQueuesView()
     {
-        $sql = $this->em->getConnection()->prepare('SELECT *FROM `companion queues`');
+        $sql = $this->em->getConnection()->prepare('SELECT * FROM `companion queues`');
         $sql->execute();
 
         return $sql->fetchAll();
