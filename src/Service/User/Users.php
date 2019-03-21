@@ -3,7 +3,7 @@
 namespace App\Service\User;
 
 use App\Entity\User;
-use App\Exception\ApiUnauthorizedAccessException;
+use App\Exception\ApiUnknownPrivateKeyException;
 use App\Repository\UserRepository;
 use App\Service\User\Discord\CsrfInvalidException;
 use App\Service\User\Discord\DiscordSignIn;
@@ -162,7 +162,7 @@ class Users
         $user = $this->repository->findOneBy([ 'apiPublicKey' => $key ]);
     
         if (empty($user)) {
-            throw new ApiUnauthorizedAccessException();
+            throw new ApiUnknownPrivateKeyException();
         }
     
         return $user;
