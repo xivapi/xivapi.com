@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Service\User\Discord;
+namespace App\Service\User;
 
-use App\Service\User\SignInInterface;
-use App\Service\User\SSO\SSOAccess;
+use App\Exception\CSRFInvalidationException;
 use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Wohali\OAuth2\Client\Provider\Discord;
 
-class DiscordSignIn implements SignInInterface
+class SignInDiscord implements SignInInterface
 {
     const NAME            = 'discord';
     const STATE_KEY       = 'oauth2state';
-    const CLIENT_RETURN   = '/account/login/discord/success';
+    const CLIENT_RETURN   = '/users/login/discord/success';
     CONST CLIENT_SCOPE    = ['identify','email'];
     
     /** @var Discord */
@@ -31,20 +31,20 @@ class DiscordSignIn implements SignInInterface
     }
     
     /**
-     * Get the access token
+     * get information from the SSO
      */
-    public function getAccessToken(AccessToken $token, $user): SSOAccess
+    public function getSsoAccess(AccessTokenInterface $token, $user): \stdClass
     {
-        $ssoAccess                  = new SSOAccess();
-        $ssoAccess->name            = self::NAME;
-        $ssoAccess->id              = $user->getId();
-        $ssoAccess->username        = $user->getUsername();
-        $ssoAccess->email           = $user->getEmail() ?: 'none';
-        $ssoAccess->avatar          = $user->getAvatarHash();
-        $ssoAccess->expires         = $token->getToken();
-        $ssoAccess->tokenAccess     = $token->getToken();
-        $ssoAccess->tokenRefresh    = $token->getRefreshToken();
-        return $ssoAccess;
+        $obj                  = (Object)[];
+        $obj->name            = self::NAME;
+        $obj->id              = $user->getId();
+        $obj->username        = $user->getUsername();
+        $obj->email           = $user->getEmail() ?: 'none';
+        $obj->avatar          = $user->getAvatarHash();
+        $obj->tokenExpires    = $token->getExpires();
+        $obj->tokenAccess     = $token->getToken();
+        $obj->tokenRefresh    = $token->getRefreshToken();
+        return $obj;
     }
     
     /**
@@ -65,14 +65,14 @@ class DiscordSignIn implements SignInInterface
     /**
      * Set login authorization state
      */
-    public function setLoginAuthorizationState(): SSOAccess
+    public function setLoginAuthorizationState(): \stdClass
     {
         // check CSRF
         if ($this->request->get('state') !== $this->request->getSession()->get('state')) {
-            throw new CsrfInvalidException();
+            throw new CSRFInvalidationException();
         }
         
-        // grab token
+        /** @var AccessToken $token */
         $token = $this->provider->getAccessToken('authorization_code', [
             'code' => $this->request->get('code')
         ]);
@@ -80,13 +80,13 @@ class DiscordSignIn implements SignInInterface
         $this->request->getSession()->set('discord', $token->jsonSerialize());
         $user = $this->provider->getResourceOwner($token);
         
-        return $this->getAccessToken($token, $user);
+        return $this->getSsoAccess($token, $user);
     }
     
     /**
      * Get authorization token
      */
-    public function getAuthorizationToken(): SSOAccess
+    public function getAuthorizationToken(): \stdClass
     {
         $token = $this->request->getSession()->get(self::NAME);
         
@@ -97,13 +97,13 @@ class DiscordSignIn implements SignInInterface
         
         $token = new AccessToken($token);
         $user = $this->provider->getResourceOwner($token);
-        return $this->getAccessToken($token, $user);
+        return $this->getSsoAccess($token, $user);
     }
     
     /**
      * Refresh the authorization token
      */
-    public function refreshAuthorizationToken(): SSOAccess
+    public function refreshAuthorizationToken(): \stdClass
     {
         $token = $this->request->getSession()->get(self::NAME);
         $token = $this->provider->getAccessToken('refresh_token', [
@@ -111,6 +111,6 @@ class DiscordSignIn implements SignInInterface
         ]);
 
         $user = $this->provider->getResourceOwner($token);
-        return $this->getAccessToken($token, $user);
+        return $this->getSsoAccess($token, $user);
     }
 }

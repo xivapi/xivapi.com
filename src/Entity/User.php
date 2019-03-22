@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\User\SignInDiscord;
 use App\Utils\Random;
 use Ramsey\Uuid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,16 +13,19 @@ use Doctrine\ORM\Mapping as ORM;
  *     indexes={
  *          @ORM\Index(name="added", columns={"added"}),
  *          @ORM\Index(name="sso", columns={"sso"}),
- *          @ORM\Index(name="sso_id", columns={"sso_id"}),
  *          @ORM\Index(name="session", columns={"session"}),
  *          @ORM\Index(name="username", columns={"username"}),
  *          @ORM\Index(name="email", columns={"email"}),
- *          @ORM\Index(name="is_new", columns={"is_new"}),
  *          @ORM\Index(name="is_banned", columns={"is_banned"}),
- *          @ORM\Index(name="is_locked", columns={"is_locked"}),
  *          @ORM\Index(name="api_public_key", columns={"api_public_key"}),
  *          @ORM\Index(name="api_endpoint_access_granted", columns={"api_endpoint_access_granted"}),
- *          @ORM\Index(name="api_endpoint_access_suspended", columns={"api_endpoint_access_suspended"})
+ *          @ORM\Index(name="api_endpoint_access_suspended", columns={"api_endpoint_access_suspended"}),
+ *          @ORM\Index(name="sso_discord_id", columns={"sso_discord_id"}),
+ *          @ORM\Index(name="sso_discord_avatar", columns={"sso_discord_avatar"}),
+ *          @ORM\Index(name="sso_discord_token_expires", columns={"sso_discord_token_expires"}),
+ *          @ORM\Index(name="sso_discord_token_access", columns={"sso_discord_token_access"}),
+ *          @ORM\Index(name="sso_discord_token_refresh", columns={"sso_discord_token_refresh"}),
+ *          @ORM\Index(name="sso_discord_avatar", columns={"sso_discord_avatar"})
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -41,19 +45,9 @@ class User
     private $added;
     /**
      * @var bool
-     * @ORM\Column(type="boolean", name="is_new", options={"default" : 1})
-     */
-    private $new = true;
-    /**
-     * @var bool
      * @ORM\Column(type="boolean", name="is_banned", options={"default" : 0})
      */
     private $banned = false;
-    /**
-     * @var bool
-     * @ORM\Column(type="boolean", name="is_locked", options={"default" : 0})
-     */
-    private $locked = false;
     /**
      * @var string
      * @ORM\Column(type="text", nullable=true)
@@ -66,22 +60,11 @@ class User
      */
     private $sso;
     /**
-     * @var string
-     * @ORM\Column(type="string", length=128, unique=true)
-     */
-    private $ssoId;
-    /**
      * A random hash saved to cookie to retrieve the token
      * @var string
      * @ORM\Column(type="string", length=255, unique=true)
      */
     private $session;
-    /**
-     * The token provided by the SSO provider
-     * @var string
-     * @ORM\Column(type="text", length=512, nullable=true)
-     */
-    private $token;
     /**
      * Username provided by the SSO provider (updates on token refresh)
      * @var string
@@ -95,6 +78,20 @@ class User
      * @ORM\Column(type="string", length=128)
      */
     private $email;
+    /**
+     * Either provided by SSO provider or default
+     *
+     *  DISCORD: https://cdn.discordapp.com/avatars/<USER ID>/<AVATAR ID>.png?size=256
+     *
+     * @var string
+     * @ORM\Column(type="string", length=60, nullable=true)
+     */
+    private $avatar = 'http://xivapi.com/img-misc/chat_messengericon_goldsaucer.png';
+    /**
+     * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
+     */
+    private $patron = false;
     /**
      * User has 1 Key
      * @var string
@@ -124,14 +121,59 @@ class User
      * @ORM\Column(type="boolean", name="api_endpoint_access_suspended", options={"default" : 0})
      */
     private $apiEndpointAccessSuspended = false;
+    /**
+     * @var string
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $apiPermissions;
+
+    // -- discord sso
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $ssoDiscordId;
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $ssoDiscordAvatar;
+    /**
+     * @var int
+     * @ORM\Column(type="integer")
+     */
+    private $ssoDiscordTokenExpires = 0;
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $ssoDiscordTokenAccess;
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $ssoDiscordTokenRefresh;
     
     
     // todo legacy ----------------------
-    
+
     /**
-     * @ORM\Column(type="string", length=60, nullable=true)
+     * @var bool
+     * @ORM\Column(type="boolean", name="is_locked", options={"default" : 0})
      */
-    private $avatar;
+    private $locked = false;
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", name="is_new", options={"default" : 1})
+     */
+    private $new = true;
+    /**
+     * The token provided by the SSO provider
+     * @var string
+     * @ORM\Column(type="text", length=512, nullable=true)
+     */
+    private $token;
     /**
      * @ORM\Column(type="integer", length=16)
      */
@@ -151,26 +193,27 @@ class User
     {
         $this->id           = Uuid::uuid4();
         $this->added        = time();
-        $this->session      = Random::randomSecureString(250);
         $this->apiPublicKey = Random::randomAccessKey();
+
+        $this->generateSession();
+    }
+
+    public function generateSession()
+    {
+        $this->session = Random::randomSecureString(250);
+        return;
     }
 
     public function getAvatar(): string
     {
-        $token = $this->getToken();
-    
-        return "https://cdn.discordapp.com/avatars/{$token->id}/{$token->avatar}.png?t=". time();
-    }
+        if ($this->sso == SignInDiscord::NAME) {
+            $this->avatar = sprintf("https://cdn.discordapp.com/avatars/%s/%s.png?size=256",
+                $this->ssoDiscordId,
+                $this->ssoDiscordAvatar
+            );
+        }
 
-    public function getToken(): ?\stdClass
-    {
-        return json_decode($this->token);
-    }
-    
-    public function setToken(string $token)
-    {
-        $this->token = $token;
-        return $this;
+        return $this->avatar;
     }
 
     // -------------------------------------------------------
@@ -201,18 +244,6 @@ class User
         return $this;
     }
 
-    public function isNew(): bool
-    {
-        return $this->new;
-    }
-
-    public function setNew(bool $new)
-    {
-        $this->new = $new;
-
-        return $this;
-    }
-
     public function isBanned(): bool
     {
         return $this->banned;
@@ -221,18 +252,6 @@ class User
     public function setBanned(bool $banned)
     {
         $this->banned = $banned;
-
-        return $this;
-    }
-
-    public function isLocked(): bool
-    {
-        return $this->locked;
-    }
-
-    public function setLocked(bool $locked)
-    {
-        $this->locked = $locked;
 
         return $this;
     }
@@ -261,18 +280,6 @@ class User
         return $this;
     }
 
-    public function getSsoId(): string
-    {
-        return $this->ssoId;
-    }
-
-    public function setSsoId(string $ssoId)
-    {
-        $this->ssoId = $ssoId;
-
-        return $this;
-    }
-
     public function getSession(): string
     {
         return $this->session;
@@ -284,7 +291,6 @@ class User
 
         return $this;
     }
-    
 
     public function getUsername(): string
     {
@@ -310,7 +316,19 @@ class User
         return $this;
     }
 
-    public function getApiPublicKey(): ?string
+    public function isPatron(): bool
+    {
+        return $this->patron;
+    }
+
+    public function setPatron(bool $patron)
+    {
+        $this->patron = $patron;
+
+        return $this;
+    }
+
+    public function getApiPublicKey(): string
     {
         return $this->apiPublicKey;
     }
@@ -322,7 +340,7 @@ class User
         return $this;
     }
 
-    public function getApiAnalyticsKey(): ?string
+    public function getApiAnalyticsKey(): string
     {
         return $this->apiAnalyticsKey;
     }
@@ -366,6 +384,86 @@ class User
     public function setApiEndpointAccessSuspended(bool $apiEndpointAccessSuspended)
     {
         $this->apiEndpointAccessSuspended = $apiEndpointAccessSuspended;
+
+        return $this;
+    }
+
+    public function getApiPermissions(): array
+    {
+        return json_decode($this->apiPermissions, true);
+    }
+
+    public function setApiPermissions(array $apiPermissions)
+    {
+        $this->apiPermissions = json_encode($apiPermissions);
+
+        return $this;
+    }
+
+    public function addApiPermission($permission): self
+    {
+        $permissions = $this->getApiPermissions();
+        $permissions[] = $permission;
+        $this->setApiPermissions($permissions);
+        return $this;
+    }
+
+    public function getSsoDiscordId(): string
+    {
+        return $this->ssoDiscordId;
+    }
+
+    public function setSsoDiscordId(string $ssoDiscordId)
+    {
+        $this->ssoDiscordId = $ssoDiscordId;
+
+        return $this;
+    }
+
+    public function getSsoDiscordAvatar(): string
+    {
+        return $this->ssoDiscordAvatar;
+    }
+
+    public function setSsoDiscordAvatar(string $ssoDiscordAvatar)
+    {
+        $this->ssoDiscordAvatar = $ssoDiscordAvatar;
+
+        return $this;
+    }
+
+    public function getSsoDiscordTokenExpires(): int
+    {
+        return $this->ssoDiscordTokenExpires;
+    }
+
+    public function setSsoDiscordTokenExpires(int $ssoDiscordTokenExpires)
+    {
+        $this->ssoDiscordTokenExpires = $ssoDiscordTokenExpires;
+
+        return $this;
+    }
+
+    public function getSsoDiscordTokenAccess(): string
+    {
+        return $this->ssoDiscordTokenAccess;
+    }
+
+    public function setSsoDiscordTokenAccess(string $ssoDiscordTokenAccess)
+    {
+        $this->ssoDiscordTokenAccess = $ssoDiscordTokenAccess;
+
+        return $this;
+    }
+
+    public function getSsoDiscordTokenRefresh(): string
+    {
+        return $this->ssoDiscordTokenRefresh;
+    }
+
+    public function setSsoDiscordTokenRefresh(string $ssoDiscordTokenRefresh)
+    {
+        $this->ssoDiscordTokenRefresh = $ssoDiscordTokenRefresh;
 
         return $this;
     }

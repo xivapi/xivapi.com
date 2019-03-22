@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\User\Discord\DiscordSignIn;
+use App\Service\User\SignInDiscord;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -41,7 +41,7 @@ class AccountController extends AbstractController
     public function loginDiscord(Request $request)
     {
         return $this->redirect(
-            $this->users->setSsoProvider(new DiscordSignIn($request))->login()
+            $this->users->setSsoProvider(new SignInDiscord($request))->login()
         );
     }
     
@@ -54,7 +54,7 @@ class AccountController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        $this->users->setSsoProvider(new DiscordSignIn($request))->authenticate();
+        $this->users->setSsoProvider(new SignInDiscord($request))->authenticate();
         return $this->redirectToRoute('home');
     }
 

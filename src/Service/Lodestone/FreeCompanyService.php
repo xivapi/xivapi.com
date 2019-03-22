@@ -31,7 +31,7 @@ class FreeCompanyService extends Service
                 'data' => $data ?? null,
             ];
         }
-    
+
         FreeCompanyQueue::request($lodestoneId, 'free_company_add');
         
         return (Object)[

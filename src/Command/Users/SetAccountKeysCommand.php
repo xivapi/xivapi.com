@@ -3,6 +3,7 @@
 namespace App\Command\Users;
 
 use App\Command\CommandConfigureTrait;
+use App\Entity\User;
 use App\Service\User\Users;
 use App\Utils\Random;
 use Symfony\Component\Console\Command\Command;
@@ -30,8 +31,9 @@ class SetAccountKeysCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $users = $this->users->findAll();
+        $users = $this->users->getRepository()->findAll();
 
+        /** @var User $user */
         foreach ($users as $user) {
             if (empty($user->getApiPublicKey())) {
                 $user->setApiPublicKey(Random::randomAccessKey());

@@ -43,11 +43,11 @@ class CharacterService extends Service
                 'data' => $data ?? null,
             ];
         }
-    
+
         CharacterQueue::request($lodestoneId, 'character_add');
         CharacterFriendQueue::request($lodestoneId, 'character_friends_add');
         CharacterAchievementQueue::request($lodestoneId, 'character_achievements_add');
-        
+
         return (Object)[
             'ent'  => new Character($lodestoneId),
             'data' => null,

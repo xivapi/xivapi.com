@@ -31,7 +31,7 @@ class LinkshellService extends Service
                 'data' => $data ?? null,
             ];
         }
-    
+
         LinkshellQueue::request($lodestoneId, 'linkshell_add');
     
         return (Object)[

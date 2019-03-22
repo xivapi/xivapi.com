@@ -3,6 +3,9 @@
 namespace App\Service\LodestoneQueue;
 
 use App\Entity\Character;
+use App\Service\API\ApiPermissions;
+use App\Service\API\ApiRequest;
+use App\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Exceptions\AchievementsPrivateException;
 use Lodestone\Exceptions\ForbiddenException;
@@ -11,7 +14,6 @@ use Lodestone\Exceptions\NotFoundException;
 
 trait QueueTrait
 {
-
     /**
      * Immediately save an entity
      *
@@ -49,6 +51,18 @@ trait QueueTrait
      */
     public static function request($ids, string $queue)
     {
+        // a single "access point" (ip/account) can add 8 characters per day. This is what SE limit to.
+        $limit = 8;
+
+        $count = Redis::Cache()->get('lodestone_queue_count_'. ApiRequest::$id);
+        $count++;
+        Redis::Cache()->set('lodestone_queue_count_'. ApiRequest::$id, $count);
+
+        // if the individual user has reached the limit and doesn't have special permissions, block them
+        if ($count > $limit && ApiPermissions::has(ApiPermissions::PERMISSION_ADD_LODESTONE_CONTENT) === false) {
+            return;
+        }
+
         $ids = is_array($ids) ? $ids : [ $ids ];
         
         $rabbit = new RabbitMQ();

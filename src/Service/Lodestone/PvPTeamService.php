@@ -31,7 +31,7 @@ class PvPTeamService extends Service
                 'data' => $data ?? null,
             ];
         }
-    
+
         PvPTeamQueue::request($lodestoneId, 'pvp_team_add');
     
         return (Object)[

@@ -42,6 +42,12 @@ class ApiRequest
     ];
 
     /**
+     * Static ID for requests, will either be a hashed ip or
+     * a developer key (whatever is used to rate limit)
+     */
+    public static $id;
+
+    /**
      * @var Users
      */
     private $users;
@@ -90,6 +96,7 @@ class ApiRequest
 
         /** @var User $user */
         $this->user = $this->users->getUserByApiKey($this->request->get('private_key'));
+        $this->setApiPermissions();
 
         // checks
         $this->checkUserIsNotBanned();
@@ -124,6 +131,16 @@ class ApiRequest
     }
 
     /**
+     * Sets the static permissions for the user if an account exists
+     */
+    private function setApiPermissions()
+    {
+        if ($this->user) {
+            ApiPermissions::set($this->user->getApiPermissions());
+        }
+    }
+
+    /**
      * A single account gets X number of requests per second, this is account wide so they
      * must proxy their own service to avoid others from stealing their API Key.
      *
@@ -131,7 +148,7 @@ class ApiRequest
      */
     private function checkDeveloperRateLimit()
     {
-        $key = "api_rate_limit_developer_{$this->user->getId()}";
+        $key = "api_rate_limit_user_{$this->user->getId()}";
         $this->handleRateLimit($key, $this->user->getApiRateLimit());
     }
     
@@ -141,7 +158,7 @@ class ApiRequest
     private function checkUserRateLimit()
     {
         $ip  = md5($this->request->getClientIp());
-        $key = "api_rate_limit_user_{$ip}";
+        $key = "api_rate_limit_client_{$ip}";
         
         $this->handleRateLimit($key);
     }
@@ -151,6 +168,8 @@ class ApiRequest
      */
     private function handleRateLimit($key, $limit = self::MAX_RATE_LIMIT_GLOBAL)
     {
+        ApiRequest::$id = $key;
+
         $nowSecond  = (int)date('s');
         $lastSecond = ($nowSecond - 1) < 0 ? 59 : $nowSecond - 1;
     
