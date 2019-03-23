@@ -206,7 +206,7 @@ class User
 
     public function getAvatar(): string
     {
-        if ($this->sso == SignInDiscord::NAME) {
+        if ($this->sso == SignInDiscord::NAME && $this->ssoDiscordAvatar) {
             $this->avatar = sprintf("https://cdn.discordapp.com/avatars/%s/%s.png?size=256",
                 $this->ssoDiscordId,
                 $this->ssoDiscordAvatar
@@ -413,7 +413,7 @@ class User
         return $this->ssoDiscordAvatar;
     }
 
-    public function setSsoDiscordAvatar(string $ssoDiscordAvatar)
+    public function setSsoDiscordAvatar(?string $ssoDiscordAvatar = null)
     {
         $this->ssoDiscordAvatar = $ssoDiscordAvatar;
 

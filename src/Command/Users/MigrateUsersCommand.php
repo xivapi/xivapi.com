@@ -35,7 +35,7 @@ class MigrateUsersCommand extends Command
 
         /** @var User $user */
         foreach ($users as $user) {
-            $token = $user->getSsoDiscordId();
+            $token = $user->getToken();
             $token = json_decode($token);
             
             $user
