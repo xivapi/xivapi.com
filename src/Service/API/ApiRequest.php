@@ -25,7 +25,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ApiRequest
 {
-    const MAX_RATE_LIMIT_GLOBAL = 2;
+    const KEY_FIELD = 'private_key';
+    const MAX_RATE_LIMIT_KEY = 20;
+    const MAX_RATE_LIMIT_GLOBAL = 5;
     
     /**
      * List of controllers that require a API Key
@@ -84,7 +86,7 @@ class ApiRequest
     public function handle(Request $request)
     {
         $this->request = $request;
-        $this->apikey  = trim($this->request->get('private_key'));
+        $this->apikey  = trim($this->request->get(self::KEY_FIELD));
 
         // if this request is not against an API controller, we don't need to do anything.
         if ($this->isApiController() === false) {
@@ -132,7 +134,7 @@ class ApiRequest
      */
     private function hasApiKey(): bool
     {
-        return !empty($this->request->get('private_key'));
+        return !empty($this->request->get(self::KEY_FIELD));
     }
 
     /**

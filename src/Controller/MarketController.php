@@ -16,6 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class MarketController extends AbstractController
 {
+    const DEFAULT_MAX_HISTORY = 100;
+    
     /** @var CompanionMarket */
     private $companionMarket;
     /** @var Companion */
@@ -36,7 +38,7 @@ class MarketController extends AbstractController
     public function itemByServer(Request $request, string $server, int $itemId)
     {
         // options
-        $maxHistory = $request->get('max_history') ?: 100;
+        $maxHistory = $request->get('max_history') ?: self::DEFAULT_MAX_HISTORY;
         
         // build response
         $serverId = GameServers::getServerId($server);
@@ -69,7 +71,7 @@ class MarketController extends AbstractController
         }
         
         // options
-        $maxHistory = $request->get('max_history') ?: 50;
+        $maxHistory = $request->get('max_history') ?: self::DEFAULT_MAX_HISTORY;
 
         // build response
         $response = [];

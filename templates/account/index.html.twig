@@ -3,11 +3,8 @@
 {% block title %}{{ auth.user.username }} - Dev Account - XIVAPI{% endblock %}
 
 {% block body %}
-
     {% if auth.user %}
-
         <div class="account">
-
             {# User banned #}
             {% if auth.user.banned %}
             <div class="account-banned">
@@ -122,7 +119,7 @@
                         <td>Rate Limits</td>
                         <td>
                             <p>
-                                <strong>Per User IP:</strong> 2/second
+                                <strong>Per User IP:</strong> {{ api_key_limits.MAX_RATE_LIMIT_GLOBAL }}/second
                             </p>
                             <p>
                                 <strong>Per App Key:</strong> {{ auth.user.apiRateLimit }}
@@ -179,12 +176,8 @@
                     </tr>
                 </table>
             </div>
-
         </div>
-
-
     {% else %}
         Plz Login
     {% endif %}
-
 {% endblock %}

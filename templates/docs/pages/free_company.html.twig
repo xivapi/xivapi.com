@@ -10,7 +10,7 @@
         as profile information and member lists.
     </p>
 
-    {{ docs.gap() }}
+    <br><br>
 
     {# Search #}
     {{ docs.api('/freecompany/search', '/freecompany/search?name=[name]&server=[server]', 'search') }}
@@ -78,7 +78,9 @@
                 <p>By default only the `Character` data will return, you can request more data using the `data` query.</p>
 
                 <h6>data</h6>
-                <p class="usage">{{ app.request.getSchemeAndHttpHost() }}/freecompany/9231253336202687179?data=FCM</p>
+                <code>
+                    {{ app.request.getSchemeAndHttpHost() }}/freecompany/9231253336202687179?data=FCM
+                </code>
                 <p>Pass a long a comma separated list of codes that relate to specific data sets you would like
                     to fetch, these are as follows:</p>
 

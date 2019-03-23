@@ -1,0 +1,10 @@
+<pre class="box"><span style="color: #f92672">import</span> <span style="color: #f8f8f2">urllib2</span><span style="color: #f92672">,</span> <span style="color: #f8f8f2">json</span>
+
+<span style="color: #f8f8f2">request</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">urllib2</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">Request(</span><span style="color: #e6db74">&quot;http://xivapi.com/Item/1675&quot;</span><span style="color: #f8f8f2">)</span>
+<span style="color: #f8f8f2">request</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">add_header(</span><span style="color: #e6db74">&#39;User-Agent&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #e6db74">&#39;&amp;lt;User-Agent&amp;gt;&#39;</span><span style="color: #f8f8f2">)</span>
+<span style="color: #f8f8f2">data</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">json</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">loads(urllib2</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">urlopen(request)</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">read())</span>
+
+<span style="color: #75715e"># I.Lv 80 Curtana</span>
+<span style="color: #f8f8f2">print</span> <span style="color: #e6db74">&quot;I.Lv %d %s&quot;</span> <span style="color: #f92672">%</span> <span style="color: #f8f8f2">(data[</span><span style="color: #e6db74">&#39;LevelItem&#39;</span><span style="color: #f8f8f2">],</span> <span style="color: #f8f8f2">data[</span><span style="color: #e6db74">&#39;Name_en&#39;</span><span style="color: #f8f8f2">])</span>
+</pre>
+<br><br>

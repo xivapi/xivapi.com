@@ -79,7 +79,8 @@ table {
 
 html, body {
   height: 100%;
-  min-height: 100%; }
+  min-height: 100%;
+  min-width: 1000px; }
 
 html {
   background-color: var(--background);
@@ -111,15 +112,17 @@ nav {
   margin: 0 auto;
   display: flex; }
   nav > div {
-    flex: 0 1 50%;
     line-height: 100px;
     height: 100px; }
-    nav > div:nth-of-type(1) a {
-      display: inline-block; }
-    nav > div:nth-of-type(1) img {
-      height: 36px;
-      vertical-align: middle; }
+    nav > div:nth-of-type(1) {
+      flex: 0 1 120px; }
+      nav > div:nth-of-type(1) a {
+        display: inline-block; }
+      nav > div:nth-of-type(1) img {
+        height: 36px;
+        vertical-align: middle; }
     nav > div:nth-of-type(2) {
+      flex: 0 1 calc(100% - 120px);
       text-align: right; }
       nav > div:nth-of-type(2) em {
         text-shadow: none;
@@ -230,6 +233,12 @@ ul, ol {
   ul li, ol li {
     padding: 5px 8px; }
 
+small {
+  display: block;
+  margin-bottom: 30px;
+  font-size: 12px;
+  opacity: 0.6; }
+
 :root {
   --aside-depth: 380px;
   --aside-width: 170px;
@@ -247,7 +256,7 @@ ul, ol {
 code, pre {
   font-size: 14px;
   font-family: Roboto Mono, monospace;
-  color: #74b284; }
+  color: #c9cc92; }
 
 code.box, pre.box, .rate-limit-example {
   background-color: var(--background);
@@ -608,7 +617,7 @@ main .stats-page {
 
 main .account {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 50px auto 200px auto; }
   main .account h1 {
     font-size: 32px;
@@ -637,7 +646,9 @@ main .account {
     main .account .account-panel table {
       background-color: var(--background3); }
       main .account .account-panel table tr td:first-of-type {
-        color: var(--yellow);
+        color: #888;
+        font-weight: 400;
+        font-size: 17px;
         background-color: var(--background2);
         border-right: solid 1px #000; }
       main .account .account-panel table img {
@@ -677,9 +688,10 @@ main .account {
       main .account .account-panel form .form-row {
         margin-bottom: 10px; }
     main .account .account-panel .account-note {
-      background-color: #302220;
-      padding: 8px;
+      background-color: #232b30;
+      padding: 12px 16px;
       border-radius: 4px;
-      font-size: 13px; }
+      font-size: 13px;
+      border-left: solid 5px #FFC107; }
     main .account .account-panel .btn-logout {
       color: var(--red); }

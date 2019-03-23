@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\API\ApiRequest;
 use App\Service\User\SignInDiscord;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,7 +33,12 @@ class AccountController extends AbstractController
      */
     public function index()
     {
-        return $this->render('account/index.html.twig');
+        return $this->render('account/index.html.twig', [
+            'api_key_limits' => [
+                'MAX_RATE_LIMIT_KEY' => ApiRequest::MAX_RATE_LIMIT_KEY,
+                'MAX_RATE_LIMIT_GLOBAL' => ApiRequest::MAX_RATE_LIMIT_GLOBAL,
+            ]
+        ]);
     }
     
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\API\ApiRequest;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Content\ContentList;
 use App\Service\Content\GameServers;
@@ -45,15 +46,18 @@ class DocumentationController extends AbstractController
 
         $response = [
             'file' => $file,
-            'page_name' => $page,
-            'search_indexes' => SearchContent::LIST,
+            'page_name'              => $page,
+            'search_indexes'         => SearchContent::LIST,
             'search_indexes_default' => SearchContent::LIST,
-            'search_algo_default' => SearchRequest::STRING_ALGORITHM_DEFAULT,
-            'content_max_default' => ContentList::DEFAULT_ITEMS,
-            'content_max' => ContentList::MAX_ITEMS,
-            'server_list' => GameServers::LIST,
-            'server_tokens' => $this->companion->getCompanionTokens(),
-            'server_unsupported' => CompanionTokenManager::SERVERS_OFFLINE,
+            'search_algo_default'    => SearchRequest::STRING_ALGORITHM_DEFAULT,
+            'content_max_default'    => ContentList::DEFAULT_ITEMS,
+            'content_max'            => ContentList::MAX_ITEMS,
+            'server_list'            => GameServers::LIST,
+            'server_tokens'          => $this->companion->getCompanionTokens(),
+            'server_unsupported'     => CompanionTokenManager::SERVERS_OFFLINE,
+            
+            'max_rate_limit_key'     => ApiRequest::MAX_RATE_LIMIT_KEY,
+            'max_rate_limit_global'  => ApiRequest::MAX_RATE_LIMIT_GLOBAL,
         ];
         
         // change logs

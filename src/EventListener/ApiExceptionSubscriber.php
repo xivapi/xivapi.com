@@ -55,6 +55,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
             'Subject' => 'XIVAPI Service Error',
             'Message' => $message,
             'Hash'    => sha1($message),
+            'Ex'      => get_class($ex),
             'Debug'   => (Object)[
                 'File'    => "#{$ex->getLine()} {$file}",
                 'Method'  => $event->getRequest()->getMethod(),

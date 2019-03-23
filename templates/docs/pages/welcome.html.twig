@@ -5,18 +5,24 @@
 
     <h1>Welcome</h1>
 
-    <p>The XIVAPI provides a massive amount of FINAL FANTASY XIV game data in a JSON format via
+    <p>
+        The XIVAPI provides a massive amount of FINAL FANTASY XIV game data in a JSON format via
         a REST API. You can fetch information on all sorts of game content that has been discovered and
         mapped in the SaintCoinach Schema. In addition it provides Character, Free Company, Linkshell, PvPTeams
-        and Lodestone information!</p>
+        and Lodestone information!
+    </p>
 
-    <hr>
-
-    <h2>Patreon Support!</h2>
     <p>
-        By contributing a small amount every month you support development on XIVAPI and Mogboard.com
+        Jump into the discord: <a href="https://discord.gg/MFFVHWC" target="_blank">https://discord.gg/MFFVHWC</a>
+    </p>
+
+    <br><br>
+
+    <h2 id="patreon">Patreon Support!</h2>
+    <p>
+        By contributing a small amount every month you support development on <strong>XIVAPI</strong> and <strong>Mogboard.com</strong>
         - You'll receive perks for both sites, recognition on discord and appreciation from the devs heart!
-        If you want to know how much things cost; <a href="http://xivapi.local/docs/Costs">view the live pricing</a> page.
+        If you want to know how much things cost; <a href="{{ path('docs_page', { page: 'Costs' }) }}">view the live pricing</a> page.
     </p>
     <p>
         <a href="https://www.patreon.com/bePatron?u=13230932" target="_blank">
@@ -24,7 +30,7 @@
         </a>
     </p>
 
-    {{ docs.gap() }}
+    <hr>
 
     {# ENVIRONMENTS #}
     <h2>API Environments</h2>
@@ -45,13 +51,154 @@
         </tbody>
     </table>
 
-    <small>Please use HTTPS for all queries. HTTP is not supported and could be shut off at anytime.</small>
+    {# Https #}
+    <p>
+        Please always use <code>https</code> when accessing the API.
+    </p>
+
+    <br><br>
 
     {# API Keys #}
-    <p>To use the API you will need to create a developer app.
-        This provides you with a public and private key that
-        grants access to the API. It will also provide flexiable
-        rate-limiting and support.</p>
+    <h1 id="api-access">API Access</h1>
+
+    <p>
+        The API can be fully accessed at anytime by hitting any of the desired endpoints. There are two
+        methods of <strong>rate-limiting</strong> which are based on: <strong>Client IP</strong> or <strong>API key</strong>,
+        for frontend applications it is recommended to not use an API key and your users will be rate limited individually.
+        If you are using XIVAPI server side (thus have a static IP) you should use your API key with all requests.
+    </p>
+
+    <p>
+        To get your key, login via Discord and access
+        <a href="{{ path('account') }}">Dev Account</a> at the top.
+    </p>
+
+    <p>
+        The rate limit values are as follows:
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>API Key</th>
+                <th>Client IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ max_rate_limit_key }} / req / sec</td>
+                <td>{{ max_rate_limit_global }} / req / sec</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p class="note">
+        <strong>Due Diligence</strong>
+        <br>
+        Just because you can hit the API for X requests a second, every second of the day does not mean
+        that you should. The rate-limit is intended to provide a fair amount of burst requests to each
+        user. The API is up to many fellow FFXIV developers, be reasonable about your usage and consider
+        how often you really need to query the site as well as if it's possible to cache/preload data.
+        <br><br>
+        Game Content is very static and real-time data (eg Market/Characters) have a cache layers that
+        update in the background. Be wise with regards to your usage.
+    </p>
+
+    <small>
+        <strong>Note:</strong> XIVAPI does not keep a record of IPs and usage of them are SHA1 hashed.
+    </small>
+
+    <p>
+        If you use an API key, IP is no longer factored into rate limit checks. You will also
+        gain the benefit of Google Tracking and a higher rate limit. If your individual rate limit
+        is not enough then hop onto the Discord and we can look into it!
+    </p>
+
+    <br><br>
+
+    <h4>Using your key</h4>
+
+    <p>
+        Provide your key to the query param: <code>private_key</code>
+    </p>
+
+    <code class="box">
+        https://xivapi.com/item/1675?<em>string=ifrit</em>&<em>private_key=[your_key]</em>
+    </code>
+
+    <p>You can also pass it as a JSON payload</p>
+    <code class="box">
+        <pre>{
+    string: "ifrit",
+    private_key: <em>"[your_key]"</em>
+}</pre>
+    </code>
+
+    <hr>
+
+    <h2 id="getting-started">Getting Started</h2>
+
+    <p>
+        Do a basic curl request
+    </p>
+
+    <code class="box">curl {{ app.request.getSchemeAndHttpHost() }}/item/1675</code>
+
+    <h4>Libraries</h4>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="20%">Language</th>
+                <th>Library</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>PHP</td>
+                <td>
+                    <a href="https://github.com/xivapi/xivapi-php">https://github.com/xivapi/xivapi-php</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Javascript</td>
+                <td>
+                    <a href="https://github.com/xivapi/angular-client">https://github.com/xivapi/angular-client</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Ruby</td>
+                <td>
+                    <a href="https://github.com/xivapi/xivapi-ruby">https://github.com/xivapi/xivapi-ruby</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Go</td>
+                <td>
+                    <a href="https://github.com/xivapi/xivapi-go">https://github.com/xivapi/xivapi-go</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br><br>
+
+    <h4>Examples</h4>
+
+    <h2>PHP</h2>
+    {% include 'docs/pages/code/example_php.html.twig' %}
+
+    <h2>Python</h2>
+    {% include 'docs/pages/code/example_python.html.twig' %}
+
+    <h2>Javascript</h2>
+    {% include 'docs/pages/code/example_javascript.html.twig' %}
+
+    <h2>JQuery</h2>
+    {% include 'docs/pages/code/example_jquery.html.twig' %}
+
+    <h2>C#</h2>
+    {% include 'docs/pages/code/example_csharp.html.twig' %}
 
     <hr>
 
@@ -63,8 +210,7 @@
         <a href="https://github.com/xivapi/xivapi.com">xivapi/xivapi.com</a>
     </p>
 
-    <hr>
-
+    <br><br>
 
     {# Third party tools #}
     <h2>Saint Coinach</h2>

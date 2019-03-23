@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\API\ApiRequest;
 use App\Service\User\SignInDiscord;
 use App\Utils\Random;
 use Ramsey\Uuid\Uuid;
@@ -31,8 +32,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class User
 {
-    const DEFAULT_RATE_LIMIT = 20;
-    
     /**
      * @var string
      * @ORM\Id
@@ -109,7 +108,7 @@ class User
      * @var int
      * @ORM\Column(type="integer", options={"default" : 0})
      */
-    private $apiRateLimit = self::DEFAULT_RATE_LIMIT;
+    private $apiRateLimit = ApiRequest::MAX_RATE_LIMIT_KEY;
     /**
      * User has been suspended from the API
      * @var bool
