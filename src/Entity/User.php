@@ -188,7 +188,7 @@ class User
     private $mappyAccessCode = 0;
     /**
      * @var string
-     * @ORM\Column(type="string", length=128, unique=true)
+     * @ORM\Column(type="string", length=128, nullable=true)
      */
     private $ssoId;
     
