@@ -408,7 +408,7 @@ class User
         return $this;
     }
 
-    public function getSsoDiscordAvatar(): string
+    public function getSsoDiscordAvatar(): ?string
     {
         return $this->ssoDiscordAvatar;
     }
@@ -420,7 +420,7 @@ class User
         return $this;
     }
 
-    public function getSsoDiscordTokenExpires(): int
+    public function getSsoDiscordTokenExpires(): ?int
     {
         return $this->ssoDiscordTokenExpires;
     }
@@ -432,7 +432,7 @@ class User
         return $this;
     }
 
-    public function getSsoDiscordTokenAccess(): string
+    public function getSsoDiscordTokenAccess(): ?string
     {
         return $this->ssoDiscordTokenAccess;
     }
@@ -444,7 +444,7 @@ class User
         return $this;
     }
 
-    public function getSsoDiscordTokenRefresh(): string
+    public function getSsoDiscordTokenRefresh(): ?string
     {
         return $this->ssoDiscordTokenRefresh;
     }
