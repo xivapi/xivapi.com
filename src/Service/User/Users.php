@@ -47,7 +47,7 @@ class Users
     /**
      * Get the current logged in user
      */
-    public function getUser($mustBeOnline = true): ?User
+    public function getUser($mustBeOnline = false): ?User
     {
         $session = Cookie::get(self::COOKIE_SESSION_NAME);
         if (!$session || $session === 'x') {
@@ -91,7 +91,7 @@ class Users
      */
     public function isOnline()
     {
-        return !empty($this->getUser(false));
+        return !empty($this->getUser());
     }
 
     /**

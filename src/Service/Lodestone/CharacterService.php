@@ -12,10 +12,9 @@ use App\Service\LodestoneQueue\CharacterAchievementQueue;
 use App\Service\LodestoneQueue\CharacterConverter;
 use App\Service\LodestoneQueue\CharacterFriendQueue;
 use App\Service\LodestoneQueue\CharacterQueue;
-use App\Service\Service;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
-class CharacterService extends Service
+class CharacterService extends AbstractService
 {
     /**
      * Get a character; this will add the character if they do not exist

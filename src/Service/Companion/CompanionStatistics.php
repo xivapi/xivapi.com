@@ -23,6 +23,11 @@ class CompanionStatistics
         4 => '< 24 hours',
         5 => '< 40 hours',
         6 => '< 72 hours',
+
+        7 => 'Less than 5 sale history',
+        8 => 'Item newly added to XIVAPI',
+        9 => 'Default Queue',
+        10 => 'Never Sold'
     ];
 
     const STATS_ARRAY = [

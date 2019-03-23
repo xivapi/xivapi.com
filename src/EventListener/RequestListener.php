@@ -23,6 +23,10 @@ class RequestListener
         if (!$event->isMasterRequest()) {
             return;
         }
+    
+        if ($sentry = getenv('SENTRY')) {
+            (new \Raven_Client($sentry))->install();
+        }
 
         /** @var Request $request */
         $request = $event->getRequest();

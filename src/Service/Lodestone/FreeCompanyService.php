@@ -5,10 +5,9 @@ namespace App\Service\Lodestone;
 use App\Entity\FreeCompany;
 use App\Service\Content\LodestoneData;
 use App\Service\LodestoneQueue\FreeCompanyQueue;
-use App\Service\Service;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
-class FreeCompanyService extends Service
+class FreeCompanyService extends AbstractService
 {
     /**
      * Get a Free Company

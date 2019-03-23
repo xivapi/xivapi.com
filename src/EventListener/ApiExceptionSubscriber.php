@@ -23,11 +23,21 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
 
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
+        $ex   = $event->getException();
+        
+        if (getenv('SITE_CONFIG_SHOW_ERRORS') == '1' && getenv('APP_ENV') == 'prod') {
+            print_r([
+                "#{$ex->getLine()} {$ex->getFile()}",
+                $ex->getMessage(),
+                $event->getException()->getTrace()
+            ]);
+        }
+        
         if (getenv('SITE_CONFIG_SHOW_ERRORS') == '1') {
             return null;
         }
         
-        $ex   = $event->getException();
+        
         $path = $event->getRequest()->getPathInfo();
         $pi   = pathinfo($path);
     

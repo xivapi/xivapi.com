@@ -4,7 +4,6 @@
 #
 
 sendfile off;
-client_max_body_size 50M;
 
 location /ping {
     return 200 'online';
@@ -17,7 +16,7 @@ location / {
 }
 
 location ~ ^/index\.php(/|$) {
-    fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+    fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
     fastcgi_split_path_info ^(.+\.php)(/.*)$;
     include fastcgi_params;
     fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;

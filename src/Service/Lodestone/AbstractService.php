@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Lodestone;
 
 use Doctrine\ORM\EntityManagerInterface;
 
-class Service
+class AbstractService
 {
     /** @var EntityManagerInterface */
     public $em;
