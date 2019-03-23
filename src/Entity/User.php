@@ -63,7 +63,7 @@ class User
     /**
      * A random hash saved to cookie to retrieve the token
      * @var string
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=255, unique=true, nullable=true)
      */
     private $session;
     /**
@@ -261,7 +261,7 @@ class User
         return $this->notes;
     }
 
-    public function setNotes(string $notes)
+    public function setNotes(?string $notes = null)
     {
         $this->notes = $notes;
 
@@ -285,7 +285,7 @@ class User
         return $this->session;
     }
 
-    public function setSession(string $session)
+    public function setSession(?string $session = null)
     {
         $this->session = $session;
 
