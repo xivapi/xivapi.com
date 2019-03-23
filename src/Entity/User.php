@@ -141,7 +141,7 @@ class User
     private $ssoDiscordAvatar;
     /**
      * @var int
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     private $ssoDiscordTokenExpires = 0;
     /**
