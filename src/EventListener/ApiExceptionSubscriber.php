@@ -29,7 +29,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
             print_r([
                 "#{$ex->getLine()} {$ex->getFile()}",
                 $ex->getMessage(),
-                $event->getException()->getTrace()
+                $event->getException()->getTraceAsString()
             ]);
         }
         

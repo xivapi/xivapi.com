@@ -6,8 +6,182 @@
 
     {% if auth.user %}
 
+        <div class="account">
 
-        Your key: {{ auth.user.apiPublicKey }}
+            {# User banned #}
+            {% if auth.user.banned %}
+            <div class="account-banned">
+                <h2>Account Banned</h2>
+                <p>
+                    Sorry to say your account has been banned from XIVAPI. Your API Key will no longer work,
+                    if you wish to use the API you can do so without a key which will be subject
+                    to IP Rate-Limit. For information on your ban, please view the notes below
+                    or get in contact with staff on the XIVAPI Discord.
+                </p>
+                <p>
+                    Please understand that a ban is not permanent, nore is it personal. It could be
+                    warranted by the system automatically based on API behaviour or a decision
+                    based on Analytics showing crawling or unusual activity.
+                </p>
+                <p>
+                    Regards, -PV
+                </p>
+            </div>
+            {% endif %}
+
+            {# Key Suspended #}
+            {% if auth.user.apiEndpointAccessSuspended %}
+                <div class="account-banned">
+                    <h2>API Access Suspended</h2>
+                    <p>
+                        Your API Access has been automatically suspended due to violating the agreement of
+                        API Usage. Please check the documentation for further information. This restriction
+                        will automatically lift tomorrow.
+                    </p>
+                    <p>
+                        Please understand that suspended access is not permanent, nore is it personal.
+                    </p>
+                    <p>
+                        Regards, -PV
+                    </p>
+                </div>
+            {% endif %}
+
+            {# Account information #}
+            <h1>Account</h1>
+            <div class="account-panel">
+                <table>
+                    <tr>
+                        <td width="30%">Username</td>
+                        <td>{{ auth.user.username }}</td>
+                    </tr>
+                    <tr>
+                        <td>Sign-On Service</td>
+                        <td>
+                            {{ auth.user.sso|title }}
+                            <small>Expires: {{ auth.user.ssoDiscordTokenExpires|date }}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Joined</td>
+                        <td>{{ auth.user.added|date }}</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>{{ auth.user.email }}</td>
+                    </tr>
+                    <tr>
+                        <td>Avatar</td>
+                        <td><img src="{{ auth.user.avatar }}"></td>
+                    </tr>
+                </table>
+
+                <div class="account-logout">
+                    Ready to leave? <a href="{{ path('account_logout') }}" class="btn-logout">Logout</a>.
+                </div>
+            </div>
+
+            {# API Information #}
+            <h1>API Access</h1>
+            <div class="account-panel">
+                <table>
+                    <tr>
+                        <td width="30%">API Key</td>
+                        <td>
+                            <code class="box">{{ auth.user.apiPublicKey }}</code>
+
+                            {% if auth.user.banned %}
+                            <p>API Key will not work due to banned status.</p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>How to use</td>
+                        <td>
+                            <p>
+                                If you are writing purely front-end applications where the users
+                                will be interacting with XIVAPI (eg via JavaScript) then you do
+                                not need an API Key.
+                            </p>
+                            <p>
+                                If you are using XIVAPI behind a server (and thus a static IP) you
+                                will need an API key to avoid hitting API limits.
+                            </p>
+                            <p>
+                                Append the key onto the URL using the param: <code>private_key</code>.
+                            </p>
+                            <br>
+                            <code class="box">
+                                https://xivapi.com/item/1675?private_key={{ auth.user.apiPublicKey }}
+                            </code>
+                            <br>
+                            For more information, please view the <a href="{{ path('docs') }}">Documentation</a>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Rate Limits</td>
+                        <td>
+                            <p>
+                                <strong>Per User IP:</strong> 2/second
+                            </p>
+                            <p>
+                                <strong>Per App Key:</strong> {{ auth.user.apiRateLimit }}
+                            </p>
+                            <p class="account-note">
+                                <strong>IMPORTANT</strong> Just because you have X/second rate limit does not mean
+                                you should be hitting the service consistently for X/second, this rate is set so that
+                                should you have bursts you don't automatically get a request denied. A consistent
+                                usage of your rate limit at the maximum value will likely trigger the system
+                                into automatically banning you.
+                                <br><br>
+                                Think about your implementation and decide
+                                if things can be cached, queried less or ask for support on the discord.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Notes</td>
+                        <td>
+                            <p>
+                                API keys have limited request-counts to some endpoints that add content,
+                                these include:
+                            </p>
+                            <ul>
+                                <li><code>/character/[lodestone_id]</code></li>
+                                <li><code>/freecompany/[lodestone_id]</code></li>
+                                <li><code>/linkshell/[lodestone_id]</code></li>
+                                <li><code>/pvpteam/[lodestone_id]</code></li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Google Analytics Key</td>
+                        <td>
+                            <form method="post" action="{{ path('account_save_google_analytics_id') }}">
+                                <p>
+                                    Enter a Google Analytics Tracking ID to receive real-time hits and events.
+                                </p>
+                                <div class="form-row">
+                                    <input type="text" class="input-full" id="google_analytics_key" name="google_analytics_key" value="{{ auth.user.apiAnalyticsKey }}">
+                                </div>
+                                <div>
+                                    <button type="submit">Save Tracking ID</button>
+                                </div>
+                            </form>
+                            <br>
+                            <p>The following information is tracked:</p>
+                            <ul>
+                                <li>Endpoint Per Request</li>
+                                <li>Endpoint Paths</li>
+                                <li>Language</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+
 
     {% else %}
         Plz Login

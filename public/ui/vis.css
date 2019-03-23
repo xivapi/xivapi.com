@@ -17,12 +17,14 @@
   --blue5: #377197;
   --blue6: #309ab5;
   --red: #ff7363;
+  --red-dark: #9c362d;
   --yellow: #f3ff7e;
   --light-green: #68dc7d;
   --light-green-opacity: rgba(104, 220, 125, 0.4);
   --light-blue: #7cc5dc;
   --light-blue-opacity: rgba(124, 197, 220, 0.4);
   --light-purple: #987fd7;
+  --dark-purple: #8466bf;
   --site-width: 1000px; }
 
 /* http://meyerweb.com/eric/tools/css/reset/
@@ -242,6 +244,20 @@ ul, ol {
   transform: translate3d(0, 0, 0);
   will-change: position, transform; }
 
+code, pre {
+  font-size: 14px;
+  font-family: Roboto Mono, monospace;
+  color: #74b284; }
+
+code.box, pre.box, .rate-limit-example {
+  background-color: var(--background);
+  display: block;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  line-height: 20px; }
+
 main .docs {
   min-height: calc(100vh - 100px);
   width: 100%;
@@ -337,19 +353,6 @@ main .docs {
       background-color: var(--background);
       height: 2px;
       margin: 40px 0; }
-    main .docs main code.box,
-    main .docs main pre.box,
-    main .docs main .rate-limit-example {
-      font-size: 14px;
-      font-family: Roboto Mono, monospace;
-      color: #8f987a;
-      display: block;
-      background-color: var(--background);
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 15px;
-      line-height: 20px; }
     main .docs main .route {
       border-left: solid 3px var(--light-blue-opacity);
       padding-left: 30px;
@@ -602,3 +605,81 @@ main .stats-page {
     text-transform: uppercase;
     letter-spacing: 2px;
     margin-bottom: 20px; }
+
+main .account {
+  width: 100%;
+  max-width: 1000px;
+  margin: 50px auto 200px auto; }
+  main .account h1 {
+    font-size: 32px;
+    font-weight: 300;
+    margin-bottom: 20px; }
+  main .account .account-banned {
+    margin-bottom: 50px;
+    background-color: var(--red-dark);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 400;
+    padding: 20px;
+    box-shadow: 0 1px 3px #000;
+    border-radius: 3px; }
+    main .account .account-banned h2 {
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 30px; }
+    main .account .account-banned p {
+      margin-bottom: 30px;
+      line-height: 22px; }
+  main .account .account-panel {
+    margin-bottom: 50px; }
+    main .account .account-panel .account-logout {
+      text-align: right; }
+    main .account .account-panel table {
+      background-color: var(--background3); }
+      main .account .account-panel table tr td:first-of-type {
+        color: var(--yellow);
+        background-color: var(--background2);
+        border-right: solid 1px #000; }
+      main .account .account-panel table img {
+        height: 64px;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px #000; }
+      main .account .account-panel table small {
+        display: block;
+        margin-top: 5px;
+        font-size: 12px;
+        opacity: 0.5; }
+      main .account .account-panel table p {
+        display: block;
+        margin-bottom: 20px;
+        line-height: 22px; }
+    main .account .account-panel form {
+      width: 100%; }
+      main .account .account-panel form input {
+        border: none;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.4);
+        padding: 10px;
+        border-radius: 4px;
+        outline: none; }
+      main .account .account-panel form button {
+        border: none;
+        box-shadow: 0 1px 3px #111;
+        padding: 10px 15px;
+        background-color: #3f78ff;
+        border-radius: 4px;
+        color: #fff;
+        cursor: pointer;
+        outline: none; }
+        main .account .account-panel form button:hover {
+          background-color: #3769d1; }
+      main .account .account-panel form .input-full {
+        width: 100%; }
+      main .account .account-panel form .form-row {
+        margin-bottom: 10px; }
+    main .account .account-panel .account-note {
+      background-color: #302220;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 13px; }
+    main .account .account-panel .btn-logout {
+      color: var(--red); }

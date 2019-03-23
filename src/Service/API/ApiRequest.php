@@ -46,6 +46,7 @@ class ApiRequest
      * a developer key (whatever is used to rate limit)
      */
     public static $id;
+    public static $idTimed;
 
     /**
      * @var Users
@@ -60,6 +61,10 @@ class ApiRequest
      * @var Request
      */
     private $request;
+    /**
+     * @var string
+     */
+    private $apikey;
 
     public function __construct(Users $users)
     {
@@ -79,23 +84,22 @@ class ApiRequest
     public function handle(Request $request)
     {
         $this->request = $request;
+        $this->apikey  = trim($this->request->get('private_key'));
 
         // if this request is not against an API controller, we don't need to do anything.
         if ($this->isApiController() === false) {
             return;
         }
-        
-        // send usage analytics
-        $this->sendUsageAnalyticData();
 
         // if no key, handle per ip
         if ($this->hasApiKey() === false) {
             $this->checkUserRateLimit();
+            $this->sendUsageAnalyticData();
             return;
         }
 
         /** @var User $user */
-        $this->user = $this->users->getUserByApiKey($this->request->get('private_key'));
+        $this->user   = $this->users->getUserByApiKey($this->apikey);
         $this->setApiPermissions();
 
         // checks
@@ -106,6 +110,7 @@ class ApiRequest
         $this->checkDeveloperRateLimit();
 
         // send any developer Google Analytics data
+        $this->sendUsageAnalyticData();
         $this->sendDeveloperAnalyticData();
     }
 
@@ -169,6 +174,7 @@ class ApiRequest
     private function handleRateLimit($key, $limit = self::MAX_RATE_LIMIT_GLOBAL)
     {
         ApiRequest::$id = $key;
+        ApiRequest::$idTimed = $key . time();
 
         $nowSecond  = (int)date('s');
         $lastSecond = ($nowSecond - 1) < 0 ? 59 : $nowSecond - 1;
@@ -234,6 +240,7 @@ class ApiRequest
         GoogleAnalytics::trackHits($this->request->getPathInfo());
         GoogleAnalytics::trackBaseEndpoint($this->getRequestEndpoint());
         GoogleAnalytics::trackLanguage();
+        GoogleAnalytics::trackApiKey($this->apikey ?: 'no_api_key');
     }
     
     /**

@@ -4,6 +4,7 @@ namespace App\Service\ThirdParty;
 
 use App\Entity\User;
 use App\Entity\UserApp;
+use App\Service\API\ApiRequest;
 use App\Service\Common\Language;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
@@ -53,9 +54,8 @@ class GoogleAnalytics
         self::query([
             't'   => 'pageview',
             'v'   => self::VERSION,
-            'cid' => Uuid::uuid4()->toString(),
+            'cid' => ApiRequest::$idTimed,
             'z'   => mt_rand(0, 999999),
-
             'tid' => self::getTrackingId($account),
             'dp'  => $url,
         ]);
@@ -69,9 +69,8 @@ class GoogleAnalytics
         self::query([
             't'   => 'event',
             'v'   => self::VERSION,
-            'cid' => Uuid::uuid4()->toString(),
+            'cid' => ApiRequest::$idTimed,
             'z'   => mt_rand(0, 999999),
-
             'tid' => self::getTrackingId($account),
             'ec'  => $category,
             'ea'  => $action,
@@ -89,23 +88,28 @@ class GoogleAnalytics
         if (is_object($account) && get_class($account) === User::class) {
             /** @var User $account */
             return $account->getApiAnalyticsKey();
-        } else {
-            return str_ireplace('{XIVAPI}', getenv('SITE_CONFIG_GOOGLE_ANALYTICS'), $account);
         }
+    
+        return getenv('SITE_CONFIG_GOOGLE_ANALYTICS');
     }
 
     public static function trackHits(string $url)
     {
-        self::hit('{XIVAPI}', $url);
+        self::hit(null, $url);
     }
 
     public static function trackBaseEndpoint(string $endpoint)
     {
-        self::event('{XIVAPI}', 'Requests', 'Endpoint', $endpoint);
+        self::event(null, 'Requests', 'Endpoint', $endpoint);
     }
 
     public static function trackLanguage()
     {
-        self::event('{XIVAPI}', 'Requests', 'Language', Language::current());
+        self::event(null, 'Requests', 'Language', Language::current());
+    }
+    
+    public static function trackApiKey(string $apiKey)
+    {
+        self::event(null, 'Users', 'API Key', $apiKey);
     }
 }

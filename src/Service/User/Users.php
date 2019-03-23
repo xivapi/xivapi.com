@@ -120,7 +120,7 @@ class Users
         // look for their user if they already have an account
         $sso  = $this->sso->setLoginAuthorizationState();
         $user = $this->repository->findOneBy([
-            'email' => $sso->email
+            'ssoDiscordId' => $sso->id
         ]);
 
         // handle user info during login process

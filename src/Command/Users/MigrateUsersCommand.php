@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SetAccountKeysCommand extends Command
+class MigrateUsersCommand extends Command
 {
     use CommandConfigureTrait;
     
@@ -35,10 +35,19 @@ class SetAccountKeysCommand extends Command
 
         /** @var User $user */
         foreach ($users as $user) {
-            if (empty($user->getApiPublicKey())) {
-                $user->setApiPublicKey(Random::randomAccessKey());
-                $this->users->save($user);
-            }
+            $token = $user->getSsoDiscordId();
+            $token = json_decode($token);
+            
+            $user
+                ->setNotes(null)
+                ->setApiRateLimit(User::DEFAULT_RATE_LIMIT)
+                ->setSsoDiscordId($token->id)
+                ->setSsoId($token->id)
+                ->setSsoDiscordAvatar($token->avatar)
+                ->setSession(null)
+                ->setApiPublicKey($user->getApiPublicKey() ?: Random::randomAccessKey());
+
+            $this->users->save($user);
         }
     }
 }

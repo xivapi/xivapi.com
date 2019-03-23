@@ -18,7 +18,6 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="email", columns={"email"}),
  *          @ORM\Index(name="is_banned", columns={"is_banned"}),
  *          @ORM\Index(name="api_public_key", columns={"api_public_key"}),
- *          @ORM\Index(name="api_endpoint_access_granted", columns={"api_endpoint_access_granted"}),
  *          @ORM\Index(name="api_endpoint_access_suspended", columns={"api_endpoint_access_suspended"}),
  *          @ORM\Index(name="sso_discord_id", columns={"sso_discord_id"}),
  *          @ORM\Index(name="sso_discord_avatar", columns={"sso_discord_avatar"}),
@@ -32,6 +31,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class User
 {
+    const DEFAULT_RATE_LIMIT = 20;
+    
     /**
      * @var string
      * @ORM\Id
@@ -108,13 +109,7 @@ class User
      * @var int
      * @ORM\Column(type="integer", options={"default" : 0})
      */
-    private $apiRateLimit = 0;
-    /**
-     * API Access has been granted
-     * @var bool
-     * @ORM\Column(type="boolean", name="api_endpoint_access_granted", options={"default" : 0})
-     */
-    private $apiEndpointAccessGranted = false;
+    private $apiRateLimit = self::DEFAULT_RATE_LIMIT;
     /**
      * User has been suspended from the API
      * @var bool
@@ -369,18 +364,6 @@ class User
         return $this;
     }
 
-    public function isApiEndpointAccessGranted(): bool
-    {
-        return $this->apiEndpointAccessGranted;
-    }
-
-    public function setApiEndpointAccessGranted(bool $apiEndpointAccessGranted)
-    {
-        $this->apiEndpointAccessGranted = $apiEndpointAccessGranted;
-
-        return $this;
-    }
-
     public function isApiEndpointAccessSuspended(): bool
     {
         return $this->apiEndpointAccessSuspended;
@@ -395,7 +378,7 @@ class User
 
     public function getApiPermissions(): array
     {
-        return json_decode($this->apiPermissions, true);
+        return $this->apiPermissions ? json_decode($this->apiPermissions, true) : [];
     }
 
     public function setApiPermissions(array $apiPermissions)

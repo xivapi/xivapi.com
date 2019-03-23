@@ -34,6 +34,18 @@ class AccountController extends AbstractController
     {
         return $this->render('account/index.html.twig');
     }
+    
+    /**
+     * @Route("/account/save/google-analytics-id", name="account_save_google_analytics_id")
+     */
+    public function saveGoogleAnalyticsId(Request $request)
+    {
+        $user = $this->users->getUser(true);
+        $user->setApiAnalyticsKey($request->get('google_analytics_key'));
+        $this->users->save($user);
+        
+        return $this->redirectToRoute('account');
+    }
 
     /**
      * @Route("/account/login/discord", name="account_login_discord")
