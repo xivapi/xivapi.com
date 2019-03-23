@@ -256,7 +256,7 @@ class User
         return $this;
     }
 
-    public function getNotes(): string
+    public function getNotes(): ?string
     {
         return $this->notes;
     }
@@ -268,7 +268,7 @@ class User
         return $this;
     }
 
-    public function getSso(): string
+    public function getSso(): ?string
     {
         return $this->sso;
     }
@@ -280,7 +280,7 @@ class User
         return $this;
     }
 
-    public function getSession(): string
+    public function getSession(): ?string
     {
         return $this->session;
     }
@@ -304,7 +304,7 @@ class User
         return $this;
     }
 
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -328,7 +328,7 @@ class User
         return $this;
     }
 
-    public function getApiPublicKey(): string
+    public function getApiPublicKey(): ?string
     {
         return $this->apiPublicKey;
     }
@@ -340,7 +340,7 @@ class User
         return $this;
     }
 
-    public function getApiAnalyticsKey(): string
+    public function getApiAnalyticsKey(): ?string
     {
         return $this->apiAnalyticsKey;
     }
@@ -396,7 +396,7 @@ class User
         return $this;
     }
 
-    public function getSsoDiscordId(): string
+    public function getSsoDiscordId(): ?string
     {
         return $this->ssoDiscordId;
     }
@@ -482,7 +482,7 @@ class User
         return $this;
     }
     
-    public function getToken(): string
+    public function getToken(): ?string
     {
         return $this->token;
     }
@@ -530,7 +530,7 @@ class User
         return $this;
     }
     
-    public function getSsoId(): string
+    public function getSsoId(): ?string
     {
         return $this->ssoId;
     }
