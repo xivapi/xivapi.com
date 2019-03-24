@@ -15,20 +15,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionStatistics
 {
-    const QUEUE_INFO = [
-        // name, consumers
-        1 => '< 1 hour',
-        2 => '< 3 hours',
-        3 => '< 12 hours',
-        4 => '< 24 hours',
-        5 => '< 40 hours',
-        6 => '< 72 hours',
-
-        7 => 'Less than 5 sale history',
-        8 => 'Item newly added to XIVAPI',
-        9 => 'Default Queue',
-        10 => 'Never Sold'
-    ];
+    
 
     const STATS_ARRAY = [
         'queue_name'     => null,
@@ -169,7 +156,7 @@ class CompanionStatistics
             }
         }
 
-        return $this->generateStatistics($filteredUpdates, self::QUEUE_INFO[$priority], $priority);
+        return $this->generateStatistics($filteredUpdates, CompanionConfiguration::QUEUE_INFO[$priority], $priority);
     }
 
     /**

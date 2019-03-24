@@ -40,24 +40,28 @@ class CompanionConfiguration
     // Item has not update
     const PRIORITY_ITEM_NEVER_SOLD = 10;
     
+    const QUEUE_INFO = [
+        // name, consumers
+        1 => '< 2 hour',
+        2 => '< 6 hours',
+        3 => '< 24 hours',
+        4 => '< 40 hours',
+        5 => '< 60 hours',
+        6 => '< 100 hours',
+        
+        7 => 'Less than 5 sale history',
+        8 => 'Item newly added to XIVAPI',
+        9 => 'Default Queue',
+        10 => 'Never Sold'
+    ];
+    
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
-        # Queue 1: Avg Sale Time < 1 hour
-        (60 * 60 * 1)   => 1,
-
-        # Queue 2: Avg Sale Time < 3 hour
-        (60 * 60 * 3)   => 2,
-
-        # Queue 3: Avg Sale Time < 12 hour
-        (60 * 60 * 12)  => 3,
-
-        # Queue 4: Avg Sale Time < 24 hour
-        (60 * 60 * 24)  => 4,
-
-        # Queue 5: Avg Sale Time < 40 hour (1.5 days)
-        (60 * 60 * 40)  => 5,
-
-        # Queue 6: Avg Sale Time < 72 hour (3 days)
-        (60 * 60 * 72)  => 6,
+        (60 * 60 * 2)   => 1,
+        (60 * 60 * 6)   => 2,
+        (60 * 60 * 24)  => 3,
+        (60 * 60 * 40)  => 4,
+        (60 * 60 * 60)  => 5,
+        (60 * 60 * 100)  => 6,
     ];
 }
