@@ -23,6 +23,13 @@ class GoogleAnalytics
     const ENDPOINT      = 'http://www.google-analytics.com';
     const VERSION       = 1;
     const TIMEOUT       = 5;
+    
+    private static $id;
+    
+    public static function setId()
+    {
+        self::$id = Uuid::uuid4()->toString();
+    }
 
     public static function getClient()
     {
@@ -118,7 +125,7 @@ class GoogleAnalytics
         self::query([
             't'   => 'pageview',
             'v'   => self::VERSION,
-            'cid' => Uuid::uuid4()->toString(),
+            'cid' => self::$id,
             'z'   => mt_rand(0, 999999),
             'tid' => getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
             'dp'  => '/'. $itemId,
@@ -130,7 +137,7 @@ class GoogleAnalytics
         self::query([
             't'   => 'event',
             'v'   => self::VERSION,
-            'cid' => Uuid::uuid4()->toString(),
+            'cid' => self::$id,
             'z'   => mt_rand(0, 999999),
             'tid' => getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
             'ec'  => 'Companion',
@@ -145,7 +152,7 @@ class GoogleAnalytics
         self::query([
             't'   => 'event',
             'v'   => self::VERSION,
-            'cid' => Uuid::uuid4()->toString(),
+            'cid' => self::$id,
             'z'   => mt_rand(0, 999999),
             'tid' => getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
             'ec'  => 'Companion',
@@ -160,11 +167,26 @@ class GoogleAnalytics
         self::query([
             't'   => 'event',
             'v'   => self::VERSION,
-            'cid' => Uuid::uuid4()->toString(),
+            'cid' => self::$id,
             'z'   => mt_rand(0, 999999),
             'tid' => getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
             'ec'  => 'Companion',
             'ea'  => 'Updates',
+            'el'  => 'Count',
+            'ev'  => 1,
+        ]);
+    }
+    
+    public static function companionTrackItemItemCount($itemId)
+    {
+        self::query([
+            't'   => 'event',
+            'v'   => self::VERSION,
+            'cid' => self::$id,
+            'z'   => mt_rand(0, 999999),
+            'tid' => getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
+            'ec'  => 'Companion Item',
+            'ea'  => $itemId,
             'el'  => 'Count',
             'ev'  => 1,
         ]);

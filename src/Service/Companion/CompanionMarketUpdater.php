@@ -76,6 +76,8 @@ class CompanionMarketUpdater
     
     public function update(int $priority, int $queue, ?bool $manual = false, ?array $dcs = [])
     {
+        GoogleAnalytics::setId();
+        
         if ($this->hasExceptionsExceededLimit()) {
             $this->console->writeln(date('H:i:s') .' | !! Error exceptions exceeded limit. Auto-Update stopped');
             exit();
@@ -152,9 +154,6 @@ class CompanionMarketUpdater
         foreach ($items as $item) {
             $item->setManual(true);
             $this->em->persist($item);
-            
-            // Add analytics
-            GoogleAnalytics::companionTrackItemAsUrl($item->getItem());
         }
 
         $this->em->flush();
@@ -197,6 +196,11 @@ class CompanionMarketUpdater
             // add requests
             $requests["{$requestId}_{$itemId}_{$server}_prices"]  = $api->Market()->getItemMarketListings($itemId);
             $requests["{$requestId}_{$itemId}_{$server}_history"] = $api->Market()->getTransactionHistory($itemId);
+    
+            GoogleAnalytics::companionTrackRequestCount();
+            GoogleAnalytics::companionTrackItemUpdateCount();
+            GoogleAnalytics::companionTrackItemItemCount($itemId);
+            GoogleAnalytics::companionTrackItemAsUrl($itemId);
         }
         
         // if failed to pull any requests, skip!
@@ -225,9 +229,6 @@ class CompanionMarketUpdater
         // handle the results of the response
         $results = $api->Sight()->handle($results);
         $this->storeMarketData($chunkList, $results, $requestId, $priority);
-        
-        GoogleAnalytics::companionTrackRequestCount();
-        GoogleAnalytics::companionTrackItemUpdateCount();
     }
     
     /**
