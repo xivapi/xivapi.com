@@ -17,7 +17,7 @@ class CompanionConfiguration
     const CRONJOB_TIMEOUT_SECONDS  = 55;
 
     // the delay between sending requests and asking for request response data
-    const CRONJOB_ASYNC_DELAY_MS   = 3000;
+    const CRONJOB_ASYNC_DELAY_MS   = 3200;
 
     // Avoid updating an item if it was updated X time ago
     const ITEM_UPDATE_DELAY = (60 * 3);
