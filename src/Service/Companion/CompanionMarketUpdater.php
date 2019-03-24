@@ -20,6 +20,7 @@ use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
+use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
@@ -151,6 +152,9 @@ class CompanionMarketUpdater
         foreach ($items as $item) {
             $item->setManual(true);
             $this->em->persist($item);
+            
+            // Add analytics
+            GoogleAnalytics::companionTrackItemAsUrl($item->getItem());
         }
 
         $this->em->flush();
@@ -221,6 +225,9 @@ class CompanionMarketUpdater
         // handle the results of the response
         $results = $api->Sight()->handle($results);
         $this->storeMarketData($chunkList, $results, $requestId, $priority);
+        
+        GoogleAnalytics::companionTrackRequestCount();
+        GoogleAnalytics::companionTrackItemUpdateCount();
     }
     
     /**
@@ -369,6 +376,8 @@ class CompanionMarketUpdater
         
         $this->em->persist($exception);
         $this->em->flush();
+    
+        GoogleAnalytics::companionTrackErrorCount();
     }
     
     /**
