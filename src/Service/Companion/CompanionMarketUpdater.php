@@ -195,9 +195,6 @@ class CompanionMarketUpdater
             $requests["{$requestId}_{$itemId}_{$server}_prices"]  = $api->Market()->getItemMarketListings($itemId);
             $requests["{$requestId}_{$itemId}_{$server}_history"] = $api->Market()->getTransactionHistory($itemId);
     
-            GoogleAnalytics::companionTrackRequestCount();
-            GoogleAnalytics::companionTrackItemUpdateCount();
-            GoogleAnalytics::companionTrackItemItemCount($itemId);
             GoogleAnalytics::companionTrackItemAsUrl($itemId);
         }
         
@@ -376,7 +373,7 @@ class CompanionMarketUpdater
         $this->em->persist($exception);
         $this->em->flush();
     
-        GoogleAnalytics::companionTrackErrorCount();
+        GoogleAnalytics::companionTrackItemAsUrl('companion_error');
     }
     
     /**
