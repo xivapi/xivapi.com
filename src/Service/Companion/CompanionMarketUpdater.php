@@ -76,8 +76,6 @@ class CompanionMarketUpdater
     
     public function update(int $priority, int $queue, ?bool $manual = false, ?array $dcs = [])
     {
-        GoogleAnalytics::setId();
-        
         if ($this->hasExceptionsExceededLimit()) {
             $this->console->writeln(date('H:i:s') .' | !! Error exceptions exceeded limit. Auto-Update stopped');
             exit();
@@ -164,6 +162,9 @@ class CompanionMarketUpdater
      */
     private function updateChunk($chunkNumber, $chunkList, $priority)
     {
+        // set request id
+        $requestId = Uuid::uuid4()->toString();
+        
         // initialize Companion API, no token provided as we set it later on
         // also enable async
         $api = new CompanionApi();
