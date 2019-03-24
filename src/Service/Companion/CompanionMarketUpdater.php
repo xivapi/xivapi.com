@@ -359,7 +359,7 @@ class CompanionMarketUpdater
         $exception = new CompanionMarketItemException();
         $exception->setException("{$type}, {$itemId}, {$server}")->setMessage($error);
 
-        $recentErrorCount = count($this->repositoryExceptions->findAllRecent());
+        $recentErrorCount = count($this->repositoryExceptions->findAllRecent()) + 1;
         $maxErrorCount = CompanionConfiguration::ERROR_COUNT_THRESHOLD;
 
         $this->sendExceptionAlert(
