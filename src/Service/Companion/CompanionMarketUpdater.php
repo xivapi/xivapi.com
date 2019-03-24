@@ -122,6 +122,7 @@ class CompanionMarketUpdater
         }
         
         $this->console->writeln(date('H:i:s') .' | Total items to update: '. count($items));
+        $this->console->writeln(date('H:i:s') .' | Servers: '. implode(', ', array_keys($this->tokens)));
     
         // loop through chunks
         foreach (array_chunk($items, CompanionConfiguration::MAX_ITEMS_PER_REQUEST) as $i => $itemChunk) {
