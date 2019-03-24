@@ -217,7 +217,7 @@ class CompanionStatistics
         /** @var CompanionMarketItemUpdate $last */
         $last = reset($updates);
 
-        return date('Y-m-d H:i:s', $last->getAdded());
+        return $last ? date('Y-m-d H:i:s', $last->getAdded()) : 'Never';
     }
 
     /**
