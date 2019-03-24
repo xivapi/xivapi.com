@@ -73,7 +73,7 @@ class CompanionMarketUpdater
         $this->console = new ConsoleOutput();
     }
     
-    public function update(int $priority, int $queue, $manual = false)
+    public function update(int $priority, int $queue, ?bool $manual = false, ?array $dcs = [])
     {
         if ($this->hasExceptionsExceededLimit()) {
             $this->console->writeln(date('H:i:s') .' | !! Error exceptions exceeded limit. Auto-Update stopped');
@@ -87,6 +87,18 @@ class CompanionMarketUpdater
     
         // grab our companion tokens
         $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
+        
+        // if data center passed, remove tokens not in our DC.
+        if ($dcs) {
+            foreach ($this->tokens as $i => $token) {
+                $dc = GameServers::getDataCenter($token->getServer());
+                
+                // remove items from this list
+                if (in_array($dc, $dcs) === false) {
+                    unset($this->tokens[$i]);
+                }
+            }
+        }
         
         if (empty($this->tokens)) {
             $this->console->writeln(date('H:i:s') .' | All tokens have expired, cannot auto-update');

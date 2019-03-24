@@ -197,9 +197,9 @@ class CompanionStatistics
             $arr->hrs_arr[$hours]   = isset($arr->hrs_arr[$hours])   ? $arr->hrs_arr[$hours] + 1 : 1;
         }
 
-        $arr->sec = ceil(array_sum($arr->sec_arr) / count(array_filter($arr->sec_arr)));
-        $arr->min = ceil(array_sum($arr->min_arr) / count(array_filter($arr->min_arr)));
-        $arr->hrs = ceil(array_sum($arr->hrs_arr) / count(array_filter($arr->hrs_arr)));
+        $arr->sec = $arr->sec_arr == 0 ?: ceil(array_sum($arr->sec_arr) / count(array_filter($arr->sec_arr)));
+        $arr->min = $arr->min_arr == 0 ?: ceil(array_sum($arr->min_arr) / count(array_filter($arr->min_arr)));
+        $arr->hrs = $arr->hrs_arr == 0 ?: ceil(array_sum($arr->hrs_arr) / count(array_filter($arr->hrs_arr)));
 
         return [
             $arr->sec,

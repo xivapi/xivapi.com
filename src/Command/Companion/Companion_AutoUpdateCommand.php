@@ -18,8 +18,9 @@ class Companion_AutoUpdateCommand extends Command
         'desc' => 'Auto-Update prices and history of all items on all servers.',
         'args' => [
             [ 'priority', InputArgument::OPTIONAL, 'Item priority queue to process' ],
-            [ 'queue', InputArgument::OPTIONAL, 'Queue number, this should be incremental' ],
-            [ 'manual', InputArgument::OPTIONAL, 'Update manual items' ]
+            [ 'queue',    InputArgument::OPTIONAL, 'Queue number, this should be incremental' ],
+            [ 'manual',   InputArgument::OPTIONAL, 'Update manual items' ],
+            [ 'dcs',  InputArgument::OPTIONAL, 'Update for a specific account' ]
         ]
     ];
 
@@ -35,12 +36,14 @@ class Companion_AutoUpdateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /**
-         * eg: php bin/console Companion_AutoUpdateCommand 10 1
+         * php bin/console Companion_AutoUpdateCommand 10 1
+         * php bin/console Companion_AutoUpdateCommand 10 1 true
          */
         $this->companionMarketUpdater->update(
             $input->getArgument('priority'),
             $input->getArgument('queue'),
-            $input->getArgument('manual')
+            $input->getArgument('manual') === 'true',
+            $input->getArgument('dcs')
         );
     }
 }
