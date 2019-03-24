@@ -8,16 +8,16 @@ class CompanionConfiguration
     const ERROR_COUNT_THRESHOLD = 2;
 
     // the total number of items to process per cronjob
-    const MAX_ITEMS_PER_CRONJOB    = 40;
+    const MAX_ITEMS_PER_CRONJOB    = 20;
 
     // the total number of items to process per request
-    const MAX_ITEMS_PER_REQUEST    = 2;
+    const MAX_ITEMS_PER_REQUEST    = 3;
 
     // the total time a cronjob should stay active
-    const CRONJOB_TIMEOUT_SECONDS  = 57;
+    const CRONJOB_TIMEOUT_SECONDS  = 55;
 
     // the delay between sending requests and asking for request response data
-    const CRONJOB_ASYNC_DELAY_MS   = 2800;
+    const CRONJOB_ASYNC_DELAY_MS   = 3000;
 
     // Avoid updating an item if it was updated X time ago
     const ITEM_UPDATE_DELAY = (60 * 3);
