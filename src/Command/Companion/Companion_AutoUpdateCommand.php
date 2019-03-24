@@ -38,12 +38,13 @@ class Companion_AutoUpdateCommand extends Command
         /**
          * php bin/console Companion_AutoUpdateCommand 10 1
          * php bin/console Companion_AutoUpdateCommand 10 1 true
+         * php bin/console Companion_AutoUpdateCommand 10 1 false Chaos
          */
         $this->companionMarketUpdater->update(
             $input->getArgument('priority'),
             $input->getArgument('queue'),
             $input->getArgument('manual') === 'true',
-            $input->getArgument('dcs')
+            explode(',', $input->getArgument('dcs'))
         );
     }
 }
