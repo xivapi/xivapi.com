@@ -5,7 +5,7 @@ namespace App\Service\Companion;
 class CompanionConfiguration
 {
     // If we hit this number of errors, the system will stop.
-    const ERROR_COUNT_THRESHOLD = 2;
+    const ERROR_COUNT_THRESHOLD = 5;
 
     // the total number of items to process per cronjob
     const MAX_ITEMS_PER_CRONJOB    = 20;
@@ -17,7 +17,7 @@ class CompanionConfiguration
     const CRONJOB_TIMEOUT_SECONDS  = 55;
 
     // the delay between sending requests and asking for request response data
-    const CRONJOB_ASYNC_DELAY_MS   = 3200;
+    const CRONJOB_ASYNC_DELAY_MS   = 3000;
 
     // Avoid updating an item if it was updated X time ago
     const ITEM_UPDATE_DELAY = (60 * 3);
