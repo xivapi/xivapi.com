@@ -11,7 +11,7 @@ class CompanionConfiguration
     const MAX_ITEMS_PER_CRONJOB    = 20;
 
     // the total number of items to process per request
-    const MAX_ITEMS_PER_REQUEST    = 3;
+    const MAX_ITEMS_PER_REQUEST    = 2;
 
     // the total time a cronjob should stay active
     const CRONJOB_TIMEOUT_SECONDS  = 55;
