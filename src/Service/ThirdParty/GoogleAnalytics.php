@@ -24,13 +24,6 @@ class GoogleAnalytics
     const VERSION       = 1;
     const TIMEOUT       = 5;
     
-    private static $id;
-    
-    public static function setId()
-    {
-        self::$id = Uuid::uuid4()->toString();
-    }
-
     public static function getClient()
     {
         return new Client([
@@ -125,7 +118,7 @@ class GoogleAnalytics
         self::query([
             't'   => 'pageview',
             'v'   => self::VERSION,
-            'cid' => self::$id,
+            'cid' => Uuid::uuid4()->toString(),
             'z'   => mt_rand(0, 999999),
             'tid' => getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
             'dp'  => '/'. $itemId,
@@ -137,7 +130,7 @@ class GoogleAnalytics
         self::query([
             't'   => 'event',
             'v'   => self::VERSION,
-            'cid' => self::$id,
+            'cid' => Uuid::uuid4()->toString(),
             'z'   => mt_rand(0, 999999),
             'tid' => getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
             'ec'  => 'Companion',
@@ -152,7 +145,7 @@ class GoogleAnalytics
         self::query([
             't'   => 'event',
             'v'   => self::VERSION,
-            'cid' => self::$id,
+            'cid' => Uuid::uuid4()->toString(),
             'z'   => mt_rand(0, 999999),
             'tid' => getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
             'ec'  => 'Companion',
@@ -167,7 +160,7 @@ class GoogleAnalytics
         self::query([
             't'   => 'event',
             'v'   => self::VERSION,
-            'cid' => self::$id,
+            'cid' => Uuid::uuid4()->toString(),
             'z'   => mt_rand(0, 999999),
             'tid' => getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
             'ec'  => 'Companion',
@@ -182,12 +175,12 @@ class GoogleAnalytics
         self::query([
             't'   => 'event',
             'v'   => self::VERSION,
-            'cid' => self::$id,
+            'cid' => Uuid::uuid4()->toString(),
             'z'   => mt_rand(0, 999999),
             'tid' => getenv('SITE_CONFIG_GOOGLE_ANALYTICS'),
-            'ec'  => 'Companion Item',
-            'ea'  => $itemId,
-            'el'  => 'Count',
+            'ec'  => 'Companion',
+            'ea'  => 'Items',
+            'el'  => $itemId,
             'ev'  => 1,
         ]);
     }

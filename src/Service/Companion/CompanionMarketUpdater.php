@@ -164,9 +164,6 @@ class CompanionMarketUpdater
      */
     private function updateChunk($chunkNumber, $chunkList, $priority)
     {
-        // set request id
-        $requestId = Uuid::uuid4()->toString();
-        
         // initialize Companion API, no token provided as we set it later on
         // also enable async
         $api = new CompanionApi();
