@@ -116,7 +116,7 @@ class CompanionStatistics
 
         [$sec, $min, $hr]     = $this->getRequestSpeeds($updates);
 
-        $arr->queue_name      = $name;
+        $arr->queue_name      = "[{$priority}] {$name}";
         $arr->items_per_sec   = $sec;
         $arr->items_per_min   = $min;
         $arr->items_per_hr    = $hr;

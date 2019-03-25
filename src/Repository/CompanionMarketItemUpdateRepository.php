@@ -21,8 +21,7 @@ class CompanionMarketItemUpdateRepository extends ServiceEntityRepository
         $oneday = time() - (60 * 60 * 24);
 
         $sql = $this->createQueryBuilder('a');
-        $sql->where("a.added > :a")->setParameter('a', $oneday)
-            ->orderBy('a.added', 'desc');
+        $sql->where("a.added > :a")->setParameter('a', $oneday)->orderBy('a.added', 'desc');
 
         return $sql->getQuery()->getResult();
     }
