@@ -65,7 +65,7 @@ class CompanionStatistics
         $data = [];
         $data[] = $this->generateStatistics($updates, 'Global', null);
 
-        foreach([1,2,3,4,5,6,7,8,9,10] as $priority) {
+        foreach([1,2,3,4,5,6,7,8,9] as $priority) {
             $data[] = $this->processPriorityStatistics($updates, $priority);
         }
 
