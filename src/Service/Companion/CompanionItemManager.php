@@ -147,8 +147,10 @@ class CompanionItemManager
                 }
 
                 // record sale histories, we start with the time the item was last updated.
-                $lastDate = $obj->getUpdated();
-                $average  = [];
+                $lastDate        = $obj->getUpdated();
+                $historyCount    = 0;
+                $historyCountMax = 100;
+                $average         = [];
 
                 foreach ($document->History as $history) {
                     $diff     = $lastDate - $history->PurchaseDate;
@@ -157,6 +159,12 @@ class CompanionItemManager
                     // append on sale time difference
                     if ($diff > CompanionConfiguration::ITEM_HISTORY_THRESHOLD) {
                         $average[] = $diff;
+                    }
+
+                    // stop after hitting max, we don't care about out of date sales.
+                    $historyCount++;
+                    if ($historyCount > $historyCountMax) {
+                        break;
                     }
                 }
 
