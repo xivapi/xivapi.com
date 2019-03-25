@@ -12,18 +12,4 @@ class CompanionMarketItemUpdateRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, CompanionMarketItemUpdate::class);
     }
-
-    /**
-     * Returns a list of items that can be updated with valid servers
-     */
-    public function findStatisticsForPastDay()
-    {
-        $oneday = time() - (60 * 60 * 24);
-
-        $sql = $this->createQueryBuilder('a');
-        $sql->where("a.added > :a")->setParameter('a', $oneday)
-            ->orderBy('a.added', 'desc');
-
-        return $sql->getQuery()->getResult();
-    }
 }

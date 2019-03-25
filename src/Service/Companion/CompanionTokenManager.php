@@ -18,11 +18,15 @@ class CompanionTokenManager
      * Current servers that are offline due to character restrictions
      */
     const SERVERS_OFFLINE = [
+        // JP
         'Gungnir',
         'Bahamut',
         'Chocobo',
         'Mandragora',
         'Shinryu',
+
+        // NA
+        'Balmung',
     ];
     
     /**
@@ -112,6 +116,22 @@ class CompanionTokenManager
         $this->em = $em;
         $this->repository = $em->getRepository(CompanionToken::class);
         $this->console = new ConsoleOutput();
+    }
+
+    /**
+     * Any server not logged in will move to front of queue with a "last online" of 0
+     */
+    public function reprioritise()
+    {
+        $tokens = $this->repository->findBy([ 'online' => 0 ]);
+
+        /** @var CompanionToken $token */
+        foreach($tokens as $token) {
+            $token->setLastOnline(0);
+            $this->em->persist($token);
+        }
+
+        $this->em->flush();
     }
     
     /**

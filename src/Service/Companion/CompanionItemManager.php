@@ -128,13 +128,6 @@ class CompanionItemManager
                     'server' => $serverId
                 ]);
 
-                // skip both being empty
-                if (empty($document->History) && empty($document->Prices)) {
-                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_NEVER_SOLD);
-                    $this->em->persist($obj);
-                    continue;
-                }
-
                 // ------------------------------------------------------------
                 // Calculate
                 // ------------------------------------------------------------
@@ -148,14 +141,16 @@ class CompanionItemManager
 
                 // if no history, it has never been sold
                 if (empty($document->History)) {
-                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_NEVER_SOLD);
+                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_LOW_SALES);
                     $this->em->persist($obj);
                     continue;
                 }
 
                 // record sale histories, we start with the time the item was last updated.
-                $lastDate = $obj->getUpdated();
-                $average  = [];
+                $lastDate        = $obj->getUpdated();
+                $historyCount    = 0;
+                $historyCountMax = 100;
+                $average         = [];
 
                 foreach ($document->History as $history) {
                     $diff     = $lastDate - $history->PurchaseDate;
@@ -164,6 +159,12 @@ class CompanionItemManager
                     // append on sale time difference
                     if ($diff > CompanionConfiguration::ITEM_HISTORY_THRESHOLD) {
                         $average[] = $diff;
+                    }
+
+                    // stop after hitting max, we don't care about out of date sales.
+                    $historyCount++;
+                    if ($historyCount > $historyCountMax) {
+                        break;
                     }
                 }
 

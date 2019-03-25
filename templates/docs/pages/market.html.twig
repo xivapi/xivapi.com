@@ -119,7 +119,8 @@
 
     <p>
         At this time the following servers are not supported due to world congestion:
-        <code>{{ server_unsupported|join(', ', ' and ') }}</code>
+        <code>{{ server_unsupported|join(', ', ' and ') }}</code> - Server Offline are likely
+        due to login issues and will be re-attempted every hour.
     </p>
 
     <table class="param-table">
@@ -134,7 +135,7 @@
         {% for token in server_tokens %}
             <tr>
                 <td>{{ token.server }}</td>
-                <td>{{ token.online ? 'Market Online' : 'OFFLINE' }}</td>
+                <td>{{ token.online ? 'Market Online' : '‼️ OFFLINE' }}</td>
                 <td>{{ token.lastOnline|date }}</td>
             </tr>
         {% endfor %}
