@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionStatistics
 {
-    
+    const FILENAME = __DIR__ .'/CompanionStatistics.json';
 
     const STATS_ARRAY = [
         'queue_name'     => null,
@@ -55,8 +55,13 @@ class CompanionStatistics
 
     public function run()
     {
-        $updates = $this->repository->findStatisticsForPastDay();
+        // grab all update records
+        $updates = $this->repository->findAll();
 
+        // remove old ones
+        $this->cleanOutdatedUpdateEntries($updates);
+
+        // build stats
         $data = [];
         $data[] = $this->generateStatistics($updates, 'Global', null);
 
@@ -64,11 +69,7 @@ class CompanionStatistics
             $data[] = $this->processPriorityStatistics($updates, $priority);
         }
 
-        // store
-        file_put_contents(
-            __DIR__ .'/CompanionStatistics.json',
-            json_encode($data, JSON_PRETTY_PRINT)
-        );
+        $this->saveStatistics($data);
 
         // table
         $table = new Table($this->console);
@@ -76,11 +77,28 @@ class CompanionStatistics
         $table->render();
     }
 
+    private function cleanOutdatedUpdateEntries(array $updates)
+    {
+        $hours24 = time() - (60 * 60);
+
+        /** @var CompanionMarketItemUpdate $update */
+        foreach ($updates as $update) {
+            if ($update->getAdded() < $hours24){
+                $this->em->remove($update);
+            }
+        }
+
+        $this->em->flush();
+    }
+
+    public function saveStatistics($data)
+    {
+        file_put_contents(self::FILENAME, json_encode($data));
+    }
+
     public function getRecordedStatistics()
     {
-        return json_decode(
-            file_get_contents(__DIR__ .'/CompanionStatistics.json')
-        );
+        return json_decode(file_get_contents(self::FILENAME), true);
     }
 
     public function getExceptions()
@@ -191,7 +209,7 @@ class CompanionStatistics
         return [
             $arr->sec,
             $arr->min,
-            $arr->hrs
+            $arr->hrs,
         ];
     }
 
@@ -213,8 +231,7 @@ class CompanionStatistics
     private function getCycleSpeed($reqPerSec, $totalRequests)
     {
         if ($reqPerSec == 0 || $totalRequests == 0) {
-            $this->console->writeln("reqPerSec = {$reqPerSec} or totalRequests = {$totalRequests} were zero");
-            return null;
+            return "Never";
         }
 
         // total requests to perform, divided by the number of req per second

@@ -26,6 +26,14 @@ class HomeController extends AbstractController
     }
 
     /**
+     * @Route("/discord", name="discord")
+     */
+    public function discord()
+    {
+        return $this->redirect('https://discord.gg/MFFVHWC', 301);
+    }
+
+    /**
      * @Route("/companion/statistics", name="companion_statistics")
      */
     public function companionStatistics()
