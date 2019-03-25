@@ -158,7 +158,10 @@
     <p><code>[FieldName][Operator][Value]</code>, eg: <code>LevelItem>=150</code></p>
     <p>You can provide a comma separated list of filters as an "AND" exclusive query, eg:</p>
 
-    <code class="box">filters=LevelItem>35,LevelItem<=40,ClassJob.ID=1</code>
+    <code class="box">filters=LevelItem>35,LevelItem<=40,ClassJobCategory.ID=38</code>
+    <p>
+        eg: <a href="{{ app.request.getSchemeAndHttpHost() }}/search?filters=35,LevelItem<=40,ClassJobCategory.ID=38">{{ app.request.getSchemeAndHttpHost() }}/search?filters=35,LevelItem<=40,ClassJobCategory.ID=38</a>
+    </p>
 
     <p><strong>Accepted Operators:</strong></p>
 
