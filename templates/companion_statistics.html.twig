@@ -65,13 +65,10 @@
                     <td>{{ entries.queue_name }}</td>
                     <td>{{ entries.total_items }}</td>
                     <td>{{ entries.total_requests }}</td>
-                    <td>
-                        {{ entries.total_updated }}<br>
-                        <small>(Diff {{ entries.total_items - entries.total_updated }})</small>
-                    </td>
+                    <td>{{ entries.total_updated }}</td>
                     <td>{{ entries.last_updated }}</td>
                     <td>
-                        {{ entries.items_per_sec }}<br>
+                        {{ entries.items_per_sec }}
                         <small>{{ entries.items_per_min }}/min - {{ entries.items_per_hr }}/hour</small>
                     </td>
                     <td>
@@ -84,7 +81,7 @@
             </tbody>
         </table>
 
-        <br>
+        <Br>
 
         <h1>Queues</h1>
         <p>Total number of items per queue</p>
