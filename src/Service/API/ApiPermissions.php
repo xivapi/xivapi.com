@@ -5,8 +5,8 @@ namespace App\Service\API;
 class ApiPermissions
 {
     // user permissions, statically held
-    const PERMISSION_ADD_LODESTONE_CONTENT = 'lodestone';
-    const PERMISSION_HAS_MAPPY_ACCESS = 'mappy';
+    const PERMISSION_LODESTONE = 'lodestone';
+    const PERMISSION_MAPPY     = 'mappy';
 
     private static $permissions = [];
 

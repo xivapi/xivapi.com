@@ -4,37 +4,46 @@ namespace App\Service\Maps;
 
 use App\Entity\MapPosition;
 use App\Entity\MemoryData;
+use App\Repository\MapPositionRepository;
+use App\Repository\MemoryDataRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class Mappy
 {
-    const KEYS = [
-        'f7fe6d102725423282c44b8c',
-        'eb6f10d047a941c4b313b8c8',
-        'fdb183fb5b8d4483a7a46ee9',
-        '63cc0045d7e847149c3f',
-        '683f80c69a48472ca94abcc7',
-        '963bac737d3c4533a7691bb4',
-        '21931267ef334933ac56a2a2',
-        '16a5e5e9edf24c95b3489657',
-        'dec187b1a95f4064aff6a723'
-    ];
-    
     /** @var EntityManagerInterface */
     private $em;
+    /** @var MapPositionRepository */
+    private $repository;
+    /** @var MemoryDataRepository */
+    private $repositoryMemory;
     
     public function __construct(EntityManagerInterface $em)
     {
-        $this->em = $em;
+        $this->em               = $em;
+        $this->repository       = $em->getRepository(MapPosition::class);
+        $this->repositoryMemory = $em->getRepository(MemoryData::class);
     }
-
-    public function save($positions): bool
+    
+    public function getMapPositionRepository()
+    {
+        return $this->repository;
+    }
+    
+    public function getMemoryDataRepository()
+    {
+        return $this->repositoryMemory;
+    }
+    
+    /**
+     * Save some positions
+     */
+    public function save(array $positions): bool
     {
         foreach ($positions as $i => $pos) {
             $hash = $this->getPositionHash($pos);
             
-            // skip dupez
-            if ($this->em->getRepository(MapPosition::class)->findBy(['Hash' => $hash])) {
+            // skip duplicates
+            if ($this->repository->findBy(['Hash' => $hash])) {
                 continue;
             }
 

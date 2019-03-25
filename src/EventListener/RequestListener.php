@@ -39,7 +39,7 @@ class RequestListener
         }
 
         // Quick hack to allow json body requests
-        if ($json = $request->getContent()) {
+        if (strtolower($request->getMethod()) == 'get' && $json = $request->getContent()) {
             if (trim($json[0]) === '{') {
                 $json = \GuzzleHttp\json_decode($json);
 

@@ -2,6 +2,7 @@
 
 namespace App\Service\API;
 
+use App\Controller\MappyController;
 use App\Controller\MarketController;
 use App\Controller\TooltipsController;
 use App\Controller\LodestoneCharacterController;
@@ -34,6 +35,7 @@ class ApiRequest
      */
     const API_CONTROLLERS = [
         MarketController::class,
+        MappyController::class,
         TooltipsController::class,
         LodestoneCharacterController::class,
         LodestoneController::class,
@@ -92,7 +94,7 @@ class ApiRequest
         if ($this->isApiController() === false) {
             return;
         }
-
+        
         // if no key, handle per ip
         if ($this->hasApiKey() === false) {
             $this->checkUserRateLimit();
@@ -101,7 +103,7 @@ class ApiRequest
         }
 
         /** @var User $user */
-        $this->user   = $this->users->getUserByApiKey($this->apikey);
+        $this->user = $this->users->getUserByApiKey($this->apikey);
         $this->setApiPermissions();
 
         // checks

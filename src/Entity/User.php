@@ -377,12 +377,12 @@ class User
 
     public function getApiPermissions(): array
     {
-        return $this->apiPermissions ? json_decode($this->apiPermissions, true) : [];
+        return $this->apiPermissions ? explode(',', $this->apiPermissions) : [];
     }
 
     public function setApiPermissions(array $apiPermissions)
     {
-        $this->apiPermissions = json_encode($apiPermissions);
+        $this->apiPermissions = implode(',', $apiPermissions);
 
         return $this;
     }

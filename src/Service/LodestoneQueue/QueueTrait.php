@@ -59,7 +59,7 @@ trait QueueTrait
         Redis::Cache()->set('lodestone_queue_count_'. ApiRequest::$id, $count);
 
         // if the individual user has reached the limit and doesn't have special permissions, block them
-        if ($count > $limit && ApiPermissions::has(ApiPermissions::PERMISSION_ADD_LODESTONE_CONTENT) === false) {
+        if ($count > $limit && ApiPermissions::has(ApiPermissions::PERMISSION_LODESTONE) === false) {
             return;
         }
 
