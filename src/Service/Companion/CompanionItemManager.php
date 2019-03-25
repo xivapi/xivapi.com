@@ -128,13 +128,6 @@ class CompanionItemManager
                     'server' => $serverId
                 ]);
 
-                // skip both being empty
-                if (empty($document->History) && empty($document->Prices)) {
-                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_NEVER_SOLD);
-                    $this->em->persist($obj);
-                    continue;
-                }
-
                 // ------------------------------------------------------------
                 // Calculate
                 // ------------------------------------------------------------
@@ -148,7 +141,7 @@ class CompanionItemManager
 
                 // if no history, it has never been sold
                 if (empty($document->History)) {
-                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_NEVER_SOLD);
+                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_LOW_SALES);
                     $this->em->persist($obj);
                     continue;
                 }
