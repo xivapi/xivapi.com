@@ -8,9 +8,9 @@ class ElasticSearch
 {
     const NUMBER_OF_SHARDS    = 1;
     const NUMBER_OF_REPLICAS  = 0;
-    const MAX_RESULT_WINDOW   = 100000;
-    const MAX_BULK_DOCUMENTS  = 250;
-    const MAX_FIELDS          = 20000;
+    const MAX_RESULT_WINDOW   = 150000;
+    const MAX_BULK_DOCUMENTS  = 50;
+    const MAX_FIELDS          = 100000;
 
     /** @var \Elasticsearch\Client */
     private $client;
