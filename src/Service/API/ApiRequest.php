@@ -186,7 +186,7 @@ class ApiRequest
         // increment
         $count = Redis::Cache()->get($key);
         $count++;
-        Redis::Cache()->set($key, $count);
+        Redis::Cache()->set($key, $count, 2);
 
         // throw exception if hit count too high
         if ($count > $limit) {
