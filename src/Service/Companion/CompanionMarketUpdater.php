@@ -313,7 +313,7 @@ class CompanionMarketUpdater
             $this->recordUpdate($priority, $itemId, $server);
         
             // update entry
-            $item->setUpdated(time())->incUpdates();
+            $item->setUpdated(time())->incUpdates()->setManual(false);
             $this->em->persist($item);
             $this->em->flush();
         
