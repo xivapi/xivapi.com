@@ -181,7 +181,7 @@ class ApiRequest
         ApiRequest::$idTimed = $key . time();
 
         // current and last second
-        $key = $key .'__'. (int)date('s');
+        $key = $key .'_rl_'. (int)date('s');
 
         // increment
         $count = Redis::Cache()->get($key);
