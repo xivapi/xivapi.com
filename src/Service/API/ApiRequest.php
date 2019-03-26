@@ -180,21 +180,16 @@ class ApiRequest
         ApiRequest::$id = $key;
         ApiRequest::$idTimed = $key . time();
 
-        $nowSecond  = (int)date('s');
-        $lastSecond = ($nowSecond - 1) < 0 ? 59 : $nowSecond - 1;
-    
         // current and last second
-        $nowKey  = $key .'__'. $nowSecond;
-        $lastKey = $key .'__'. ($lastSecond);
-        
-        // delete the last key, dun need it anymore
-        Redis::Cache()->delete($lastKey);
-        
-        // increment the count of the current second
-        Redis::Cache()->increment($nowKey);
-        
+        $key = $key .'__'. (int)date('s');
+
+        // increment
+        $count = Redis::Cache()->get($key);
+        $count++;
+        Redis::Cache()->set($key, $count);
+
         // throw exception if hit count too high
-        if (Redis::Cache()->getCount($nowKey) > $limit) {
+        if ($count > $limit) {
             throw new ApiRateLimitException();
         }
     }
