@@ -17,6 +17,10 @@ class ElasticSearch
 
     public function __construct(string $environment)
     {
+        if (getenv('ELASTIC_ENABLED') == 0) {
+            return;
+        }
+
         [$ip, $port] = explode(',', getenv($environment));
         
         if (!$ip || !$port) {
