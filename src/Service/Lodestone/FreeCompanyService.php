@@ -31,7 +31,7 @@ class FreeCompanyService extends AbstractService
             ];
         }
 
-        FreeCompanyQueue::request($lodestoneId, 'free_company_add');
+        FreeCompanyQueue::request($lodestoneId, 'free_company_add', true);
         
         return (Object)[
             'ent'  => new FreeCompany($lodestoneId),

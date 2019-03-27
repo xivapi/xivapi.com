@@ -72,7 +72,7 @@ class AutoManagerQueue extends Command
         $repo = $this->em->getRepository(Character::class);
         $this->io->text(__METHOD__);
     
-        foreach(range(0,3) as $number) {
+        foreach(range(0,5) as $number) {
             CharacterQueue::queue($repo->getUpdateIds(Entity::PRIORITY_NORMAL, $number), "character_update_{$number}_normal");
         }
     

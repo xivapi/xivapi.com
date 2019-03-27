@@ -40,8 +40,6 @@ class SetupChannels extends Command
             'character_update_5_normal',
             'character_update_0_patreon',
             'character_update_1_patreon',
-            'character_update_0_low',
-            'character_update_1_low',
             
             'character_friends_add',
             'character_friends_update',

@@ -31,7 +31,7 @@ class PvPTeamService extends AbstractService
             ];
         }
 
-        PvPTeamQueue::request($lodestoneId, 'pvp_team_add');
+        PvPTeamQueue::request($lodestoneId, 'pvp_team_add', true);
     
         return (Object)[
             'ent'  => new PvPTeam($lodestoneId),

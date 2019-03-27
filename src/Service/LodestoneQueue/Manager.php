@@ -148,8 +148,6 @@ class Manager
                             case 'character_update_5_normal':
                             case 'character_update_0_patreon':
                             case 'character_update_1_patreon':
-                            case 'character_update_0_low':
-                            case 'character_update_1_low':
                                 CharacterQueue::response($this->em, $id, $data);
                                 break;
         

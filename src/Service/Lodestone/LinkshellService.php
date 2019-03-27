@@ -31,7 +31,7 @@ class LinkshellService extends AbstractService
             ];
         }
 
-        LinkshellQueue::request($lodestoneId, 'linkshell_add');
+        LinkshellQueue::request($lodestoneId, 'linkshell_add', true);
     
         return (Object)[
             'ent'  => new Linkshell($lodestoneId),
