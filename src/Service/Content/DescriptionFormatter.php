@@ -11,9 +11,9 @@ class DescriptionFormatter
     /** @var string|array */
     public $description;
     /** @var string */
-    public $descriptionTrue;
+    public $descriptionTrue = [];
     /** @var string */
-    public $descriptionFalse;
+    public $descriptionFalse = [];
     /** @var array */
     public $colours = [];
     
@@ -97,6 +97,7 @@ class DescriptionFormatter
      */
     public function formatSimpleDescription()
     {
+        
         $this->descriptionTrue  = implode(" ", $this->formSimpleDescriptionRecursive($this->description, []));
         $this->descriptionFalse = implode(" ", $this->formSimpleDescriptionRecursive($this->description, [], 'false'));
     }
@@ -109,7 +110,11 @@ class DescriptionFormatter
         if (is_array($desc)) {
             foreach($desc as $i => $line) {
                 if (is_array($line)) {
-                    $statement = $line[$action];
+                    $statement = $line[$action] ?? null;
+                    if ($statement === null) {
+                        continue;
+                    }
+                    
                     $arr = $this->formSimpleDescriptionRecursive($statement, $arr, $action);
                 } else {
                     $arr[] = $line;
@@ -171,7 +176,7 @@ class DescriptionFormatter
             // fin
             $this->description = $json;
         } catch (Error $error) {
-            die("\n\narse error: {$error->getMessage()}\n\n");
+            die("\n\n Parse error: {$error->getMessage()}\n\n");
         }
     }
 

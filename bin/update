@@ -33,6 +33,9 @@ sleep 3
 sleep 3
 /usr/bin/php /vagrant/bin/console SaintCoinachRedisCustomCommand
 
+sleep 3
+/usr/bin/php /vagrant/bin/console SaintCoinachRedisCustomCommand SkillDescriptions
+
 
 # Add on patch info
 sleep 3

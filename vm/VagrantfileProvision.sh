@@ -64,7 +64,7 @@ sudo service php7.3-fpm restart
 # Install JAVA + ElasticSearch
 #
 echo "Installing: Java + ElasticSearch"
-export _JAVA_OPTIONS="-Xmx4g -Xms4g"
+export _JAVA_OPTIONS="-Xmx3g -Xms3g"
 sudo apt install -y openjdk-8-jre apt-transport-https
 sudo wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 sudo bash -c 'sudo echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" > /etc/apt/sources.list.d/elastic.list'

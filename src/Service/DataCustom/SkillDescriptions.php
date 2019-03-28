@@ -11,11 +11,21 @@ class SkillDescriptions extends ManualHelper
 {
     const PRIORITY = 20;
     
+    /**
+     * Restore:
+     *
+     * php bin/console SaintCoinachRedisCommand 0 1000 1 Action
+     * php bin/console SaintCoinachRedisCommand 0 1000 1 Trait
+     * php bin/console SaintCoinachRedisCommand 0 1000 1 CraftAction
+     * php bin/console SaintCoinachRedisCommand 0 1000 1 Item
+     */
+    
     public function handle()
     {
         $this->handleActions();
         $this->handleTraits();
         $this->handleCraftActions();
+        $this->handleItems();
     }
     
     /**
@@ -72,6 +82,22 @@ class SkillDescriptions extends ManualHelper
         }
 
     }
+    
+    private function handleItems()
+    {
+        $this->io->text(__METHOD__);
+        $ids = $this->getContentIds('Item');
+    
+        foreach ($ids as $id) {
+            $key = "xiv_Item_{$id}";
+            $action = Redis::Cache()->get($key);
+        
+            $this->formatDescription($action);
+        
+            // save
+            Redis::Cache()->set($key, $action, self::REDIS_DURATION);
+        }
+    }
 
     /**
      * Format descriptions into sexy json entries
@@ -88,10 +114,14 @@ class SkillDescriptions extends ManualHelper
                 continue;
             }
             
+            if (empty($object->{'Description_'. $lang})) {
+                continue;
+            }
+            
             // format descriptions
-            [$json, $desc] = $formatter->format($object->{'Description_'. $lang});
-            $object->{'Description_'. $lang}     = $desc;
-            $object->{'DescriptionJSON_'. $lang} = $json;
+            [$descriptionJson, $jsonTrue, $jsonFalse] = $formatter->format($object->{'Description_'. $lang});
+            $object->{'Description_'. $lang} = $jsonTrue;
+            $object->{'DescriptionJSON_'. $lang} = $descriptionJson;
         }
     }
 }

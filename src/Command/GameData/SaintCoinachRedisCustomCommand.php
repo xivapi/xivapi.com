@@ -46,7 +46,7 @@ class SaintCoinachRedisCustomCommand extends Command
             }
             
             // this one done on its own due to memory issues
-            if (!$force && $class == 'Quest') {
+            if (!$force && ($class == 'Quest' || $class == 'SkillDescriptions')) {
                 continue;
             }
             
