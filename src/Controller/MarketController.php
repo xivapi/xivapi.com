@@ -52,7 +52,7 @@ class MarketController extends AbstractController
      *
      * @Route("/market/item/{itemId}")
      */
-    public function item(Request $request, int $itemId)
+    public function item(Request $request, int $itemId, bool $isInternal = false)
     {
         $servers = array_filter(explode(',', $request->get('servers')));
         $dc      = ucwords($request->get('dc'));
@@ -84,6 +84,10 @@ class MarketController extends AbstractController
             $response[$server] = $this->companionMarket->get($serverId, $itemId, $maxHistory);
         }
 
+        if ($isInternal) {
+            return $response;
+        }
+
         return $this->json($response);
     }
 
@@ -102,7 +106,7 @@ class MarketController extends AbstractController
         }
 
         foreach ($itemIds as $id) {
-            $results[] = $this->item($request, $id);
+            $results[] = $this->item($request, $id, true);
         }
 
         return $this->json($results);
