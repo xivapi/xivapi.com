@@ -19,6 +19,7 @@ use App\Service\Common\Language;
 use App\Service\Redis\Redis;
 use App\Service\ThirdParty\GoogleAnalytics;
 use App\Service\User\Users;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -49,8 +50,9 @@ class ApiRequest
      * Static ID for requests, will either be a hashed ip or
      * a developer key (whatever is used to rate limit)
      */
-    public static $id;
-    public static $idTimed;
+    public static $idStatic;
+    public static $idDynamic;
+    public static $idUnique;
 
     /**
      * @var Users
@@ -90,6 +92,11 @@ class ApiRequest
         $this->request = $request;
         $this->apikey  = trim($this->request->get(self::KEY_FIELD));
 
+        // set request ids
+        $this->setApiRequestIds();
+
+        GoogleAnalytics::test();
+
         // if this request is not against an API controller, we don't need to do anything.
         if ($this->isApiController() === false) {
             return;
@@ -116,6 +123,22 @@ class ApiRequest
         // send any developer Google Analytics data
         $this->sendUsageAnalyticData();
         $this->sendDeveloperAnalyticData();
+    }
+
+    /**
+     * Set request ID's, which will either use Api Key or Client IP
+     */
+    private function setApiRequestIds()
+    {
+        $unique = (Object)[
+            'static'  => sha1("ga_". ($this->apikey ?: $this->request->getClientIp())),
+            'dynamic' => sha1("ga_". ($this->apikey ?: $this->request->getClientIp()) . time()),
+            'unique'  => Uuid::uuid4()->toString(),
+        ];
+
+        ApiRequest::$idStatic  = $unique->static;
+        ApiRequest::$idDynamic = $unique->dynamic;
+        ApiRequest::$idUnique  = $unique->unique;
     }
 
     /**
@@ -177,9 +200,6 @@ class ApiRequest
      */
     private function handleRateLimit($key, $limit = self::MAX_RATE_LIMIT_GLOBAL)
     {
-        ApiRequest::$id = $key;
-        ApiRequest::$idTimed = $key . time();
-
         // current and last second
         $key = $key .'_v3_'. (int)date('s');
 
@@ -238,8 +258,8 @@ class ApiRequest
         // XIVAPI Google Analytics
         GoogleAnalytics::trackHits($this->request->getPathInfo());
         GoogleAnalytics::trackBaseEndpoint($this->getRequestEndpoint());
-        GoogleAnalytics::trackLanguage();
         GoogleAnalytics::trackApiKey($this->apikey ?: 'no_api_key');
+        GoogleAnalytics::trackLanguage();
     }
     
     /**
@@ -252,9 +272,11 @@ class ApiRequest
             return;
         }
 
+        $key = $this->user->getApiAnalyticsKey();
+
         // User Google Analytics
-        GoogleAnalytics::hit($this->user, $this->request->getPathInfo());
-        GoogleAnalytics::event($this->user, 'Requests', 'Endpoint', $this->getRequestEndpoint());
-        GoogleAnalytics::event($this->user, 'Requests', 'Language', Language::current());
+        GoogleAnalytics::hit($key, $this->request->getPathInfo());
+        GoogleAnalytics::event($key, 'Requests', 'Endpoint', $this->getRequestEndpoint());
+        GoogleAnalytics::event($key, 'Requests', 'Language', Language::current());
     }
 }

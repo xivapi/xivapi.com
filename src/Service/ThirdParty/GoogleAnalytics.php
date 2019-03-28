@@ -3,13 +3,11 @@
 namespace App\Service\ThirdParty;
 
 use App\Entity\User;
-use App\Entity\UserApp;
 use App\Service\API\ApiRequest;
 use App\Service\Common\Language;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Interact with Google Analytics
@@ -42,7 +40,7 @@ class GoogleAnalytics
                 RequestOptions::QUERY => $options
             ]);
         } catch (\Exception $ex) {
-            // ignore
+            file_put_contents(__DIR__ .'/GoogleAnalytics.errors.log', $ex->getMessage() . "\n");
         }
     }
     
@@ -54,22 +52,28 @@ class GoogleAnalytics
         self::query([
             't'   => 'pageview',
             'v'   => self::VERSION,
-            'cid' => ApiRequest::$idTimed,
+            'cid' => ApiRequest::$idUnique,
             'z'   => mt_rand(0, 999999),
             'tid' => self::getTrackingId($account),
             'dp'  => $url,
         ]);
     }
 
+    public static function test()
+    {
+        self::hit('UA-125096878-7', '/test');
+    }
+
+
     /**
      * Record an event
      */
-    public static function event($account, string $category, string $action, string $label = '', int $value = 1): void
+    public static function event(string $account, string $category, string $action, string $label = '', int $value = 1): void
     {
         self::query([
             't'   => 'event',
             'v'   => self::VERSION,
-            'cid' => ApiRequest::$idTimed,
+            'cid' => ApiRequest::$idUnique,
             'z'   => mt_rand(0, 999999),
             'tid' => self::getTrackingId($account),
             'ec'  => $category,
@@ -84,33 +88,27 @@ class GoogleAnalytics
      */
     private static function getTrackingId($account)
     {
-        // if we pass a user app, get the google analytics ID from it
-        if (is_object($account) && get_class($account) === User::class) {
-            /** @var User $account */
-            return $account->getApiAnalyticsKey();
-        }
-    
-        return getenv('SITE_CONFIG_GOOGLE_ANALYTICS');
+        return str_ireplace('xivapi', getenv('SITE_CONFIG_GOOGLE_ANALYTICS'), $account);
     }
 
     public static function trackHits(string $url)
     {
-        self::hit(null, $url);
+        self::hit('xivapi', $url);
     }
 
     public static function trackBaseEndpoint(string $endpoint)
     {
-        self::event(null, 'Requests', 'Endpoint', $endpoint);
+        self::event('xivapi', 'Requests', 'Endpoint', $endpoint);
     }
 
     public static function trackLanguage()
     {
-        self::event(null, 'Requests', 'Language', Language::current());
+        self::event('xivapi', 'Requests', 'Language', Language::current());
     }
     
     public static function trackApiKey(string $apiKey)
     {
-        self::event(null, 'Users', 'API Key', $apiKey);
+        self::event('xivapi', 'Users', 'API Key', $apiKey);
     }
     
     public static function companionTrackItemAsUrl(string $itemId)
