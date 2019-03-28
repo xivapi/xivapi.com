@@ -52,7 +52,7 @@
         <tr>
             {% for price in digitalocean.volumes %}
                 <td>
-                    <strong>${{ price.cost }} {{ price.sie }} GB</strong><br>
+                    <strong>${{ price.cost }} {{ price.size }} GB</strong><br>
                     <small>{{ price.location }}</small>
                 </td>
             {% endfor %}
