@@ -116,4 +116,16 @@ class GoogleAnalytics
             'dp'  => '/'. $itemId,
         ]);
     }
+
+    public static function lodestoneTrackContentAsUrl(string $lodestoneQueue)
+    {
+        self::query([
+            't'   => 'pageview',
+            'v'   => self::VERSION,
+            'cid' => Uuid::uuid4()->toString(),
+            'z'   => mt_rand(0, 999999),
+            'tid' => 'UA-125096878-9',
+            'dp'  => '/'. $lodestoneQueue,
+        ]);
+    }
 }

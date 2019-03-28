@@ -34,7 +34,7 @@ class RequestListener
         // Another quick hack to convert all queries into the request object
         if ($queries = $request->query->all()) {
             foreach ($queries as $key => $value) {
-                $request->request->set($key, $value);
+                $request->request->set(strtolower($key), $value);
             }
         }
 

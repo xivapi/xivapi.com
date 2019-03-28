@@ -3,6 +3,7 @@
 namespace App\Service\LodestoneQueue;
 
 use App\Entity\LodestoneStatistic;
+use App\Service\ThirdParty\GoogleAnalytics;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Api;
 use PhpAmqpLib\Exception\AMQPRuntimeException;
@@ -117,7 +118,8 @@ class Manager
                 // connect to db
                 // todo - possible cpu leak here
                 $this->em->getConnection()->connect();
-    
+
+
                 // Record stats
                 $stat = new LodestoneStatistic();
                 $stat
@@ -132,6 +134,8 @@ class Manager
     
                 try {
                     foreach ($response->responses as $id => $data) {
+                        GoogleAnalytics::lodestoneTrackContentAsUrl($response->queue);
+
                         // handle response based on queue
                         switch($response->queue) {
                             default:

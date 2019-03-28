@@ -140,11 +140,11 @@ class ResponseListener
                     $expires = 3600 * 4;
                     break;
 
-                case 'App\Controller\CompanionMarketController::itemPrices':
-                case 'App\Controller\CompanionMarketController::itemHistory':
-                case 'App\Controller\CompanionMarketController::categoryList':
-                case 'App\Controller\CompanionMarketController::categories':
-                    $expires = 300;
+                case 'App\Controller\MarketController::itemByServer':
+                case 'App\Controller\MarketController::item':
+                case 'App\Controller\MarketController::search':
+                case 'App\Controller\MarketController::categories':
+                    $expires = 60;
                     break;
             }
 

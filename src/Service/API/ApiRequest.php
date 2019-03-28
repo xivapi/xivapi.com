@@ -265,12 +265,14 @@ class ApiRequest
      */
     private function sendDeveloperAnalyticData()
     {
+        $key = trim($this->user->getApiAnalyticsKey());
+
         // check if user has an analytics key
-        if (empty($this->user->getApiAnalyticsKey())) {
+        if (empty($key)) {
             return;
         }
 
-        $key = $this->user->getApiAnalyticsKey();
+        file_put_contents(__DIR__ ."/ga.log", "{$key} {$this->request->getPathInfo()}\n");
 
         // User Google Analytics
         GoogleAnalytics::hit($key, $this->request->getPathInfo());
