@@ -33,7 +33,7 @@ class DigitalOcean
         }
 
         /** @var Volume $volume */
-        foreach ($do->volume()->getAll() as $i $volume) {
+        foreach ($do->volume()->getAll() as $i => $volume) {
             $total += (float)$volume->sizeGigabytes * 0.10;
 
             $volumes[] = [
