@@ -56,6 +56,10 @@ class MarketController extends AbstractController
     {
         $servers = array_filter(explode(',', $request->get('servers')));
         $dc      = ucwords($request->get('dc'));
+
+        if (count($servers) > 15) {
+            throw new \Exception("No, too many servers!");
+        }
     
         // overwrite servers if a DC is provided
         $servers = $dc ? GameServers::LIST_DC[$dc] : $servers;
@@ -81,6 +85,27 @@ class MarketController extends AbstractController
         }
 
         return $this->json($response);
+    }
+
+    /**
+     * Obtain price + history for multiple items
+     *
+     * @Route("/market/items")
+     */
+    public function itemMulti(Request $request)
+    {
+        $itemIds = array_filter(explode(',', $request->get('ids')));
+        $results = [];
+
+        if (count($itemIds) > 100) {
+            throw new \Exception("No, too many ids!");
+        }
+
+        foreach ($itemIds as $id) {
+            $results[] = $this->item($request, $id);
+        }
+
+        return $this->json($results);
     }
     
     /**
