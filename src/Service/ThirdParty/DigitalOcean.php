@@ -6,6 +6,7 @@ use App\Service\Common\Arrays;
 use DigitalOceanV2\Adapter\GuzzleHttpAdapter;
 use DigitalOceanV2\DigitalOceanV2;
 use DigitalOceanV2\Entity\Droplet;
+use DigitalOceanV2\Entity\Volume;
 
 class DigitalOcean
 {
@@ -17,16 +18,20 @@ class DigitalOcean
         $adapter = new GuzzleHttpAdapter(getenv('DIGITALOCEAN_TOKEN_ID'));
         $do      = new DigitalOceanV2($adapter);
         
-        /** @var Droplet[] $droplets */
-        $droplets = $do->droplet()->getAll();
-        
-        $list  = [];
+
+        $droplets = ;
+        $volumes  = ;
+
+
+        $servers = [];
+        $volumes = [];
         $total = 0.00;
 
-        foreach($droplets as $droplet) {
+        /** @var Droplet $droplet */
+        foreach($do->droplet()->getAll() as $droplet) {
             $total += (float)$droplet->size->priceMonthly;
             
-            $list[] = [
+            $servers[] = [
                 'os'        => $droplet->image->name,
                 'ram'       => $droplet->memory,
                 'location'  => $droplet->region->name,
@@ -34,11 +39,23 @@ class DigitalOcean
                 'name'      => $droplet->name
             ];
         }
+
+        /** @var Volume $volume */
+        foreach ($do->volume()->getAll() as $volume) {
+            $total += (float)$volume->sizeGigabytes * 0.10;
+
+            $volumes[] = [
+                'size'      => $volume->sizeGigabytes,
+                'cost'      => (float)$volume->sizeGigabytes * 0.10,
+                'location'  => $volume->region->name,
+            ];
+        }
     
-        Arrays::sortBySubKey($list, 'name', true);
-    
+        Arrays::sortBySubKey($servers, 'name', true);
+
         return [
-            'servers' => $list,
+            'servers' => $servers,
+            'volumes' => $volumes,
             'total'   => $total,
         ];
     }
