@@ -17,11 +17,6 @@ class DigitalOcean
     {
         $adapter = new GuzzleHttpAdapter(getenv('DIGITALOCEAN_TOKEN_ID'));
         $do      = new DigitalOceanV2($adapter);
-        
-
-        $droplets = ;
-        $volumes  = ;
-
 
         $servers = [];
         $volumes = [];
