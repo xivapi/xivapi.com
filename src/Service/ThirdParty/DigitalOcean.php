@@ -27,9 +27,6 @@ class DigitalOcean
             $total += (float)$droplet->size->priceMonthly;
             
             $servers[] = [
-                'os'        => $droplet->image->name,
-                'ram'       => $droplet->memory,
-                'location'  => $droplet->region->name,
                 'cost'      => $droplet->size->priceMonthly,
                 'name'      => $droplet->name
             ];
@@ -42,7 +39,6 @@ class DigitalOcean
             $volumes[] = [
                 'size'      => $volume->sizeGigabytes,
                 'cost'      => (float)$volume->sizeGigabytes * 0.10,
-                'location'  => $volume->region->name,
             ];
         }
     

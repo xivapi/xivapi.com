@@ -32,65 +32,48 @@
         Hosts the main site (xivapi.com) as well as Search and Market Data
     </p>
 
-    <h6>Dropets</h6>
-    <table>
-        <tbody>
-            <tr>
-                {% for price in digitalocean.servers %}
-                <td>
-                    <strong>${{ price.cost }} {{ price.name }}</strong><br>
-                    <small>{{ price.ram|number_format }} MB - {{ price.location }}</small>
-                </td>
-                {% endfor %}
-            </tr>
-        </tbody>
-    </table>
-
-    <h6>Block Storage</h6>
-    <table>
-        <tbody>
-        <tr>
-            {% for price in digitalocean.volumes %}
-                <td>
-                    <strong>${{ price.cost }} {{ price.size }} GB</strong><br>
-                    <small>{{ price.location }}</small>
-                </td>
-            {% endfor %}
-        </tr>
-        </tbody>
-    </table>
-
-    <br><br>
-
     <h4>Vultr</h4>
     <p>
         Lodestone tracking and auto-parsing servers (Characters, FC, LS and PVP Teams), these
         are on Vultr as Tokyo servers are required.
     </p>
 
-    <table>
-        <tbody>
-            <tr>
-                {% for price in digitalocean.servers %}
-                    <td>
-                        <strong>${{ price.cost }} {{ price.name }}</strong><br>
-                        <small>{{ price.ram|number_format }} MB - {{ price.location }}</small>
-                    </td>
-                {% endfor %}
-            </tr>
-        </tbody>
-    </table>
+    <br><br>
 
     <table>
+        <thead>
+            <tr>
+                <th>Digital Ocean</th>
+                <th>Vultr</th>
+            </tr>
+        </thead>
         <tbody>
-        <tr>
-            {% for price in vultr.servers %}
+            <tr>
                 <td>
-                    <strong>${{ price.cost }} {{ price.name }}</strong><br>
-                    <small>{{ price.ram|number_format }} MB - {{ price.location }}</small>
+                    <p>Servers</p>
+                    <ul>
+                        {% for price in digitalocean.servers %}
+                            <li><strong>${{ price.cost }}</strong> - {{ price.name }}</li>
+                        {% endfor %}
+                    </ul>
+                    <br>
+
+                    <p>Volumnes</p>
+                    <ul>
+                        {% for price in digitalocean.volumes %}
+                            <li><strong>${{ price.cost }}</strong> - {{ price.name }}</li>
+                        {% endfor %}
+                    </ul>
                 </td>
-            {% endfor %}
-        </tr>
+                <td>
+                    <p>Servers</p>
+                    <ul>
+                        {% for price in vultr.servers %}
+                        <li><strong>${{ price.cost }}</strong> - {{ price.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
         </tbody>
     </table>
 
