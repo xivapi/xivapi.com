@@ -95,8 +95,6 @@ class ApiRequest
         // set request ids
         $this->setApiRequestIds();
 
-        GoogleAnalytics::test();
-
         // if this request is not against an API controller, we don't need to do anything.
         if ($this->isApiController() === false) {
             return;

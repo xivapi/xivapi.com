@@ -59,12 +59,6 @@ class GoogleAnalytics
         ]);
     }
 
-    public static function test()
-    {
-        self::hit('UA-125096878-7', '/test');
-    }
-
-
     /**
      * Record an event
      */
