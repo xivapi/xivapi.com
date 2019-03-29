@@ -9,12 +9,13 @@ use Carbon\Carbon;
  */
 class SiteVersion
 {
+    const MAJOR = 2;
+    const MINOR = 2;
+    
     public static function get()
     {
         [$patch, $hash, $time] = explode("\n", file_get_contents(__DIR__.'/../../../git_version.txt'));
-    
-        $patch   = round($patch / 10);
-        $version = sprintf('%s.%s.%s', getenv('VERSION_MAJOR'), getenv('VERSION_MINOR'), $patch);
+        $version = sprintf('%s.%s-%s', self::MAJOR, self::MINOR, $patch);
         
         $time = Carbon::createFromTimestamp($time)->format('jS M - g:i a') . ' (UTC)';
 
