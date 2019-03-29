@@ -98,11 +98,8 @@
                             <p>
                                 If you are writing purely front-end applications where the users
                                 will be interacting with XIVAPI (eg via JavaScript) then you do
-                                not need an API Key.
-                            </p>
-                            <p>
-                                If you are using XIVAPI behind a server (and thus a static IP) you
-                                will need an API key to avoid hitting API limits.
+                                not need an API Key. If you are using XIVAPI behind a server
+                                (and thus a static IP) you will need an API key to avoid hitting API limits.
                             </p>
                             <p>
                                 Append the key onto the URL using the param: <code>private_key</code>.
@@ -118,12 +115,14 @@
                     <tr>
                         <td>Rate Limits</td>
                         <td>
-                            <p>
-                                <strong>Per User IP:</strong> {{ api_key_limits.MAX_RATE_LIMIT_GLOBAL }}/second
-                            </p>
-                            <p>
-                                <strong>Per App Key:</strong> {{ auth.user.apiRateLimit }}
-                            </p>
+                            <div class="rate-limits">
+                                <div>
+                                    <em>{{ api_key_limits.MAX_RATE_LIMIT_GLOBAL }}</em>/second/per user ip
+                                </div>
+                                <div>
+                                    <em>{{ auth.user.apiRateLimit }}</em>/second/per api key
+                                </div>
+                            </div>
                             <p class="account-note">
                                 <strong>IMPORTANT</strong> Just because you have X/second rate limit does not mean
                                 you should be hitting the service consistently for X/second, this rate is set so that

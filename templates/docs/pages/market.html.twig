@@ -8,10 +8,10 @@
 
     <p>
         Get in-game market board information for any server, at any time.
-    </p>
-    <p>
         Market data is tracked and updated behind the scenes and stored in ElasticSearch. This provides you
-        with fast access to all Market Data on any server.
+        with fast access to all Market Data on any server. Items update based on their sale frequency across
+        all servers. The faster an item sells, the faster it updates. In addition usage on MogBoard v2 will
+        also increase the update frequency.
     </p>
 
     <h6>Notice of usage</h6>
@@ -38,11 +38,6 @@
         Due to world congestion, some servers are not on the API at this time. Please view the full supported servers at the bottom.
     </p>
 
-    <h2>Documentation Work-In-Progress</h2>
-    <p>
-        The Market API is not fully documented at this time.
-    </p>
-
     <hr>
 
     {# Item on Server #}
@@ -66,12 +61,16 @@
         </tbody>
     </table>
 
+    <h4>Response</h4>
+    {% include 'docs/pages/code/market_response1.html.twig' %}
+
     <br><br>
 
     {# Item on any server or dc #}
     {{ docs.api('/market/item/[item_id]?servers=[x,y,z]', '/market/item/3?servers=Phoenix,Lich,Moogle', 'multi') }}
     <p>
         Obtain the <strong>prices &amp; history</strong> for an item on multiple servers or an entire Data-Center.
+        The maximum number of servers is 15.
     </p>
 
     <table class="param-table">
@@ -97,6 +96,26 @@
         </tbody>
     </table>
 
+    <h4>Response</h4>
+    <p>
+        The response for this query is the same as querying a single server except the root is an object of server names
+        with each entry being a single query, eg:
+    </p>
+    {% include 'docs/pages/code/market_response2.html.twig' %}
+
+    <br><br>
+
+    {# Multiple items on any server or dc #}
+    {{ docs.api('/market/items?servers=[x,y,z]&ids=2,3,4', '/market/items?servers=Phoenix,Lich,Moogle&ids=2,3,4', 'ids') }}
+    <p>
+        Obtain the <strong>prices &amp; history</strong> for multiple items on multiple servers or an entire Data-Center.
+        The maximum number of items is 100.
+    </p>
+    <p>
+        This query works exactly the same as querying multiple servers however it is an array for each item, eg:
+    </p>
+    {% include 'docs/pages/code/market_response3.html.twig' %}
+
     <br><br>
 
     {# Categories #}
@@ -108,9 +127,25 @@
     <br><br>
 
     {# Search #}
+    <h4>List of sellable items</h4>
     {{ docs.api('/market/search', '/market/search', 'search') }}
+    <p class="note">
+        Search will be coming to the market API after things have stabilised. The endpoint will accept
+        full ElasticSearch Queries in the same way Advanced Search works.
+    </p>
+
+    <br><br>
+
+    {# Sellable Items #}
+    {{ docs.api('/search?indexes=item&filters=ItemSearchCategory.ID>=9', '/search?indexes=item&filters=ItemSearchCategory.ID>=9', 'sellable-items') }}
     <p>
-        Work In Progress! Soon(tm)
+        We can use the Search endpoint to get a list of sellable items. The field <code>ItemSearchCategory</code>
+        on an <code>Item</code> states what category it is in on the market board. All items will have an ID above
+        or equal to <code>9</code>. The ID's below these are top level categories (Weapons, Armor, medicine, Misc, etc)
+    </p>
+    <p>
+        You can combine the search API with custom queries and filters, along with the market endpoint to build some
+        very powerful interfaces!
     </p>
 
     <hr>

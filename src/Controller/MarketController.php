@@ -118,7 +118,7 @@ class MarketController extends AbstractController
     public function search(Request $request)
     {
         return $this->json(
-            $this->companionMarket->search()
+            false //$this->companionMarket->search()
         );
     }
     

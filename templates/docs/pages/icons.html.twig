@@ -7,9 +7,7 @@
     <h1>Icons</h1>
     <p class="note">All icons are property of SQUARE-ENIX Ltd {{ "now"|date('Y') }} all rights reserved</p>
 
-    {{ docs.gap() }}
-
-
+    <br><br>
 
     {% if set %}
         <h6>{{ images.name }} <small>({{ images.icons|length }} images)</small></h6>
@@ -34,6 +32,13 @@
             In the in-game files, the filename for icons is very stripped.
             The psudo logic for this is: You can find XIVAPI's implementation
             <a href="https://github.com/xivapi/xivapi.com/blob/master/src/Service/Data/DataHelper.php#L68">on Github.com</a>.
+        </p>
+
+        <p>
+            If you need all the icons, please download: <a href="https://github.com/ufx/SaintCoinach/releases">SaintCoinach.Cmd.zip</a>,
+            run <code>SaintCoinach.Cmd.exe</code> and type <code>ui</code> then press enter. This will give you ALL the in-game icons.
+            If you want maps then run <code>maps</code> and press enter. This will be faster and more up to date than
+            getting them from XIVAPI.
         </p>
 
         <code class="box">

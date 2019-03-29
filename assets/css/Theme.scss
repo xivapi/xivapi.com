@@ -529,6 +529,14 @@ main .docs {
                 }
             }
         }
+
+        .box {
+            em {
+                color: var(--light-purple);
+                display: inline-block;
+                margin: 0 5px;
+            }
+        }
     }
 }
 
@@ -901,10 +909,29 @@ main .account {
             border-radius: 4px;
             font-size: 13px;
             border-left: solid 5px #FFC107;
+            margin-bottom: 0;
         }
 
         .btn-logout {
             color: var(--red);
+        }
+
+        .box {
+            margin-bottom: 0;
+        }
+
+        .rate-limits {
+            display: flex;
+            margin-bottom: 20px;
+            font-size: 18px;
+
+            em {
+                color: var(--light-green);
+            }
+
+            > div {
+                flex: 0 1 25%;
+            }
         }
     }
 }

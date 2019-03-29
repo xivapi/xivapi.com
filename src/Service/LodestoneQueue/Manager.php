@@ -54,6 +54,7 @@ class Manager
                 // loop through request ids
                 foreach ($request->ids as $id) {
                     $this->now = date('Y-m-d H:i:s');
+                    GoogleAnalytics::lodestoneTrackContentAsUrl("/{$request->queue}/{$request->method}/{$id}");
     
                     // call the API class dynamically and record any exceptions
                     try {
@@ -78,7 +79,7 @@ class Manager
                 
                 // report duration
                 $duration = round(microtime(true) - $startTime, 3);
-                $this->io->text("REQUESTS END   : ". str_pad($request->queue, 50) ." - ". $startDate ." > ". date('H:i:s') ." = {$duration}");
+                $this->io->text("REQUESTS END   : ". str_pad($request->queue, 50) ." - ". $startDate ." > ". date('H:i:s') ." = Duration: {$duration}");
             });
 
             // close connections
@@ -119,7 +120,6 @@ class Manager
                 // todo - possible cpu leak here
                 $this->em->getConnection()->connect();
 
-
                 // Record stats
                 $stat = new LodestoneStatistic();
                 $stat
@@ -134,8 +134,6 @@ class Manager
     
                 try {
                     foreach ($response->responses as $id => $data) {
-                        GoogleAnalytics::lodestoneTrackContentAsUrl($response->queue);
-
                         // handle response based on queue
                         switch($response->queue) {
                             default:

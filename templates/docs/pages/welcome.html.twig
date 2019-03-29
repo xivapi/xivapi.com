@@ -6,19 +6,26 @@
     <h1>Welcome</h1>
 
     <p>
-        The XIVAPI provides a massive amount of FINAL FANTASY XIV game data in a JSON format via
+        XIVAPI provides a massive amount of FINAL FANTASY XIV game data in a JSON format via
         a REST API. You can fetch information on all sorts of game content that has been discovered and
-        mapped in the SaintCoinach Schema. In addition it provides Character, Free Company, Linkshell, PvPTeams
-        and Lodestone information!
+        mapped in the SaintCoinach Schema. In addition it provides Character, Free Company, Linkshell, PvPTeams,
+        Lodestone and Market Board information!
     </p>
+
+    <h2 id="discord">Discord</h2>
 
     <p>
-        Jump into the discord: <a href="https://discord.gg/MFFVHWC" target="_blank">https://discord.gg/MFFVHWC</a>
+        Join our small group of passionate developers, talk about your ideas for building FFXIV apps! The XIVAPI
+        discord is for dev talk, datamining and all things FFXIV.
+    </p>
+    <p>
+        Jump into the discord:
+        <a href="{{ app.request.getSchemeAndHttpHost() }}/discord" target="_blank">{{ app.request.getSchemeAndHttpHost() }}/discord</a>
     </p>
 
-    <br><br>
+    <hr>
 
-    <h2 id="patreon">Patreon Support!</h2>
+    <h1 id="patreon">Patreon Support!</h1>
     <p>
         By contributing a small amount every month you support development on <strong>XIVAPI</strong> and <strong>Mogboard.com</strong>
         - You'll receive perks for both sites, recognition on discord and appreciation from the devs heart!
@@ -86,32 +93,37 @@
         </thead>
         <tbody>
             <tr>
-                <td>{{ max_rate_limit_key }} / req / sec</td>
+                <td>{{ max_rate_limit_key }} / req / sec (*)</td>
                 <td>{{ max_rate_limit_global }} / req / sec</td>
             </tr>
         </tbody>
     </table>
+    <small>
+        * Accounts have individually set rate limits and may change based on usage or requirements.
+    </small>
 
     <p class="note">
         <strong>Due Diligence</strong>
         <br>
-        Just because you can hit the API for X requests a second, every second of the day does not mean
+        Just because you can hit the API for X requests a second every second of the day; does not mean
         that you should. The rate-limit is intended to provide a fair amount of burst requests to each
-        user. The API is up to many fellow FFXIV developers, be reasonable about your usage and consider
-        how often you really need to query the site as well as if it's possible to cache/preload data.
+        user. The API is used by many fellow FFXIV developers and it is expected of you to be reasonable
+        about your usage and consider how often you really need to hit the site as well as if it's
+        possible to cache/preload data.
         <br><br>
         Game Content is very static and real-time data (eg Market/Characters) have a cache layers that
         update in the background. Be wise with regards to your usage.
     </p>
 
     <small>
-        <strong>Note:</strong> XIVAPI does not keep a record of IPs and usage of them are SHA1 hashed.
+        <strong>Note:</strong> XIVAPI does not keep a record of IPs and usage of them are SHA1 hashed in memory.
     </small>
 
     <p>
-        If you use an API key, IP is no longer factored into rate limit checks. You will also
-        gain the benefit of Google Tracking and a higher rate limit. If your individual rate limit
-        is not enough then hop onto the Discord and we can look into it!
+        If you use an API key then the request IP is no longer factored into rate limit checks.
+        You will also gain the benefit of Google Tracking and a higher rate limit. If your individual rate limit
+        is not enough then hop onto the Discord and we can look into it! Before doing this have a consider
+        what you're trying to achieve and if you can optimise your code.
     </p>
 
     <br><br>
@@ -127,56 +139,49 @@
     </code>
 
     <p>You can also pass it as a JSON payload</p>
-    <code class="box">
-        <pre>{
-    string: "ifrit",
-    private_key: <em>"[your_key]"</em>
-}</pre>
-    </code>
+    {% include 'docs/pages/code/example_apikey.html.twig' %}
 
     <hr>
 
     <h2 id="getting-started">Getting Started</h2>
 
     <p>
-        Do a basic curl request
+        Basic curl request:
     </p>
 
     <code class="box">curl {{ app.request.getSchemeAndHttpHost() }}/item/1675</code>
 
-    <h4>Libraries</h4>
+    <br><br>
+
+    <h4>Community Driven Libraries</h4>
 
     <table>
         <thead>
             <tr>
-                <th width="20%">Language</th>
-                <th>Library</th>
+                <th width="30%">Language</th>
+                <th>Github</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>PHP</td>
-                <td>
-                    <a href="https://github.com/xivapi/xivapi-php">https://github.com/xivapi/xivapi-php</a>
-                </td>
+                <td><a href="https://github.com/xivapi/xivapi-php">https://github.com/xivapi/xivapi-php</a></td>
             </tr>
             <tr>
                 <td>Javascript</td>
-                <td>
-                    <a href="https://github.com/xivapi/angular-client">https://github.com/xivapi/angular-client</a>
-                </td>
+                <td><a href="https://github.com/xivapi/xivapi-js">https://github.com/xivapi/xivapi-js</a></td>
+            </tr>
+            <tr>
+                <td>JS Angular</td>
+                <td><a href="https://github.com/xivapi/angular-client">https://github.com/xivapi/angular-client</a></td>
             </tr>
             <tr>
                 <td>Ruby</td>
-                <td>
-                    <a href="https://github.com/xivapi/xivapi-ruby">https://github.com/xivapi/xivapi-ruby</a>
-                </td>
+                <td><a href="https://github.com/xivapi/xivapi-ruby">https://github.com/xivapi/xivapi-ruby</a></td>
             </tr>
             <tr>
                 <td>Go</td>
-                <td>
-                    <a href="https://github.com/xivapi/xivapi-go">https://github.com/xivapi/xivapi-go</a>
-                </td>
+                <td><a href="https://github.com/xivapi/xivapi-go">https://github.com/xivapi/xivapi-go</a></td>
             </tr>
         </tbody>
     </table>
@@ -200,7 +205,7 @@
     <h2>C#</h2>
     {% include 'docs/pages/code/example_csharp.html.twig' %}
 
-    <hr>
+    <br><br>
 
     {# Open Source #}
     <h2>Open Source!</h2>
