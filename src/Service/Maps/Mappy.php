@@ -40,17 +40,20 @@ class Mappy
     public function save(array $positions): bool
     {
         foreach ($positions as $i => $pos) {
+            
+            
+            $hash = $this->getPositionHash($pos);
+    
             $log = [
+                $hash,
                 $pos->Name,
                 $pos->Type,
                 $pos->PosX,
                 $pos->PosY,
                 "Map: {$pos->MapID}",
             ];
-            
+    
             file_put_contents(__DIR__.'/MappyLog.txt', implode(',', $log) . "\n", FILE_APPEND);
-            
-            $hash = $this->getPositionHash($pos);
             
             // skip duplicates
             if ($this->repository->findBy(['Hash' => $hash])) {
