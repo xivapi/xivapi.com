@@ -39,22 +39,42 @@ class Mappy
      */
     public function save(array $positions): bool
     {
+        // Step 1
+        // - Delete duplicate gathering entities, they will be added in step 2
         foreach ($positions as $i => $pos) {
-            
-            
-            $hash = $this->getPositionHash($pos);
-    
-            $log = [
-                $hash,
-                $pos->Name,
-                $pos->Type,
-                $pos->PosX,
-                $pos->PosY,
-                "Map: {$pos->MapID}",
-            ];
-    
-            file_put_contents(__DIR__.'/MappyLog.txt', implode(',', $log) . "\n", FILE_APPEND);
-            
+            if ($pos->Type == 'Gathering') {
+                $hash = sha1("{$pos->ENpcResidentID},{$pos->Name},{$pos->MapID}");
+                
+                // delete existing gathering entries with this ID
+                $entries = $this->repository->findBy([
+                    'ENpcResidentID' => $pos->ENpcResidentID,
+                    'Type'           => $pos->Type,
+                    'MapID'          => $pos->MapID,
+                ]);
+        
+                if ($entries) {
+                    /** @var MapPosition $entry */
+                    foreach ($entries as $entry) {
+                        // can ignore if hash is the same
+                        if ($entry->getHash() != $hash) {
+                            $this->em->remove($entry);
+                        }
+                    }
+                    
+                    $this->em->flush();
+                }
+            }
+        }
+        
+        // Step 2
+        foreach ($positions as $i => $pos) {
+            if ($pos->Type === 'Gathering') {
+                // handle gathering differently since it's position is static.
+                $hash = sha1("{$pos->ENpcResidentID},{$pos->Name},{$pos->MapID}");
+            } else {
+                $hash = $this->getPositionHash($pos);
+            }
+
             // skip duplicates
             if ($this->repository->findBy(['Hash' => $hash])) {
                 continue;
@@ -144,7 +164,7 @@ class Mappy
             $pos->BNpcBaseID,
             $pos->Type,
             $xPos,
-            $yPos
+            $yPos,
         ]));
     }
 }
