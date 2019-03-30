@@ -63,22 +63,22 @@ class SetupChannels extends Command
             'free_company_update',
             'free_company_update_0_normal',
             'free_company_update_1_normal',
-            'free_company_update_0_patron',
-            'free_company_update_1_patron',
+            'free_company_update_0_patreon',
+            'free_company_update_1_patreon',
             
             'linkshell_add',
             'linkshell_update',
             'linkshell_update_0_normal',
             'linkshell_update_1_normal',
-            'linkshell_update_0_patron',
-            'linkshell_update_1_patron',
+            'linkshell_update_0_patreon',
+            'linkshell_update_1_patreon',
             
             'pvp_team_add',
             'pvp_team_update',
             'pvp_team_update_0_normal',
             'pvp_team_update_1_normal',
-            'pvp_team_update_0_patron',
-            'pvp_team_update_1_patron',
+            'pvp_team_update_0_patreon',
+            'pvp_team_update_1_patreon',
         ];
     
         $rabbit  = new RabbitMQ();
