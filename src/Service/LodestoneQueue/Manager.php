@@ -118,10 +118,10 @@ class Manager
                 $startDate = date('H:i:s');
                 $duration = round(time() - $response->added, 4);
                 
-                if ($duration > 180) {
-                    $message = "<@42667995159330816> [Lodestone Content Tracker] Queue Duration exceeded 180 seconds, currently at: {$duration} for queue: {$queue}";
-                    Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
-                }
+                #if ($duration > 180) {
+                #    $message = "<@42667995159330816> [Lodestone Content Tracker] Queue Duration exceeded 180 seconds, currently at: {$duration} for queue: {$queue}";
+                #    Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
+                #}
                 
                 // connect to db
                 // todo - possible cpu leak here
