@@ -55,7 +55,6 @@ class Manager
                 // loop through request ids
                 foreach ($request->ids as $id) {
                     $this->now = date('Y-m-d H:i:s');
-                    //GoogleAnalytics::lodestoneTrackContentAsUrl("/{$request->queue}/{$request->method}/{$id}");
     
                     // call the API class dynamically and record any exceptions
                     try {
