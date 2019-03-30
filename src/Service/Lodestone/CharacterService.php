@@ -43,9 +43,9 @@ class CharacterService extends AbstractService
             ];
         }
 
-        CharacterQueue::request($lodestoneId, 'character_add', true);
-        CharacterFriendQueue::request($lodestoneId, 'character_friends_add', true);
-        CharacterAchievementQueue::request($lodestoneId, 'character_achievements_add', true);
+        #CharacterQueue::request($lodestoneId, 'character_add', true);
+        #CharacterFriendQueue::request($lodestoneId, 'character_friends_add', true);
+        #CharacterAchievementQueue::request($lodestoneId, 'character_achievements_add', true);
 
         return (Object)[
             'ent'  => new Character($lodestoneId),
