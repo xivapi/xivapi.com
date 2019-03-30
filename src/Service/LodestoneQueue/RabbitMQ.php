@@ -45,7 +45,17 @@ class RabbitMQ
             getenv('API_RABBIT_IP'),
             getenv('API_RABBIT_PORT'),
             getenv('API_RABBIT_USERNAME'),
-            getenv('API_RABBIT_PASSWORD')
+            getenv('API_RABBIT_PASSWORD'),
+            '/',
+            false,
+            'AMQPLAIN',
+            null,
+            'en_US',
+            60.00,
+            90.0,
+            null,
+            true,
+            30
         );
 
         return $this;

@@ -50,14 +50,15 @@ class Manager
             $requestRabbit->readMessageAsync(function($request) use ($responseRabbit) {
                 // update times
                 $request->responses = [];
-                $count     = count($request->id);
                 $startTime = microtime(true);
                 $startDate = date('H:i:s');
                 $this->io->text("REQUESTS START : ". str_pad($request->queue, 50) ." - ". $startDate);
                 
                 // loop through request ids
+                $count = 0;
                 foreach ($request->ids as $id) {
                     $this->now = date('Y-m-d H:i:s');
+                    $count++;
     
                     // call the API class dynamically and record any exceptions
                     try {
