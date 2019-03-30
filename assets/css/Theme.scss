@@ -541,11 +541,15 @@ main .docs {
 }
 
 main .home-top {
-    background-color: #05080f;
-    background-image: url("/ui/bg6.png");
+    background-color: #6723b2;
+    background: -moz-linear-gradient(top, #6723b2 0%, #7228c9 100%);
+    background: -webkit-linear-gradient(top, #6723b2 0%, #7228c9 100%);
+    background: linear-gradient(to bottom, #6723b2 0%, #7228c9 100%);
+
     overflow: hidden;
     text-align: center;
     position: relative;
+    z-index: 500;
 
     .home-top-shadow {
         position: absolute;
@@ -571,9 +575,8 @@ main .home-top {
         max-width: 840px;
         background-color: #222;
         border-radius: 6px 6px 0 0;
-        box-shadow: 0 0 10px rgba(0,0,0,.8), inset 0 0 1px rgba(255,255,255,0.2);
+        box-shadow: 0 0 40px rgba(0,0,0,.3), inset 0 0 1px rgba(255,255,255,0.2);
         margin: 0 auto;
-        margin-bottom: -3px;
 
         > div:first-of-type {
             display: flex;
@@ -633,8 +636,8 @@ main .home-top {
             background-color: #333;
             color: #d9e3b1;
             text-align: left;
-            padding: 25px 30px 50px 30px;
-            padding-left: 50px;
+            padding: 25px;
+            padding-left: 40px;
             border-top: solid 1px #000;
 
             box-shadow: inset 0 0 1px rgba(255,255,255,0.2);
@@ -647,7 +650,7 @@ main .home-top {
 }
 
 main .mid-section {
-    border-top: solid 2px #111;
+    border-top: solid 1px #000;
 
     > div {
         display: flex;
@@ -696,15 +699,6 @@ main .mid-section {
     }
 }
 main .low-section {
-    background-color: #111;
-    background-image: url("/ui/bg.png");
-    background-repeat: repeat-x;
-    background-size: 500px;
-    background-position: top center;
-    border-top: solid 1px #213d5d;
-    border-bottom: solid 1px #000;
-    box-shadow: 0 0 20px rgba(0,0,0,.2);
-
     > div {
         display: flex;
         margin: 0 auto;
