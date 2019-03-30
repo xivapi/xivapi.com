@@ -15,6 +15,7 @@ use App\Repository\CharacterRepository;
 use App\Repository\FreeCompanyRepository;
 use App\Repository\LinkshellRepository;
 use App\Repository\PvPTeamRepository;
+use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\CharacterAchievementQueue;
 use App\Service\LodestoneQueue\CharacterFriendQueue;
 use App\Service\LodestoneQueue\CharacterQueue;
@@ -72,11 +73,11 @@ class AutoManagerQueue extends Command
         $repo = $this->em->getRepository(Character::class);
         $this->io->text(__METHOD__);
     
-        foreach(range(0,5) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_CHARACTER_QUEUES) as $number) {
             CharacterQueue::queue($repo->getUpdateIds(Entity::PRIORITY_NORMAL, $number), "character_update_{$number}_normal");
         }
     
-        foreach(range(0,0) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_QUEUES_PATRON) as $number) {
             CharacterQueue::queue($repo->getUpdateIds(Entity::PRIORITY_PATRON, $number), "character_update_{$number}_patreon");
         }
     }
@@ -87,11 +88,11 @@ class AutoManagerQueue extends Command
         $repo = $this->em->getRepository(CharacterFriends::class);
         $this->io->text(__METHOD__);
     
-        foreach(range(0,1) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_CHARACTER_FRIENDS_QUEUES) as $number) {
             CharacterFriendQueue::queue($repo->getUpdateIds(Entity::PRIORITY_NORMAL, $number), "character_friends_update_{$number}_normal");
         }
     
-        foreach(range(0,0) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_QUEUES_PATRON) as $number) {
             CharacterFriendQueue::queue($repo->getUpdateIds(Entity::PRIORITY_PATRON, $number), "character_friends_update_{$number}_patreon");
         }
     }
@@ -102,11 +103,11 @@ class AutoManagerQueue extends Command
         $repo = $this->em->getRepository(CharacterAchievements::class);
         $this->io->text(__METHOD__);
     
-        foreach(range(0,1) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_CHARACTER_ACHIEVEMENTS_QUEUES) as $number) {
             CharacterAchievementQueue::queue($repo->getUpdateIds(Entity::PRIORITY_NORMAL, $number), "character_achievements_update_{$number}_normal");
         }
     
-        foreach(range(0,0) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_QUEUES_PATRON) as $number) {
             CharacterAchievementQueue::queue($repo->getUpdateIds(Entity::PRIORITY_PATRON, $number), "character_achievements_update_{$number}_patreon");
         }
     }
@@ -117,11 +118,11 @@ class AutoManagerQueue extends Command
         $repo = $this->em->getRepository(FreeCompany::class);
         $this->io->text(__METHOD__);
     
-        foreach(range(0,1) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_FC_QUEUES) as $number) {
             FreeCompanyQueue::queue($repo->getUpdateIds(Entity::PRIORITY_NORMAL, $number), "free_company_update_{$number}_normal");
         }
     
-        foreach(range(0,0) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_QUEUES_PATRON) as $number) {
             FreeCompanyQueue::queue($repo->getUpdateIds(Entity::PRIORITY_PATRON, $number), "free_company_update_{$number}_patreon");
         }
     }
@@ -132,11 +133,11 @@ class AutoManagerQueue extends Command
         $repo = $this->em->getRepository(Linkshell::class);
         $this->io->text(__METHOD__);
     
-        foreach(range(0,1) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_LS_QUEUES) as $number) {
             LinkshellQueue::queue($repo->getUpdateIds(Entity::PRIORITY_NORMAL, $number), "linkshell_update_{$number}_normal");
         }
     
-        foreach(range(0,0) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_QUEUES_PATRON) as $number) {
             LinkshellQueue::queue($repo->getUpdateIds(Entity::PRIORITY_PATRON, $number), "linkshell_update_{$number}_patreon");
         }
     }
@@ -147,11 +148,11 @@ class AutoManagerQueue extends Command
         $repo = $this->em->getRepository(PvPTeam::class);
         $this->io->text(__METHOD__);
     
-        foreach(range(0,1) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_PVP_QUEUES) as $number) {
             PvPTeamQueue::queue($repo->getUpdateIds(Entity::PRIORITY_NORMAL, $number), "pvp_team_update_{$number}_normal");
         }
     
-        foreach(range(0,0) as $number) {
+        foreach(range(0, ServiceQueues::TOTAL_QUEUES_PATRON) as $number) {
             PvPTeamQueue::queue($repo->getUpdateIds(Entity::PRIORITY_PATRON, $number), "pvp_team_update_{$number}_patreon");
         }
     }
