@@ -127,17 +127,17 @@
     <br><br>
 
     {# Search #}
-    <h4>List of sellable items</h4>
     {{ docs.api('/market/search', '/market/search', 'search') }}
     <p class="note">
-        Search will be coming to the market API after things have stabilised. The endpoint will accept
-        full ElasticSearch Queries in the same way Advanced Search works.
+        Search will be coming to the market API after infrastructure has stabilised.
+        The endpoint will accept full ElasticSearch Queries.
     </p>
 
     <br><br>
 
     {# Sellable Items #}
     {{ docs.api('/search?indexes=item&filters=ItemSearchCategory.ID>=9', '/search?indexes=item&filters=ItemSearchCategory.ID>=9', 'sellable-items') }}
+    <h4>List of sellable items</h4>
     <p>
         We can use the Search endpoint to get a list of sellable items. The field <code>ItemSearchCategory</code>
         on an <code>Item</code> states what category it is in on the market board. All items will have an ID above
