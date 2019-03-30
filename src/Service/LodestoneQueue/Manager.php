@@ -7,6 +7,8 @@ use App\Service\Common\Mog;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Api;
+use PhpAmqpLib\Exception\AMQPConnectionClosedException;
+use PhpAmqpLib\Exception\AMQPHeartbeatMissedException;
 use PhpAmqpLib\Exception\AMQPRuntimeException;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -87,15 +89,23 @@ class Manager
             $requestRabbit->close();
             $responseRabbit->close();
         } catch (\Exception $ex) {
+            $exClassName = get_class($ex);
+            
             // can trigger due to socket closure, fine to just let hypervisor restart
-            if (get_class($ex) == AMQPRuntimeException::class) {
-                $this->io->text('-- (AMQPRuntimeException) SOCKET CLOSED :: RESTARTING PROCESS --');
+            $amqpExceptions = [
+                AMQPRuntimeException::class,
+                AMQPConnectionClosedException::class,
+                AMQPHeartbeatMissedException::class
+            ];
+            
+            if (in_array($exClassName, $amqpExceptions)) {
+                $this->io->text("-- (ExName: {$exClassName}) SOCKET CLOSED :: RESTARTING PROCESS --");
                 $requestRabbit->close();
                 $responseRabbit->close();
                 exit(1337);
             }
     
-            $this->io->error("[35] REQUEST :: ". get_class($ex) ." at: {$this->now} -- {$ex->getMessage()} #{$ex->getLine()} {$ex->getFile()}");
+            $this->io->error("[35] REQUEST :: ". $exClassName ." at: {$this->now} -- {$ex->getMessage()} #{$ex->getLine()} {$ex->getFile()}");
             $this->io->error($ex->getTraceAsString());
         }
     }
