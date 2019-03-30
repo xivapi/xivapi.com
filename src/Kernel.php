@@ -14,23 +14,30 @@ class Kernel extends BaseKernel
     use MicroKernelTrait;
 
     const CONFIG_EXTS = '.{php,xml,yaml,yml}';
-
+    
     public function getCacheDir()
     {
-        if (is_dir("/dalamud")) {
-            return '/dalamud/cache/data_'. $this->environment;
-        }
-        
-        return $this->getProjectDir().'/var/cache/data_'.$this->environment;
+        return $this->getLocalDirectory() . '/cache';
     }
     
     public function getLogDir()
     {
-        if (is_dir("/dalamud")) {
-            return '/dalamud/log/data_'. $this->environment;
+        return $this->getLocalDirectory() . '/log';
+    }
+    
+    /**
+     * Returns the correct local directory based on of this is a VM or not.
+     */
+    private function getLocalDirectory()
+    {
+        $vagrant = '/vagrant_xivapi/';
+    
+        // local env
+        if (is_dir($vagrant)) {
+            return $vagrant . $this->environment;
         }
-        
-        return $this->getProjectDir().'/var/log/data_'.$this->environment;
+    
+        return $this->getProjectDir() .'/var/'. $this->environment;
     }
 
     public function registerBundles()

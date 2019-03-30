@@ -3,8 +3,8 @@
 namespace App\Service\Content;
 
 use App\Command\GameData\SaintCoinachRedisCommand;
-use App\Service\Data\SaintCoinach;
-use App\Service\Redis\Cache;
+use App\Service\SaintCoinach\SaintCoinach;
+use App\Service\Redis\Redis;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use App\Service\Data\CsvReader;
 
@@ -14,14 +14,11 @@ class ManualHelper
     
     /** @var SymfonyStyle */
     public $io;
-    /** @var Cache */
-    public $redis;
     
     public function init(SymfonyStyle $io)
     {
         $this->io = $io;
         $this->io->text('<info>'. get_class($this) .'</info>');
-        $this->redis = new Cache();
         return $this;
     }
     
@@ -30,9 +27,7 @@ class ManualHelper
      */
     public function getContentIds($contentName)
     {
-        $key    = "ids_{$contentName}";
-        $keys   = $this->redis->get($key);
-        return $keys;
+        return Redis::Cache()->get("ids_{$contentName}");
     }
     
     /**
@@ -58,11 +53,11 @@ class ManualHelper
             return $data;
         }
         
-        $this->redis->initPipeline();
+        Redis::Cache()->startPipeline();
         foreach ($data as $key => $content) {
-            $this->redis->set($key, $content, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $content, self::REDIS_DURATION);
         }
-        $this->redis->execPipeline();
+        Redis::Cache()->executePipeline();
         
         unset($data);
         return [];

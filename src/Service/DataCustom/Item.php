@@ -4,6 +4,7 @@ namespace App\Service\DataCustom;
 
 use App\Service\Data\CsvReader;
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class Item extends ManualHelper
 {
@@ -15,14 +16,14 @@ class Item extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_Item_{$id}";
-            $item = $this->redis->get($key);
+            $item = Redis::Cache()->get($key);
 
             // this is prep for something else
             $item->Materia = $item->Materia ?? null;
             
             // do stuff
             $this->itemLinkItemUiCategoryToItemKind($item);
-            $this->redis->set($key, $item, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $item, self::REDIS_DURATION);
         }
     }
     

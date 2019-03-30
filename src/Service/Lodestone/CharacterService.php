@@ -7,14 +7,14 @@ use App\Entity\CharacterAchievements;
 use App\Entity\CharacterFriends;
 use App\Entity\Entity;
 use App\Service\Content\LodestoneData;
+use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterAchievementQueue;
 use App\Service\LodestoneQueue\CharacterConverter;
 use App\Service\LodestoneQueue\CharacterFriendQueue;
 use App\Service\LodestoneQueue\CharacterQueue;
-use App\Service\Service;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
-class CharacterService extends Service
+class CharacterService extends AbstractService
 {
     /**
      * Get a character; this will add the character if they do not exist
@@ -33,7 +33,7 @@ class CharacterService extends Service
                 CharacterConverter::handle($data);
                 
                 if ($extended) {
-                    LodestoneData::extendCharacterData($data);
+                    LodestoneCharacter::extendCharacterData($data);
                 }
             }
             
@@ -42,11 +42,11 @@ class CharacterService extends Service
                 'data' => $data ?? null,
             ];
         }
-    
-        CharacterQueue::request($lodestoneId, 'character_add');
-        CharacterFriendQueue::request($lodestoneId, 'character_friends_add');
-        CharacterAchievementQueue::request($lodestoneId, 'character_achievements_add');
-        
+
+        CharacterQueue::request($lodestoneId, 'character_add', true);
+        CharacterFriendQueue::request($lodestoneId, 'character_friends_add', true);
+        CharacterAchievementQueue::request($lodestoneId, 'character_achievements_add', true);
+
         return (Object)[
             'ent'  => new Character($lodestoneId),
             'data' => null,
@@ -65,7 +65,7 @@ class CharacterService extends Service
                 $data = LodestoneData::load('character', 'achievements', $lodestoneId);
                 
                 if ($extended) {
-                    LodestoneData::extendAchievementData($data);
+                    LodestoneCharacter::extendAchievementData($data);
                 }
             }
     

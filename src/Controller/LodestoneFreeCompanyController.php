@@ -3,42 +3,27 @@
 namespace App\Controller;
 
 use App\Exception\ContentGoneException;
-use App\Service\Apps\AppManager;
-use App\Service\Japan\Japan;
 use App\Service\Lodestone\FreeCompanyService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\FreeCompanyQueue;
 use Lodestone\Api;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use App\Service\Redis\Redis;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package App\Controller
  */
-class LodestoneFreeCompanyController extends Controller
+class LodestoneFreeCompanyController extends AbstractController
 {
-    /** @var AppManager */
-    private $apps;
     /** @var FreeCompanyService */
     private $service;
     
-    public function __construct(AppManager $apps, FreeCompanyService $service)
+    public function __construct(FreeCompanyService $service)
     {
-        $this->apps = $apps;
         $this->service = $service;
     }
-    
-    /**
-     * todo - temp
-     * @Route("/freecompany/{lodestoneId}/add")
-     */
-    public function add($lodestoneId)
-    {
-        FreeCompanyQueue::request($lodestoneId, 'free_company_add');
-        return $this->json(1);
-    }
-    
     
     /**
      * @Route("/FreeCompany/Search")
@@ -113,13 +98,13 @@ class LodestoneFreeCompanyController extends Controller
             throw new ContentGoneException(ContentGoneException::CODE, 'Not Added');
         }
         
-        if ($this->service->cache->get(__METHOD__.$lodestoneId)) {
+        if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {
             return $this->json(0);
         }
 
         FreeCompanyQueue::request($lodestoneId, 'free_company_update');
         
-        $this->service->cache->set(__METHOD__.$lodestoneId, 1, ServiceQueues::UPDATE_TIMEOUT);
+        Redis::Cache()->set(__METHOD__.$lodestoneId, 1, ServiceQueues::UPDATE_TIMEOUT);
         return $this->json(1);
     }
 }

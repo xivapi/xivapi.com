@@ -1,4 +1,10 @@
+git_version.txt
 .idea
+src/Service/Common/Statistics\.php\.log
+exceptions\.log
+vm/ssh\.exe\.stackdump
+SaintCoinach\.Cmd\.lnk
+
 /data
 !/data/.gitkeep
 !/public/i/.gitkeep
@@ -22,8 +28,9 @@
 /src/Service/SaintCoinach/data
 /src/Service/SaintCoinach/documents
 /src/Command/Misc/Icons
-git_version.txt
 /sites
+/src/Service/SaintCoinach/data
+/src/Service/SaintCoinach/documents
 
 #
 # Symfony
@@ -48,7 +55,3 @@ yarn-error.log
 .phpunit
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
-
-src/Service/Common/Statistics\.php\.log
-
-exceptions\.log

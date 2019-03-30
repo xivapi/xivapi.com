@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\MapPosition;
-use App\Service\Redis\Cache;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 

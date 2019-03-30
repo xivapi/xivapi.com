@@ -323,7 +323,12 @@ class Arrays
             # This is what you actually want to do with your keys:
             #  - remove exclamation marks at the front
             #  - camelCase to snake_case
-            $transformedKey = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', ltrim(str_ireplace('PvPTeam', 'PvpTeam', $key), '!')));
+            $fixes = [
+                'PvPTeam' => 'PvpTeam',
+                'ID' => 'Id'
+            ];
+            
+            $transformedKey = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', ltrim(str_ireplace(array_keys($fixes), $fixes, $key), '!')));
 
             # Work recursively
             if (is_array($value)) {
@@ -415,5 +420,26 @@ class Arrays
             
             $array = array_values($array);
         }
+    }
+    
+    public static function ensureStrictDataTypes($array): array
+    {
+        $array = json_decode(json_encode($array), true);
+        
+        foreach ($array as $i => $value) {
+            if (is_array($value)) {
+                $array[$i] = self::ensureStrictDataTypes($value);
+            } else {
+                if (count(explode('.', $value)) > 1) {
+                    $array[$i] = (string)trim($value);
+                } else if (is_numeric($value)) {
+                    $array[$i] = strlen($value) >= 12 ? (string)trim($value) : (int)intval(trim($value));
+                } else if ($value === true || $value === false) {
+                    $array[$i] = (bool)$value;
+                }
+            }
+        }
+        
+        return $array;
     }
 }

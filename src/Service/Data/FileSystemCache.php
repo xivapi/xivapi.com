@@ -25,8 +25,24 @@ class FileSystemCache
     /**
      * Get data for a specific content and index
      */
-    public static function get($content, $id)
+    public static function get($contentName, $id)
     {
-        return self::$cache[$content]["i{$id}"] ?? null;
+        // temp fix
+        if ($contentName === 'HousingItemCategory' || $contentName === 'HousingLayoutLimit') {
+            return null;
+        }
+        
+        $data = self::$cache[$contentName]["i{$id}"] ?? null;
+        
+        // cache the file
+        if ($data === null) {
+            // append file into cache
+            self::add($contentName, FileSystem::load($contentName, 'json'));
+    
+            // grab content
+            $data = self::$cache[$contentName]["i{$id}"] ?? null;
+        }
+        
+        return $data;
     }
 }

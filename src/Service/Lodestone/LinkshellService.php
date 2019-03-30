@@ -5,10 +5,9 @@ namespace App\Service\Lodestone;
 use App\Entity\Linkshell;
 use App\Service\Content\LodestoneData;
 use App\Service\LodestoneQueue\LinkshellQueue;
-use App\Service\Service;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
-class LinkshellService extends Service
+class LinkshellService extends AbstractService
 {
     /**
      * Get a Linkshell
@@ -31,8 +30,8 @@ class LinkshellService extends Service
                 'data' => $data ?? null,
             ];
         }
-    
-        LinkshellQueue::request($lodestoneId, 'linkshell_add');
+
+        LinkshellQueue::request($lodestoneId, 'linkshell_add', true);
     
         return (Object)[
             'ent'  => new Linkshell($lodestoneId),

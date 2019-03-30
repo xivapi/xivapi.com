@@ -1,0 +1,120 @@
+{% extends "base.html.twig"  %}
+
+{% block title %}Companion Statistics{% endblock %}
+
+{% block body %}
+    <style>
+        small { margin-bottom: 0; margin-top: 6px; }
+    </style>
+
+    <div class="stats-page">
+        <h1>Status</h1>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Characters</th>
+                <th>Time</th>
+                <th>Last Update</th>
+                <th>Total Updates</th>
+                <th>Tracked Updates</th>
+                <th>Total Items</th>
+                <th>Items Updated</th>
+                <th>Items Not Updated</th>
+                <th>Total Errors</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ companion_view.characters_online }}</td>
+                    <td>{{ companion_view.time }}</td>
+                    <td>{{ companion_view.time_last_update }}</td>
+                    <td>{{ companion_view.total_updates }}</td>
+                    <td>{{ companion_view.total_updates_recorded }}</td>
+                    <td>{{ companion_view.total_entries }}</td>
+                    <td>{{ companion_view.total_items_updated }}</td>
+                    <td>{{ companion_view.total_items_not_updated }}</td>
+                    <td>{{ companion_view.total_errors }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+
+        <h1>Stats</h1>
+        <p>Updated every hour</p>
+        <br>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Queue</th>
+                <th>Total Items</th>
+                <th>Total Requests</th>
+                <th>Total Updates</th>
+                <th>Last Update</th>
+                <th>Item Speed</th>
+                <th>Requests Per Sec</th>
+                <th>Request Speed</th>
+                <th>Cycle Speed</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for entries in companion_statistics %}
+                <tr>
+                    <td>{{ entries.queue_name }}</td>
+                    <td>{{ entries.total_items }}</td>
+                    <td>{{ entries.total_requests }}</td>
+                    <td>{{ entries.total_updated }}</td>
+                    <td>{{ entries.last_updated }}</td>
+                    <td>
+                        {{ entries.items_per_sec }}
+                        <small>{{ entries.items_per_min }}/min - {{ entries.items_per_hr }}/hour</small>
+                    </td>
+                    <td>
+                        {{ entries.req_per_sec }}
+                        <small>{{ entries.req_per_min }}/min - {{ entries.req_per_hr }}/hour</small>
+                    </td>
+                    <td>{{ entries.cycle_speed }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <Br>
+
+        <h1>Queues</h1>
+        <p>Total number of items per queue</p>
+        <br>
+
+        <table>
+            <thead>
+                <tr>
+                    {% for queue in companion_queues %}
+                    <th>{{ queue.priority }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for queue in companion_queues %}
+                    <td>{{ queue.total|number_format }}</td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+
+        <h1>Exceptions</h1>
+
+        {% for exception in companion_exceptions %}
+            <div>
+                <strong>[{{ exception.added|date('Y-m-d H:i:s') }}] {{ exception.exception }}</strong> = {{ exception.message }}
+            </div>
+        {% else %}
+            <p>No exceptions thrown</p>
+        {% endfor %}
+    </div>
+
+{% endblock %}

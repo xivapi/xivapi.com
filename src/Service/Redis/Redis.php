@@ -2,21 +2,27 @@
 
 namespace App\Service\Redis;
 
+/**
+ * Access a static Redis Cache
+ */
 class Redis
 {
-    /** @var Cache */
-    private static $instance = null;
-
+    /** @var RedisCache[] */
+    private static $instances = [];
+    
     /**
-     * Get a static cache
+     * Get a static cache for an environment
      */
-    public static function Cache(): Cache
+    public static function Cache(string $environment = RedisCache::LOCAL, int $database = null): RedisCache
     {
-        if (self::$instance === null) {
-            self::$instance = new Cache();
-            self::$instance->checkConnection();
+        if (!isset(self::$instances[$environment])) {
+            self::$instances[$environment] = (new RedisCache())->connect($environment);
         }
-
-        return self::$instance;
+        
+        if ($database) {
+            self::$instances[$environment]->selectDatabase($database);
+        }
+        
+        return self::$instances[$environment];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Service\Data;
 
+use App\Service\SaintCoinach\SaintCoinach;
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -16,20 +17,20 @@ class FileReader extends DataHelper
         '<SoftHyphen/>'
     ];
     
-    public static function open(string $version, string $filename, bool $isRaw)
+    public static function open(string $filename, bool $isRaw)
     {
         return $isRaw
-            ? self::handleRaw($version, $filename)
-            : self::handleGameData($version, $filename);
+            ? self::handleRaw($filename)
+            : self::handleGameData($filename);
     }
 
     /**
      * Handles the game data files, eg: Items.en.csv
      */
-    public static function handleGameData(string $version, string $filename)
+    public static function handleGameData(string $filename)
     {
-        $root = __DIR__ .'/../../../'. getenv('GAME_TOOLS_DIRECTORY') . '/SaintCoinach.Cmd';
-        $filenameStructure = "{$root}/{$version}/raw-exd-all/%s.%s.csv";
+        $root = SaintCoinach::directory();
+        $filenameStructure = "{$root}/raw-exd-all/%s.%s.csv";
         $filenameList = new \stdClass();
 
         // build a list of multi-language filenames
@@ -52,10 +53,10 @@ class FileReader extends DataHelper
     /**
      * Handles the raw value files, eg: ParamGrow.csv
      */
-    public static function handleRaw(string $version, string $filename)
+    public static function handleRaw(string $filename)
     {
-        $root = __DIR__ .'/../../../'. getenv('GAME_TOOLS_DIRECTORY') . '/SaintCoinach.Cmd';
-        $filenameStructure = "{$root}/{$version}/raw-exd-all/%s.csv";
+        $root = SaintCoinach::directory();
+        $filenameStructure = "{$root}/raw-exd-all/%s.csv";
         $filename = sprintf($filenameStructure, $filename);
 
         [$columns, $types, $data] = self::parseCsvFile($filename);

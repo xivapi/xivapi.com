@@ -20,7 +20,7 @@ class LinkshellRepository extends ServiceEntityRepository
         $sql = $this->createQueryBuilder('a');
         $sql->select('a.id')
             ->where("a.priority = :a")
-            ->setParameter(':a', $priority)
+            ->setParameter('a', $priority)
             ->andWhere('a.state = '. Entity::STATE_CACHED)
             ->orderBy('a.updated', 'asc')
             ->setMaxResults(ServiceQueues::TOTAL_LINKSHELL_UPDATES)

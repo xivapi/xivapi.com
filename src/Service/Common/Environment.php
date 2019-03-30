@@ -2,7 +2,7 @@
 
 namespace App\Service\Common;
 
-use App\Exception\UnauthorizedAccessException;
+use App\Exception\ApiUnauthorizedAccessException;
 use Symfony\Component\HttpFoundation\Request;
 
 class Environment
@@ -59,13 +59,13 @@ class Environment
         
         if (constant(self::CONSTANT) === 'companion') {
             if ($path[1] !== 'companion') {
-                throw new UnauthorizedAccessException();
+                throw new ApiUnauthorizedAccessException();
             }
         }
     
         if (constant(self::CONSTANT) === 'lodestone') {
             if ($path[1] !== 'japan') {
-                throw new UnauthorizedAccessException();
+                throw new ApiUnauthorizedAccessException();
             }
         }
         

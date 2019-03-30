@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Service\Data\SaintCoinach;
+use App\Service\SaintCoinach\SaintCoinach;
 use Carbon\Carbon;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,6 +10,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use App\Service\Data\FileSystem;
 use App\Service\Data\FileSystemCache;
 
+/**
+ * @deprecated
+ *
+ * todo - deprecate
+ * This is deprecate, use CommandConfigureTrait for auto command setup,
+ * the rest (saint, game data specific) should be in its own classes
+ */
 trait CommandHelperTrait
 {
     public $schemaFilename = __DIR__ . '/../../data/gametools/SaintCoinach.Cmd/ex.json';
@@ -128,7 +135,7 @@ trait CommandHelperTrait
     protected function checkCache(): self
     {
         $this->io->text("<fg=cyan>Building memory cache ...</>");
-        foreach (FileSystem::list($this->version) as $type => $files) {
+        foreach (FileSystem::list() as $type => $files) {
             foreach ($files as $filename) {
                 $this->filenames[] = $filename;
 

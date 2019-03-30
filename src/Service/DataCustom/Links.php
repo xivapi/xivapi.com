@@ -3,18 +3,19 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 /**
  * Build connections between game data
  */
 class Links extends ManualHelper
 {
-    const PRIORITY = 100;
+    const PRIORITY = 9998;
     
     public function handle()
     {
         // grab content
-        $content = $this->redis->get('content');
+        $content = Redis::Cache()->get('content');
         $this->io->text(sprintf('Processing %s pieces of content', count($content)));
         
         $this->io->progressStart(count($content));
@@ -22,7 +23,7 @@ class Links extends ManualHelper
             $this->io->progressAdvance();
             
             // grab ids
-            $ids = $this->redis->get("ids_{$contentName}");
+            $ids = Redis::Cache()->get("ids_{$contentName}");
             if (!$ids) {
                 continue;
             }
@@ -32,8 +33,8 @@ class Links extends ManualHelper
                 $key2 = "connections_{$contentName}_{$contentId}";
             
                 // grab data
-                $content     = $this->redis->get($key1);
-                $connections = $this->redis->get($key2);
+                $content     = Redis::Cache()->get($key1);
+                $connections = Redis::Cache()->get($key2);
             
                 // rebuild
                 $gameContentLinks = [];
@@ -51,7 +52,7 @@ class Links extends ManualHelper
             
                 // set game content links
                 $content->GameContentLinks = $gameContentLinks;
-                $this->redis->set($key1, $content, self::REDIS_DURATION);
+                Redis::Cache()->set($key1, $content, self::REDIS_DURATION);
             }
         }
         

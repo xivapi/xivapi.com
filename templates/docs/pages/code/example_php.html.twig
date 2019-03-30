@@ -1,0 +1,9 @@
+<pre class="box"><span style="color: #75715e">&lt;?php</span>
+<span style="color: #f8f8f2">$json</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">file_get_contents(</span><span style="color: #e6db74">&quot;https://xivapi.com/Item/1675&quot;</span><span style="color: #f8f8f2">);</span>
+<span style="color: #f8f8f2">$json</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">json_decode($json);</span>
+
+<span style="color: #75715e">// I.Lv 80 Curtana</span>
+<span style="color: #66d9ef">echo</span> <span style="color: #e6db74">&quot;I.Lv {</span><span style="color: #f8f8f2">$json</span><span style="color: #f92672">-&gt;</span><span style="color: #a6e22e">LevelItem</span><span style="color: #e6db74">} {</span><span style="color: #f8f8f2">$json</span><span style="color: #f92672">-&gt;</span><span style="color: #a6e22e">Name_en</span><span style="color: #e6db74">}&quot;</span><span style="color: #f8f8f2">;</span>
+<span style="color: #66d9ef">echo</span> <span style="color: #e6db74">&quot;&lt;img src=</span><span style="color: #ae81ff">\&quot;</span><span style="color: #e6db74">https://xivapi.com/{</span><span style="color: #f8f8f2">$json</span><span style="color: #f92672">-&gt;</span><span style="color: #a6e22e">Icon</span><span style="color: #e6db74">}</span><span style="color: #ae81ff">\&quot;</span><span style="color: #e6db74">&gt;&quot;</span><span style="color: #f8f8f2">;</span>
+</pre>
+<br><br>

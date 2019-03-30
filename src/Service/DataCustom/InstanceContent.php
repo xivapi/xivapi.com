@@ -3,6 +3,7 @@
 namespace App\Service\DataCustom;
 
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class InstanceContent extends ManualHelper
 {
@@ -27,8 +28,8 @@ class InstanceContent extends ManualHelper
     public function handle()
     {
         // store content finder conditions against their instance content id
-        foreach ($this->redis->get('ids_ContentFinderCondition') as $id) {
-            $cfc  = $this->redis->get("xiv_ContentFinderCondition_{$id}");
+        foreach (Redis::Cache()->get('ids_ContentFinderCondition') as $id) {
+            $cfc  = Redis::Cache()->get("xiv_ContentFinderCondition_{$id}");
 
             // skip dummy rows
             if ((int)$cfc->ContentLinkType === 0) {
@@ -44,7 +45,7 @@ class InstanceContent extends ManualHelper
         $ids = $this->getContentIds('InstanceContent');
         foreach ($ids as $id) {
             $key = "xiv_InstanceContent_{$id}";
-            $instanceContent = $this->redis->get($key);
+            $instanceContent = Redis::Cache()->get($key);
             
             // set fields
             $instanceContent->ContentFinderCondition = null;
@@ -57,7 +58,7 @@ class InstanceContent extends ManualHelper
             $this->addInstanceBosses($instanceContent);
 
             // save
-            $this->redis->set($key, $instanceContent, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $instanceContent, self::REDIS_DURATION);
         }
     }
     
@@ -82,7 +83,7 @@ class InstanceContent extends ManualHelper
         }
 
         // Descriptions
-        $descriptions = $this->redis->get("xiv_ContentFinderConditionTransient_{$instanceContent->ContentFinderCondition->ID}");
+        $descriptions = Redis::Cache()->get("xiv_ContentFinderConditionTransient_{$instanceContent->ContentFinderCondition->ID}");
         $instanceContent->Description_en = $descriptions->Description_en;
         $instanceContent->Description_ja = $descriptions->Description_ja;
         $instanceContent->Description_de = $descriptions->Description_de;
@@ -93,7 +94,7 @@ class InstanceContent extends ManualHelper
         
         // ContentType
         $instanceContent->ContentType   = $instanceContent->ContentFinderCondition->ContentType;
-        $instanceContent->Icon          = $instanceContent->ContentType->Icon;
+        $instanceContent->Icon          = $instanceContent->ContentType->Icon ?? null;
         $instanceContent->Banner        = $instanceContent->ContentFinderCondition->Image;
     }
     
@@ -104,7 +105,7 @@ class InstanceContent extends ManualHelper
     {
         // Main boss
         if (isset($instanceContent->BNpcBaseBoss->ID)) {
-            $instanceContent->BNpcBaseBoss->BNpcName = $this->redis->get("xiv_BNpcName_{$instanceContent->BNpcBaseBoss->ID}");
+            $instanceContent->BNpcBaseBoss->BNpcName = Redis::Cache()->get("xiv_BNpcName_{$instanceContent->BNpcBaseBoss->ID}");
         }
     }
 }

@@ -7,11 +7,13 @@
 
     <h1>Character</h1>
 
-    <p>Search and retrieve character data from The Lodestone. Providing useful information
+    <p>
+        Search and retrieve character data from The Lodestone. Providing useful information
         such as character profile data, minions and mounts obtained, achievements obtained and their relative
-        dates. Character friends, their free company, pvp team and much more!</p>
+        dates. Character friends, their free company, pvp team and much more!
+    </p>
 
-    {{ docs.gap() }}
+    <br><br>
 
     {# Search #}
     {{ docs.api('/character/search', '/character/search?name=[name]&server=[server]', 'search') }}
@@ -27,12 +29,20 @@
 
     {# GET #}
     {{ docs.api('/character/[lodestone_id]', '/character/730968', 'character') }}
+    <h6>Restricted Usage</h6>
+    <p class="note">
+        A single source (User or Developer) can add a maximum of 8 characters to the site per day,
+        if you wish to add more then please contact a developer for your API key to be given permission.
+        An increased limit cannot be given without using an API key.
+    </p>
+
     <p>
         Get Character data, due to the nature of availability on the service this endpoint
-        will return either populated data or nothing, you will have to check the `Info` response to
+        will return either populated data or nothing, you will have to check the <code>Info</code> response to
         see the current state. If the character does not exist on XIVAPI then this first request will
         return the state value 1 and the character will be added within the next few minutes. Query
-        the endpoint again after a few minutes and it should contain data.</p>
+        the endpoint again after a few minutes and it should contain data.
+    </p>
 
     <h4>Params</h4>
 
@@ -55,7 +65,9 @@
                 <p>By default only the `Character` data will return, you can request more data using the `data` query.</p>
 
                 <h6>data</h6>
-                <p class="usage">{{ app.request.getSchemeAndHttpHost() }}/character/730968?data=AC,FR,FC,FCM,PVP</p>
+                <code>
+                    {{ app.request.getSchemeAndHttpHost() }}/character/730968?data=AC,FR,FC,FCM,PVP
+                </code>
                 <p>Pass a long a comma separated list of codes that relate to specific data sets you would like
                     to fetch, these are as follows:</p>
 

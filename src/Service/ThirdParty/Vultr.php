@@ -30,9 +30,6 @@ class Vultr
             $total += (float)$server->cost_per_month;
             
             $list[] = [
-                'os'       => $server->os,
-                'ram'      => $server->ram,
-                'location' => $server->location,
                 'cost'     => $server->cost_per_month,
                 'name'     => $server->label,
             ];

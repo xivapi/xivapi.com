@@ -11,13 +11,15 @@ class DescriptionFormatter
     /** @var string|array */
     public $description;
     /** @var string */
-    public $descriptionSimple;
+    public $descriptionTrue = [];
+    /** @var string */
+    public $descriptionFalse = [];
     /** @var array */
     public $colours = [];
     
     public function format(string $description)
     {
-        foreach (CsvReader::Get(__DIR__ . '/UIColor.csv') as $row) {
+        foreach (CsvReader::Get(__DIR__ . '/../DataCustom/Csv/UIColor.csv') as $row) {
             $id = $row['key'];
             [$colourA, $colourB] = $row;
             $this->colours[$id] = $colourA;
@@ -32,7 +34,8 @@ class DescriptionFormatter
 
         return [
             $this->description,
-            $this->descriptionSimple
+            $this->descriptionTrue,
+            $this->descriptionFalse,
         ];
     }
 
@@ -94,9 +97,9 @@ class DescriptionFormatter
      */
     public function formatSimpleDescription()
     {
-        $simple = $this->formSimpleDescriptionRecursive($this->description, []);
-        $simple = implode(" ", $simple);
-        $this->descriptionSimple = $simple;
+        
+        $this->descriptionTrue  = implode(" ", $this->formSimpleDescriptionRecursive($this->description, []));
+        $this->descriptionFalse = implode(" ", $this->formSimpleDescriptionRecursive($this->description, [], 'false'));
     }
     
     /**
@@ -107,7 +110,11 @@ class DescriptionFormatter
         if (is_array($desc)) {
             foreach($desc as $i => $line) {
                 if (is_array($line)) {
-                    $statement = $line[$action];
+                    $statement = $line[$action] ?? null;
+                    if ($statement === null) {
+                        continue;
+                    }
+                    
                     $arr = $this->formSimpleDescriptionRecursive($statement, $arr, $action);
                 } else {
                     $arr[] = $line;
@@ -156,7 +163,7 @@ class DescriptionFormatter
         }
         try {
             $strubg = implode("", $lines);
-            
+    
             $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
             $logic = $parser->parse($strubg);
             
@@ -169,7 +176,7 @@ class DescriptionFormatter
             // fin
             $this->description = $json;
         } catch (Error $error) {
-            die("\n\narse error: {$error->getMessage()}\n\n");
+            die("\n\n Parse error: {$error->getMessage()}\n\n");
         }
     }
 
@@ -202,22 +209,34 @@ class DescriptionFormatter
             'Expr_BinaryOp_SmallerOrEqual' => '<=',
             'Expr_BinaryOp_NotEqual' => '!=',
             'Expr_BinaryOp_Equal' => '==',
+            'Expr_Variable' => '==',
         ];
         
         $true   = $this->simpleJsonConditionFormat($code->stmts[0]);
         $false  = $this->simpleJsonConditionFormat($code->else);
-
-        $stmt = (Object)[
+        
+        // if no right value, its a single variable condition
+        if (!isset($code->cond->right->value)) {
+            return (Object)[
+                'condition' => [
+                    'left' => $code->cond->name ?? '[no_left]',
+                    'right' => 'true',
+                    'operator' => '==',
+                ],
+                'true' => $true ? [ $true ] : null,
+                'false' => $false ? [ $false ] : null,
+            ];
+        }
+        
+        return (Object)[
             'condition' => (Object)[
-                'left' => $code->cond->left->name,
-                'right' => $code->cond->right->value,
+                'left' => $code->cond->left->name ?? '[no_left]',
+                'right' => $code->cond->right->value ?? '[no_right]',
                 'operator' => $operands[$code->cond->nodeType],
             ],
             'true' => $true ? [ $true ] : null,
             'false' => $false ? [ $false ] : null,
         ];
-
-        return $stmt;
     }
 
     /**
@@ -266,12 +285,31 @@ class DescriptionFormatter
         // Thank @Hez for this!
         preg_match_all('/\<If\((?P<operator>\w+)\((?P<parameter>\w+)\((?P<x>\d+)\),(?P<y>\d+)\)\)>/', $line, $matches);
 
-        $statement = (Object)[
-            'operator' => $matches['operator'][0],
-            'parameter' => $matches['parameter'][0],
-            'x' => $matches['x'][0],
-            'y' => $matches['y'][0]
-        ];
+        // if there is no comparison condition, then its just a variable state condition
+        if (!isset($matches['y'][0])) {
+            preg_match_all('/\<If\((?P<parameter>\w+)\((?P<condition>\d+)\)\)>/', $line, $matches);
+    
+            $statement = (Object)[
+                'operator' => 'IsTrue',
+                'parameter' => $matches['parameter'][0],
+                'condition' => $matches['condition'][0],
+            ];
+    
+            $condition = $this->getPlayerParameterContext($statement->parameter, $statement->condition);
+    
+            return sprintf(
+                '<?php if ($%s) { ?>',
+                $condition
+            );
+            
+        } else {
+            $statement = (Object)[
+                'operator' => $matches['operator'][0],
+                'parameter' => $matches['parameter'][0],
+                'x' => $matches['x'][0],
+                'y' => $matches['y'][0]
+            ];
+        }
 
         $operators = [
             'GreaterThanOrEqualTo' => '>=',
@@ -299,14 +337,58 @@ class DescriptionFormatter
      */
     public function getPlayerParameterContext($param, $value)
     {
-        $key = "{$param}_{$value}";
-        switch($key) {
-            default: return "UNKNOWN_{$key}";
-            case 'PlayerParameter_68': return 'class_job_id';
-            case 'PlayerParameter_69': return 'class_job_level';
-            case 'PlayerParameter_70': return 'starting_city_id';
-            case 'PlayerParameter_71': return 'race';
-            case 'PlayerParameter_72': return 'class_job_level';
+        if (empty($param)) {
+            return 'EmptyParam';
         }
+        
+        $playerParameters = [
+            0  => 'reset',
+            1  => 'reset_bold',
+            4  => 'is_woman',
+            5  => 'action_target_is_woman',
+
+            11 => 'in_game_hours',
+            12 => 'in_game_minutes',
+            13 => 'say_color',
+            14 => 'shout_color',
+            15 => 'tell_color',
+            16 => 'party_color',
+            18 => 'linkshell_1_color',
+            19 => 'linkshell_2_color',
+            20 => 'linkshell_3_color',
+            21 => 'linkshell_4_color',
+            22 => 'linkshell_5_color',
+            23 => 'linkshell_6_color',
+            24 => 'linkshell_7_color',
+            25 => 'linkshell_8_color',
+            26 => 'free_company_color',
+            30 => 'custom_emotes_color',
+            31 => 'standard_emotes_color',
+
+            68 => 'class_job_id',
+            69 => 'class_job_level',
+            70 => 'starting_city_id',
+            71 => 'race',
+            72 => 'class_job_level',
+            
+            216 => 'milliseconds',
+            217 => 'seconds',
+            218 => 'minutes',
+            219 => 'hours',
+            220 => 'day',
+            221 => 'week_day',
+            222 => 'month',
+            223 => 'year',
+            224 => '>=',
+            225 => '>',
+            226 => '<=',
+            227 => '<',
+            228 => '==',
+            229 => '!=',
+            235 => 'color',
+            236 => 'reset_color',
+        ];
+        
+        return $playerParameters[$value] ?? "unknown_{$param}_{$value}";
     }
 }

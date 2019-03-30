@@ -4,6 +4,7 @@ namespace App\Service\DataCustom;
 
 use App\Service\Common\Arrays;
 use App\Service\Content\ManualHelper;
+use App\Service\Redis\Redis;
 
 class Recipe extends ManualHelper
 {
@@ -18,7 +19,7 @@ class Recipe extends ManualHelper
         $ids = $this->getContentIds('Recipe');
         foreach ($ids as $id) {
             $key = "xiv_Recipe_{$id}";
-            $recipe = $this->redis->get($key);
+            $recipe = Redis::Cache()->get($key);
             
             $recipe->ClassJob = null;
         
@@ -28,15 +29,15 @@ class Recipe extends ManualHelper
             $this->setClassJob($recipe);
             
             // save
-            $this->redis->set($key, $recipe, self::REDIS_DURATION);
+            Redis::Cache()->set($key, $recipe, self::REDIS_DURATION);
         }
     }
     
     private function warmRecipeData()
     {
         // Build a list of ItemIds to RecipeIds
-        foreach ($this->redis->get('ids_Recipe') as $id) {
-            $recipe = $this->redis->get("xiv_Recipe_{$id}");
+        foreach (Redis::Cache()->get('ids_Recipe') as $id) {
+            $recipe = Redis::Cache()->get("xiv_Recipe_{$id}");
             
             if (!$recipe->ItemResult) {
                 continue;
@@ -98,7 +99,7 @@ class Recipe extends ManualHelper
         //
         if (isset($recipe->CraftType->ID)) {
             $recipe->ClassJob = Arrays::minification(
-                $this->redis->get("xiv_ClassJob_{$arr[(int)$recipe->CraftType->ID]}")
+                Redis::Cache()->get("xiv_ClassJob_{$arr[(int)$recipe->CraftType->ID]}")
             );
         }
         
@@ -112,7 +113,7 @@ class Recipe extends ManualHelper
                 foreach ($recipe->{$column} as $subRecipe) {
                     if (isset($subRecipe->CraftType->ID)) {
                         $subRecipe->ClassJob = Arrays::minification(
-                            $this->redis->get("xiv_ClassJob_{$arr[(int)$subRecipe->CraftType->ID]}")
+                            Redis::Cache()->get("xiv_ClassJob_{$arr[(int)$subRecipe->CraftType->ID]}")
                         );
                     }
                 }

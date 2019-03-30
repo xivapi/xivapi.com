@@ -205,44 +205,19 @@ task('staging', function () {
     ]);
 })->onHosts('staging');
 
-task('parser', function () {
-    deploy((Object)[
-        'name'   => 'Lodestone Parser',
-        'home'   => "/home/dalamud/dalamud/",
-        'branch' => 'master',
-    ]);
-})->onHosts('parser');
-
-task('sync', function () {
+task('sync', function() {
     deploySync((Object)[
         'name'   => 'Sync',
         'home'   => "/home/dalamud/xivapi.com",
         'branch' => 'master',
     ]);
 })->onHosts(
-    'Server1',
-    'Server2',
-    'Server3',
-    'Server4',
-    'Server5',
-    'Server6',
-    'Server7',
-    'Server8'
-);
-
-task('fix', function () {
-    fix((Object)[
-        'name'   => 'Sync',
-        'home'   => "/home/dalamud/xivapi.com",
-        'branch' => 'rabbitmq',
-    ]);
-})->onHosts(
-    'Server1',
-    'Server2',
-    'Server3',
-    'Server4',
-    'Server5',
-    'Server6',
-    'Server7',
-    'Server8'
+    'AutoAddManualUpdate',
+    'AutoUpdate',
+    'AutoUpdateFriends',
+    'AutoUpdateAchievements',
+    'AutoUpdateFreeCompany',
+    'AutoUpdateLinkshells',
+    'AutoUpdatePvpTeam',
+    'Patron'
 );

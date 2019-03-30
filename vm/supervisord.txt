@@ -20,3 +20,13 @@ sudo nano /etc/supervisor/conf.d/lodestone.conf
     - sudo supervisorctl restart all
     - sudo supervisorctl clear all
     - Verify: sudo supervisorctl
+
+
+Adding new config:
+
+sudo supervisorctl stop all
+sudo supervisorctl clear all
+sudo supervisorctl update
+sudo supervisorctl reread
+sudo supervisorctl status
+sudo supervisorctl start all

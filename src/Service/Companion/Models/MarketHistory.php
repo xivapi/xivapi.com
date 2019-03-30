@@ -7,14 +7,36 @@ namespace App\Service\Companion\Models;
  */
 class MarketHistory
 {
-    /** @var string */
-    public $id;
-    /** @var int */
-    public $server;
-    /** @var int */
-    public $item_id;
-    /** @var int */
-    public $total;
-    /** @var MarketItemListing[] */
-    public $history = [];
+    public $ID;
+    public $Added = 0;
+    public $PurchaseDate;
+    public $PurchaseDateMS;
+    public $CharacterID;
+    public $CharacterName;
+    public $IsHQ = false;
+    public $PricePerUnit;
+    public $PriceTotal;
+    public $Quantity;
+    
+    /**
+     * Build a MarketHistory object from SE API response
+     */
+    public static function build(string $id, \stdClass $data): MarketHistory
+    {
+        $obj                 = new MarketHistory();
+        $obj->ID             = $id;
+        $obj->Added          = time();
+        $obj->PurchaseDate   = (int)(round($data->buyRealDate / 1000, 0));
+        $obj->PurchaseDateMS = $data->buyRealDate;
+        $obj->IsHQ           = (bool)($data->hq ? true : false);
+        $obj->PricePerUnit   = (int)$data->sellPrice;
+        $obj->Quantity       = (int)$data->stack;
+        $obj->PriceTotal     = (int)($data->sellPrice * $data->stack);
+        
+        // these are internally tracked ids
+        $obj->CharacterID    = $data->_characterId;
+        $obj->CharacterName  = $data->buyCharacterName;
+        
+        return $obj;
+    }
 }

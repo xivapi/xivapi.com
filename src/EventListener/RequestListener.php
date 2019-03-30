@@ -2,27 +2,20 @@
 
 namespace App\EventListener;
 
-use App\Service\Apps\AppManager;
-use App\Service\Apps\AppRequest;
+use App\Service\API\ApiRequest;
 use App\Service\Common\Environment;
 use App\Service\Common\Language;
-use App\Service\ThirdParty\GoogleAnalytics;
-use App\Service\ThirdParty\Sentry;
-use App\Service\User\UserService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
 class RequestListener
 {
-    /** @var UserService */
-    private $userService;
-    /** @var AppManager */
-    private $appManager;
+    /** @var ApiRequest */
+    private $apiRequest;
 
-    public function __construct(AppManager $appManager, UserService $userService)
+    public function __construct(ApiRequest $apiRequest)
     {
-        $this->appManager = $appManager;
-        $this->userService = $userService;
+        $this->apiRequest = $apiRequest;
     }
 
     public function onKernelRequest(GetResponseEvent $event)
@@ -30,24 +23,23 @@ class RequestListener
         if (!$event->isMasterRequest()) {
             return;
         }
+    
+        if ($sentry = getenv('SENTRY')) {
+            (new \Raven_Client($sentry))->install();
+        }
 
         /** @var Request $request */
         $request = $event->getRequest();
 
-        // todo - temp measure until implement a proper blacklist.
-        if ($request->get('key') == '0e1339f00eb14023a206afef') {
-            die('API Key has been blacklisted from XIVAPI. Please update the app or extension you are using.');
-        }
-
         // Another quick hack to convert all queries into the request object
         if ($queries = $request->query->all()) {
             foreach ($queries as $key => $value) {
-                $request->request->set($key, $value);
+                $request->request->set(strtolower($key), $value);
             }
         }
 
         // Quick hack to allow json body requests
-        if ($json = $request->getContent()) {
+        if (strtolower($request->getMethod()) == 'get' && $json = $request->getContent()) {
             if (trim($json[0]) === '{') {
                 $json = \GuzzleHttp\json_decode($json);
 
@@ -63,13 +55,7 @@ class RequestListener
         // register language based on domain
         Language::register($request);
 
-        // register app keys
-        AppRequest::setManager($this->appManager);
-        AppRequest::setUser($this->userService->getUser());
-        AppRequest::handleAppRequestRegistration($request);
-
-        // record analytics
-        GoogleAnalytics::trackHits($request);
-        GoogleAnalytics::trackBaseEndpoint($request);
+        // record API access
+        $this->apiRequest->handle($request);
     }
 }

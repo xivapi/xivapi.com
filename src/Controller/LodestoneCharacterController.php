@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Character;
 use App\Exception\ContentGoneException;
-use App\Service\Japan\Japan;
 use App\Service\Lodestone\CharacterService;
 use App\Service\Lodestone\FreeCompanyService;
 use App\Service\Lodestone\PvPTeamService;
@@ -12,12 +10,13 @@ use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\CharacterAchievementQueue;
 use App\Service\LodestoneQueue\CharacterFriendQueue;
 use App\Service\LodestoneQueue\CharacterQueue;
+use App\Service\Redis\Redis;
 use Lodestone\Api;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class LodestoneCharacterController extends Controller
+class LodestoneCharacterController extends AbstractController
 {
     /** @var CharacterService */
     private $service;
@@ -163,7 +162,7 @@ class LodestoneCharacterController extends Controller
         }
         
         // check if cached, this is to reduce spam
-        if ($data = $this->service->cache->get(__METHOD__ . $lodestoneId)) {
+        if ($data = Redis::Cache()->get(__METHOD__ . $lodestoneId)) {
             return $this->json($data);
         }
 
@@ -177,7 +176,7 @@ class LodestoneCharacterController extends Controller
         ];
 
         // small cache time as it's just to prevent "spam"
-        $this->service->cache->set(__METHOD__ . $lodestoneId, $data, 5);
+        Redis::Cache()->set(__METHOD__ . $lodestoneId, $data, 5);
         return $this->json($data);
     }
 
@@ -197,7 +196,7 @@ class LodestoneCharacterController extends Controller
             throw new ContentGoneException(ContentGoneException::CODE, 'Not Added');
         }
 
-        if ($lodestoneId != 730968 && $this->service->cache->get(__METHOD__.$lodestoneId)) {
+        if ($lodestoneId != 730968 && Redis::Cache()->get(__METHOD__.$lodestoneId)) {
             return $this->json(0);
         }
     
@@ -206,7 +205,7 @@ class LodestoneCharacterController extends Controller
         CharacterFriendQueue::request($lodestoneId, 'character_friends_update');
         CharacterAchievementQueue::request($lodestoneId, 'character_achievements_update');
 
-        $this->service->cache->set(__METHOD__.$lodestoneId, 1, ServiceQueues::UPDATE_TIMEOUT);
+        Redis::Cache()->set(__METHOD__.$lodestoneId, 1, ServiceQueues::UPDATE_TIMEOUT);
         return $this->json(1);
     }
 }

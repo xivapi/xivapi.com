@@ -2,8 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\Apps\AppManager;
-use App\Service\Redis\Cache;
+use App\Service\Redis\Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,17 +12,6 @@ class LodestoneController extends Controller
 {
     const CACHE_DURATION = (60 * 60);
 
-    /** @var AppManager */
-    private $apps;
-    /** @var Cache */
-    private $cache;
-
-    public function __construct(AppManager $apps, Cache $cache)
-    {
-        $this->apps = $apps;
-        $this->cache = $cache;
-    }
-
     /**
      * @Route("/lodestone")
      * @Route("/Lodestone")
@@ -31,7 +19,7 @@ class LodestoneController extends Controller
     public function lodestone()
     {
         return $this->json(
-            $this->cache->get('lodestone')
+            Redis::Cache()->get('lodestone')
         );
     }
 
@@ -41,9 +29,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneBanners()
     {
-        if (!$data = $this->cache->get(__METHOD__)) {
+        if (!$data = Redis::Cache()->get(__METHOD__)) {
             $data = (new Api())->getLodestoneBanners();
-            $this->cache->set(__METHOD__, $data, self::CACHE_DURATION);
+            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
         return $this->json($data);
@@ -55,9 +43,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneNews()
     {
-        if (!$data = $this->cache->get(__METHOD__)) {
+        if (!$data = Redis::Cache()->get(__METHOD__)) {
             $data = (new Api())->getLodestoneNews();
-            $this->cache->set(__METHOD__, $data, self::CACHE_DURATION);
+            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
         return $this->json($data);
@@ -69,9 +57,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneTopics()
     {
-        if (!$data = $this->cache->get(__METHOD__)) {
+        if (!$data = Redis::Cache()->get(__METHOD__)) {
             $data = (new Api())->getLodestoneTopics();
-            $this->cache->set(__METHOD__, $data, self::CACHE_DURATION);
+            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
         return $this->json($data);
@@ -83,9 +71,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneNotices()
     {
-        if (!$data = $this->cache->get(__METHOD__)) {
+        if (!$data = Redis::Cache()->get(__METHOD__)) {
             $data = (new Api())->getLodestoneNotices();
-            $this->cache->set(__METHOD__, $data, self::CACHE_DURATION);
+            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
         return $this->json($data);
@@ -97,9 +85,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneMaintenance()
     {
-        if (!$data = $this->cache->get(__METHOD__)) {
+        if (!$data = Redis::Cache()->get(__METHOD__)) {
             $data = (new Api())->getLodestoneMaintenance();
-            $this->cache->set(__METHOD__, $data, self::CACHE_DURATION);
+            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
         return $this->json($data);
@@ -111,9 +99,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneUpdates()
     {
-        if (!$data = $this->cache->get(__METHOD__)) {
+        if (!$data = Redis::Cache()->get(__METHOD__)) {
             $data = (new Api())->getLodestoneUpdates();
-            $this->cache->set(__METHOD__, $data, self::CACHE_DURATION);
+            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
         return $this->json($data);
@@ -125,9 +113,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneStatus()
     {
-        if (!$data = $this->cache->get(__METHOD__)) {
+        if (!$data = Redis::Cache()->get(__METHOD__)) {
             $data = (new Api())->getLodestoneStatus();
-            $this->cache->set(__METHOD__, $data, self::CACHE_DURATION);
+            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
         return $this->json($data);
@@ -139,9 +127,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneWorldStatus()
     {
-        if (!$data = $this->cache->get(__METHOD__)) {
+        if (!$data = Redis::Cache()->get(__METHOD__)) {
             $data = (new Api())->getWorldStatus();
-            $this->cache->set(__METHOD__, $data, self::CACHE_DURATION);
+            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
         return $this->json($data);
@@ -153,9 +141,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneDevBlog()
     {
-        if (!$data = $this->cache->get(__METHOD__)) {
+        if (!$data = Redis::Cache()->get(__METHOD__)) {
             $data = (new Api())->getDevBlog();
-            $this->cache->set(__METHOD__, $data, self::CACHE_DURATION);
+            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
         return $this->json($data);
@@ -167,9 +155,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneDevPosts(Request $request)
     {
-        if (!$data = $this->cache->get(__METHOD__)) {
+        if (!$data = Redis::Cache()->get(__METHOD__)) {
             $data = (new Api())->getDevPosts();
-            $this->cache->set(__METHOD__, $data, self::CACHE_DURATION);
+            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
         return $this->json($data);

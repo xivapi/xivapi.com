@@ -5,10 +5,9 @@ namespace App\Service\Lodestone;
 use App\Entity\PvPTeam;
 use App\Service\Content\LodestoneData;
 use App\Service\LodestoneQueue\PvPTeamQueue;
-use App\Service\Service;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
-class PvPTeamService extends Service
+class PvPTeamService extends AbstractService
 {
     /**
      * Get a PVP Team
@@ -31,8 +30,8 @@ class PvPTeamService extends Service
                 'data' => $data ?? null,
             ];
         }
-    
-        PvPTeamQueue::request($lodestoneId, 'pvp_team_add');
+
+        PvPTeamQueue::request($lodestoneId, 'pvp_team_add', true);
     
         return (Object)[
             'ent'  => new PvPTeam($lodestoneId),

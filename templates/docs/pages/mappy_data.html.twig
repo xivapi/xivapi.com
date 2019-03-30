@@ -44,13 +44,13 @@
 
     {{ docs.gap() }}
 
-    <h6 id="download">Download Map Data</h6>
+    <h4 id="download">Download Map Data</h4>
 
     <p>Use as you like!</p>
 
     <ul>
-        <li><a href="/downloads/xivapi-map-data">Map Data</a></li>
-        <li><a href="/downloads/xivapi-memory-data">Memory Data</a></li>
+        <li><a href="{{ path('mappy_download', { data: 'map_data' }) }}">Map Data</a></li>
+        <li><a href="{{ path('mappy_download', { data: 'memory_data' }) }}">Memory Data</a></li>
     </ul>
 
     <p>

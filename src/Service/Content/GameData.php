@@ -2,31 +2,28 @@
 
 namespace App\Service\Content;
 
-use App\Service\Redis\Cache;
+use App\Service\Redis\Redis;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GameData
 {
-    /** @var Cache */
-    private $cache = null;
     /** @var ContentList */
     private $contentList;
 
-    public function __construct(Cache $cache, ContentList $contentList)
+    public function __construct(ContentList $contentList)
     {
-        $this->cache = $cache;
         $this->contentList = $contentList;
     }
 
     /**
      * get a single piece of content from the cache
      */
-    public function one(string $contentName, int $contentId)
+    public function one(string $contentName, string $contentId)
     {
         $contentName = $this->validate($contentName);
-        $content = $this->cache->get("xiv_{$contentName}_{$contentId}");
-    
+        $content = Redis::Cache()->get("xiv_{$contentName}_{$contentId}");
+        
         if (!$content) {
             throw new \Exception("Game Data does not exist: {$contentName} {$contentId}");
         }
@@ -39,7 +36,7 @@ class GameData
         ];
 
         foreach($additional as $add) {
-            $data = $this->cache->get("{$add}_{$contentName}_{$contentId}");
+            $data = Redis::Cache()->get("{$add}_{$contentName}_{$contentId}");
 
             if (empty($data)) {
                 continue;
@@ -65,7 +62,7 @@ class GameData
     public function schema(string $contentName)
     {
         $contentName = $this->validate($contentName);
-        return $this->cache->get("schema_{$contentName}");
+        return Redis::Cache()->get("schema_{$contentName}");
     }
 
     /**
@@ -73,7 +70,7 @@ class GameData
      */
     public function content()
     {
-        return $this->cache->get('content');
+        return Redis::Cache()->get('content');
     }
 
     /**

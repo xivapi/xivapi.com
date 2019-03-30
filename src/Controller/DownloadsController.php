@@ -25,14 +25,7 @@ class DownloadsController extends Controller
      */
     public function mapDataDownload()
     {
-        $filename = __DIR__.'/xivapi-map-data.csv';
-
-        Arrays::repositoryToCsv(
-            $this->em->getRepository(MapPosition::class),
-            $filename
-        );
-
-        return $this->file(new File($filename));
+    
     }
 
     /**
@@ -42,10 +35,7 @@ class DownloadsController extends Controller
     {
         $filename = __DIR__.'/xivapi-memory-data.csv';
 
-        Arrays::repositoryToCsv(
-            $this->em->getRepository(MemoryData::class),
-            $filename
-        );
+        
 
         return $this->file(new File($filename));
     }

@@ -1,0 +1,12 @@
+<pre class="box"><span style="color: #66d9ef">using</span> <span style="color: #f8f8f2">Flurl;</span>
+<span style="color: #66d9ef">using</span> <span style="color: #f8f8f2">Flurl.Http;</span>
+<span style="color: #66d9ef">using</span> <span style="color: #f8f8f2">System.Net.Http;</span>
+
+<span style="color: #f8f8f2">HttpResponseMessage</span> <span style="color: #f8f8f2">req</span> <span style="color: #f8f8f2">=</span> <span style="color: #66d9ef">await</span> <span style="color: #e6db74">&quot;https://xivapi.com/Item/1675&quot;</span><span style="color: #f8f8f2">.GetAsync();</span>
+<span style="color: #66d9ef">dynamic</span> <span style="color: #f8f8f2">item</span> <span style="color: #f8f8f2">=</span> <span style="color: #f8f8f2">JsonConvert.DeserializeObject(</span>
+	<span style="color: #f8f8f2">req.Content.ReadAsStringAsync().Result</span>
+<span style="color: #f8f8f2">);</span>
+
+<span style="color: #f8f8f2">Console.Write(</span><span style="color: #960050; background-color: #1e0010">$</span><span style="color: #e6db74">&quot;I.Lv {item.LevelItem} {item.Name_en}&quot;</span><span style="color: #f8f8f2">);</span>
+</pre>
+<br><br>

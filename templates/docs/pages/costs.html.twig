@@ -23,9 +23,22 @@
         </a>
     </p>
 
-    {{ docs.gap() }}
+    <br>
 
     <h2>Total Monthly Cost: <strong>${{ vultr.total + digitalocean.total }}</strong></h2>
+
+    <h4>Digital Ocean</h4>
+    <p>
+        Hosts the main site (xivapi.com) as well as Search and Market Data
+    </p>
+
+    <h4>Vultr</h4>
+    <p>
+        Lodestone tracking and auto-parsing servers (Characters, FC, LS and PVP Teams), these
+        are on Vultr as Tokyo servers are required.
+    </p>
+
+    <br><br>
 
     <table>
         <thead>
@@ -35,66 +48,32 @@
             </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>
-                <p>
-                    Main applications such as the API (site), search and sync data (characters, etc) are
-                    hosted on US region servers via DigitalOcean.
-                </p>
-            </td>
-            <td>
-                <p>
-                    Lodestone tracking and auto-parsing servers (Characters, FC, LS and PVP Teams)
-                    are hosted via Vultr in the Tokyo region.
-                </p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <h6>Server Fees</h6>
-                <table class="mini-table">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Region</th>
-                        <th>Cost</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for price in digitalocean.servers %}
-                        <tr class="pricing-row">
-                            <td><strong>{{ price.name }}</strong>
-                                <small>{{ price.ram|number_format }} MB</small></td>
-                            <td>{{ price.location }}<br></td>
-                            <td class="pricing-cost">${{ price.cost }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </td>
-            <td>
-                <h6>Server Fees</h6>
-                <table class="mini-table">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Region</th>
-                        <th>Cost</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for price in vultr.servers %}
-                        <tr class="pricing-row">
-                            <td><strong>{{ price.name }}</strong>
-                                <small>{{ price.ram }}</small></td>
-                            <td>{{ price.location }}</td>
-                            <td class="pricing-cost">${{ price.cost }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    <p>Servers</p>
+                    <ul>
+                        {% for price in digitalocean.servers %}
+                            <li><strong>${{ price.cost }}</strong> - {{ price.name }}</li>
+                        {% endfor %}
+                    </ul>
+                    <br>
+
+                    <p>Volumes</p>
+                    <ul>
+                        {% for price in digitalocean.volumes %}
+                            <li><strong>${{ price.cost }}</strong> - {{ price.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td>
+                    <p>Servers</p>
+                    <ul>
+                        {% for price in vultr.servers %}
+                        <li><strong>${{ price.cost }}</strong> - {{ price.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
         </tbody>
     </table>
 

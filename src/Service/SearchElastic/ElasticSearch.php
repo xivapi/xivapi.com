@@ -8,17 +8,20 @@ class ElasticSearch
 {
     const NUMBER_OF_SHARDS    = 1;
     const NUMBER_OF_REPLICAS  = 0;
-    const MAX_RESULT_WINDOW   = 100000;
-    const MAX_BULK_DOCUMENTS  = 250;
-    const MAX_FIELDS          = 20000;
+    const MAX_RESULT_WINDOW   = 150000;
+    const MAX_BULK_DOCUMENTS  = 200;
+    const MAX_FIELDS          = 100000;
 
     /** @var \Elasticsearch\Client */
     private $client;
 
-    public function __construct(string $ip = null, int $port = null)
+    public function __construct(string $environment)
     {
-        $ip   = $ip ?: getenv('ELASTIC_IP');
-        $port = $port ?: getenv('ELASTIC_PORT');
+        if (getenv('ELASTIC_ENABLED') == 0) {
+            return;
+        }
+
+        [$ip, $port] = explode(',', getenv($environment));
         
         if (!$ip || !$port) {
             throw new \Exception('No ElasticSearch IP or PORT configured in env file');
@@ -31,8 +34,11 @@ class ElasticSearch
             throw new \Exception("Could not connect to ElasticSearch.");
         }
     }
-
-    public function addIndex(string $index): void
+    
+    /**
+     * Add index for game data
+     */
+    public function addIndexGameData(string $index): void
     {
         $this->client->indices()->create([
             'index' => $index,
@@ -77,6 +83,9 @@ class ElasticSearch
         ]);
     }
     
+    /**
+     * Add Companion Index
+     */
     public function addIndexCompanion(string $index)
     {
         $this->client->indices()->create([
@@ -94,36 +103,40 @@ class ElasticSearch
                     'companion' => [
                         '_source' => [ "enabled" => true ],
                         'properties' => [
-                            "id"        => [ "type" => "text" ],
-                            "server"    => [ "type" => "integer" ],
-                            "item_id"   => [ "type" => "integer" ],
-                            "prices"    => [
+                            "ID"        => [ "type" => "text" ],
+                            "Server"    => [ "type" => "integer" ],
+                            "ItemID"    => [ "type" => "integer" ],
+                            "Prices"    => [
                                 "type"  => "nested",
                                 "properties" => [
-                                    "id"                 => [ "type" => "long" ],
-                                    "time"               => [ "type" => "integer" ],
-                                    "is_crafted"         => [ "type" => "boolean" ],
-                                    "is_hq"              => [ "type" => "boolean" ],
-                                    "price_per_unit"     => [ "type" => "integer" ],
-                                    "price_total"        => [ "type" => "integer" ],
-                                    "quantity"           => [ "type" => "integer" ],
-                                    "retainer_id"        => [ "type" => "integer" ],
-                                    "craft_signature_id" => [ "type" => "integer" ],
-                                    "town_id"            => [ "type" => "integer" ],
-                                    "stain_id"           => [ "type" => "integer" ],
+                                    "ID"                    => [ "type" => "text" ],
+                                    "Added"                 => [ "type" => "integer" ],
+                                    "IsCrafted"             => [ "type" => "boolean" ],
+                                    "IsHq"                  => [ "type" => "boolean" ],
+                                    "PricePerUnit"          => [ "type" => "integer" ],
+                                    "PriceTotal"            => [ "type" => "integer" ],
+                                    "Quantity"              => [ "type" => "integer" ],
+                                    "RetainerID"            => [ "type" => "text" ],
+                                    "RetainerName"          => [ "type" => "text" ],
+                                    "CreatorSignatureID"    => [ "type" => "text" ],
+                                    "CreatorSignatureName"  => [ "type" => "text" ],
+                                    "TownID"                => [ "type" => "integer" ],
+                                    "StainID"               => [ "type" => "integer" ],
                                 ]
                             ],
-                            "history"   => [
+                            "History"   => [
                                 "type"  => "nested",
                                 "properties" => [
-                                    "id"                 => [ "type" => "long" ],
-                                    "time"               => [ "type" => "integer" ],
-                                    "character_name"     => [ "type" => "integer" ],
-                                    "is_hq"              => [ "type" => "boolean" ],
-                                    "price_per_unit"     => [ "type" => "integer" ],
-                                    "price_total"        => [ "type" => "integer" ],
-                                    "quantity"           => [ "type" => "integer" ],
-                                    "purchase_date"      => [ "type" => "integer" ],
+                                    "ID"                    => [ "type" => "text" ],
+                                    "Added"                 => [ "type" => "integer" ],
+                                    "PurchaseDate"          => [ "type" => "integer" ],
+                                    "PurchaseDateMs"        => [ "type" => "text" ],
+                                    "CharacterID"           => [ "type" => "text" ],
+                                    "CharacterName"         => [ "type" => "text" ],
+                                    "IsHq"                  => [ "type" => "boolean" ],
+                                    "PricePerUnit"          => [ "type" => "integer" ],
+                                    "PriceTotal"            => [ "type" => "integer" ],
+                                    "Quantity"              => [ "type" => "integer" ],
                                 ]
                             ]
                         ]

@@ -12,6 +12,7 @@ class Entity
     const STATE_NOT_FOUND   = 3;
     const STATE_BLACKLISTED = 4;
     const STATE_PRIVATE     = 5;
+    const STATE_DENIED      = 6;
 
     const PRIORITY_NORMAL   = 0;  // everyone gets this
     const PRIORITY_DEAD     = 1;  // Characters considered dead

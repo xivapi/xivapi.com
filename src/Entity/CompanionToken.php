@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Companion\Config\Token;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -27,13 +28,21 @@ class CompanionToken
      */
     private $server;
     /**
+     * @ORM\Column(type="integer", length=16)
+     */
+    private $lastOnline = 0;
+    /**
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $online;
+    private $online = false;
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $message;
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $token;
 
     public function getId(): ?int
     {
@@ -48,7 +57,17 @@ class CompanionToken
     public function setServer(string $server): self
     {
         $this->server = $server;
-
+        return $this;
+    }
+    
+    public function getLastOnline()
+    {
+        return $this->lastOnline;
+    }
+    
+    public function setLastOnline($lastOnline)
+    {
+        $this->lastOnline = $lastOnline;
         return $this;
     }
 
@@ -60,7 +79,6 @@ class CompanionToken
     public function setOnline($online): self
     {
         $this->online = $online;
-
         return $this;
     }
 
@@ -72,7 +90,17 @@ class CompanionToken
     public function setMessage(?string $message): self
     {
         $this->message = $message;
-
+        return $this;
+    }
+    
+    public function getToken()
+    {
+        return $this->token ? (Object)$this->token : null;
+    }
+    
+    public function setToken($token)
+    {
+        $this->token = $token;
         return $this;
     }
 }

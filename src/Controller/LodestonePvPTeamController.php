@@ -3,16 +3,16 @@
 namespace App\Controller;
 
 use App\Exception\ContentGoneException;
-use App\Service\Japan\Japan;
 use App\Service\Lodestone\PvPTeamService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\PvPTeamQueue;
 use Lodestone\Api;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use App\Service\Redis\Redis;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class LodestonePvPTeamController extends Controller
+class LodestonePvPTeamController extends AbstractController
 {
     /** @var PvPTeamService */
     private $service;
@@ -20,16 +20,6 @@ class LodestonePvPTeamController extends Controller
     public function __construct(PvPTeamService $service)
     {
         $this->service = $service;
-    }
-    
-    /**
-     * todo - temp
-     * @Route("/pvpteam/{lodestoneId}/add")
-     */
-    public function add($lodestoneId)
-    {
-        PvPTeamQueue::request($lodestoneId, 'pvp_team_add');
-        return $this->json(1);
     }
     
     /**
@@ -90,13 +80,13 @@ class LodestonePvPTeamController extends Controller
             throw new ContentGoneException(ContentGoneException::CODE, 'Not Added');
         }
     
-        if ($this->service->cache->get(__METHOD__.$lodestoneId)) {
+        if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {
             return $this->json(0);
         }
 
         PvPTeamQueue::request($lodestoneId, 'pvp_team_update');
 
-        $this->service->cache->set(__METHOD__.$lodestoneId, ServiceQueues::UPDATE_TIMEOUT);
+        Redis::Cache()->set(__METHOD__.$lodestoneId, ServiceQueues::UPDATE_TIMEOUT);
         return $this->json(1);
     }
 }

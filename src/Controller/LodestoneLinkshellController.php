@@ -3,19 +3,19 @@
 namespace App\Controller;
 
 use App\Exception\ContentGoneException;
-use App\Service\Japan\Japan;
 use App\Service\Lodestone\LinkshellService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\LinkshellQueue;
 use Lodestone\Api;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use App\Service\Redis\Redis;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @package App\Controller
  */
-class LodestoneLinkshellController extends Controller
+class LodestoneLinkshellController extends AbstractController
 {
     /** @var LinkshellService */
     private $service;
@@ -23,16 +23,6 @@ class LodestoneLinkshellController extends Controller
     public function __construct(LinkshellService $service)
     {
         $this->service = $service;
-    }
-    
-    /**
-     * todo - temp
-     * @Route("/linkshell/{lodestoneId}/add")
-     */
-    public function add($lodestoneId)
-    {
-        LinkshellQueue::request($lodestoneId, 'linkshell_add');
-        return $this->json(1);
     }
     
     /**
@@ -91,13 +81,13 @@ class LodestoneLinkshellController extends Controller
             throw new ContentGoneException(ContentGoneException::CODE, 'Not Added');
         }
     
-        if ($this->service->cache->get(__METHOD__.$lodestoneId)) {
+        if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {
             return $this->json(0);
         }
         
         LinkshellQueue::request($lodestoneId, 'linkshell_update');
 
-        $this->service->cache->set(__METHOD__.$lodestoneId, ServiceQueues::UPDATE_TIMEOUT);
+        Redis::Cache()->set(__METHOD__.$lodestoneId, ServiceQueues::UPDATE_TIMEOUT);
         return $this->json(1);
     }
 }

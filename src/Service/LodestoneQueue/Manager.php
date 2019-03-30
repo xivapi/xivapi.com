@@ -4,6 +4,7 @@ namespace App\Service\LodestoneQueue;
 
 use App\Entity\LodestoneStatistic;
 use App\Service\Common\Mog;
+use App\Service\ThirdParty\GoogleAnalytics;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Api;
 use PhpAmqpLib\Exception\AMQPRuntimeException;
@@ -54,6 +55,7 @@ class Manager
                 // loop through request ids
                 foreach ($request->ids as $id) {
                     $this->now = date('Y-m-d H:i:s');
+                    GoogleAnalytics::lodestoneTrackContentAsUrl("/{$request->queue}/{$request->method}/{$id}");
     
                     // call the API class dynamically and record any exceptions
                     try {
@@ -78,7 +80,7 @@ class Manager
                 
                 // report duration
                 $duration = round(microtime(true) - $startTime, 3);
-                $this->io->text("REQUESTS END   : ". str_pad($request->queue, 50) ." - ". $startDate ." > ". date('H:i:s') ." = {$duration}");
+                $this->io->text("REQUESTS END   : ". str_pad($request->queue, 50) ." - ". $startDate ." > ". date('H:i:s') ." = Duration: {$duration}");
             });
 
             // close connections
@@ -123,7 +125,7 @@ class Manager
                 // connect to db
                 // todo - possible cpu leak here
                 $this->em->getConnection()->connect();
-    
+
                 // Record stats
                 $stat = new LodestoneStatistic();
                 $stat
@@ -154,8 +156,6 @@ class Manager
                             case 'character_update_5_normal':
                             case 'character_update_0_patreon':
                             case 'character_update_1_patreon':
-                            case 'character_update_0_low':
-                            case 'character_update_1_low':
                                 CharacterQueue::response($this->em, $id, $data);
                                 break;
         

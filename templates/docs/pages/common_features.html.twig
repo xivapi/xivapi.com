@@ -13,7 +13,7 @@
     <p>This will tell the API to handle the request and the response in the specified language.</p>
     <table class="param-table">
         <tr>
-            <td width="20%">en</td>
+            <td width="5%">en</td>
             <td>English</td>
         </tr>
         <tr>
@@ -39,14 +39,14 @@
     </table>
 
     <p>
-        To help with development; you may want to use the simplified field `Name`.
-        If you can provide the query `language=fr` and now `Name` will be the French name.
+        To help with development; you may want to use the simplified field <code>Name</code>.
+        If you can provide the query <code>language=fr</code> and now <code>Name</code> will be the French name.
         This is also extended to other string fields such as Descriptions.
     </p>
     <p>
-        Search will use the language parameter to decide which field to query the `string`
-        against, for example: `language=fr&string=LeAwsome` will search for `LeAwesome` on the
-        field `Name_fr`.
+        Search will use the language parameter to decide which field to query the <code>string</code>
+        against, for example: <code>language=fr&string=LeAwsome</code> will search for <code>LeAwesome</code> on the
+        field <code>Name_fr</code>.
     </p>
 
     {{ docs.gap() }}
@@ -144,18 +144,13 @@
 
     <code class="box">columns=Items.*.Name</code>
 
-    <hr>
-
-    <h4>int</h4>
-    <p>
-        The API will return `ints` as `strings` whenever an numeric value is a length of 10 or more,
-        this means that FC/LS IDs and any other long numbers will return as string
-        and not cause overflow issues.
-    </p>
-
     {{ docs.gap() }}
 
     <h2 id="exceptions">Exceptions</h2>
+
+    <p class="note">
+        When copy/pasting errors to XIVAPI, remember to remove your API Key!!!!
+    </p>
 
     <p>
         The API provides all errors and exceptions in JSON format, even if it is unrelated to the API itself.
@@ -169,6 +164,7 @@
     "Subject": "XIVAPI Service Error",
     "Message": "The details of the error message",
     "Hash": "A sha1 trackable hash of the error message",
+    "Ex": "The name of the exception thrown",
     "Debug": {
         // Data in here can change, it helps the XIVAPI developers understand bugs
         // Please do not code against this structure as it can change at any time.

@@ -30,6 +30,8 @@ class SaintCoinachRedisCustomCommand extends Command
         
         $filelist = scandir(__DIR__ . '/../../Service/DataCustom');
         
+        $force = $input->getArgument('content_name');
+        
         $customClassList = [];
         foreach ($filelist as $file) {
             if (substr($file, -4) !== '.php') {
@@ -39,7 +41,12 @@ class SaintCoinachRedisCustomCommand extends Command
             $class = substr($file, 0, -4);
             
             // skip content_name
-            if ($input->getArgument('content_name') && $input->getArgument('content_name') !== $class) {
+            if ($force && $force !== $class) {
+                continue;
+            }
+            
+            // this one done on its own due to memory issues
+            if (!$force && ($class == 'Quest' || $class == 'SkillDescriptions')) {
                 continue;
             }
             
@@ -56,7 +63,11 @@ class SaintCoinachRedisCustomCommand extends Command
         // process each custom data
         foreach ($customClassList as $priority => $classes) {
             foreach ($classes as $class) {
-                $class->init($this->io)->handle();
+                try {
+                    $class->init($this->io)->handle();
+                } catch (\Exception $ex) {
+                    $this->io->error("Error: {$ex->getMessage()}");
+                }
             }
         }
         

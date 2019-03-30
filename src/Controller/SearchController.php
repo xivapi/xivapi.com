@@ -21,6 +21,14 @@ class SearchController extends AbstractController
     {
         $this->search = $search;
     }
+    
+    /**
+     * @Route("/search/playground", name="search_playground")
+     */
+    public function playground()
+    {
+        return $this->render('search/play.html.twig');
+    }
 
     /**
      * @Route("/Search")
@@ -74,6 +82,6 @@ class SearchController extends AbstractController
     
         return $this->json($searchResponse->response);
     }
-
-
+    
+    
 }

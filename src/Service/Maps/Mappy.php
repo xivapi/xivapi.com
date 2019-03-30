@@ -4,41 +4,79 @@ namespace App\Service\Maps;
 
 use App\Entity\MapPosition;
 use App\Entity\MemoryData;
-use App\Service\Redis\Cache;
+use App\Repository\MapPositionRepository;
+use App\Repository\MemoryDataRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class Mappy
 {
-    const KEYS = [
-        'f7fe6d102725423282c44b8c',
-        'eb6f10d047a941c4b313b8c8',
-        'fdb183fb5b8d4483a7a46ee9',
-        '63cc0045d7e847149c3f',
-        '683f80c69a48472ca94abcc7',
-        '963bac737d3c4533a7691bb4',
-        '21931267ef334933ac56a2a2',
-        '16a5e5e9edf24c95b3489657',
-        'dec187b1a95f4064aff6a723'
-    ];
-    
-    /** @var Cache */
-    private $cache;
     /** @var EntityManagerInterface */
     private $em;
+    /** @var MapPositionRepository */
+    private $repository;
+    /** @var MemoryDataRepository */
+    private $repositoryMemory;
     
-    public function __construct(EntityManagerInterface $em, Cache $cache)
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->cache = $cache;
-        $this->em = $em;
+        $this->em               = $em;
+        $this->repository       = $em->getRepository(MapPosition::class);
+        $this->repositoryMemory = $em->getRepository(MemoryData::class);
     }
-
-    public function save($positions): bool
+    
+    public function getMapPositionRepository()
     {
+        return $this->repository;
+    }
+    
+    public function getMemoryDataRepository()
+    {
+        return $this->repositoryMemory;
+    }
+    
+    /**
+     * Save some positions
+     */
+    public function save(array $positions): bool
+    {
+        // Step 1
+        // - Delete duplicate gathering entities, they will be added in step 2
         foreach ($positions as $i => $pos) {
-            $hash = $this->getPositionHash($pos);
-            
-            // skip dupez
-            if ($this->em->getRepository(MapPosition::class)->findBy(['Hash' => $hash])) {
+            if ($pos->Type == 'Gathering') {
+                $hash = sha1("{$pos->ENpcResidentID},{$pos->Name},{$pos->MapID}");
+                
+                // delete existing gathering entries with this ID
+                $entries = $this->repository->findBy([
+                    'ENpcResidentID' => $pos->ENpcResidentID,
+                    'Type'           => $pos->Type,
+                    'MapID'          => $pos->MapID,
+                ]);
+        
+                if ($entries) {
+                    /** @var MapPosition $entry */
+                    foreach ($entries as $entry) {
+                        // can ignore if hash is the same
+                        if ($entry->getHash() != $hash) {
+                            $this->em->remove($entry);
+                        }
+                    }
+                    
+                    $this->em->flush();
+                }
+            }
+        }
+        
+        // Step 2
+        foreach ($positions as $i => $pos) {
+            if ($pos->Type === 'Gathering') {
+                // handle gathering differently since it's position is static.
+                $hash = sha1("{$pos->ENpcResidentID},{$pos->Name},{$pos->MapID}");
+            } else {
+                $hash = $this->getPositionHash($pos);
+            }
+
+            // skip duplicates
+            if ($this->repository->findBy(['Hash' => $hash])) {
                 continue;
             }
 
@@ -126,7 +164,7 @@ class Mappy
             $pos->BNpcBaseID,
             $pos->Type,
             $xPos,
-            $yPos
+            $yPos,
         ]));
     }
 }
