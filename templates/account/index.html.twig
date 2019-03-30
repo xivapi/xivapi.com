@@ -1,6 +1,6 @@
 {% extends "base.html.twig"  %}
 {% set page = 'account' %}
-{% block title %}{{ auth.user.username }} - Dev Account - XIVAPI{% endblock %}
+{% block title %}{{ auth.online ? auth.user.username : 'Hi' }} - Dev Account - XIVAPI{% endblock %}
 
 {% block body %}
     {% if auth.user %}

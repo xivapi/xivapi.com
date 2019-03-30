@@ -335,6 +335,9 @@
     "symfony/process": {
         "version": "v4.0.6"
     },
+    "symfony/property-access": {
+        "version": "v4.2.4"
+    },
     "symfony/routing": {
         "version": "4.0",
         "recipe": {

@@ -20,6 +20,7 @@
         "symfony/framework-bundle": "^4.2",
         "symfony/maker-bundle": "^1.11",
         "symfony/orm-pack": "^1.0",
+        "symfony/property-access": "^4.2",
         "symfony/test-pack": "^1.0",
         "symfony/twig-bundle": "^4.2",
         "symfony/webpack-encore-pack": "^1.0",
