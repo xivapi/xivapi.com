@@ -29,9 +29,9 @@ a {
 header {
     text-shadow: 0 1px 5px #000;
     box-shadow: 0 2px 15px rgba(0,0,0,0.3);
-    background: -moz-linear-gradient(top, #6e3ab4 0%, #6723b2 100%);
-    background: -webkit-linear-gradient(top, #6e3ab4 0%, #6723b2 100%);
-    background: linear-gradient(to bottom, #6e3ab4 0%, #6723b2 100%);
+    background: -moz-linear-gradient(top, #3258e8 0%, #632dbf 100%);
+    background: -webkit-linear-gradient(top, #752ed5 0%, #632dbf 100%);
+    background: linear-gradient(to bottom, #752ed5 0%, #632dbf 100%);
     position: relative;
     z-index: 30;
 }
@@ -541,10 +541,10 @@ main .docs {
 }
 
 main .home-top {
-    background-color: #6723b2;
-    background: -moz-linear-gradient(top, #6723b2 0%, #7228c9 100%);
-    background: -webkit-linear-gradient(top, #6723b2 0%, #7228c9 100%);
-    background: linear-gradient(to bottom, #6723b2 0%, #7228c9 100%);
+    background-color: #632dbf;
+    background: -moz-linear-gradient(top, #632dbf 0%, #552ca9 100%);
+    background: -webkit-linear-gradient(top, #632dbf 0%, #552ca9 100%);
+    background: linear-gradient(to bottom, #632dbf 0%, #552ca9 100%);
 
     overflow: hidden;
     text-align: center;

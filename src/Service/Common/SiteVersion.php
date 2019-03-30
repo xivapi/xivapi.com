@@ -11,11 +11,15 @@ class SiteVersion
 {
     const MAJOR = 2;
     const MINOR = 2;
+    const VERSION_COMMIT = 1000;
     
     public static function get()
     {
         [$commits, $hash, $time] = explode("\n", file_get_contents(__DIR__.'/../../../git_version.txt'));
-        $version = sprintf('%s.%s.%s', self::MAJOR, self::MINOR, $commits);
+        
+        $commitVersion = $commits - self::VERSION_COMMIT;
+        $commitVersion = $commitVersion > 0 ? $commitVersion : 0;
+        $version = sprintf('%s.%s.%s', self::MAJOR, self::MINOR, $commitVersion);
         
         $time = Carbon::createFromTimestamp($time)->format('jS M - g:i a') . ' (UTC)';
 
@@ -23,6 +27,7 @@ class SiteVersion
             'version'   => $version,
             'commits'   => $commits,
             'hash'      => $hash,
+            'hash_min'  => substr($hash, 0, 7),
             'time'      => $time,
         ];
     }
