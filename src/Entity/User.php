@@ -148,45 +148,6 @@ class User
      * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $ssoDiscordTokenRefresh;
-    
-    
-    // todo legacy ----------------------
-
-    /**
-     * @var bool
-     * @ORM\Column(type="boolean", name="is_locked", options={"default" : 0})
-     */
-    private $locked = false;
-    /**
-     * @var bool
-     * @ORM\Column(type="boolean", name="is_new", options={"default" : 1})
-     */
-    private $new = true;
-    /**
-     * The token provided by the SSO provider
-     * @var string
-     * @ORM\Column(type="text", length=512, nullable=true)
-     */
-    private $token;
-    /**
-     * @ORM\Column(type="integer", length=16)
-     */
-    private $appsMax = 1;
-    /**
-     * @ORM\Column(type="boolean", name="has_mappy_access", options={"default" : 0})
-     */
-    private $mappyAccessEnabled = false;
-    /**
-     * @ORM\Column(type="integer", options={"default" : 0})
-     */
-    private $mappyAccessCode = 0;
-    /**
-     * @var string
-     * @ORM\Column(type="string", length=128, nullable=true)
-     */
-    private $ssoId;
-    
-    // todo legacy ----------------------
 
     public function __construct()
     {
@@ -452,92 +413,6 @@ class User
     {
         $this->ssoDiscordTokenRefresh = $ssoDiscordTokenRefresh;
 
-        return $this;
-    }
-    
-    // ---
-    
-    public function isLocked(): bool
-    {
-        return $this->locked;
-    }
-    
-    public function setLocked(bool $locked)
-    {
-        $this->locked = $locked;
-        
-        return $this;
-    }
-    
-    public function isNew(): bool
-    {
-        return $this->new;
-    }
-    
-    public function setNew(bool $new)
-    {
-        $this->new = $new;
-        
-        return $this;
-    }
-    
-    public function getToken(): ?string
-    {
-        return $this->token;
-    }
-    
-    public function setToken(string $token)
-    {
-        $this->token = $token;
-        
-        return $this;
-    }
-    
-    public function getAppsMax()
-    {
-        return $this->appsMax;
-    }
-    
-    public function setAppsMax($appsMax)
-    {
-        $this->appsMax = $appsMax;
-        
-        return $this;
-    }
-    
-    public function getMappyAccessEnabled()
-    {
-        return $this->mappyAccessEnabled;
-    }
-    
-    public function setMappyAccessEnabled($mappyAccessEnabled)
-    {
-        $this->mappyAccessEnabled = $mappyAccessEnabled;
-        
-        return $this;
-    }
-    
-    public function getMappyAccessCode()
-    {
-        return $this->mappyAccessCode;
-    }
-    
-    public function setMappyAccessCode($mappyAccessCode)
-    {
-        $this->mappyAccessCode = $mappyAccessCode;
-        
-        return $this;
-    }
-    
-    public function getSsoId(): ?string
-    {
-        return $this->ssoId;
-    }
-    
-    public function setSsoId(string $ssoId)
-    {
-        $this->ssoId = $ssoId;
-        
         return $this;
     }
 }
