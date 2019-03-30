@@ -106,7 +106,7 @@ class Manager
             }
     
             $this->io->error("[35] REQUEST :: ". $exClassName ." at: {$this->now} -- {$ex->getMessage()} #{$ex->getLine()} {$ex->getFile()}");
-            $this->io->error($ex->getTraceAsString());
+            //$this->io->error($ex->getTraceAsString());
         }
     }
     
