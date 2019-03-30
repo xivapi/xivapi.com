@@ -83,9 +83,15 @@
 
     {# Server Lists #}
     {{ docs.api('/servers', '/servers', 'servers') }}
-    <p>A list of servers on the official servers (JA, EN, FR, DE)'</p>
+    <p>
+        A list of official: North America, Japan and Europe
+    </p>
+
+    {{ docs.gap() }}
 
     {{ docs.api('/servers/dc', '/servers/dc', 'data-center') }}
-    <p>Another list of servers grouped by their data center.</p>
+    <p>
+        Another list of servers grouped by their data center.
+    </p>
 
 {% endblock %}
