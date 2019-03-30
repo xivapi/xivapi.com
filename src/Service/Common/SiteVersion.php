@@ -19,6 +19,8 @@ class SiteVersion
         
         $commitVersion = $commits - self::VERSION_COMMIT;
         $commitVersion = $commitVersion > 0 ? $commitVersion : 0;
+        $commitVersion = str_pad($commitVersion, 2, '0', STR_PAD_LEFT);
+        
         $version = sprintf('%s.%s.%s', self::MAJOR, self::MINOR, $commitVersion);
         
         $time = Carbon::createFromTimestamp($time)->format('jS M - g:i a') . ' (UTC)';

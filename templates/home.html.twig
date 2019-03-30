@@ -135,7 +135,7 @@
             Twitter: <a href="https://twitter.com/viion">@viion</a>
         </div>
         <div>
-            v{{ siteVersion().version }} [{{ siteVersion().commits }} {{ siteVersion().hash_min }}] - Deployed {{ siteVersion().time }} <br>
+            v{{ siteVersion().version }} ({{ siteVersion().hash_min }}) - {{ siteVersion().commits|number_format }} changes - Deployed {{ siteVersion().time }} <br>
             ALL FINAL FANTASY XIV CONTENT IS PROPERTY OF SQUARE ENIX CO., LTD <br>
 
             {% if auth.user %}
