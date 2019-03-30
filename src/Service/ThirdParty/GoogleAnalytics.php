@@ -18,17 +18,10 @@ use Ramsey\Uuid\Uuid;
  */
 class GoogleAnalytics
 {
-    const ENDPOINT      = 'http://www.google-analytics.com';
-    const VERSION       = 1;
-    const TIMEOUT       = 5;
-    
-    public static function getClient()
-    {
-        return new Client([
-            'base_uri' => self::ENDPOINT,
-            'timeout'  => self::TIMEOUT
-        ]);
-    }
+    const ENDPOINT = 'http://www.google-analytics.com';
+    const VERIFY   = false;
+    const VERSION  = 1;
+    const TIMEOUT  = 5;
 
     /**
      * @param array $options
@@ -36,11 +29,17 @@ class GoogleAnalytics
     public static function query(array $options)
     {
         try {
-            self::getClient()->post('/collect', [
+           $client = new Client([
+                'base_uri' => self::ENDPOINT,
+                'timeout'  => self::TIMEOUT,
+                'verify'   => self::VERIFY,
+            ]);
+            
+            $client->post('/collect', [
                 RequestOptions::QUERY => $options
             ]);
         } catch (\Exception $ex) {
-            file_put_contents(__DIR__ .'/GoogleAnalytics.errors.log', $ex->getMessage() . "\n");
+            // ignore
         }
     }
     
