@@ -50,6 +50,7 @@ class Manager
             $requestRabbit->readMessageAsync(function($request) use ($responseRabbit) {
                 // update times
                 $request->responses = [];
+                $count     = count($request->id);
                 $startTime = microtime(true);
                 $startDate = date('H:i:s');
                 $this->io->text("REQUESTS START : ". str_pad($request->queue, 50) ." - ". $startDate);
@@ -81,7 +82,7 @@ class Manager
                 
                 // report duration
                 $duration = round(microtime(true) - $startTime, 3);
-                $this->io->text("REQUESTS END   : ". str_pad($request->queue, 50) ." - ". $startDate ." > ". date('H:i:s') ." = Duration: {$duration}");
+                $this->io->text("REQUESTS END   : ". str_pad($request->queue, 50) ." - ". $startDate ." > ". date('H:i:s') ." = Duration: {$duration} for {$count} ids");
             });
 
             // close connections
