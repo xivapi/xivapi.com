@@ -53,9 +53,8 @@
                 <th>Total Requests</th>
                 <th>Total Updates</th>
                 <th>Last Update</th>
-                <th>Item Speed</th>
-                <th>Requests Per Sec</th>
-                <th>Request Speed</th>
+                <th>Items per Sec</th>
+                <th>Requests per Sec</th>
                 <th>Cycle Speed</th>
             </tr>
             </thead>
@@ -108,13 +107,13 @@
 
         <h1>Exceptions</h1>
 
+        <code class="box">
         {% for exception in companion_exceptions %}
-            <div>
-                <strong>[{{ exception.added|date('Y-m-d H:i:s') }}] {{ exception.exception }}</strong> = {{ exception.message }}
-            </div>
+            [{{ exception.added|date('Y-m-d H:i:s') }}] {{ exception.exception }}
         {% else %}
             <p>No exceptions thrown</p>
         {% endfor %}
+        </code>
     </div>
 
 {% endblock %}
