@@ -109,7 +109,7 @@
 
         <code class="box">
         {% for exception in companion_exceptions %}
-            [{{ exception.added|date('Y-m-d H:i:s') }}] {{ exception.exception }}
+            [{{ exception.added|date('Y-m-d H:i:s') }}] {{ exception.exception }}<br>
         {% else %}
             <p>No exceptions thrown</p>
         {% endfor %}
