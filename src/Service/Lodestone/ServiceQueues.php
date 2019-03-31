@@ -17,11 +17,11 @@ class ServiceQueues
     
     // maximum characters to process per minute
     const TOTAL_CHARACTER_UPDATES    = 75;  // Max 1 page
-    const TOTAL_CHARACTER_FRIENDS    = 40;  // Max 4 pages
-    const TOTAL_ACHIEVEMENT_UPDATES  = 5;  // Always 10 pages
-    const TOTAL_FREE_COMPANY_UPDATES = 20;  // Max: 10 pages
-    const TOTAL_PVP_TEAM_UPDATES     = 50;  // Usually only 1 page
-    const TOTAL_LINKSHELL_UPDATES    = 50;  // Max 3 pages
+    const TOTAL_CHARACTER_FRIENDS    = 60;  // Max 4 pages
+    const TOTAL_ACHIEVEMENT_UPDATES  = 8;  // Always 10 pages
+    const TOTAL_FREE_COMPANY_UPDATES = 30;  // Max: 10 pages
+    const TOTAL_PVP_TEAM_UPDATES     = 80;  // Usually only 1 page
+    const TOTAL_LINKSHELL_UPDATES    = 80;  // Max 3 pages
     
     // queue counts (including 0
     const TOTAL_CHARACTER_QUEUES = 5;
