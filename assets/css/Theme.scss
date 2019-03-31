@@ -15,6 +15,10 @@ html {
     font-size: 16px;
     margin: 0;
     overflow-y: scroll;
+
+    &.page-companion {
+        background-color: #353a46;
+    }
 }
 
 strong {
