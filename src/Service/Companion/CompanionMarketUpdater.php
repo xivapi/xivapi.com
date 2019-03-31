@@ -55,6 +55,8 @@ class CompanionMarketUpdater
     private $tokens;
     /** @var int */
     private $start;
+    /** @var int */
+    private $exceptionCount = 0;
     
     public function __construct(
         EntityManagerInterface $em,
@@ -118,7 +120,12 @@ class CompanionMarketUpdater
             // if we're close to the cronjob minute mark, end
             if ((time() - $this->start) > CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS) {
                 $this->console->writeln(date('H:i:s') ." | [{$priority}] Ending auto-update as time limit seconds reached.");
-                return;
+                break;
+            }
+            
+            if ($this->exceptionCount > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
+                $this->console->writeln(date('H:i:s') .' | !! Error exceptions (real-time check) exceeded limit. Auto-Update stopped');
+                break;
             }
         
             // handle the chunk
@@ -347,6 +354,7 @@ class CompanionMarketUpdater
     private function recordException($type, $itemId, $server, $error)
     {
         $this->console->writeln(date('H:i:s') ." !!! EXCEPTION: {$type}, {$itemId}, {$server}");
+        $this->exceptionCount++;
 
         $exception = new CompanionMarketItemException();
         $exception->setException("{$type}, {$itemId}, {$server}")->setMessage($error);
