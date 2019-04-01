@@ -3,6 +3,7 @@
 namespace App\Service\Companion;
 
 use App\Service\Common\Arrays;
+use App\Service\Companion\Models\GameItem;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
@@ -114,6 +115,9 @@ class CompanionMarket
     
             $item->History[] = $obj;
         }
+
+        // append item information
+        $item->Item = GameItem::build($itemId);
         
         return $item;
     }

@@ -13,6 +13,8 @@ class MarketItem
     public $Server;
     /** @var int */
     public $ItemID;
+    /** @var GameItem */
+    public $Item;
     /** @var int */
     public $Updated;
     /** @var MarketListing[] */
