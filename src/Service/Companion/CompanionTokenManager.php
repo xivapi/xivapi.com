@@ -141,10 +141,15 @@ class CompanionTokenManager
     {
         foreach (self::SERVERS_ACCOUNTS as $server => $account) {
             if ($account == $accountId) {
-                $ok = $this->login($server);
-                
-                // sleep for a random amount, because SE ?
-                sleep($ok ? mt_rand(5, 30) : 0);
+                try {
+                    $ok = $this->login($server);
+
+                    // sleep for a random amount, because SE ?
+                    sleep($ok ? mt_rand(5, 30) : 0);
+                } catch (\Exception $ex) {
+                    $this->console->writeln("! Error: Failed to login to server: {$server}. Skipping...");
+                    continue;
+                }
             }
         }
     }
