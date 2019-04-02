@@ -128,13 +128,10 @@ class Arrays
             }
 
             // Append all count columns
-            if ($countColumn) {
-                // build a bunch of columns
-                foreach (range(0, $countColumn) as $r) {
-                    $columns[] = implode(
-                        '.', str_ireplace("*{$countColumn}", $r, $column)
-                    );
-                }
+            foreach (range(0, $countColumn) as $r) {
+                $columns[] = implode(
+                    '.', str_ireplace("*{$countColumn}", $r, $column)
+                );
             }
         }
 
