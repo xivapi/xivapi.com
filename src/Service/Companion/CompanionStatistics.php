@@ -37,6 +37,8 @@ class CompanionStatistics
     private $queues = [];
     /** @var array */
     private $data = [];
+    /** @var int */
+    private $itemsPerSecond = 0;
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -51,26 +53,27 @@ class CompanionStatistics
     public function run()
     {
         // grab all update records
-        $updates = $this->repository->findAll();
+        $this->updates = $this->repository->findBy([], [ 'added' => 'desc' ]);
 
         // remove out of date records
-        $this->removeOldUpdateRecords($updates);
+        $this->removeOldUpdateRecords();
         
-        if (empty($updates)) {
+        // skip if no updates (eg: Maintenance)
+        if (empty($this->updates)) {
             return null;
         }
 
-        // organise updates
-        $this->organizeUpdates($updates);
-
         // Get queue sizes
         $this->getQueueSizes();
+        
+        // work out items per second speed
+        $this->calculateItemsPerSecond();
 
-        // build global stats
-        $this->buildStatistics('global');
+        // build all stats
+        $this->buildStatistics('all');
 
         // build priority stats
-        foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9] as $priority) {
+        foreach (array_keys(CompanionConfiguration::QUEUE_INFO) as $priority) {
             $this->buildStatistics($priority);
         }
 
@@ -78,7 +81,7 @@ class CompanionStatistics
 
         // table
         $table = new Table($this->console);
-        $table->setHeaders(array_keys($this->data['global']))->setRows($this->data);
+        $table->setHeaders(array_keys($this->data['all']))->setRows($this->data);
         $table->render();
     }
 
@@ -125,30 +128,19 @@ class CompanionStatistics
     /**
      * Remove old update records
      */
-    private function removeOldUpdateRecords(array $updates)
+    private function removeOldUpdateRecords()
     {
-        $timelimit = time() - self::UPDATE_TIME_LIMIT;
+        $timeout = time() - self::UPDATE_TIME_LIMIT;
 
         /** @var CompanionMarketItemUpdate $update */
-        foreach ($updates as $update) {
-            if ($update->getAdded() < $timelimit) {
+        foreach ($this->updates as $i => $update) {
+            if ($update->getAdded() < $timeout) {
                 $this->em->remove($update);
+                unset($this->updates[$i]);
             }
         }
 
         $this->em->flush();
-    }
-
-    /**
-     * organise update records into a nice simple table.
-     */
-    private function organizeUpdates(array $updates)
-    {
-        /** @var CompanionMarketItemUpdate $update */
-        foreach($updates as $update) {
-            $this->updates['global'][] = $update;
-            $this->updates[$update->getPriority()][] = $update;
-        }
     }
 
     /**
@@ -162,7 +154,20 @@ class CompanionStatistics
             $total += $row['total'];
         }
 
-        $this->queues['global'] = $total;
+        $this->queues['all'] = $total;
+    }
+    
+    /**
+     * Calculate the item per second avg based on how many items were updated
+     * over a given duration period (in seconds)
+     */
+    private function calculateItemsPerSecond()
+    {
+        $duration   = reset($this->updates)->getAdded() - end($this->updates)->getAdded();
+        $totalItems = count($this->updates);
+        
+        // divide this by the number of updates
+        $this->itemsPerSecond = round($totalItems / $duration, 9);
     }
 
     /**
@@ -170,47 +175,37 @@ class CompanionStatistics
      */
     private function buildStatistics($priority)
     {
-        /** @var CompanionMarketItemUpdate[] $updates */
-        $updates = $this->updates[$priority] ?? [];
-        $total   = count($updates);
+        // queue name
+        $name = CompanionConfiguration::QUEUE_INFO[$priority] ?? 'All';
         
-        if ($total === 0) {
-            return;
-        }
-
-        //
-        // 1) Work out the update update speed
-        //
-        $timeA = $updates[0]->getAdded();
-        $timeB = end($updates)->getAdded();
-
-        // get the number of seconds between the 1st and last update times
-        $seconds = $timeB - $timeA;
-
-        // divide this by the number of updates
-        $itemsPerSecond = round($total / $seconds, 9);
-        $itemsPerSecondFraction = round(1 / $itemsPerSecond, 9);
-
-        //
-        // 2) Work out how long it will take to update all entries
-        //
+        // get the total items in this queue
         $totalItems = $this->queues[$priority];
-
-        // multiply total items by the number of items per second fraction
-        $totalSecondsForAllItems = ceil($totalItems * $itemsPerSecondFraction);
+        
+        // get the number of consumers for this queue
+        $consumers = ($priority === 'all')
+            ? array_sum(CompanionConfiguration::QUEUE_CONSUMERS)
+            : CompanionConfiguration::QUEUE_CONSUMERS[$priority];
+        
+        // the items per second is multiplied by the number of consumers
+        $itemsPerSecond = $this->itemsPerSecond;
+        $itemsPerSecond = $itemsPerSecond * $consumers;
+        
+        // The item completion is the total items multiplied by "itemsPerSecond" calculation
+        $itemsCompletionSeconds = $totalItems * $itemsPerSecond;
 
         //
         // 3) Work out the cycle speed
         //
-        $completionTime = Carbon::createFromTimestamp(time() + $totalSecondsForAllItems);
-        $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min and %s sec');
+        $completionTime = Carbon::createFromTimestamp(time() + $itemsCompletionSeconds);
+        $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min');
 
         $this->data[$priority] = [
-            'name'              => CompanionConfiguration::QUEUE_INFO[$priority] ?? 'All',
+            'name'              => $name,
             'priority'          => $priority,
+            'consumers'         => $consumers,
             'items_per_second'  => $itemsPerSecond,
-            'total_items'       => $totalItems,
-            'total_requests'    => $totalItems * 4,
+            'total_items'       => number_format($totalItems),
+            'total_requests'    => number_format($totalItems * 4),
             'completion_time'   => $completionTime,
         ];
     }

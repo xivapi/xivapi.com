@@ -54,6 +54,18 @@ class CompanionConfiguration
         9 => 'Default Queue',
     ];
     
+    const QUEUE_CONSUMERS = [
+        1 => 1,
+        2 => 3,
+        3 => 4,
+        4 => 2,
+        5 => 1,
+        6 => 1,
+        7 => 1,
+        8 => 1,
+        9 => 1,
+    ];
+    
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
         (60 * 60 * 1)   => 1,
