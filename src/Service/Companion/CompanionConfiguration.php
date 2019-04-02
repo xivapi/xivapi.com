@@ -47,9 +47,9 @@ class CompanionConfiguration
         3 => '< 4 hours',
         4 => '< 12 hours',
         5 => '< 36 hours',
-        6 => '< 168 hours (1 week)',
-        
-        7 => 'Less than 5 sale history',
+        6 => '< 100 hours',
+        7 => '< 150 hours',
+
         8 => 'Item newly added to XIVAPI',
         9 => 'Default Queue',
     ];
@@ -61,6 +61,7 @@ class CompanionConfiguration
         (60 * 60 * 4)   => 3,
         (60 * 60 * 12)  => 4,
         (60 * 60 * 36)  => 5,
-        (60 * 60 * 168) => 6,
+        (60 * 60 * 100) => 6,
+        (60 * 60 * 150) => 7,
     ];
 }

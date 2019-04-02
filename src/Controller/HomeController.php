@@ -38,11 +38,9 @@ class HomeController extends AbstractController
      */
     public function companionStatistics()
     {
-        return $this->render('companion_statistics.html.twig', [
-            'companion_statistics' => $this->companionStatistics->getRecordedStatistics(),
-            'companion_exceptions' => $this->companionStatistics->getExceptions(),
-            'companion_view'       => $this->companionStatistics->getStatisticsView(),
-            'companion_queues'     => $this->companionStatistics->getCompanionQueuesView(),
+        return $this->json([
+            'statistics' => $this->companionStatistics->getStatistics(),
+            'exceptions' => $this->companionStatistics->getExceptions()
         ]);
     }
 

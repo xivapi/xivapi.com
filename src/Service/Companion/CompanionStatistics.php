@@ -8,6 +8,7 @@ use App\Entity\CompanionMarketItemUpdate;
 use App\Repository\CompanionMarketItemEntryRepository;
 use App\Repository\CompanionMarketItemExceptionRepository;
 use App\Repository\CompanionMarketItemUpdateRepository;
+use App\Service\Redis\Redis;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Helper\Table;
@@ -15,22 +16,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionStatistics
 {
-    const FILENAME = __DIR__ .'/CompanionStatistics.json';
+    const FILENAME = __DIR__ . '/CompanionStatistics.json';
 
-    const STATS_ARRAY = [
-        'queue_name'     => null,
-        'total_items'    => 0,
-        'total_requests' => 0,
-        'total_updated'  => 0,
-        'last_updated'   => 0,
-        'items_per_sec'  => 0,
-        'items_per_min'  => 0,
-        'items_per_hr'   => 0,
-        'req_per_sec'    => 0,
-        'req_per_min'    => 0,
-        'req_per_hr'     => 0,
-        'cycle_speed'    => null,
-    ];
+    // delete all update records older than 1 hour
+    const UPDATE_TIME_LIMIT = (60 * 60);
 
     /** @var EntityManagerInterface */
     private $em;
@@ -42,12 +31,18 @@ class CompanionStatistics
     private $repositoryExceptions;
     /** @var ConsoleOutput */
     private $console;
+    /** @var array */
+    private $updates = [];
+    /** @var array */
+    private $queues = [];
+    /** @var array */
+    private $data = [];
 
     public function __construct(EntityManagerInterface $em)
     {
-        $this->em                   = $em;
-        $this->repository           = $em->getRepository(CompanionMarketItemUpdate::class);
-        $this->repositoryEntries    = $em->getRepository(CompanionMarketItemEntry::class);
+        $this->em = $em;
+        $this->repository = $em->getRepository(CompanionMarketItemUpdate::class);
+        $this->repositoryEntries = $em->getRepository(CompanionMarketItemEntry::class);
         $this->repositoryExceptions = $em->getRepository(CompanionMarketItemException::class);
 
         $this->console = new ConsoleOutput();
@@ -58,32 +53,71 @@ class CompanionStatistics
         // grab all update records
         $updates = $this->repository->findAll();
 
-        // remove old ones
-        $this->cleanOutdatedUpdateEntries($updates);
+        // remove out of date records
+        $this->removeOldUpdateRecords($updates);
 
-        // build stats
-        $data = [];
-        $data[] = $this->generateStatistics($updates, 'Global', null);
+        // organise updates
+        $this->organizeUpdates($updates);
 
-        foreach([1,2,3,4,5,6,7,8,9] as $priority) {
-            $data[] = $this->processPriorityStatistics($updates, $priority);
+        // Get queue sizes
+        $this->getQueueSizes();
+
+        // build global stats
+        $this->buildStatistics('global');
+
+        // build priority stats
+        foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9] as $priority) {
+            $this->buildStatistics($priority);
         }
 
-        $this->saveStatistics($data);
+        $this->saveStatistics();
 
         // table
         $table = new Table($this->console);
-        $table->setHeaders(array_keys(self::STATS_ARRAY))->setRows($data);
+        $table->setHeaders(array_keys($this->data[0]))->setRows($this->data);
         $table->render();
     }
 
-    private function cleanOutdatedUpdateEntries(array $updates)
+    /**
+     * Save our statistics
+     */
+    public function saveStatistics()
     {
-        $hours24 = time() - (60 * 60);
+        $data = [
+            $this->data,
+            $this->queues,
+            $this->getStatisticsView()
+        ];
+
+        Redis::Cache()->set('stats_CompanionUpdateStatistics', $data, (60 * 60 * 24 * 7));
+    }
+
+    /**
+     * Load our statistics
+     */
+    public function getStatistics()
+    {
+        return Redis::Cache()->get('stats_CompanionUpdateStatistics');
+    }
+
+    /**
+     * Get exceptions thrown
+     */
+    public function getExceptions()
+    {
+        return $this->repositoryExceptions->findAll();
+    }
+
+    /**
+     * Remove old update records
+     */
+    private function removeOldUpdateRecords(array $updates)
+    {
+        $timelimit = time() - self::UPDATE_TIME_LIMIT;
 
         /** @var CompanionMarketItemUpdate $update */
         foreach ($updates as $update) {
-            if ($update->getAdded() < $hours24){
+            if ($update->getAdded() < $timelimit) {
                 $this->em->remove($update);
             }
         }
@@ -91,152 +125,97 @@ class CompanionStatistics
         $this->em->flush();
     }
 
-    public function saveStatistics($data)
+    /**
+     * organise update records into a nice simple table.
+     */
+    private function organizeUpdates(array $updates)
     {
-        file_put_contents(self::FILENAME, json_encode($data));
+        /** @var CompanionMarketItemUpdate $update */
+        foreach($updates as $update) {
+            $this->updates['global'][] = $update;
+            $this->updates[$update->getPriority()] = $update;
+        }
     }
 
-    public function getRecordedStatistics()
+    /**
+     * Get the queue sizes
+     */
+    private function getQueueSizes()
     {
-        return json_decode(file_get_contents(self::FILENAME), true);
+        $total = 0;
+        foreach($this->getCompanionQueuesView() as $row) {
+            $this->queues[$row['priority']] = $row['total'];
+            $total += $row['total'];
+        }
+
+        $this->queues['global'] = $total;
     }
 
-    public function getExceptions()
+    /**
+     * Build statistics for a particular priority
+     */
+    private function buildStatistics($priority)
     {
-        return $this->repositoryExceptions->findAll();
+        /** @var CompanionMarketItemUpdate[] $updates */
+        $updates = $this->updates[$priority];
+        $total   = count($updates);
+
+        //
+        // 1) Work out the update update speed
+        //
+        $timeA = $updates[0]->getAdded();
+        $timeB = end($updates)->getAdded();
+
+        // get the number of seconds between the 1st and last update times
+        $seconds = $timeB - $timeA;
+
+        // divide this by the number of updates
+        $itemsPerSecond = round($total / $seconds, 9);
+        $itemsPerSecondFraction = round(1 / $itemsPerSecond, 9);
+
+        //
+        // 2) Work out how long it will take to update all entries
+        //
+        $totalItems = $this->queues[$priority];
+
+        // multiply total items by the number of items per second fraction
+        $totalSecondsForAllItems = ceil($totalItems * $itemsPerSecondFraction);
+
+        //
+        // 3) Work out the cycle speed
+        //
+        $completionTime = Carbon::createFromTimestamp(time() + $totalSecondsForAllItems);
+        $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min and %s sec');
+
+        return [
+            'name'              => CompanionConfiguration::QUEUE_INFO[$priority] ?? 'All',
+            'priority'          => $priority,
+            'items_per_second'  => $itemsPerSecond,
+            'total_items'       => $totalItems,
+            'total_requests'    => $totalItems * 4,
+            'completion_time'   => $completionTime,
+        ];
     }
-    
-    public function getStatisticsView()
+
+    /**
+     * Get statistics view
+     */
+    private function getStatisticsView()
     {
         $sql = $this->em->getConnection()->prepare('SELECT * FROM `companion stats` LIMIT 1');
         $sql->execute();
-        
+
         return $sql->fetchAll()[0];
     }
 
-    public function getCompanionQueuesView()
+    /**
+     * @return mixed[]
+     */
+    private function getCompanionQueuesView()
     {
         $sql = $this->em->getConnection()->prepare('SELECT * FROM `companion queues`');
         $sql->execute();
 
         return $sql->fetchAll();
-    }
-
-    /**
-     * Generate statistics for a given update
-     */
-    private function generateStatistics($updates, $name, $priority)
-    {
-        $this->console->writeln("Building stats: {$name}");
-
-        // stats
-        $arr = (object)self::STATS_ARRAY;
-
-        [$sec, $min, $hr]     = $this->getRequestSpeeds($updates);
-
-        $arr->queue_name      = "[{$priority}] {$name}";
-        $arr->items_per_sec   = $sec;
-        $arr->items_per_min   = $min;
-        $arr->items_per_hr    = $hr;
-        $arr->req_per_sec     = $sec * 4;
-        $arr->req_per_min     = $min * 4;
-        $arr->req_per_hr      = $hr  * 4;
-        $arr->total_items     = $this->repositoryEntries->findTotalOfItems($priority);
-        $arr->total_requests  = $arr->total_items * 4;
-        $arr->total_updated   = count($updates);
-        $arr->last_updated    = $this->getLastUpdateTime($updates);
-        $arr->cycle_speed     = $this->getCycleSpeed($arr->req_per_sec, $arr->total_requests);
-
-        $arr->items_per_sec   = number_format($arr->items_per_sec);
-        $arr->items_per_min   = number_format($arr->items_per_min);
-        $arr->items_per_hr    = number_format($arr->items_per_hr);
-        $arr->req_per_sec     = number_format($arr->req_per_sec);
-        $arr->req_per_min     = number_format($arr->req_per_min);
-        $arr->req_per_hr      = number_format($arr->req_per_hr);
-        $arr->total_items     = number_format($arr->total_items);
-        $arr->total_requests  = number_format($arr->total_requests);
-        $arr->total_updated   = number_format($arr->total_updated);
-
-        return (array)$arr;
-    }
-
-    /**
-     * Build stats on all priority based item entries.
-     */
-    private function processPriorityStatistics($updates, $priority)
-    {
-        $filteredUpdates = [];
-
-        /** @var CompanionMarketItemUpdate $itemUpdate */
-        foreach ($updates as $itemUpdate) {
-            if ($itemUpdate->getPriority() === $priority) {
-                $filteredUpdates[] = $itemUpdate;
-            }
-        }
-
-        return $this->generateStatistics($filteredUpdates, CompanionConfiguration::QUEUE_INFO[$priority], $priority);
-    }
-
-    /**
-     * Calculate request speed
-     */
-    private function getRequestSpeeds($updates)
-    {
-        $arr = (object)[
-            'sec'       => 0,
-            'sec_arr'   => [],
-            'min'       => 0,
-            'min_arr'   => [],
-            'hrs'       => 0,
-            'hrs_arr'   => [],
-        ];
-
-        /** @var CompanionMarketItemUpdate $itemUpdate */
-        foreach ($updates as $itemUpdate) {
-            $seconds = $itemUpdate->getAdded();
-            $minutes = date('z_H_i', $itemUpdate->getAdded());
-            $hours   = date('z_H', $itemUpdate->getAdded());
-
-            $arr->sec_arr[$seconds] = isset($arr->sec_arr[$seconds]) ? $arr->sec_arr[$seconds] + 1 : 1;
-            $arr->min_arr[$minutes] = isset($arr->min_arr[$minutes]) ? $arr->min_arr[$minutes] + 1 : 1;
-            $arr->hrs_arr[$hours]   = isset($arr->hrs_arr[$hours])   ? $arr->hrs_arr[$hours] + 1 : 1;
-        }
-
-        $arr->sec = count($arr->sec_arr) == 0 ? 0 : ceil(array_sum($arr->sec_arr) / count(array_filter($arr->sec_arr)));
-        $arr->min = count($arr->min_arr) == 0 ? 0 : ceil(array_sum($arr->min_arr) / count(array_filter($arr->min_arr)));
-        $arr->hrs = count($arr->hrs_arr) == 0 ? 0 : ceil(array_sum($arr->hrs_arr) / count(array_filter($arr->hrs_arr)));
-
-        return [
-            $arr->sec,
-            $arr->min,
-            $arr->hrs,
-        ];
-    }
-
-    /**
-     * Return the last added timestamp
-     */
-    private function getLastUpdateTime($updates)
-    {
-        // due to ordering, it will be the first in the last
-        /** @var CompanionMarketItemUpdate $last */
-        $last = reset($updates);
-
-        return $last ? date('Y-m-d H:i:s', $last->getAdded()) : 'Never';
-    }
-
-    /**
-     * Return a countdown of how long it takes to cycle through all items
-     */
-    private function getCycleSpeed($reqPerSec, $totalRequests)
-    {
-        if ($reqPerSec == 0 || $totalRequests == 0) {
-            return "Never";
-        }
-
-        // total requests to perform, divided by the number of req per second
-        $future   = Carbon::createFromTimestamp(time() + ceil($totalRequests / $reqPerSec));
-
-        return Carbon::now()->diff($future)->format('%d days, %h hr, %i min and %s sec');
     }
 }
