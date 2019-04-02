@@ -78,7 +78,7 @@ class CompanionStatistics
 
         // table
         $table = new Table($this->console);
-        $table->setHeaders(array_keys($this->data[0]))->setRows($this->data);
+        $table->setHeaders(array_keys($this->data['global']))->setRows($this->data);
         $table->render();
     }
 
