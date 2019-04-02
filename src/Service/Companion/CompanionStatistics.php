@@ -90,7 +90,7 @@ class CompanionStatistics
         $data = [
             $this->data,
             $this->queues,
-            $this->getStatisticsView()
+            $this->getStatisticsView(),
         ];
 
         Redis::Cache()->set('stats_CompanionUpdateStatistics', $data, (60 * 60 * 24 * 7));
@@ -109,7 +109,17 @@ class CompanionStatistics
      */
     public function getExceptions()
     {
-        return $this->repositoryExceptions->findAll();
+        $exceptions = [];
+        
+        /** @var CompanionMarketItemException $ex */
+        foreach($this->repositoryExceptions->findAll() as $ex) {
+            $exceptions[] = [
+                'arguments' => $ex->getException(),
+                'message'   => $ex->getMessage(),
+            ];
+        }
+        
+        return $exceptions;
     }
 
     /**
