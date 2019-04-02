@@ -55,6 +55,10 @@ class CompanionStatistics
 
         // remove out of date records
         $this->removeOldUpdateRecords($updates);
+        
+        if (empty($updates)) {
+            return null;
+        }
 
         // organise updates
         $this->organizeUpdates($updates);
@@ -157,8 +161,12 @@ class CompanionStatistics
     private function buildStatistics($priority)
     {
         /** @var CompanionMarketItemUpdate[] $updates */
-        $updates = $this->updates[$priority];
+        $updates = $this->updates[$priority] ?? [];
         $total   = count($updates);
+        
+        if ($total === 0) {
+            return;
+        }
 
         //
         // 1) Work out the update update speed
@@ -187,7 +195,7 @@ class CompanionStatistics
         $completionTime = Carbon::createFromTimestamp(time() + $totalSecondsForAllItems);
         $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min and %s sec');
 
-        return [
+        $this->data[$priority] = [
             'name'              => CompanionConfiguration::QUEUE_INFO[$priority] ?? 'All',
             'priority'          => $priority,
             'items_per_second'  => $itemsPerSecond,
