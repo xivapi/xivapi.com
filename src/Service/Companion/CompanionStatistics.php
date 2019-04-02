@@ -147,7 +147,7 @@ class CompanionStatistics
         /** @var CompanionMarketItemUpdate $update */
         foreach($updates as $update) {
             $this->updates['global'][] = $update;
-            $this->updates[$update->getPriority()] = $update;
+            $this->updates[$update->getPriority()][] = $update;
         }
     }
 
