@@ -108,7 +108,7 @@ class CompanionStatistics
         
         // work out the real time difference
         $actualDifference = Carbon::createFromTimestamp($recentUpdate->getUpdated())->diff(
-            Carbon::createFromTimestamp($lastUpdate->getUpdated)
+            Carbon::createFromTimestamp($lastUpdate->getUpdated())
         )->format('%d days, %h hr, %i min');
     
         $this->report[$priority] = [
