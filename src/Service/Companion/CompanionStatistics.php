@@ -169,7 +169,7 @@ class CompanionStatistics
         $totalItems = count($this->updatesQueue1);
         
         // divide this by the number of updates
-        $this->itemsPerSecond = round($totalItems / $duration, 3);
+        $this->itemsPerSecond = round(1 / round($totalItems / $duration, 3), 3);
     }
 
     /**
