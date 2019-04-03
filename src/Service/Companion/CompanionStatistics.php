@@ -41,6 +41,8 @@ class CompanionStatistics
     private $data = [];
     /** @var int */
     private $itemsPerSecond = 0;
+    /** @var int */
+    private $highestCompletionTime = 0;
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -79,7 +81,13 @@ class CompanionStatistics
         foreach (array_keys(CompanionConfiguration::QUEUE_INFO) as $priority) {
             $this->buildStatistics($priority);
         }
+        
+        // Add the time for the "all completion", which is equal to the longest queue
+        $allCompletionTime = Carbon::createFromTimestamp(time() + $this->highestCompletionTime);
+        $allCompletionTime = Carbon::now()->diff($allCompletionTime)->format('%d days, %h hr, %i min');
+        $this->data['all']['completion_time'] = $allCompletionTime;
 
+        // save
         $this->saveStatistics();
 
         // table
@@ -209,12 +217,21 @@ class CompanionStatistics
         
         // The item completion is the total items multiplied by "itemsPerSecond" calculation
         $itemsCompletionSeconds = $totalItems * $itemsPerSecond;
+        
+        if ($itemsCompletionSeconds > $this->highestCompletionTime) {
+            $this->highestCompletionTime = $itemsCompletionSeconds;
+        }
 
         //
         // 3) Work out the cycle speed
         //
-        $completionTime = Carbon::createFromTimestamp(time() + $itemsCompletionSeconds);
-        $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min');
+        if ($priority === 'all') {
+            $completionTime = null;
+        } else {
+            $completionTime = Carbon::createFromTimestamp(time() + $itemsCompletionSeconds);
+            $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min');
+        }
+        
 
         $this->data[$priority] = [
             'name'              => $name,
