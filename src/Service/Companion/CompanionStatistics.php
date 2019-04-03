@@ -167,7 +167,7 @@ class CompanionStatistics
         $totalItems = count($this->updatesQueue1);
         
         // divide this by the number of updates
-        $this->itemsPerSecond = round(1 / round($totalItems / $duration, 3), 3);
+        $this->secondsPerItem = round(1 / round($totalItems / $duration, 3), 3);
     }
 
     /**
@@ -214,7 +214,7 @@ class CompanionStatistics
             'name'              => $name,
             'priority'          => $priority,
             'consumers'         => $consumers,
-            'item_update_speed' => $this->secondsPerItem,
+            'item_update_speed' => $this->secondsPerItem / $consumers,
             'total_items'       => number_format($totalItems),
             'total_requests'    => number_format($totalItems * 4),
             'completion_time'   => $completionTime,
