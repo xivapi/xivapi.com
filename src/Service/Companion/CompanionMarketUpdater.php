@@ -370,17 +370,28 @@ class CompanionMarketUpdater
 
         $exception = new CompanionMarketItemException();
         $exception->setException("{$type}, {$itemId}, {$server}")->setMessage($error);
+        $this->em->persist($exception);
+        $this->em->flush();
 
         $recentErrorCount = count($this->repositoryExceptions->findAllRecent()) + 1;
         $maxErrorCount = CompanionConfiguration::ERROR_COUNT_THRESHOLD;
 
-        $this->sendExceptionAlert(
-            "<@42667995159330816> [Companion Auto-Update Error] - ({$recentErrorCount}/{$maxErrorCount}) {$type}, {$itemId}, {$server} = {$error}"
-        );
+        // discord msg
+        $serverName = GameServers::LIST[$server];
+        $errorSimple = str_ireplace('GuzzleHttp\Exception\ServerException -- ', null, $error);
         
-        $this->em->persist($exception);
-        $this->em->flush();
+        $msg = "<@42667995159330816> [Companion Auto-Update Error]";
+        $msg .= "({$recentErrorCount}/{$maxErrorCount}) ";
+        $msg .= ucwords($type) ."- Item: **{$itemId}** on Server: **({$server}){$serverName}**\n";
+        $msg .= "Error: {$errorSimple}";
     
+        $key = 'companion_MarketUpdateMogWarning_'. md5($msg);
+        if (Redis::Cache()->get($key) == null) {
+            Redis::Cache()->set($key, 'true', 60);
+            Discord::mog()->sendMessage($msg);
+        }
+        
+        // Analytics
         GoogleAnalytics::companionTrackItemAsUrl('companion_error');
     }
     
@@ -455,18 +466,5 @@ class CompanionMarketUpdater
         }
 
         return true;
-    }
-
-    /**
-     * Send a warning to xivapi discord
-     */
-    private function sendExceptionAlert(string $message)
-    {
-        $key = 'companion_MarketUpdateMogWarning_'. md5($message);
-
-        if (Redis::Cache()->get($key) == null) {
-            Redis::Cache()->set($key, 'true', 60);
-            Discord::mog()->sendMessage($message);
-        }
     }
 }
