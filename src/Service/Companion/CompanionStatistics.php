@@ -34,6 +34,8 @@ class CompanionStatistics
     /** @var array */
     private $updates = [];
     /** @var array */
+    private $updatesQueue1 = [];
+    /** @var array */
     private $queues = [];
     /** @var array */
     private $data = [];
@@ -54,6 +56,7 @@ class CompanionStatistics
     {
         // grab all update records
         $this->updates = $this->repository->findBy([], [ 'added' => 'desc' ]);
+        $this->updatesQueue1 = $this->repository->findBy([ 'priority' => 1 ], [ 'added' => 'desc' ]);
 
         // remove out of date records
         $this->removeOldUpdateRecords();
@@ -148,13 +151,12 @@ class CompanionStatistics
      */
     private function getQueueSizes()
     {
-        $total = 0;
+        $this->queues['all'] = 0;
+        
         foreach($this->getCompanionQueuesView() as $row) {
             $this->queues[$row['priority']] = $row['total'];
-            $total += $row['total'];
+            $this->queues['all'] += $row['total'];
         }
-
-        $this->queues['all'] = $total;
     }
     
     /**
@@ -163,11 +165,11 @@ class CompanionStatistics
      */
     private function calculateItemsPerSecond()
     {
-        $duration   = reset($this->updates)->getAdded() - end($this->updates)->getAdded();
-        $totalItems = count($this->updates);
+        $duration   = reset($this->updatesQueue1)->getAdded() - end($this->updatesQueue1)->getAdded();
+        $totalItems = count($this->updatesQueue1);
         
         // divide this by the number of updates
-        $this->itemsPerSecond = round($totalItems / $duration, 9);
+        $this->itemsPerSecond = round($totalItems / $duration, 3);
     }
 
     /**
