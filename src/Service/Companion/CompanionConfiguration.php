@@ -31,11 +31,11 @@ class CompanionConfiguration
     // Item has less than 5 sales
     const PRIORITY_ITEM_LOW_SALES = 7;
 
+    // default queue
+    const PRIORITY_TIMES_DEFAULT = 7;
+
     // Item was added to the database within the past 7 days
     const PRIORITY_ITEM_IS_NEW = 8;
-
-    // default value
-    const PRIORITY_TIMES_DEFAULT = 9;
 
     // Item has not update
     const PRIORITY_ITEM_NEVER_SOLD = 10;
@@ -43,15 +43,15 @@ class CompanionConfiguration
     const QUEUE_INFO = [
         // name, consumers
         1 => '< 1 hour',
-        2 => '< 2 hours',
-        3 => '< 4 hours',
+        2 => '< 3 hours',
+        3 => '< 6 hours',
         4 => '< 12 hours',
-        5 => '< 36 hours',
-        6 => '< 100 hours',
-        7 => '< 150 hours',
+        5 => '< 24 hours',
+        6 => '< 48 hours',
+        7 => '> 48+ hours',
 
         8 => 'Item newly added to XIVAPI',
-        9 => 'Default Queue',
+        9 => '(not used)',
     ];
     
     const QUEUE_CONSUMERS = [
@@ -69,11 +69,10 @@ class CompanionConfiguration
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
         (60 * 60 * 1)   => 1,
-        (60 * 60 * 2)   => 2,
-        (60 * 60 * 4)   => 3,
+        (60 * 60 * 3)   => 2,
+        (60 * 60 * 6)   => 3,
         (60 * 60 * 12)  => 4,
-        (60 * 60 * 36)  => 5,
-        (60 * 60 * 100) => 6,
-        (60 * 60 * 150) => 7,
+        (60 * 60 * 24)  => 5,
+        (60 * 60 * 48)  => 6,
     ];
 }
