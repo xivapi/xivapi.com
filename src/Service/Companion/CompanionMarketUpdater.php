@@ -14,7 +14,6 @@ use App\Repository\CompanionMarketItemEntryRepository;
 use App\Repository\CompanionMarketItemExceptionRepository;
 use App\Repository\CompanionRetainerRepository;
 use App\Repository\CompanionSignatureRepository;
-use App\Service\Common\Mog;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
@@ -193,7 +192,7 @@ class CompanionMarketUpdater
     
             $a = microtime(true);
             GoogleAnalytics::companionTrackItemAsUrl($itemId);
-            $this->gaDuration = microtime(true) = $a;
+            $this->gaDuration = microtime(true) - $a;
         }
         
         // if failed to pull any requests, skip!
@@ -326,7 +325,6 @@ class CompanionMarketUpdater
             $msg .= sprintf("Server: <comment>%s</comment>", str_pad(GameServers::LIST[$server], 20, ' '));
             $msg .= sprintf("Duration: <comment>%s</comment>", str_pad($duration, 15, ' '));
             $msg .= sprintf("GA Duration: %s", $this->gaDuration);
-            
             
             // record
             $this->recordUpdate($priority, $itemId, $server, $duration);
