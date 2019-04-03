@@ -8,7 +8,7 @@ class CompanionConfiguration
     const ERROR_COUNT_THRESHOLD  = 5;
 
     // the total number of items to process per cronjob
-    const MAX_ITEMS_PER_CRONJOB  = 26;
+    const MAX_ITEMS_PER_CRONJOB  = 24;
 
     // the total number of items to process per request
     const MAX_ITEMS_PER_REQUEST  = 2;
@@ -58,10 +58,11 @@ class CompanionConfiguration
         1 => 1,
         2 => 2,
         3 => 2,
-        4 => 2,
-        5 => 2,
-        6 => 2,
-        7 => 2,
+        4 => 3,
+        5 => 3,
+        6 => 3,
+        7 => 4,
+        
         8 => 1,
         9 => 0,
     ];

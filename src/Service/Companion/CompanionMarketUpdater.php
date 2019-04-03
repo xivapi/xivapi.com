@@ -197,7 +197,7 @@ class CompanionMarketUpdater
     
             $a = microtime(true);
             GoogleAnalytics::companionTrackItemAsUrl($itemId);
-            $this->gaDuration = microtime(true) - $a;
+            $this->gaDuration = round(microtime(true) - $a, 2);
         }
         
         // if failed to pull any requests, skip!
