@@ -115,7 +115,7 @@ class CompanionStatistics
             'name'              => $name,
             'priority'          => $priority,
             'consumers'         => $consumers,
-            'seconds_per_item'  => ($this->avgSecondsPerItem / $consumers),
+            'seconds_per_item'  => round(($this->avgSecondsPerItem / $consumers), 2),
             'total_items'       => number_format($totalItems),
             'total_requests'    => number_format($totalItems * 4),
             'updated_recently'  => date('Y-m-d H:i:s', $recentUpdate->getUpdated()),
