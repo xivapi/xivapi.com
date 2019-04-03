@@ -198,7 +198,7 @@ class CompanionStatistics
         $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min');
         
         // Get the last updated entry
-        $recentUpdate = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ]);
+        $recentUpdate = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'desc' ]);
         $lastUpdate   = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ]);
 
         $this->data[$priority] = [
