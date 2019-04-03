@@ -314,18 +314,26 @@ class CompanionMarketUpdater
             
             // put
             $this->companionMarket->set($marketItem);
-
+    
+            $duration = round(microtime(true) - $this->chunkStartTime, 2);
+    
+            $msg = date('H:i:s') ." | ";
+            $msg .= sprintf("Item: <comment>%s</comment>", str_pad($itemId, 10, ' '));
+            $msg .= sprintf("Server: <comment>%s</comment>", str_pad(GameServers::LIST[$server], 15, ' '));
+            $msg .= sprintf("Duration: <comment>%s</comment>", str_pad($duration, 10, ' '));
+            
+            
             // record
-            $this->recordUpdate($priority, $itemId, $server);
+            $this->recordUpdate($priority, $itemId, $server, $duration);
         
             // update entry
             $item->setUpdated(time())->incUpdates()->setManual(false);
             $this->em->persist($item);
             $this->em->flush();
             
-            $duration = round(microtime(true) - $this->chunkStartTime, 2);
+            
         
-            $this->console->writeln(date('H:i:s') ." | [{$priority}] <comment>✓</comment> Updated prices + history for item: {$itemId} on {$server} in {$duration} seconds");
+            $this->console->writeln($msg);
         }
     }
     
@@ -342,10 +350,13 @@ class CompanionMarketUpdater
     /**
      * Record an item update
      */
-    private function recordUpdate($priority, $item, $server)
+    private function recordUpdate($priority, $item, $server, $duration)
     {
+        // this is technically divided by number we do concurrently
+        $duration = round($duration / CompanionConfiguration::MAX_ITEMS_PER_REQUEST, 2);
+        
         $this->em->persist(
-            new CompanionMarketItemUpdate($item, $server, $priority)
+            new CompanionMarketItemUpdate($item, $server, $priority, $duration)
         );
     }
     

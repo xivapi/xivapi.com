@@ -42,18 +42,25 @@ class CompanionMarketItemUpdate
      */
     private $priority;
     /**
+     * @var float
+     * @ORM\Column(type="float")
+     */
+    private $duration;
+    /**
      * @var int
      * @ORM\Column(type="integer")
      */
     private $server;
     
-    public function __construct(int $itemId = null, int $serverId = null, int $priority = null)
+    public function __construct(int $itemId = null, int $serverId = null, int $priority = null, float $duration = null)
     {
         $this->id       = Uuid::uuid4();
         $this->added    = time();
         $this->item     = $itemId;
         $this->server   = $serverId;
         $this->priority = $priority;
+        $this->duration = $duration;
+    
     }
 
     public function getId(): string
@@ -113,6 +120,18 @@ class CompanionMarketItemUpdate
     {
         $this->server = $server;
 
+        return $this;
+    }
+    
+    public function getDuration(): float
+    {
+        return $this->duration;
+    }
+    
+    public function setDuration(float $duration)
+    {
+        $this->duration = $duration;
+        
         return $this;
     }
 }
