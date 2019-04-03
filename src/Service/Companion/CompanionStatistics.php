@@ -92,6 +92,7 @@ class CompanionStatistics
     public function saveStatistics()
     {
         $data = [
+            time(),
             $this->data,
             $this->queues,
             $this->getStatisticsView(),
