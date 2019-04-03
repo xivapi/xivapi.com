@@ -127,6 +127,11 @@ class CompanionItemManager
                     'item' => $itemId,
                     'server' => $serverId
                 ]);
+                
+                // skip, may not exist (dead server)
+                if ($obj === null) {
+                    continue;
+                }
 
                 // ------------------------------------------------------------
                 // Calculate
