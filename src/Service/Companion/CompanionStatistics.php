@@ -95,11 +95,12 @@ class CompanionStatistics
     
         // The completion time would be the total items multiple by how many seconds
         // it takes per item, divided by the number of consumers.
-        $completionTime = ($totalItems * $this->avgSecondsPerItem) / $consumers;
+        $completionTime = ($totalItems * $this->avgSecondsPerItem);
+        $completionTimeViaConsumers = $completionTime / $consumers;
     
         // Work out the cycle speed
-        $completionTime = Carbon::createFromTimestamp(time() + $completionTime);
-        $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min');
+        $completionDateTime = Carbon::createFromTimestamp(time() + $completionTimeViaConsumers);
+        $completionDateTime = Carbon::now()->diff($completionDateTime)->format('%d days, %h hr, %i min');
     
         // Get the last updated entry
         $recentUpdate = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'desc' ]);
@@ -114,7 +115,8 @@ class CompanionStatistics
             'total_requests'    => number_format($totalItems * 4),
             'updated_recently'  => date('Y-m-d H:i:s', $recentUpdate->getUpdated()),
             'updated_oldest'    => date('Y-m-d H:i:s', $lastUpdate->getUpdated()),
-            'completion_time'   => $completionTime,
+            'completion_time'   => number_format($completionTime),
+            'cycle_time'        => $completionDateTime
         ];
     }
     
