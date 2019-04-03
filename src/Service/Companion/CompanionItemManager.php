@@ -149,7 +149,7 @@ class CompanionItemManager
                 // record sale histories, we start with the time the item was last updated.
                 $lastDate        = $obj->getUpdated();
                 $historyCount    = 0;
-                $historyCountMax = 100;
+                $historyCountMax = 250;
                 $average         = [];
 
                 foreach ($document->History as $history) {
