@@ -135,7 +135,7 @@ class CompanionMarketUpdater
         
         // report
         $duration = round(microtime(true) - $queueStartTime, 2);
-        $this->console->writeln(date('H:i:s') ." | Finished queue: {$priority} - Duration: {$duration}");
+        $this->console->writeln(date('H:i:s') ." | Finished queue: {$priority}:{$queue} - Duration: {$duration}");
     }
 
     /**
