@@ -179,7 +179,22 @@ class CompanionStatistics
         $name = CompanionConfiguration::QUEUE_INFO[$priority] ?? 'All';
         
         // get the total items in this queue
-        $totalItems = $this->queues[$priority];
+        $totalItems = $this->queues[$priority] ?? 0;
+        
+        // some queues have no items
+        if ($totalItems === 0) {
+            $this->data[$priority] = [
+                'name'              => $name,
+                'priority'          => $priority,
+                'consumers'         => 0,
+                'items_per_second'  => 0,
+                'total_items'       => 0,
+                'total_requests'    => 0,
+                'completion_time'   => '-',
+            ];
+            
+            return;
+        }
         
         // get the number of consumers for this queue
         $consumers = ($priority === 'all')
