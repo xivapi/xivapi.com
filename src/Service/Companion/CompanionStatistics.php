@@ -67,6 +67,7 @@ class CompanionStatistics
         $this->saveStatistics();
     
         // table
+        $this->console->writeln("<info>Avg Seconds per Item: {$this->avgSecondsPerItem}</info>");
         $table = new Table($this->console);
         $table->setHeaders(array_keys($this->report[1]))->setRows($this->report);
         $table->render();
@@ -74,16 +75,20 @@ class CompanionStatistics
     
     private function buildQueueStatistics($priority)
     {
+        $this->console->writeln("Building stats for queue: {$priority}");
+        
         // queue name
         $name = CompanionConfiguration::QUEUE_INFO[$priority] ?? 'Unknown Queue';
     
         // get the total items in this queue
-        $totalItems = $this->queues[$priority] ?? 0;
+        $totalItems = $this->updateQueueSizes[$priority] ?? 0;
     
         // some queues have no items
         if ($totalItems === 0) {
             return;
         }
+        
+        $this->console->writeln("- Total Items: {$totalItems}");
     
         // get the number of consumers for this queue
         $consumers = CompanionConfiguration::QUEUE_CONSUMERS[$priority] ?? 0;
@@ -118,6 +123,8 @@ class CompanionStatistics
      */
     private function removeOutOfDateUpdates()
     {
+        $this->console->writeln('Removing out of date updates...');
+        
         $timeout = time() - self::UPDATE_TIME_LIMIT;
         
         /** @var CompanionMarketItemUpdate $update */
@@ -135,6 +142,8 @@ class CompanionStatistics
      */
     private function setAverageTimePerUpdate()
     {
+        $this->console->writeln('Calculating average time per item update ...');
+        
         $durations = [];
         
         /** @var CompanionMarketItemUpdate $update */
@@ -150,6 +159,8 @@ class CompanionStatistics
      */
     private function setUpdateQueueSizes()
     {
+        $this->console->writeln('Setting queue sizes');
+        
         foreach($this->getCompanionQueuesView() as $row) {
             $this->updateQueueSizes[$row['priority']] = $row['total'];
         }
