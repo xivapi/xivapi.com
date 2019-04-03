@@ -187,7 +187,7 @@ class CompanionStatistics
                 'name'              => $name,
                 'priority'          => $priority,
                 'consumers'         => 0,
-                'seconds_per_item'  => 0,
+                'item_update_speed' => 0,
                 'total_items'       => 0,
                 'total_requests'    => 0,
                 'completion_time'   => '-',
@@ -199,7 +199,7 @@ class CompanionStatistics
         // get the number of consumers for this queue
         $consumers = CompanionConfiguration::QUEUE_CONSUMERS[$priority] ?? 0;
         
-        // The completion time would be the total items multipled by how many seconds
+        // The completion time would be the total items multiple by how many seconds
         // it takes per item, divided by the number of consumers.
         $completionTime = ($totalItems * $this->secondsPerItem) / $consumers;
 
@@ -214,7 +214,7 @@ class CompanionStatistics
             'name'              => $name,
             'priority'          => $priority,
             'consumers'         => $consumers,
-            'seconds_per_item'  => $itemsPerSecond,
+            'item_update_speed' => $this->secondsPerItem / $consumers,
             'total_items'       => number_format($totalItems),
             'total_requests'    => number_format($totalItems * 4),
             'completion_time'   => $completionTime,
