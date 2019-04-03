@@ -60,6 +60,8 @@ class CompanionMarketUpdater
     private $exceptionCount = 0;
     /** @var int */
     private $chunkStartTime;
+    /** @var float */
+    private $gaDuration;
     
     public function __construct(
         EntityManagerInterface $em,
@@ -189,7 +191,9 @@ class CompanionMarketUpdater
             $requests["{$requestId}_{$itemId}_{$server}_prices"]  = $api->Market()->getItemMarketListings($itemId);
             $requests["{$requestId}_{$itemId}_{$server}_history"] = $api->Market()->getTransactionHistory($itemId);
     
+            $a = microtime(true);
             GoogleAnalytics::companionTrackItemAsUrl($itemId);
+            $this->gaDuration = microtime(true) = $a;
         }
         
         // if failed to pull any requests, skip!
@@ -318,9 +322,10 @@ class CompanionMarketUpdater
             $duration = round(microtime(true) - $this->chunkStartTime, 2);
     
             $msg = date('H:i:s') ." | ";
-            $msg .= sprintf("Item: <comment>%s</comment>", str_pad($itemId, 10, ' '));
-            $msg .= sprintf("Server: <comment>%s</comment>", str_pad(GameServers::LIST[$server], 15, ' '));
-            $msg .= sprintf("Duration: <comment>%s</comment>", str_pad($duration, 10, ' '));
+            $msg .= sprintf("Item: <comment>%s</comment>", str_pad($itemId, 12, ' '));
+            $msg .= sprintf("Server: <comment>%s</comment>", str_pad(GameServers::LIST[$server], 20, ' '));
+            $msg .= sprintf("Duration: <comment>%s</comment>", str_pad($duration, 15, ' '));
+            $msg .= sprintf("GA Duration: %s", $this->gaDuration);
             
             
             // record
