@@ -40,7 +40,7 @@ class CompanionStatistics
     /** @var array */
     private $data = [];
     /** @var int */
-    private $itemsPerSecond = 0;
+    private $secondsPerItem = 0;
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -199,17 +199,14 @@ class CompanionStatistics
         // get the number of consumers for this queue
         $consumers = CompanionConfiguration::QUEUE_CONSUMERS[$priority] ?? 0;
         
-        // the items per second is multiplied by the number of consumers
-        $itemsPerSecond = $this->itemsPerSecond;
-        $itemsPerSecond = $itemsPerSecond * $consumers;
-        
-        // The item completion is the total items multiplied by "itemsPerSecond" calculation
-        $itemsCompletionSeconds = $totalItems * $itemsPerSecond;
+        // The completion time would be the total items multipled by how many seconds
+        // it takes per item, divided by the number of consumers.
+        $completionTime = ($totalItems * $this->secondsPerItem) / $consumers;
 
         //
         // 3) Work out the cycle speed
         //
-        $completionTime = Carbon::createFromTimestamp(time() + $itemsCompletionSeconds);
+        $completionTime = Carbon::createFromTimestamp(time() + $completionTime);
         $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min');
         
 
