@@ -82,6 +82,7 @@ class CompanionMarketUpdater
     
     public function update(int $priority, int $queue, ?bool $manual = false, ?array $dcs = [])
     {
+        $queueStartTime = microtime(true);
         if ($this->hasExceptionsExceededLimit()) {
             $this->console->writeln(date('H:i:s') .' | !! Error exceptions exceeded limit. Auto-Update stopped');
             exit();
@@ -131,6 +132,10 @@ class CompanionMarketUpdater
         }
     
         $this->em->clear();
+        
+        // report
+        $duration = round(microtime(true) - $queueStartTime, 2);
+        $this->console->writeln(date('H:i:s') ." | Finished queue: {$priority} - Duration: {$duration}");
     }
 
     /**

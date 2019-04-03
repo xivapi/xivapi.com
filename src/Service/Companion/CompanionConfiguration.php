@@ -20,7 +20,7 @@ class CompanionConfiguration
     const CRONJOB_ASYNC_DELAY_MS   = 2500;
 
     // Avoid updating an item if it was updated X time ago
-    const ITEM_UPDATE_DELAY = (60 * 2);
+    const ITEM_UPDATE_DELAY = (60 * 5);
 
     // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;
