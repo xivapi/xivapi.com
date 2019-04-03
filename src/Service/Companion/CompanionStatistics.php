@@ -208,8 +208,8 @@ class CompanionStatistics
             'item_update_speed' => $this->secondsPerItem / $consumers,
             'total_items'       => number_format($totalItems),
             'total_requests'    => number_format($totalItems * 4),
-            'updated_recently'  => date('Y-m-d H:i:s', $recentUpdate->getAdded()),
-            'updated_oldest'    => date('Y-m-d H:i:s', $lastUpdate->getAdded()),
+            'updated_recently'  => date('Y-m-d H:i:s', $recentUpdate->getUpdated()),
+            'updated_oldest'    => date('Y-m-d H:i:s', $lastUpdate->getUpdated()),
             'completion_time'   => $completionTime,
         ];
     }
