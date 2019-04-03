@@ -206,7 +206,7 @@ class CompanionStatistics
             'name'              => $name,
             'priority'          => $priority,
             'consumers'         => $consumers,
-            'item_update_speed' => $this->secondsPerItem / $consumers,
+            'item_update_speed' => round($this->secondsPerItem / $consumers, 3),
             'total_items'       => number_format($totalItems),
             'total_requests'    => number_format($totalItems * 4),
             'updated_recently'  => date('Y-m-d H:i:s', $recentUpdate->getUpdated()),
