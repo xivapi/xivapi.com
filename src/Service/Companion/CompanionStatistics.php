@@ -214,7 +214,7 @@ class CompanionStatistics
             'name'              => $name,
             'priority'          => $priority,
             'consumers'         => $consumers,
-            'item_update_speed' => $this->secondsPerItem / $consumers,
+            'item_update_speed' => $this->secondsPerItem,
             'total_items'       => number_format($totalItems),
             'total_requests'    => number_format($totalItems * 4),
             'completion_time'   => $completionTime,
