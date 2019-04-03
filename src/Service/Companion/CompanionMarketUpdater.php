@@ -20,6 +20,7 @@ use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
+use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
 use Doctrine\ORM\EntityManagerInterface;
@@ -450,11 +451,11 @@ class CompanionMarketUpdater
      */
     private function sendExceptionAlert(string $message)
     {
-        $key = 'companion_market_updator_mog_warning_'. md5($message);
+        $key = 'companion_MarketUpdateMogWarning_'. md5($message);
 
         if (Redis::Cache()->get($key) == null) {
-            Redis::Cache()->set($key, 'true', 43200);
-            Mog::send($message);
+            Redis::Cache()->set($key, 'true', 60);
+            Discord::mog()->sendMessage($message);
         }
     }
 }

@@ -4,6 +4,8 @@ namespace App\Service\LodestoneQueue;
 
 use App\Entity\LodestoneStatistic;
 use App\Service\Common\Mog;
+use App\Service\Redis\Redis;
+use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Api;
@@ -129,10 +131,15 @@ class Manager
                 $startDate = date('H:i:s');
                 $duration = round(time() - $response->added, 4);
                 
-                #if ($duration > 180) {
-                #    $message = "<@42667995159330816> [Lodestone Content Tracker] Queue Duration exceeded 180 seconds, currently at: {$duration} for queue: {$queue}";
-                #    Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
-                #}
+                if ($duration > 500) {
+                    // only send every hour so I don't get flooded.
+                    if (Redis::Cache()->get('lodestone_QueueDelayTimeExceedLimit') === null) {
+                        Redis::Cache()->set('lodestone_QueueDelayTimeExceedLimit', 1, (60*60));
+
+                        $message = "<:status:474543481377783810> <@42667995159330816> [XIVAPI][Lodestone Content Tracker] Queue Duration exceeded 500 seconds, currently at: {$duration} for queue: {$queue}";
+                        Discord::mog()->sendMessage($message);
+                    }
+                }
                 
                 // connect to db
                 // todo - possible cpu leak here

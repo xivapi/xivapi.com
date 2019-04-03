@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Service\ThirdParty\Discord;
+
+class Discord
+{
+    private static $classes = [];
+
+    public static function mog(): Mog
+    {
+        return self::getClass(__METHOD__, Mog::class);
+    }
+
+    public static function seraymeric(): SerAymeric
+    {
+        return self::getClass(__METHOD__, SerAymeric::class);
+    }
+
+    /**
+     * Access a discord bot
+     */
+    private static function getClass($namespace, $className)
+    {
+        if (self::$classes[$namespace]) {
+            return self::$classes[$namespace];
+        }
+
+        self::$classes[$namespace] = new $className();
+
+        return self::$classes[$namespace];
+    }
+}

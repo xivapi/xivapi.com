@@ -6,6 +6,7 @@ use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
 use App\Service\Common\Mog;
 use App\Service\Content\GameServers;
+use App\Service\ThirdParty\Discord\Discord;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;
@@ -322,16 +323,8 @@ class CompanionTokenManager
             print_r([ $ex->getMessage(), $server ]);
             return;
         }
-        
-        $time = new Carbon();
-        $time->setTimezone(new CarbonTimeZone('Europe/London'));
-        
-        // Ignore between 1am and 9am
-        if ($time->hour > 1 && $time->hour < 9) {
-            return;
-        }
-        
-        $message = "<@42667995159330816> [Companion Login Status] Failed to login to: **{$server}** - Will try again in 10 minutes. Reason: `{$ex->getMessage()}`";
-        Mog::send("<:status:474543481377783810> [XIVAPI] ". $message);
+
+        $message = "<:status:474543481377783810> <@42667995159330816> [XIVAPI][Companion Login Status] Failed to login to: **{$server}** - Will try again in 10 minutes. Reason: `{$ex->getMessage()}`";
+        Discord::mog()->sendMessage($message);
     }
 }
