@@ -105,6 +105,11 @@ class CompanionStatistics
         // Get the last updated entry
         $recentUpdate = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'desc' ]);
         $lastUpdate   = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ]);
+        
+        // work out the real time difference
+        $actualDifference = Carbon::createFromTimestamp($recentUpdate->getUpdated())->diff(
+            Carbon::createFromTimestamp($lastUpdate->getUpdated)
+        )->format('%d days, %h hr, %i min');
     
         $this->report[$priority] = [
             'name'              => $name,
@@ -116,7 +121,8 @@ class CompanionStatistics
             'updated_recently'  => date('Y-m-d H:i:s', $recentUpdate->getUpdated()),
             'updated_oldest'    => date('Y-m-d H:i:s', $lastUpdate->getUpdated()),
             'completion_time'   => number_format($completionTime),
-            'cycle_time'        => $completionDateTime
+            'cycle_time'        => $completionDateTime,
+            'cycle_real'        => $actualDifference,
         ];
     }
     
