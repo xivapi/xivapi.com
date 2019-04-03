@@ -8,7 +8,7 @@ use GuzzleHttp\RequestOptions;
 class SerAymeric
 {
     const ENDPOINT = 'https://mog.xivapi.com/aymeric/say';
-
+    
     private function send(array $json)
     {
         (new Client())->post(self::ENDPOINT, [
@@ -18,7 +18,7 @@ class SerAymeric
             ],
         ]);
     }
-
+    
     /**
      * Send a message to a user
      */
@@ -29,7 +29,7 @@ class SerAymeric
             'message' => $message,
         ]);
     }
-
+    
     /**
      * Send a embed to a user
      */

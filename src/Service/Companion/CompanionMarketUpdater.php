@@ -58,6 +58,8 @@ class CompanionMarketUpdater
     private $start;
     /** @var int */
     private $exceptionCount = 0;
+    /** @var int */
+    private $chunkStartTime;
     
     public function __construct(
         EntityManagerInterface $em,
@@ -86,9 +88,6 @@ class CompanionMarketUpdater
 
         $this->start = time();
 
-        // random sleep at start, this is so not all queries start at the same time.
-        usleep( mt_rand(10, 800) * 1000 );
-    
         // grab our companion tokens
         $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
 
@@ -113,14 +112,11 @@ class CompanionMarketUpdater
             );
         }
         
-        $this->console->writeln(date('H:i:s') .' | Total items to update: '. count($items));
-        $this->console->writeln(date('H:i:s') .' | Servers: '. implode(', ', array_keys($this->tokens)));
-    
         // loop through chunks
         foreach (array_chunk($items, CompanionConfiguration::MAX_ITEMS_PER_REQUEST) as $i => $itemChunk) {
             // if we're close to the cronjob minute mark, end
             if ((time() - $this->start) > CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS) {
-                $this->console->writeln(date('H:i:s') ." | [{$priority}] Ending auto-update as time limit seconds reached.");
+                # $this->console->writeln(date('H:i:s') ." | [{$priority}] Ending auto-update as time limit seconds reached.");
                 break;
             }
             
@@ -158,6 +154,8 @@ class CompanionMarketUpdater
      */
     private function updateChunk($chunkNumber, $chunkList, $priority)
     {
+        $this->chunkStartTime = microtime(true);
+        
         // set request id
         $requestId = Uuid::uuid4()->toString();
         
@@ -174,7 +172,7 @@ class CompanionMarketUpdater
         foreach ($chunkList as $item) {
             // skip items that have been updated recently
             if ($item->getUpdated() > $updateTimeout) {
-                $this->console->writeln(date('H:i:s') ." | [{$priority}] Skipped: {$item->getItem()}");
+                # $this->console->writeln(date('H:i:s') ." | [{$priority}] Skipped: {$item->getItem()}");
                 continue;
             }
 
@@ -199,11 +197,11 @@ class CompanionMarketUpdater
             return;
         }
 
-        $totalRequests = count($requests);
-        $this->console->writeln(date('H:i:s') ." | [{$priority}] Processing chunk: {$chunkNumber} - Total Requests: {$totalRequests}");
+        # $totalRequests = count($requests);
+        # $this->console->writeln(date('H:i:s') ." | [{$priority}] Processing chunk: {$chunkNumber} - Total Requests: {$totalRequests}");
         
         // run the requests, we don't care on response because the first time nothing will be there.
-        $this->console->writeln(date('H:i:s') ." | [{$priority}] <info>Part 1: Sending Requests</info>");
+        # $this->console->writeln(date('H:i:s') ." | [{$priority}] <info>Part 1: Sending Requests</info>");
 
         // 1st pass
         $api->Sight()->settle($requests)->wait();
@@ -212,7 +210,7 @@ class CompanionMarketUpdater
         usleep( CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS * 1000 );
         
         // run the requests again, the Sight API should give us our response this time.
-        $this->console->writeln(date('H:i:s') ." | [{$priority}] <info>Part 2: Fetching Responses</info>");
+        # $this->console->writeln(date('H:i:s') ." | [{$priority}] <info>Part 2: Fetching Responses</info>");
 
         // second pass
         $results = $api->Sight()->settle($requests)->wait();
@@ -252,7 +250,7 @@ class CompanionMarketUpdater
                 ($prices === null && $history == null) ||
                 (isset($prices->error) && isset($history->error))
             ) {
-                $this->console->writeln(date('H:i:s') ." | [{$priority}] Price + History empty: {$item->getItem()}");
+                # $this->console->writeln(date('H:i:s') ." | [{$priority}] Price + History empty: {$item->getItem()}");
                 return;
             }
         
@@ -324,8 +322,10 @@ class CompanionMarketUpdater
             $item->setUpdated(time())->incUpdates()->setManual(false);
             $this->em->persist($item);
             $this->em->flush();
+            
+            $duration = round(microtime(true) - $this->chunkStartTime, 2);
         
-            $this->console->writeln(date('H:i:s') ." | [{$priority}] <comment>✓</comment> Updated prices + history for item: {$itemId} on {$server}");
+            $this->console->writeln(date('H:i:s') ." | [{$priority}] <comment>✓</comment> Updated prices + history for item: {$itemId} on {$server} in {$duration} seconds");
         }
     }
     
