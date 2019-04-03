@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Service\API\ApiRequest;
 use App\Service\User\SignInDiscord;
+use App\Utils\Random;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -39,6 +40,22 @@ class AccountController extends AbstractController
                 'MAX_RATE_LIMIT_GLOBAL' => ApiRequest::MAX_RATE_LIMIT_GLOBAL,
             ]
         ]);
+    }
+
+    /**
+     * @Route("/account/regenerate-key", name="account_regen_key")
+     */
+    public function regenerateKey()
+    {
+        $user = $this->users->getUser(true);
+
+        $user->setApiPublicKey(
+            Random::randomAccessKey()
+        );
+
+        $this->users->save($user);
+
+        return $this->redirectToRoute('account');
     }
     
     /**

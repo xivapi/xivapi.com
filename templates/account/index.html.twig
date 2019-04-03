@@ -86,9 +86,14 @@
                         <td width="30%">API Key</td>
                         <td>
                             <code class="box">{{ auth.user.apiPublicKey }}</code>
+                            <br>
 
                             {% if auth.user.banned %}
-                            <p>API Key will not work due to banned status.</p>
+                                <p>API Key will not work due to banned status.</p>
+                            {% else %}
+                                <div>
+                                    <a href="{{ path('account_regen_key') }}">Re-Generate API Key</a>
+                                </div>
                             {% endif %}
                         </td>
                     </tr>
