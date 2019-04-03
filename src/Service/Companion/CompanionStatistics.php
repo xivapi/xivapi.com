@@ -72,9 +72,6 @@ class CompanionStatistics
         // work out items per second speed
         $this->calculateItemsPerSecond();
 
-        // build all stats
-        $this->buildStatistics('all');
-
         // build priority stats
         foreach (array_keys(CompanionConfiguration::QUEUE_INFO) as $priority) {
             $this->buildStatistics($priority);
@@ -179,7 +176,7 @@ class CompanionStatistics
     private function buildStatistics($priority)
     {
         // queue name
-        $name = CompanionConfiguration::QUEUE_INFO[$priority] ?? 'All';
+        $name = CompanionConfiguration::QUEUE_INFO[$priority] ?? 'Unknown Queue';
         
         // get the total items in this queue
         $totalItems = $this->queues[$priority] ?? 0;
@@ -190,7 +187,7 @@ class CompanionStatistics
                 'name'              => $name,
                 'priority'          => $priority,
                 'consumers'         => 0,
-                'items_per_second'  => 0,
+                'seconds_per_item'  => 0,
                 'total_items'       => 0,
                 'total_requests'    => 0,
                 'completion_time'   => '-',
@@ -200,9 +197,7 @@ class CompanionStatistics
         }
         
         // get the number of consumers for this queue
-        $consumers = ($priority === 'all')
-            ? array_sum(CompanionConfiguration::QUEUE_CONSUMERS)
-            : CompanionConfiguration::QUEUE_CONSUMERS[$priority];
+        $consumers = CompanionConfiguration::QUEUE_CONSUMERS[$priority] ?? 0;
         
         // the items per second is multiplied by the number of consumers
         $itemsPerSecond = $this->itemsPerSecond;
@@ -214,19 +209,15 @@ class CompanionStatistics
         //
         // 3) Work out the cycle speed
         //
-        if ($priority == 'all') {
-            $completionTime = '-';
-        } else {
-            $completionTime = Carbon::createFromTimestamp(time() + $itemsCompletionSeconds);
-            $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min');
-        }
+        $completionTime = Carbon::createFromTimestamp(time() + $itemsCompletionSeconds);
+        $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min');
         
 
         $this->data[$priority] = [
             'name'              => $name,
             'priority'          => $priority,
             'consumers'         => $consumers,
-            'items_per_second'  => $itemsPerSecond,
+            'seconds_per_item'  => $itemsPerSecond,
             'total_items'       => number_format($totalItems),
             'total_requests'    => number_format($totalItems * 4),
             'completion_time'   => $completionTime,
