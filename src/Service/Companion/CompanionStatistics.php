@@ -183,16 +183,6 @@ class CompanionStatistics
         
         // some queues have no items
         if ($totalItems === 0) {
-            $this->data[$priority] = [
-                'name'              => $name,
-                'priority'          => $priority,
-                'consumers'         => 0,
-                'item_update_speed' => 0,
-                'total_items'       => 0,
-                'total_requests'    => 0,
-                'completion_time'   => '-',
-            ];
-            
             return;
         }
         
@@ -203,12 +193,13 @@ class CompanionStatistics
         // it takes per item, divided by the number of consumers.
         $completionTime = ($totalItems * $this->secondsPerItem) / $consumers;
 
-        //
-        // 3) Work out the cycle speed
-        //
+        // Work out the cycle speed
         $completionTime = Carbon::createFromTimestamp(time() + $completionTime);
         $completionTime = Carbon::now()->diff($completionTime)->format('%d days, %h hr, %i min');
         
+        // Get the last updated entry
+        $recentUpdate = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ]);
+        $lastUpdate   = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ]);
 
         $this->data[$priority] = [
             'name'              => $name,
@@ -217,6 +208,8 @@ class CompanionStatistics
             'item_update_speed' => $this->secondsPerItem / $consumers,
             'total_items'       => number_format($totalItems),
             'total_requests'    => number_format($totalItems * 4),
+            'updated_recently'  => date('Y-m-d H:i:s', $recentUpdate->getAdded()),
+            'updated_oldest'    => date('Y-m-d H:i:s', $lastUpdate->getAdded()),
             'completion_time'   => $completionTime,
         ];
     }
