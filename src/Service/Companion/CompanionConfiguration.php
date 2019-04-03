@@ -56,14 +56,14 @@ class CompanionConfiguration
     
     const QUEUE_CONSUMERS = [
         1 => 1,
-        2 => 3,
-        3 => 4,
+        2 => 2,
+        3 => 2,
         4 => 2,
-        5 => 1,
-        6 => 1,
-        7 => 1,
+        5 => 2,
+        6 => 2,
+        7 => 2,
         8 => 1,
-        9 => 1,
+        9 => 0,
     ];
     
     // Priority values against a slot of time
