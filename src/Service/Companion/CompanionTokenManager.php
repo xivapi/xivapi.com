@@ -325,19 +325,12 @@ class CompanionTokenManager
         }
 
         $discordEmbed = [
-            'title'         => "<@42667995159330816> failed to login to server.",
-            'description'   => "```{$ex->getMessage()}```",
+            'title'         => "Failed to login to: {$server}",
+            'description'   => "<@42667995159330816> \n\n ```{$ex->getMessage()}```",
             'color'         => hexdec('f44242'),
             'author'        => [
                 'name' => 'Companion Login Error',
                 'icon_url' => 'https://xivapi.com/discord/offline.png',
-            ],
-            'fields' => [
-                [
-                    'name'   => 'Server',
-                    'value'  => "{$server}",
-                    'inline' => true,
-                ]
             ]
         ];
 
