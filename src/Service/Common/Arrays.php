@@ -52,6 +52,10 @@ class Arrays
                 if ($total === null) {
                     throw new \Exception("The column {$col[0]} is not an array.");
                 }
+
+                if ($total < 0) {
+                    $total = 0;
+                }
             
                 $columns[$i] = "{$col[0]}.*{$total}.${col[1]}";
             }
