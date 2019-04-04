@@ -95,19 +95,44 @@
     </p>
     {{ docs.api('/lodestone/deepdungeon', '/lodestone/deepdungeon') }}
     <p>
-        Get information on DeepDungeon rankings
+        This provides the Deep Dungeon: Palace of the Dead rankings. The params you use are the exact same ones
+        lodestone uses with the exception of the hash'd job class, instead use the abbreviations. eg: <code>subtype=drg</code> for Dragoon class.
     </p>
     <p>
-        You can find more parameters on the deep dungeon page:
-        https://eu.finalfantasyxiv.com/lodestone/ranking/deepdungeon/
+        You can find more at: <a href="https://eu.finalfantasyxiv.com/lodestone/ranking/deepdungeon/">https://eu.finalfantasyxiv.com/lodestone/ranking/deepdungeon/</a>
     </p>
+
+    {{ docs.api('/lodestone/HeavenOnHigh', '/lodestone/HeavenOnHigh') }}
+    <p>
+        This provides the Deep Dungeon: Heaven On High rankings. The params you use are the exact same ones
+        lodestone uses with the exception of the hash'd job class, instead use the abbreviations. eg: <code>subtype=drg</code> for Dragoon class.
+    </p>
+    <p>
+        You can find more at: <a href="https://eu.finalfantasyxiv.com/lodestone/ranking/deepdungeon/">https://eu.finalfantasyxiv.com/lodestone/ranking/deepdungeon/</a>
+    </p>
+
     {{ docs.api('/lodestone/feasts', '/lodestone/feasts') }}
     <p>
-        Get information on Feasts leaderboards
+        Get information on Feasts Ranking Leaderboards. If the current season is not active it will be empty. The params are the same
+        as those on Lodestones with Seasons being accessiable as a param
     </p>
     <p>
         You can find more parameters on the feast page:
-        https://eu.finalfantasyxiv.com/lodestone/ranking/thefeast/
+        <a href="https://eu.finalfantasyxiv.com/lodestone/ranking/thefeast/">https://eu.finalfantasyxiv.com/lodestone/ranking/thefeast/</a>
     </p>
+    <table class="param-table">
+        <thead>
+        <tr>
+            <th width="25%">Param</th>
+            <th width="75%">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>season</td>
+            <td>The season to parse. (Note, there may be some issues with low seasons prior to season 6. Untested).</td>
+        </tr>
+        </tbody>
+    </table>
 
 {% endblock %}

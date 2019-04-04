@@ -185,4 +185,15 @@ class LodestoneController extends Controller
             $request->request->all()
         ));
     }
+    
+    /**
+     * @Route("/lodestone/heavenonhigh")
+     * @Route("/Lodestone/HeavenOnHigh")
+     */
+    public function lodestoneHeavenOnHigh(Request $request)
+    {
+        return $this->json((new Api())->getHeavenOnHigh(
+            $request->request->all()
+        ));
+    }
 }
