@@ -64,10 +64,6 @@ class ResponseListener
                             $columns = Arrays::extractMultiLanguageColumns($columns);
                             $json['Results'][$r] = Arrays::extractColumns($result, $columns);
                         }
-                    } else if (!isset($json['Pagination'])) {
-                        $columns = Arrays::extractColumnsCount($json, $columns);
-                        $columns = Arrays::extractMultiLanguageColumns($columns);
-                        $json    = Arrays::extractColumns($json, $columns);
                     } else if ($controller == 'App\Controller\MarketController::item') {
                         foreach ($json as $server => $result) {
                             $columns = Arrays::extractColumnsCount($result, $columns);
@@ -82,6 +78,10 @@ class ResponseListener
                                 $json[$i][$server] = Arrays::extractColumns($result, $columns);
                             }
                         }
+                    } else if (!isset($json['Pagination'])) {
+                        $columns = Arrays::extractColumnsCount($json, $columns);
+                        $columns = Arrays::extractMultiLanguageColumns($columns);
+                        $json    = Arrays::extractColumns($json, $columns);
                     }
                 }
 
