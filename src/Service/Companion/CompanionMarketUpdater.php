@@ -339,8 +339,6 @@ class CompanionMarketUpdater
             $this->em->persist($item);
             $this->em->flush();
             
-            
-        
             $this->console->writeln($msg);
         }
     }
