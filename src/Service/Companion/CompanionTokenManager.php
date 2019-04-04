@@ -324,7 +324,23 @@ class CompanionTokenManager
             return;
         }
 
-        $message = "<:status:474543481377783810> <@42667995159330816> [XIVAPI][Companion Login Status] Failed to login to: **{$server}** - Will try again in 10 minutes. Reason: `{$ex->getMessage()}`";
-        Discord::mog()->sendMessage($message);
+        $discordEmbed = [
+            'title'         => "<@42667995159330816> failed to login to server.",
+            'description'   => "```{$ex->getMessage()}```",
+            'color'         => hexdec('f44242'),
+            'author'        => [
+                'name' => 'Companion Login Error',
+                'icon_url' => 'https://xivapi.com/discord/offline.png',
+            ],
+            'fields' => [
+                [
+                    'name'   => 'Server',
+                    'value'  => "{$server}",
+                    'inline' => true,
+                ]
+            ]
+        ];
+
+        Discord::mog()->sendEmbed($discordEmbed);
     }
 }

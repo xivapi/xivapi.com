@@ -387,18 +387,34 @@ class CompanionMarketUpdater
         // discord msg
         $serverName = GameServers::LIST[$server];
         $errorSimple = str_ireplace('GuzzleHttp\Exception\ServerException -- ', null, $error);
-        
-        $msg = "<@42667995159330816> [Companion Auto-Update Error]";
-        $msg .= "({$recentErrorCount}/{$maxErrorCount}) ";
-        $msg .= ucwords($type) ."- Item: **{$itemId}** on Server: **({$server}){$serverName}**\n";
-        $msg .= "Error: {$errorSimple}";
-    
-        $key = 'companion_MarketUpdateMogWarning_'. md5($msg);
-        if (Redis::Cache()->get($key) == null) {
-            Redis::Cache()->set($key, 'true', 60);
-            Discord::mog()->sendMessage($msg);
-        }
-        
+
+        $type = ucwords($type);
+        $item = Redis::Cache()->get("xiv_Item_{$itemId}");
+
+        $discordEmbed = [
+            'title'         => "<@42667995159330816> - {$type} - Error count: {$recentErrorCount} / {$maxErrorCount}",
+            'description'   => "```{$errorSimple}```",
+            'color'         => hexdec('f44242'),
+            'author'        => [
+                'name' => 'Companion Auto-Update Error',
+                'icon_url' => 'https://xivapi.com/discord/offline.png',
+            ],
+            'fields' => [
+                [
+                    'name'   => 'Item',
+                    'value'  => "{$itemId} - {$item->Name_en}",
+                    'inline' => true,
+                ],
+                [
+                    'name'   => 'Server',
+                    'value'  => "{$server} - {$serverName}",
+                    'inline' => true,
+                ]
+            ]
+        ];
+
+        Discord::mog()->sendEmbed($discordEmbed);
+
         // Analytics
         GoogleAnalytics::companionTrackItemAsUrl('companion_error');
     }
