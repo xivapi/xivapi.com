@@ -373,6 +373,9 @@ class CompanionMarketUpdater
      */
     private function recordException($type, $itemId, $server, $error)
     {
+        // Analytics
+        GoogleAnalytics::companionTrackItemAsUrl('companion_error');
+
         $this->console->writeln(date('H:i:s') ." !!! EXCEPTION: {$type}, {$itemId}, {$server}");
         $this->exceptionCount++;
 
@@ -415,8 +418,7 @@ class CompanionMarketUpdater
 
         Discord::mog()->sendEmbed($discordEmbed);
 
-        // Analytics
-        GoogleAnalytics::companionTrackItemAsUrl('companion_error');
+
     }
     
     /**
