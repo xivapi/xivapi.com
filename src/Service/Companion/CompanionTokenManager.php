@@ -325,8 +325,7 @@ class CompanionTokenManager
         }
 
         $discordEmbed = [
-            'title'         => "Failed to login to: {$server}",
-            'description'   => "<@42667995159330816> \n\n ```{$ex->getMessage()}```",
+            'description'   => "<@42667995159330816> Failed to login to: {$server} \n\n ```{$ex->getMessage()}```",
             'color'         => hexdec('f44242'),
             'author'        => [
                 'name' => 'Companion Login Error',
