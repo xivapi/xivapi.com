@@ -18,6 +18,8 @@ class ResponseListener
         $response = $event->getResponse();
         /** @var Request $request */
         $request = $event->getRequest();
+        /** @var string $controller */
+        $controller = $request->attributes->get('_controller');
 
         // only process if response is a JsonResponse
         if (get_class($response) === JsonResponse::class) {
@@ -66,6 +68,20 @@ class ResponseListener
                         $columns = Arrays::extractColumnsCount($json, $columns);
                         $columns = Arrays::extractMultiLanguageColumns($columns);
                         $json    = Arrays::extractColumns($json, $columns);
+                    } else if ($controller == 'App\Controller\MarketController::item') {
+                        foreach ($json as $server => $result) {
+                            $columns = Arrays::extractColumnsCount($result, $columns);
+                            $columns = Arrays::extractMultiLanguageColumns($columns);
+                            $json[$server] = Arrays::extractColumns($result, $columns);
+                        }
+                    } else if ($controller == 'App\Controller\MarketController::itemMulti') {
+                        foreach ($json as $i => $serverResults) {
+                            foreach ($serverResults as $server => $result) {
+                                $columns = Arrays::extractColumnsCount($result, $columns);
+                                $columns = Arrays::extractMultiLanguageColumns($columns);
+                                $json[$i][$server] = Arrays::extractColumns($result, $columns);
+                            }
+                        }
                     }
                 }
 
@@ -122,7 +138,7 @@ class ResponseListener
             }
 
             // work out expiry time
-            switch ($request->attributes->get('_controller')) {
+            switch ($controller) {
                 default:
                     $expires = 5;
                     break;
@@ -142,6 +158,7 @@ class ResponseListener
 
                 case 'App\Controller\MarketController::itemByServer':
                 case 'App\Controller\MarketController::item':
+                case 'App\Controller\MarketController::itemMulti':
                 case 'App\Controller\MarketController::search':
                 case 'App\Controller\MarketController::categories':
                     $expires = 60;
