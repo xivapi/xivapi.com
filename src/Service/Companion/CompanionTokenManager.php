@@ -325,7 +325,7 @@ class CompanionTokenManager
         }
 
         $discordEmbed = [
-            'description'   => "<@42667995159330816> Failed to login to: {$server} \n\n ```{$ex->getMessage()}```",
+            'description'   => "Failed to login to: {$server} \n\n ```{$ex->getMessage()}```",
             'color'         => hexdec('f44242'),
             'author'        => [
                 'name' => 'Companion Login Error',
@@ -333,6 +333,6 @@ class CompanionTokenManager
             ]
         ];
 
-        Discord::mog()->sendEmbed($discordEmbed);
+        Discord::mog()->sendMessage(null, '<@42667995159330816>', $discordEmbed);
     }
 }

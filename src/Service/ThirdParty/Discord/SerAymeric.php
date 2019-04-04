@@ -7,7 +7,7 @@ use GuzzleHttp\RequestOptions;
 
 class SerAymeric
 {
-    const ENDPOINT = 'https://mog.xivapi.com/aymeric/say';
+    const ENDPOINT = 'https://mog.xivapi.com/aymeric/notify';
     
     private function send(array $json)
     {
@@ -22,22 +22,12 @@ class SerAymeric
     /**
      * Send a message to a user
      */
-    public function sendMessage(string $message, string $userId)
+    public function sendMessage(string $userId, string $content = null, array $embed = null)
     {
         $this->send([
             'user_id' => $userId,
-            'message' => $message,
-        ]);
-    }
-    
-    /**
-     * Send a embed to a user
-     */
-    public function sendEmbed(array $embed, string $userId)
-    {
-        $this->send([
-            'user_id' => $userId,
-            'embed'   => $embed,
+            'content' => $content,
+            'embed' => $embed,
         ]);
     }
 }

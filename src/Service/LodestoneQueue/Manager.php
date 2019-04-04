@@ -137,7 +137,7 @@ class Manager
                         Redis::Cache()->set('lodestone_QueueDelayTimeExceedLimit', 1, (60*60));
 
                         $message = "<:status:474543481377783810> <@42667995159330816> [XIVAPI][Lodestone Content Tracker] Queue Duration exceeded 500 seconds, currently at: {$duration} for queue: {$queue}";
-                        Discord::mog()->sendMessage($message);
+                        Discord::mog()->sendMessage(null, $message);
                     }
                 }
                 

@@ -22,22 +22,12 @@ class Mog
     /**
      * Post a message via mog
      */
-    public function sendMessage(string $message, int $channel = null)
+    public function sendMessage(int $channel = null, string $content = null, array $embed = null)
     {
         $this->send([
             'channel' => $channel,
-            'message' => $message
-        ]);
-    }
-
-    /**
-     * Post a message via mog
-     */
-    public function sendEmbed(array $embed, int $channel = null)
-    {
-        $this->send([
-            'channel' => $channel,
-            'embed'   => $embed
+            'content' => $content,
+            'embed' => $embed
         ]);
     }
 }

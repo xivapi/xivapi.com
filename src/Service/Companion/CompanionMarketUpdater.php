@@ -395,7 +395,7 @@ class CompanionMarketUpdater
         $item = Redis::Cache()->get("xiv_Item_{$itemId}");
 
         $discordEmbed = [
-            'description'   => "<@42667995159330816> {$type} - Error count: {$recentErrorCount} / {$maxErrorCount} \n\n ```{$errorSimple}```",
+            'description'   => "{$type} - Error count: {$recentErrorCount} / {$maxErrorCount} \n\n ```{$errorSimple}```",
             'color'         => hexdec('f44242'),
             'author'        => [
                 'name' => 'Companion Auto-Update Error',
@@ -415,9 +415,7 @@ class CompanionMarketUpdater
             ]
         ];
 
-        Discord::mog()->sendEmbed($discordEmbed);
-
-
+        Discord::mog()->sendMessage(null, '<@42667995159330816>', $discordEmbed);
     }
     
     /**
