@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\API\ApiRequest;
+use App\Service\ThirdParty\Patreon\Patreon;
 use App\Service\User\SignInDiscord;
 use App\Utils\Random;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,12 +22,19 @@ class AccountController extends AbstractController
     private $users;
     /** @var Session */
     private $session;
+    /** @var Patreon */
+    private $patreon;
     
-    public function __construct(EntityManagerInterface $em, SessionInterface $session, Users $users)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        SessionInterface $session,
+        Users $users,
+        Patreon $patreon
+    ) {
         $this->em      = $em;
         $this->users   = $users;
         $this->session = $session;
+        $this->patreon = $patreon;
     }
 
     /**
@@ -100,5 +108,34 @@ class AccountController extends AbstractController
     {
         $this->users->logout();
         return $this->redirectToRoute('home');
+    }
+
+    /**
+     * @Route("/patreon", name="account_patreon")
+     */
+    public function patreon(Request $request)
+    {
+        $oAuthUrl = $this->patreon->generateLoginUri($request);
+
+        return $this->render('account/patreon.html.twig', [
+            'patreon_login_url' => $oAuthUrl
+        ]);
+    }
+
+    /**
+     * @Route("/account/patreon/login", name="account_patreon_login")
+     */
+    public function patreonLogin(Request $request)
+    {
+        $this->patreon->handlePatreonOAuthCode($request);
+
+    }
+
+    /**
+     * @Route("/account/patreon/success", name="account_patreon_success")
+     */
+    public function patreonSuccess()
+    {
+
     }
 }

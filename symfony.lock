@@ -1,6 +1,6 @@
 {
-    "aws/aws-sdk-php": {
-        "version": "3.82.1"
+    "art4/json-api-client": {
+        "version": "0.9.1"
     },
     "clue/stream-filter": {
         "version": "v1.4.0"
@@ -125,9 +125,6 @@
     "league/oauth2-client": {
         "version": "2.3.0"
     },
-    "mtdowling/jmespath.php": {
-        "version": "2.4.0"
-    },
     "nesbot/carbon": {
         "version": "1.24.2"
     },
@@ -142,6 +139,9 @@
     },
     "paragonie/random_compat": {
         "version": "v2.0.17"
+    },
+    "patreon/patreon": {
+        "version": "0.3.1"
     },
     "php-amqplib/php-amqplib": {
         "version": "v2.8.1"
@@ -291,9 +291,6 @@
         "version": "v4.0.6"
     },
     "symfony/inflector": {
-        "version": "v4.1.2"
-    },
-    "symfony/intl": {
         "version": "v4.1.2"
     },
     "symfony/maker-bundle": {

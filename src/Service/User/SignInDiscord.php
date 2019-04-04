@@ -13,7 +13,7 @@ class SignInDiscord implements SignInInterface
     const NAME            = 'discord';
     const STATE_KEY       = 'oauth2state';
     const CLIENT_RETURN   = '/account/login/discord/success';
-    CONST CLIENT_SCOPE    = ['identify','email'];
+    const CLIENT_SCOPE    = ['identify','email'];
     
     /** @var Discord */
     private $provider;
