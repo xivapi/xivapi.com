@@ -56,12 +56,12 @@ class CompanionConfiguration
     
     const QUEUE_CONSUMERS = [
         1 => 2,
-        2 => 2,
-        3 => 2,
+        2 => 3,
+        3 => 3,
         4 => 4,
         5 => 4,
-        6 => 5,
-        7 => 7,
+        6 => 4,
+        7 => 6,
         
         8 => 0,
         9 => 0,
