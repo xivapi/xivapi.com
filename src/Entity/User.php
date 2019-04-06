@@ -88,10 +88,10 @@ class User
      */
     private $avatar = 'http://xivapi.com/img-misc/chat_messengericon_goldsaucer.png';
     /**
-     * @var boolean
-     * @ORM\Column(type="boolean", options={"default": false})
+     * @var int
+     * @ORM\Column(type="integer")
      */
-    private $patron = false;
+    private $patron = 0;
     /**
      * User has 1 Key
      * @var string

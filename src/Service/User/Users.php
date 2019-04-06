@@ -5,8 +5,10 @@ namespace App\Service\User;
 use App\Entity\User;
 use App\Exception\ApiUnknownPrivateKeyException;
 use App\Repository\UserRepository;
+use App\Service\ThirdParty\Discord\Discord;
 use Delight\Cookie\Cookie;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Users
@@ -166,5 +168,31 @@ class Users
     {
         $this->em->persist($user);
         $this->em->flush();
+    }
+    
+    /**
+     * Checks the patreon status of all users against the discord channel.
+     */
+    public function checkPatreonTiers()
+    {
+        $console = new ConsoleOutput();
+        $console->writeln('Checking Patreon Tiers...');
+        $section = $console->section();
+        
+        /** @var User $user */
+        foreach ($this->repository->findAll() as $user) {
+            $discordId = $user->getSsoDiscordId();
+            
+            $roleTier = Discord::mog()->getUserRole($discordId);
+            $section->writeln("User: {$user->getUsername()} = {$roleTier}");
+            
+            $user->setPatron($roleTier ?: 0);
+            
+            $this->em->persist($user);
+            $this->em->flush();
+            $this->em->clear();
+        }
+        
+        $console->writeln('Complete!');
     }
 }
