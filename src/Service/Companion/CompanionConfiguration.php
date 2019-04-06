@@ -5,7 +5,7 @@ namespace App\Service\Companion;
 class CompanionConfiguration
 {
     // If we hit this number of errors, the system will stop.
-    const ERROR_COUNT_THRESHOLD  = 3;
+    const ERROR_COUNT_THRESHOLD  = 6;
 
     // the total number of items to process per cronjob
     const MAX_ITEMS_PER_CRONJOB  = 22;
