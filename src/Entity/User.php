@@ -281,7 +281,7 @@ class User
         return $this->patron;
     }
 
-    public function setPatron(bool $patron)
+    public function setPatron(int $patron)
     {
         $this->patron = $patron;
 
