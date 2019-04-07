@@ -42,6 +42,8 @@ class SaintCoinachRedisCommand extends Command
     protected $links = [];
     /** @var array */
     protected $ids = [];
+    /** @var int */
+    protected $maxDepth = self::MAX_DEPTH;
 
     protected function configure()
     {
@@ -263,7 +265,7 @@ class SaintCoinachRedisCommand extends Command
                 $this->handleDefinition($contentId, $contentName, $content, $definition, $depth + 1);
             }
         }
-        
+ 
         // only save at a depth of 0
         if ($save && $content) {
             $content->ID = $content->ID === null ? 0 : $content->ID;
@@ -283,7 +285,6 @@ class SaintCoinachRedisCommand extends Command
         // is this a grouped definition ?
         if (isset($definition->definition->type) && $definition->definition->type == 'group') {
             $this->handleMultiRepeat($contentId, $contentName, $content, $depth, $definition);
-            
             return;
         }
         
@@ -366,7 +367,7 @@ class SaintCoinachRedisCommand extends Command
                 foreach (range(0, $memberDefinition->count - 1) as $num2) {
                     $tempDefinition = clone $memberDefinition->definition;
                     $tempDefinition->name = "{$tempDefinition->name}{$num2}{$num1}";
-                    
+
                     // handle the definition
                     $this->handleDefinition($contentId, $contentName, $content, $tempDefinition, $depth + 1);
                 }
@@ -382,7 +383,12 @@ class SaintCoinachRedisCommand extends Command
         // simplify column names
         $definition->name = DataHelper::getSimpleColumnName($definition->name);
         $definition->name = DataHelper::getReplacedName($contentName, $definition->name);
-     
+        
+        // if definition is set, ignore it
+        if (isset($content->{$definition->name}) && is_object($content->{$definition->name})) {
+            return null;
+        }
+        
         // special one because SE is crazy and link level_item id by the ACTUAL level...
         if ($contentName == 'Item' && isset($definition->name) && $definition->name == 'LevelItem') {
             return null;
@@ -400,7 +406,7 @@ class SaintCoinachRedisCommand extends Command
             $content->{$definition->name} = null;
             $content->{$definition->name ."Target"} = $linkTarget;
             $content->{$definition->name ."TargetID"} = $linkId;
-
+    
             // if link id is an object, it has already been managed
             if (is_object($linkId)) {
                 return $linkId;
@@ -417,21 +423,23 @@ class SaintCoinachRedisCommand extends Command
                     "Possible fix #2: Make sure the ex.json file is up to date",
                 ]);
                 
-                
+                file_put_contents(__DIR__.'/LinkIdNull.json', json_encode($content, JSON_PRETTY_PRINT));
                 $this->io->table(
-                    [ 'LinkID', 'ContentID', 'ContentName', 'Content', 'Definition', 'Depth', ],
+                    [ 'LinkID', 'ContentID', 'ContentName', 'Definition', 'Depth', ],
                     [
                         [
                             $linkId,
                             $contentId,
                             $contentName,
-                            json_encode($content, JSON_PRETTY_PRINT),
                             json_encode($definition, JSON_PRETTY_PRINT),
                             $depth
                         ]
                     ]
                 );
+                
+                die;
                 */
+           
                 return $content;
             }
             

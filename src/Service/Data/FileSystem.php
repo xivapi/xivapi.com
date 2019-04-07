@@ -73,7 +73,7 @@ class FileSystem extends DataHelper
     public static function load(string $filename, string $folder)
     {
         $filename = SaintCoinach::DOCUMENTS_FOLDER . "{$folder}/{$filename}.json";
-
+        
         if (isset(self::$cache[$filename])) {
             return self::$cache[$filename];
         }
