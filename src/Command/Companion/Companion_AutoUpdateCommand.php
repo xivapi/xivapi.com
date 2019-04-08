@@ -17,10 +17,9 @@ class Companion_AutoUpdateCommand extends Command
         'name' => 'Companion_AutoUpdateCommand',
         'desc' => 'Auto-Update prices and history of all items on all servers.',
         'args' => [
-            [ 'priority', InputArgument::OPTIONAL, 'Item priority queue to process' ],
-            [ 'queue',    InputArgument::OPTIONAL, 'Queue number, this should be incremental' ],
-            [ 'manual',   InputArgument::OPTIONAL, 'Update manual items' ],
-            [ 'dcs',  InputArgument::OPTIONAL, 'Update for a specific account' ]
+            [ 'priority',      InputArgument::OPTIONAL, 'Item priority queue to process' ],
+            [ 'queue',         InputArgument::OPTIONAL, 'Queue number, this should be incremental' ],
+            [ 'queue_patreon', InputArgument::OPTIONAL, 'Update a patreon queue' ],
         ]
     ];
 
@@ -37,14 +36,13 @@ class Companion_AutoUpdateCommand extends Command
     {
         /**
          * php bin/console Companion_AutoUpdateCommand 10 1
-         * php bin/console Companion_AutoUpdateCommand 10 1 true
-         * php bin/console Companion_AutoUpdateCommand 10 1 false Chaos
+         * php bin/console Companion_AutoUpdateCommand 10 1 1234
+         * php bin/console Companion_AutoUpdateCommand 10 1 1234
          */
         $this->companionMarketUpdater->update(
             $input->getArgument('priority'),
             $input->getArgument('queue'),
-            $input->getArgument('manual') === 'true',
-            explode(',', $input->getArgument('dcs'))
+            $input->getArgument('queue_patreon') ? true : false
         );
     }
 }

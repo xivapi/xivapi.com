@@ -80,7 +80,7 @@ class CompanionMarketUpdater
         $this->console = new ConsoleOutput();
     }
     
-    public function update(int $priority, int $queue, ?bool $manual = false, ?array $dcs = [])
+    public function update(int $priority, int $queue, ?bool $manual = false)
     {
         $queueStartTime = microtime(true);
         if ($this->hasExceptionsExceededLimit()) {

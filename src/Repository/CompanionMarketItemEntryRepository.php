@@ -44,6 +44,21 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     /**
      * Returns a list of items that can be updated with valid servers
      */
+    public function findPatreonItemsToUpdate(int $patreonPriority, int $limit, int $offset, array $servers)
+    {
+        $sql = $this->createQueryBuilder('a');
+        $sql->where("a.priorityPatreon = :a")->setParameter('a', $patreonPriority)
+            ->andWhere("a.server IN (:b)")->setParameter('b', $servers, Connection::PARAM_INT_ARRAY)
+            ->orderBy('a.updated', 'asc')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $sql->getQuery()->getResult();
+    }
+
+    /**
+     * Returns a list of items that can be updated with valid servers
+     */
     public function findManualItemsToUpdate(int $limit, int $offset, array $servers)
     {
         $sql = $this->createQueryBuilder('a');
