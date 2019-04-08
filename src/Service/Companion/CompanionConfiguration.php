@@ -11,13 +11,13 @@ class CompanionConfiguration
     const MAX_ITEMS_PER_CRONJOB  = 30;
 
     // the total number of items to process per request
-    const MAX_ITEMS_PER_REQUEST  = 1;
+    const MAX_ITEMS_PER_REQUEST  = 2;
 
     // the total time a cronjob should stay active
-    const CRONJOB_TIMEOUT_SECONDS  = 57;
+    const CRONJOB_TIMEOUT_SECONDS  = 60;
 
     // the delay between sending requests and asking for request response data
-    const CRONJOB_ASYNC_DELAY_MS   = 1200;
+    const CRONJOB_ASYNC_DELAY_MS   = 3500;
 
     // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;
