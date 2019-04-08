@@ -61,10 +61,6 @@ class CompanionMarketItemEntry
      * @ORM\Column(type="boolean", options={"default" : 0})
      */
     private $manual = false;
-    /**
-     * @ORM\Column(type="integer", length=16)
-     */
-    private $avgSaleDuration = 0;
     
     public function __construct(int $itemId = null, int $serverId = null, int $priority = null)
     {
@@ -156,18 +152,6 @@ class CompanionMarketItemEntry
     public function setAdded(int $added)
     {
         $this->added = $added;
-        return $this;
-    }
-
-    public function getAvgSaleDuration()
-    {
-        return $this->avgSaleDuration;
-    }
-
-    public function setAvgSaleDuration($avgSaleDuration)
-    {
-        $this->avgSaleDuration = $avgSaleDuration;
-
         return $this;
     }
 
