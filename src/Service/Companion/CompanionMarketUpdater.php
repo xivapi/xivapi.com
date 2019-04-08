@@ -243,6 +243,8 @@ class CompanionMarketUpdater
                 ($prices === null && $history == null) ||
                 (isset($prices->error) && isset($history->error))
             ) {
+                // Analytics
+                GoogleAnalytics::companionTrackItemAsUrl('companion_empty');
                 $this->console->writeln("Empty response!");
                 return;
             }
