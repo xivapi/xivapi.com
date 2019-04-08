@@ -200,13 +200,14 @@ class CompanionMarketUpdater
         }
 
         // 1st pass
-        $firstPassStart = microtime(true);
+        $companionStart   = microtime(true);
         $api->Sight()->settle($requests)->wait();
-        $secondPassFinish = (microtime(true) - $firstPassStart) * 1000;
-        $this->console->writeln("Pass time: {$secondPassFinish}");
+        $secondPassFinish = (microtime(true) - $companionStart) * 1000;
 
-        // Wait for the results
-        usleep(CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS * 1000);
+        // Wait for the results, this dynamically adjusts basedo n how long the 1st pass took.
+        usleep(
+            (CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS - $secondPassFinish) * 1000
+        );
 
         // 2nd pass (this will have the request results)
         $results = $api->Sight()->settle($requests)->wait();
