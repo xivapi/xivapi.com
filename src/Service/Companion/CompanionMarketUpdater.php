@@ -324,10 +324,6 @@ class CompanionMarketUpdater
             // update entry
             $item->setUpdated(time())->incUpdates()->setManual(false);
             $this->em->persist($item);
-
-            if ($i % 10 == 0) {
-                $this->em->flush();
-            }
             
             $this->console->writeln($msg);
             $this->updateCount++;
