@@ -63,6 +63,8 @@ class CompanionMarketUpdater
     private $chunkStartTime;
     /** @var float */
     private $gaDuration;
+    /** @var float */
+    private $companionDuration;
     
     public function __construct(
         EntityManagerInterface $em,
@@ -197,6 +199,8 @@ class CompanionMarketUpdater
             return;
         }
 
+        $companionStart = microtime(true);
+
         // 1st pass
         $api->Sight()->settle($requests)->wait();
     
@@ -208,6 +212,8 @@ class CompanionMarketUpdater
 
         // handle the results of the response
         $results = $api->Sight()->handle($results);
+
+        $this->companionDuration = round(microtime(true) - $companionStart, 1);
 
         // Store the results
         $this->storeMarketData($chunkList, $results, $requestId, $priority);
@@ -316,6 +322,7 @@ class CompanionMarketUpdater
             $msg .= sprintf("Item: <comment>%s</comment>", str_pad($itemId, 12, ' '));
             $msg .= sprintf("Server: <comment>%s</comment>", str_pad(GameServers::LIST[$server], 20, ' '));
             $msg .= sprintf("Duration: <comment>%s</comment>", str_pad($duration, 15, ' '));
+            $msg .= sprintf("Companion: <comment>%s</comment>", str_pad($this->companionDuration, 15, ' '));
             $msg .= sprintf("GA Duration: %s", $this->gaDuration);
             
             // record
@@ -324,7 +331,7 @@ class CompanionMarketUpdater
             // update entry
             $item->setUpdated(time())->incUpdates()->setManual(false);
             $this->em->persist($item);
-            
+
             $this->console->writeln($msg);
             $this->updateCount++;
         }
