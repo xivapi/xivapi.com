@@ -84,6 +84,7 @@ class CompanionMarketUpdater
     
     public function update(int $priority, int $queue, ?bool $manual = false)
     {
+        $this->start = time();
         $this->console->writeln(date('H:i:s') .' | A');
 
         $queueStartTime = microtime(true);
@@ -92,7 +93,6 @@ class CompanionMarketUpdater
             exit();
         }
 
-        $this->start = time();
 
         // grab our companion tokens
         $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
@@ -220,7 +220,7 @@ class CompanionMarketUpdater
     {
         // process the chunk list from our results
         /** @var CompanionMarketItemEntry $item */
-        foreach ($chunkList as $item) {
+        foreach ($chunkList as $i => $item) {
             $itemId = $item->getItem();
             $server = $item->getServer();
         
@@ -321,11 +321,16 @@ class CompanionMarketUpdater
             // update entry
             $item->setUpdated(time())->incUpdates()->setManual(false);
             $this->em->persist($item);
-            $this->em->flush();
+
+            if ($i % 10 == 0) {
+                $this->em->flush();
+            }
             
             $this->console->writeln($msg);
             $this->updateCount++;
         }
+
+        $this->em->flush();
     }
     
     /**
