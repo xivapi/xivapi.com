@@ -56,6 +56,8 @@ class CompanionMarketUpdater
     /** @var int */
     private $start;
     /** @var int */
+    private $updateCount = 0;
+    /** @var int */
     private $exceptionCount = 0;
     /** @var int */
     private $chunkStartTime;
@@ -116,9 +118,9 @@ class CompanionMarketUpdater
         
         // loop through chunks
         foreach (array_chunk($items, CompanionConfiguration::MAX_ITEMS_PER_REQUEST) as $i => $itemChunk) {
-            // if we're close to the cronjob minute mark, end
+            // if we're close to the CronJob minute mark, end
             if ((time() - $this->start) > CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS) {
-                $this->console->writeln(date('H:i:s') ." | [{$priority}] Ending auto-update as time limit seconds reached.");
+                $this->console->writeln(date('H:i:s') ." | [{$priority}] (Updates: {$this->updateCount}) Ending auto-update as time limit seconds reached.");
                 break;
             }
             
@@ -135,7 +137,7 @@ class CompanionMarketUpdater
         
         // report
         $duration = round(microtime(true) - $queueStartTime, 2);
-        $this->console->writeln(date('H:i:s') ." | Finished queue: {$priority}:{$queue} - Duration: {$duration}");
+        $this->console->writeln(date('H:i:s') ." | (Updates: {$this->updateCount}) Finished queue: {$priority}:{$queue} - Duration: {$duration}");
     }
 
     /**
@@ -200,13 +202,15 @@ class CompanionMarketUpdater
         $api->Sight()->settle($requests)->wait();
     
         // Wait for the results
-        usleep( CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS * 1000 );
+        usleep(CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS * 1000);
 
-        // second pass
+        // 2nd pass (this will have the request results)
         $results = $api->Sight()->settle($requests)->wait();
 
         // handle the results of the response
         $results = $api->Sight()->handle($results);
+
+        // Store the results
         $this->storeMarketData($chunkList, $results, $requestId, $priority);
     }
     
@@ -321,6 +325,7 @@ class CompanionMarketUpdater
             $this->em->flush();
             
             $this->console->writeln($msg);
+            $this->updateCount++;
         }
     }
     
