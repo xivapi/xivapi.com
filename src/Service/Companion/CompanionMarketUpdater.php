@@ -104,22 +104,16 @@ class CompanionMarketUpdater
         }
     
         /** @var CompanionMarketItemEntry[] $entries */
-        if ($manual) {
-            $items = $this->repository->findManualItemsToUpdate(
-                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB,
-                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * $queue,
-                array_keys($this->tokens)
-            );
-        } else {
-            $items = $this->repository->findItemsToUpdate(
-                $priority,
-                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB,
-                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * $queue,
-                array_keys($this->tokens)
-            );
-        }
+        $start = CompanionConfiguration::MAX_ITEMS_PER_CRONJOB;
+        $limit = CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * $queue;
 
-        $this->console->writeln(date('H:i:s') .' | C');
+        $this->console->writeln(date('H:i:s') .' | GETTING ITEMS');
+        if ($manual) {
+            $items = $this->repository->findManualItemsToUpdate($start, $limit);
+        } else {
+            $items = $this->repository->findItemsToUpdate($priority, $start, $limit);
+        }
+        $this->console->writeln(date('H:i:s') .' | GOT ITEMS');
         
         // loop through chunks
         foreach (array_chunk($items, CompanionConfiguration::MAX_ITEMS_PER_REQUEST) as $i => $itemChunk) {

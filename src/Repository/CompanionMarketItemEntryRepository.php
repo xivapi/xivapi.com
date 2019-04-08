@@ -29,11 +29,10 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     /**
      * Returns a list of items that can be updated with valid servers
      */
-    public function findItemsToUpdate(int $priority, int $limit, int $offset, array $servers)
+    public function findItemsToUpdate(int $priority, int $limit, int $offset)
     {
         $sql = $this->createQueryBuilder('a');
         $sql->where("a.priority = :a")->setParameter('a', $priority)
-            ->andWhere("a.server IN (:b)")->setParameter('b', $servers, Connection::PARAM_INT_ARRAY)
             ->orderBy('a.updated', 'asc')
             ->setMaxResults($limit)
             ->setFirstResult($offset);
@@ -44,11 +43,10 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     /**
      * Returns a list of items that can be updated with valid servers
      */
-    public function findPatreonItemsToUpdate(int $patreonPriority, int $limit, int $offset, array $servers)
+    public function findPatreonItemsToUpdate(int $patreonPriority, int $limit, int $offset)
     {
         $sql = $this->createQueryBuilder('a');
         $sql->where("a.priorityPatreon = :a")->setParameter('a', $patreonPriority)
-            ->andWhere("a.server IN (:b)")->setParameter('b', $servers, Connection::PARAM_INT_ARRAY)
             ->orderBy('a.updated', 'asc')
             ->setMaxResults($limit)
             ->setFirstResult($offset);
@@ -59,11 +57,10 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     /**
      * Returns a list of items that can be updated with valid servers
      */
-    public function findManualItemsToUpdate(int $limit, int $offset, array $servers)
+    public function findManualItemsToUpdate(int $limit, int $offset)
     {
         $sql = $this->createQueryBuilder('a');
         $sql->where("a.manual = :a")->setParameter('a', true)
-            ->andWhere("a.server IN (:b)")->setParameter('b', $servers, Connection::PARAM_INT_ARRAY)
             ->orderBy('a.updated', 'asc')
             ->setMaxResults($limit)
             ->setFirstResult($offset);
