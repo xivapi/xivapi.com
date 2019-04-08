@@ -202,7 +202,7 @@ class CompanionMarketUpdater
         // 1st pass
         $firstPassStart = microtime(true);
         $api->Sight()->settle($requests)->wait();
-        $secondPassFinish = microtime(true) - $firstPassStart;
+        $secondPassFinish = (microtime(true) - $firstPassStart) * 1000;
         $this->console->writeln("Pass time: {$secondPassFinish}");
 
         // Wait for the results
