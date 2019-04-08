@@ -199,11 +199,12 @@ class CompanionMarketUpdater
             return;
         }
 
-        $companionStart = microtime(true);
-
         // 1st pass
+        $firstPassStart = microtime(true);
         $api->Sight()->settle($requests)->wait();
-    
+        $secondPassFinish = microtime(true) - $firstPassStart;
+        $this->console->writeln("Pass time: {$secondPassFinish}");
+
         // Wait for the results
         usleep(CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS * 1000);
 
