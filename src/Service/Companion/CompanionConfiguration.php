@@ -17,7 +17,7 @@ class CompanionConfiguration
     const CRONJOB_TIMEOUT_SECONDS  = 57;
 
     // the delay between sending requests and asking for request response data
-    const CRONJOB_ASYNC_DELAY_MS   = 1400;
+    const CRONJOB_ASYNC_DELAY_MS   = 1200;
 
     // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;
