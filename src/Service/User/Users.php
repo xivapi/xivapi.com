@@ -62,7 +62,7 @@ class Users
 
         /** @var User $user */
         $user = $this->repository->findOneBy([
-            'session' => $session
+            'session' => $session,
         ]);
 
         if ($mustBeOnline && !$user) {
@@ -78,7 +78,7 @@ class Users
     public function getUserByApiKey(string $key)
     {
         $user = $this->repository->findOneBy([
-            'apiPublicKey' => $key
+            'apiPublicKey' => $key,
         ]);
 
         if (empty($user)) {
@@ -122,7 +122,7 @@ class Users
         // look for their user if they already have an account
         $sso  = $this->sso->setLoginAuthorizationState();
         $user = $this->repository->findOneBy([
-            'ssoDiscordId' => $sso->id
+            'ssoDiscordId' => $sso->id,
         ]);
 
         // handle user info during login process
