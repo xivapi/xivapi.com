@@ -118,7 +118,7 @@ class CompanionMarketUpdater
         foreach (array_chunk($items, CompanionConfiguration::MAX_ITEMS_PER_REQUEST) as $i => $itemChunk) {
             // if we're close to the cronjob minute mark, end
             if ((time() - $this->start) > CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS) {
-                # $this->console->writeln(date('H:i:s') ." | [{$priority}] Ending auto-update as time limit seconds reached.");
+                $this->console->writeln(date('H:i:s') ." | [{$priority}] Ending auto-update as time limit seconds reached.");
                 break;
             }
             
@@ -128,7 +128,7 @@ class CompanionMarketUpdater
             }
         
             // handle the chunk
-            $this->updateChunk($i, $itemChunk, $priority);
+            $this->updateChunk($itemChunk, $priority);
         }
     
         $this->em->clear();
@@ -158,7 +158,7 @@ class CompanionMarketUpdater
     /**
      * Update a group of items
      */
-    private function updateChunk($chunkNumber, $chunkList, $priority)
+    private function updateChunk($chunkList, $priority)
     {
         $this->chunkStartTime = microtime(true);
         
@@ -170,18 +170,9 @@ class CompanionMarketUpdater
         $api = new CompanionApi();
         $api->useAsync();
 
-        // a single item will not update faster than X minutes.
-        $updateTimeout = time() - CompanionConfiguration::ITEM_UPDATE_DELAY;
-        
         /** @var CompanionMarketItemEntry $item */
         $requests = [];
         foreach ($chunkList as $item) {
-            // skip items that have been updated recently
-            if ($item->getUpdated() > $updateTimeout) {
-                # $this->console->writeln(date('H:i:s') ." | [{$priority}] Skipped: {$item->getItem()}");
-                continue;
-            }
-
             $itemId = $item->getItem();
             $server = $item->getServer();
             
@@ -205,20 +196,11 @@ class CompanionMarketUpdater
             return;
         }
 
-        # $totalRequests = count($requests);
-        # $this->console->writeln(date('H:i:s') ." | [{$priority}] Processing chunk: {$chunkNumber} - Total Requests: {$totalRequests}");
-        
-        // run the requests, we don't care on response because the first time nothing will be there.
-        # $this->console->writeln(date('H:i:s') ." | [{$priority}] <info>Part 1: Sending Requests</info>");
-
         // 1st pass
         $api->Sight()->settle($requests)->wait();
     
         // Wait for the results
         usleep( CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS * 1000 );
-        
-        // run the requests again, the Sight API should give us our response this time.
-        # $this->console->writeln(date('H:i:s') ." | [{$priority}] <info>Part 2: Fetching Responses</info>");
 
         // second pass
         $results = $api->Sight()->settle($requests)->wait();
@@ -258,7 +240,6 @@ class CompanionMarketUpdater
                 ($prices === null && $history == null) ||
                 (isset($prices->error) && isset($history->error))
             ) {
-                # $this->console->writeln(date('H:i:s') ." | [{$priority}] Price + History empty: {$item->getItem()}");
                 return;
             }
         
@@ -382,7 +363,7 @@ class CompanionMarketUpdater
         $this->em->persist($exception);
         $this->em->flush();
 
-        $recentErrorCount = count($this->repositoryExceptions->findAllRecent()) + 1;
+        $recentErrorCount = count($this->repositoryExceptions->findAllRecent());
         $maxErrorCount = CompanionConfiguration::ERROR_COUNT_THRESHOLD;
 
         // discord msg
