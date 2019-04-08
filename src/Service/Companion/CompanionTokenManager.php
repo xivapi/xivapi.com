@@ -294,6 +294,8 @@ class CompanionTokenManager
             $serverId        = GameServers::getServerId($entity->getServer());
             $list[$serverId] = $entity;
         }
+
+        $this->em->clear();
         
         return $list;
     }

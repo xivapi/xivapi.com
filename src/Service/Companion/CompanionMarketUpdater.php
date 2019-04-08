@@ -84,6 +84,8 @@ class CompanionMarketUpdater
     
     public function update(int $priority, int $queue, ?bool $manual = false)
     {
+        $this->console->writeln(date('H:i:s') .' | A');
+
         $queueStartTime = microtime(true);
         if ($this->hasExceptionsExceededLimit()) {
             $this->console->writeln(date('H:i:s') .' | !! Error exceptions exceeded limit. Auto-Update stopped');
@@ -94,6 +96,7 @@ class CompanionMarketUpdater
 
         // grab our companion tokens
         $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
+        $this->console->writeln(date('H:i:s') .' | B');
 
         if (empty($this->tokens)) {
             $this->console->writeln(date('H:i:s') .' | All tokens have expired, cannot auto-update');
@@ -115,6 +118,8 @@ class CompanionMarketUpdater
                 array_keys($this->tokens)
             );
         }
+
+        $this->console->writeln(date('H:i:s') .' | C');
         
         // loop through chunks
         foreach (array_chunk($items, CompanionConfiguration::MAX_ITEMS_PER_REQUEST) as $i => $itemChunk) {
