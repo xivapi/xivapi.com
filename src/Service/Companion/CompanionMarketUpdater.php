@@ -243,6 +243,7 @@ class CompanionMarketUpdater
                 ($prices === null && $history == null) ||
                 (isset($prices->error) && isset($history->error))
             ) {
+                $this->console->writeln("Empty response!");
                 return;
             }
         
