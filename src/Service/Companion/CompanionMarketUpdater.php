@@ -304,7 +304,7 @@ class CompanionMarketUpdater
             // put
             $this->companionMarket->set($marketItem);
     
-            $duration = round(microtime(true) - $this->chunkStartTime, 2);
+            $duration = round(microtime(true) - $this->chunkStartTime, 1);
     
             $msg = date('H:i:s') ." | ";
             $msg .= sprintf("Item: <comment>%s</comment>", str_pad($itemId, 12, ' '));
