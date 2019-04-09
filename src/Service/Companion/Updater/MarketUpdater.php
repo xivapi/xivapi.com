@@ -117,17 +117,14 @@ class MarketUpdater
     private function hasExceptionsExceededLimit()
     {
         $timeout = time() - CompanionConfiguration::EXCEPTION_TIMEOUT_SECONDS;
-        $sql     = "SELECT count(*) FROM companion_market_item_exception WHERE added > {$timeout}";
+        $sql     = "SELECT count(*) as total_exceptions FROM companion_market_item_exception WHERE added > {$timeout}";
 
         $stmt = $this->em->getConnection()->prepare($sql);
         $stmt->execute();
 
-        $count = $stmt->fetch();
+        $result = $stmt->fetch();
 
-        print_r($count);
-        die;
-
-        return $count >= CompanionConfiguration::ERROR_COUNT_THRESHOLD;
+        return $result['total_exceptions'] >= CompanionConfiguration::ERROR_COUNT_THRESHOLD;
     }
 
     /**
