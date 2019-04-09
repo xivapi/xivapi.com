@@ -116,9 +116,18 @@ class MarketUpdater
      */
     private function hasExceptionsExceededLimit()
     {
-        /** @var CompanionMarketItemExceptionRepository $repository */
-        $repository = $this->em->getRepository(CompanionMarketItemException::class);
-        return count($repository->findAllRecent()) >= CompanionConfiguration::ERROR_COUNT_THRESHOLD;
+        $timeout = time() - CompanionConfiguration::EXCEPTION_TIMEOUT_SECONDS;
+        $sql     = "SELECT count(*) FROM companion_market_item_exception WHERE added > {$timeout}";
+
+        $stmt = $this->em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $count = $stmt->fetch();
+
+        print_r($count);
+        die;
+
+        return $count >= CompanionConfiguration::ERROR_COUNT_THRESHOLD;
     }
 
     /**

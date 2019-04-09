@@ -36,6 +36,9 @@ class CompanionConfiguration
 
     // Item has not update
     const PRIORITY_ITEM_NEVER_SOLD = 10;
+
+    // How long until exceptions are ignored.
+    const EXCEPTION_TIMEOUT_SECONDS = (60 * 60);
     
     const QUEUE_INFO = [
         // name, consumers
