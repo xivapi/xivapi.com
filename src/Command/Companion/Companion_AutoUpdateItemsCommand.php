@@ -14,7 +14,7 @@ class Companion_AutoUpdateItemsCommand extends Command
     use CommandConfigureTrait;
     
     const COMMAND = [
-        'name' => 'Companion_AutoUpdateCommand',
+        'name' => 'Companion_AutoUpdateItemsCommand',
         'desc' => 'Auto-Update prices and history of all items on all servers.',
         'args' => [
             [ 'priority',      InputArgument::OPTIONAL, 'Item priority queue to process' ],
@@ -45,7 +45,7 @@ class Companion_AutoUpdateItemsCommand extends Command
         $this->marketUpdater->update(
             $input->getArgument('priority'),
             $input->getArgument('queue'),
-            $input->getArgument('queue_patreon') ? true : false
+            $input->getArgument('queue_patreon')
         );
     }
 }
