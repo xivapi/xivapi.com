@@ -45,7 +45,7 @@ class Companion_AutoUpdateItemsCommand extends Command
         $this->marketUpdater->update(
             $input->getArgument('priority'),
             $input->getArgument('queue'),
-            $input->getArgument('queue_patreon')
+            $input->getArgument('queue_patreon') ?: null
         );
     }
 }

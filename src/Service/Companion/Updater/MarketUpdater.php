@@ -19,7 +19,7 @@ class MarketUpdater
     /** @var EntityManagerInterface */
     private $em;
     /** @var ConsoleOutput */
-    private $consoleOutput;
+    private $console;
     /** @var CompanionMarket */
     private $market;
     /** @var array */
@@ -35,11 +35,10 @@ class MarketUpdater
         EntityManagerInterface $em,
         CompanionMarket $companionMarket
     ) {
-        $this->em         = $em;
-        $this->market     = $companionMarket;
-
-        $this->console    = new ConsoleOutput();
-        $this->times      = (Object)$this->times;
+        $this->em = $em;
+        $this->market = $companionMarket;
+        $this->console = new ConsoleOutput();
+        $this->times = (Object)$this->times;
     }
 
     public function update(int $priority, int $queue, int $patreonQueue = null)
@@ -127,6 +126,6 @@ class MarketUpdater
      */
     private function console($text)
     {
-        $this->consoleOutput->writeln(date('Y-m-d H:i:s') . " | {$text}");
+        $this->console->writeln(date('Y-m-d H:i:s') . " | {$text}");
     }
 }
