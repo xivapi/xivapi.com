@@ -110,23 +110,22 @@ class CompanionStatistics
         $completionTime = ($totalItems * $this->avgSecondsPerItem);
         $completionTimeViaConsumers = $completionTime / $consumers;
     
-        // Work out the cycle speed
-        $completionDateTime = Carbon::createFromTimestamp(time() + $completionTimeViaConsumers);
-        $completionDateTime = Carbon::now()->diff($completionDateTime)->format('%d days, %h hr, %i min');
-    
         // Get the last updated entry
         $recentUpdate = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'desc' ]);
         $lastUpdate   = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ]);
+    
+        // Work out the cycle speed
+        $completionDateTime = Carbon::createFromTimestamp(time() + $completionTimeViaConsumers);
+        $completionDateReal = Carbon::createFromTimestamp(time() + ($recentUpdate->getUpdated() - $lastUpdate->getUpdated()));
+        $completionDateFormatted = Carbon::now()->diff($completionDateTime)->format('%d days, %h hr, %i min');
         
         // work out the real time difference
-        $actualDifference = Carbon::createFromTimestamp($recentUpdate->getUpdated())->diff(
+        $actualDifferenceFormatted = Carbon::createFromTimestamp($recentUpdate->getUpdated())->diff(
             Carbon::createFromTimestamp($lastUpdate->getUpdated())
         )->format('%d days, %h hr, %i min');
     
         // work out the difference from the real cycle time vs the estimated cycle time
-        $diffFromEstimationToReal = Carbon::createFromTimestamp($lastUpdate->getUpdated())->diff(
-            Carbon::createFromTimestamp(time() + $completionTimeViaConsumers)
-        )->format('%d days, %h hr, %i min');
+        $cycleRealDiffFormatted = $completionDateReal->diff($completionDateTime)->format('%d days, %h hr, %i min');
     
         $secondsPerItem = round(($this->avgSecondsPerItem / $consumers), 2);
         $updatedRecent  = date('Y-m-d H:i:s', $recentUpdate->getUpdated());
@@ -140,17 +139,17 @@ class CompanionStatistics
             'total_requests'    => number_format($totalItems * 4),
             'updated_recently'  => $updatedRecent,
             'updated_oldest'    => $updatedOldest,
-            'cycle_time'        => $completionDateTime,
-            'cycle_real'        => $actualDifference,
-            'cycle_diff'        => $diffFromEstimationToReal,
+            'cycle_time'        => $completionDateFormatted,
+            'cycle_real'        => $actualDifferenceFormatted,
+            'cycle_diff'        => $cycleRealDiffFormatted,
         ];
     
         $this->reportSmall[$priority] = [
-            'name'          => "[{$priority}][{$consumers}] {$name}",
-            'items'         => number_format($totalItems),
-            'cycle_time'    => $completionDateTime,
-            'cycle_real'    => $actualDifference,
-            'cycle_diff'    => $diffFromEstimationToReal,
+            'name'              => "[{$priority}][{$consumers}] {$name}",
+            'items'             => number_format($totalItems),
+            'cycle_time'        => $completionDateFormatted,
+            'cycle_real'        => $actualDifferenceFormatted,
+            'cycle_diff'        => $cycleRealDiffFormatted,
         ];
     }
     
