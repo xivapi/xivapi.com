@@ -75,13 +75,12 @@ class CompanionStatistics
         $table->setStyle('box')->render();
         
         // discord message
-        $table = new Table($this->console);
-        $table->setHeaders(array_keys($this->reportSmall[1]))->setRows($this->reportSmall);
-        ob_start();
-        $table->setStyle('box')->render();
-        $tableText = ob_get_clean();
-    
-        $message = "<@42667995159330816> - Companion Auto-Update Statistics \n ```{$tableText}```";
+        $table = [];
+        foreach ($this->reportSmall as $row) {
+            $table[] = implode('', $row);
+        }
+        
+        $message = "<@42667995159330816> - Companion Auto-Update Statistics\n```". implode("\n", $table) ."```";
         Discord::mog()->sendMessage(null, $message);
     }
     
@@ -132,8 +131,7 @@ class CompanionStatistics
         $updatedOldest  = date('Y-m-d H:i:s', $lastUpdate->getUpdated());
         
         $this->report[$priority] = [
-            'name'              => "[{$priority}] {$name}",
-            'consumers'         => $consumers,
+            'name'              => "[{$priority} | {$consumers}] {$name}",
             'seconds_per_item'  => $secondsPerItem,
             'total_items'       => number_format($totalItems),
             'total_requests'    => number_format($totalItems * 4),
@@ -145,11 +143,11 @@ class CompanionStatistics
         ];
     
         $this->reportSmall[$priority] = [
-            'name'              => "[{$priority}][{$consumers}] {$name}",
-            'items'             => number_format($totalItems),
-            'cycle_time'        => $completionDateFormatted,
-            'cycle_real'        => $actualDifferenceFormatted,
-            'cycle_diff'        => $cycleRealDiffFormatted,
+            'name'              => str_pad("[{$priority} | {$consumers}] {$name}", 20, " ", STR_PAD_RIGHT),
+            'items'             => str_pad(number_format($totalItems), 20, " ", STR_PAD_LEFT),
+            'cycle_time'        => str_pad($completionDateFormatted, 30, " ", STR_PAD_RIGHT),
+            'cycle_real'        => str_pad($actualDifferenceFormatted, 30, " ", STR_PAD_RIGHT),
+            'cycle_diff'        => str_pad($cycleRealDiffFormatted, 30, " ", STR_PAD_RIGHT),
         ];
     }
     
