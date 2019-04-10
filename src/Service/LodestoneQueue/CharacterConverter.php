@@ -136,10 +136,10 @@ class CharacterConverter
             }
         
             // add all wind up leaders
-            if (in_array($data->Minions[$m], [71,72,72,74])) {
+            if (in_array($data->Minions[$m], [71,72,73,74])) {
                 $data->Minions[] = 71;
                 $data->Minions[] = 72;
-                $data->Minions[] = 72;
+                $data->Minions[] = 73;
                 $data->Minions[] = 74;
             }
         }
