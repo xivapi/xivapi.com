@@ -144,7 +144,7 @@ class CompanionStatistics
     
         $this->reportSmall[$priority] = [
             'name'              => str_pad("[{$priority} | {$consumers}] {$name}", 20, " ", STR_PAD_RIGHT),
-            'items'             => str_pad(number_format($totalItems), 20, " ", STR_PAD_LEFT),
+            'items'             => str_pad(number_format($totalItems), 20, " ", STR_PAD_RIGHT),
             'cycle_time'        => str_pad($completionDateFormatted, 30, " ", STR_PAD_RIGHT),
             'cycle_real'        => str_pad($actualDifferenceFormatted, 30, " ", STR_PAD_RIGHT),
             'cycle_diff'        => str_pad($cycleRealDiffFormatted, 30, " ", STR_PAD_RIGHT),
