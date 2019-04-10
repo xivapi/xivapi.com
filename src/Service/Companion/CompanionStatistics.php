@@ -81,16 +81,8 @@ class CompanionStatistics
         $table->setStyle('box')->render();
         $tableText = ob_get_clean();
     
-        $discordEmbed = [
-            'description'   => "```{$tableText}```",
-            'color'         => hexdec('548fff'),
-            'author'        => [
-                'name'      => 'Companion Auto-Update Statistics',
-                'icon_url'  => 'https://xivapi.com/i/060000/060934.png',
-            ],
-        ];
-    
-        Discord::mog()->sendMessage(null, '<@42667995159330816>', $discordEmbed);
+        $message = "<@42667995159330816> - Companion Auto-Update Statistics \n ```{$tableText}```";
+        Discord::mog()->sendMessage(null, $message);
     }
     
     private function buildQueueStatistics($priority)
@@ -137,8 +129,6 @@ class CompanionStatistics
         )->format('%d days, %h hr, %i min');
     
         $secondsPerItem = round(($this->avgSecondsPerItem / $consumers), 2);
-        $totalItems     = number_format($totalItems);
-        $totalRequests  = number_format($totalItems * 4);
         $updatedRecent  = date('Y-m-d H:i:s', $recentUpdate->getUpdated());
         $updatedOldest  = date('Y-m-d H:i:s', $lastUpdate->getUpdated());
         
@@ -146,8 +136,8 @@ class CompanionStatistics
             'name'              => "[{$priority}] {$name}",
             'consumers'         => $consumers,
             'seconds_per_item'  => $secondsPerItem,
-            'total_items'       => $totalItems,
-            'total_requests'    => $totalRequests,
+            'total_items'       => number_format($totalItems),
+            'total_requests'    => number_format($totalItems * 4),
             'updated_recently'  => $updatedRecent,
             'updated_oldest'    => $updatedOldest,
             'cycle_time'        => $completionDateTime,
@@ -156,8 +146,8 @@ class CompanionStatistics
         ];
     
         $this->reportSmall[$priority] = [
-            'name'          => "[{$priority}] {$name}",
-            'items'         => $totalItems,
+            'name'          => "[{$priority}][{$consumers}] {$name}",
+            'items'         => number_format($totalItems),
             'cycle_time'    => $completionDateTime,
             'cycle_real'    => $actualDifference,
             'cycle_diff'    => $diffFromEstimationToReal,

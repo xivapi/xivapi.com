@@ -14,7 +14,6 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="item", columns={"item"}),
  *          @ORM\Index(name="priority", columns={"priority"}),
  *          @ORM\Index(name="server", columns={"server"}),
- *          @ORM\Index(name="manual", columns={"manual"})
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\CompanionMarketItemEntryRepository")
@@ -27,11 +26,6 @@ class CompanionMarketItemEntry
      * @ORM\Column(type="guid")
      */
     private $id;
-    /**
-     * @var int
-     * @ORM\Column(type="integer")
-     */
-    private $added;
     /**
      * @var int
      * @ORM\Column(type="integer")
@@ -52,21 +46,11 @@ class CompanionMarketItemEntry
      * @ORM\Column(type="integer")
      */
     private $server;
-    /**
-     * @ORM\Column(type="integer", length=16)
-     */
-    private $updates = 0;
-    /**
-     * @var bool
-     * @ORM\Column(type="boolean", options={"default" : 0})
-     */
-    private $manual = false;
     
     public function __construct(int $itemId = null, int $serverId = null, int $priority = null)
     {
         $this->id       = Uuid::uuid4();
         $this->updated  = time();
-        $this->added    = time();
         $this->item     = $itemId;
         $this->server   = $serverId;
         $this->priority = $priority;
@@ -124,46 +108,6 @@ class CompanionMarketItemEntry
     public function setServer(int $server)
     {
         $this->server = $server;
-        return $this;
-    }
-    
-    public function getUpdates()
-    {
-        return $this->updates;
-    }
-    
-    public function setUpdates($updates)
-    {
-        $this->updates = $updates;
-        return $this;
-    }
-    
-    public function incUpdates()
-    {
-        $this->updates++;
-        return $this;
-    }
-
-    public function getAdded(): int
-    {
-        return $this->added;
-    }
-
-    public function setAdded(int $added)
-    {
-        $this->added = $added;
-        return $this;
-    }
-
-    public function getManual()
-    {
-        return $this->manual;
-    }
-
-    public function setManual($manual)
-    {
-        $this->manual = $manual;
-
         return $this;
     }
 }
