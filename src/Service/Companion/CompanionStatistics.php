@@ -114,40 +114,45 @@ class CompanionStatistics
         $lastUpdate   = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ]);
     
         // Work out the cycle speed
-        $completionDateTime = Carbon::createFromTimestamp(time() + $completionTimeViaConsumers);
-        $completionDateReal = Carbon::createFromTimestamp(time() + ($recentUpdate->getUpdated() - $lastUpdate->getUpdated()));
+        $completionDateTimeSeconds = time() + $completionTimeViaConsumers;
+        $completionDateTimeSecondsReal = time() + ($recentUpdate->getUpdated() - $lastUpdate->getUpdated());
+        
+        $completionDateTime = Carbon::createFromTimestamp(time() + $completionDateTimeSeconds);
+        $completionDateTimeReal = Carbon::createFromTimestamp($completionDateTimeSecondsReal);
         $completionDateFormatted = Carbon::now()->diff($completionDateTime)->format('%d days, %h hr, %i min');
         
         // work out the real time difference
-        $actualDifferenceFormatted = Carbon::createFromTimestamp($recentUpdate->getUpdated())->diff(
-            Carbon::createFromTimestamp($lastUpdate->getUpdated())
-        )->format('%d days, %h hr, %i min');
+        $actualDifferenceFormatted = Carbon::createFromTimestamp($recentUpdate->getUpdated())->diff(Carbon::createFromTimestamp($lastUpdate->getUpdated()))->format('%d days, %h hr, %i min');
     
         // work out the difference from the real cycle time vs the estimated cycle time
-        $cycleRealDiffFormatted = $completionDateReal->diff($completionDateTime)->format('%d days, %h hr, %i min');
+        $cycleRealDiffFormatted = $completionDateTimeReal->diff($completionDateTime)->format('%d days, %h hr, %i min');
     
         $secondsPerItem = round(($this->avgSecondsPerItem / $consumers), 2);
         $updatedRecent  = date('Y-m-d H:i:s', $recentUpdate->getUpdated());
         $updatedOldest  = date('Y-m-d H:i:s', $lastUpdate->getUpdated());
         
         $this->report[$priority] = [
-            'name'              => "[{$priority} | {$consumers}] {$name}",
-            'seconds_per_item'  => $secondsPerItem,
-            'total_items'       => number_format($totalItems),
-            'total_requests'    => number_format($totalItems * 4),
-            'updated_recently'  => $updatedRecent,
-            'updated_oldest'    => $updatedOldest,
-            'cycle_time'        => $completionDateFormatted,
-            'cycle_real'        => $actualDifferenceFormatted,
-            'cycle_diff'        => $cycleRealDiffFormatted,
+            'Name'               => $name,
+            'QueuePriority'      => $priority,
+            'QueueConsumers'     => $consumers,
+            'SecondsPerItem'     => $secondsPerItem,
+            'TotalItems'         => number_format($totalItems),
+            'TotalApiRequests'   => number_format($totalItems * 4),
+            'UpdatedRecently'    => $updatedRecent,
+            'UpdatedLatest'      => $updatedOldest,
+            'CycleTime'          => $completionDateFormatted,
+            'CycleTimeReal'      => $actualDifferenceFormatted,
+            'CycleDifference'    => $cycleRealDiffFormatted,
+            'CycleDifferenceSec' => $completionDateTimeSecondsReal - $completionDateTimeSeconds
+            
         ];
     
         $this->reportSmall[$priority] = [
-            'name'              => str_pad("[{$priority} | {$consumers}] {$name}", 20, " ", STR_PAD_RIGHT),
-            'items'             => str_pad(number_format($totalItems), 20, " ", STR_PAD_RIGHT),
-            'cycle_time'        => str_pad($completionDateFormatted, 30, " ", STR_PAD_RIGHT),
-            'cycle_real'        => str_pad($actualDifferenceFormatted, 30, " ", STR_PAD_RIGHT),
-            'cycle_diff'        => str_pad($cycleRealDiffFormatted, 30, " ", STR_PAD_RIGHT),
+            str_pad("[{$priority} | {$consumers}] {$name}", 20, " ", STR_PAD_RIGHT),
+            str_pad(number_format($totalItems), 20, " ", STR_PAD_RIGHT),
+            str_pad($completionDateFormatted, 30, " ", STR_PAD_RIGHT),
+            str_pad($actualDifferenceFormatted, 30, " ", STR_PAD_RIGHT),
+            str_pad($cycleRealDiffFormatted, 30, " ", STR_PAD_RIGHT),
         ];
     }
     
@@ -230,9 +235,28 @@ class CompanionStatistics
         
         /** @var CompanionMarketItemException $ex */
         foreach($this->repositoryExceptions->findAll() as $ex) {
+            $type = 'Unknown';
+            
+            if (stripos($ex->getMessage(), '340000')) {
+                $type = 'Sight Server Error';
+            }
+    
+            if (stripos($ex->getMessage(), '319201')) {
+                $type = 'Server Emergency Maintenance';
+            }
+    
+            if (stripos($ex->getMessage(), '111001')) {
+                $type = 'SE Account Token Expired';
+            }
+    
+            if (stripos($ex->getMessage(), 'cURL error 28')) {
+                $type = 'Sight Timed-Out';
+            }
+            
             $exceptions[] = [
+                'type'      => $type,
                 'arguments' => $ex->getException(),
-                'message'   => $ex->getMessage(),
+                'hash'      => sha1($ex->getMessage()),
             ];
         }
         
