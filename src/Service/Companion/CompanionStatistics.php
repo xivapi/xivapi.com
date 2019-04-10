@@ -9,6 +9,7 @@ use App\Repository\CompanionMarketItemEntryRepository;
 use App\Repository\CompanionMarketItemExceptionRepository;
 use App\Repository\CompanionMarketItemUpdateRepository;
 use App\Service\Redis\Redis;
+use App\Service\ThirdParty\Discord\Discord;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Helper\Table;
@@ -34,6 +35,7 @@ class CompanionStatistics
     
     // stats vars
     private $report = [];
+    private $reportSmall = [];
     private $avgSecondsPerItem = 0;
     private $updateQueueSizes = [];
 
@@ -70,7 +72,25 @@ class CompanionStatistics
         $this->console->writeln("<info>Avg Seconds per Item: {$this->avgSecondsPerItem}</info>");
         $table = new Table($this->console);
         $table->setHeaders(array_keys($this->report[1]))->setRows($this->report);
-        $table->render();
+        $table->setStyle('box')->render();
+        
+        // discord message
+        $table = new Table($this->console);
+        $table->setHeaders(array_keys($this->reportSmall[1]))->setRows($this->reportSmall);
+        ob_start();
+        $table->setStyle('box')->render();
+        $tableText = ob_get_clean();
+    
+        $discordEmbed = [
+            'description'   => "```{$tableText}```",
+            'color'         => hexdec('548fff'),
+            'author'        => [
+                'name'      => 'Companion Auto-Update Statistics',
+                'icon_url'  => 'https://xivapi.com/i/060000/060934.png',
+            ],
+        ];
+    
+        Discord::mog()->sendMessage(null, '<@42667995159330816>', $discordEmbed);
     }
     
     private function buildQueueStatistics($priority)
@@ -111,18 +131,36 @@ class CompanionStatistics
             Carbon::createFromTimestamp($lastUpdate->getUpdated())
         )->format('%d days, %h hr, %i min');
     
+        // work out the difference from the real cycle time vs the estimated cycle time
+        $diffFromEstimationToReal = Carbon::createFromTimestamp($lastUpdate->getUpdated())->diff(
+            Carbon::createFromTimestamp(time() + $completionTimeViaConsumers)
+        )->format('%d days, %h hr, %i min');
+    
+        $secondsPerItem = round(($this->avgSecondsPerItem / $consumers), 2);
+        $totalItems     = number_format($totalItems);
+        $totalRequests  = number_format($totalItems * 4);
+        $updatedRecent  = date('Y-m-d H:i:s', $recentUpdate->getUpdated());
+        $updatedOldest  = date('Y-m-d H:i:s', $lastUpdate->getUpdated());
+        
         $this->report[$priority] = [
-            'name'              => $name,
-            'priority'          => $priority,
+            'name'              => "[{$priority}] {$name}",
             'consumers'         => $consumers,
-            'seconds_per_item'  => round(($this->avgSecondsPerItem / $consumers), 2),
-            'total_items'       => number_format($totalItems),
-            'total_requests'    => number_format($totalItems * 4),
-            'updated_recently'  => date('Y-m-d H:i:s', $recentUpdate->getUpdated()),
-            'updated_oldest'    => date('Y-m-d H:i:s', $lastUpdate->getUpdated()),
-            'completion_time'   => number_format($completionTime),
+            'seconds_per_item'  => $secondsPerItem,
+            'total_items'       => $totalItems,
+            'total_requests'    => $totalRequests,
+            'updated_recently'  => $updatedRecent,
+            'updated_oldest'    => $updatedOldest,
             'cycle_time'        => $completionDateTime,
             'cycle_real'        => $actualDifference,
+            'cycle_diff'        => $diffFromEstimationToReal,
+        ];
+    
+        $this->reportSmall[$priority] = [
+            'name'          => "[{$priority}] {$name}",
+            'items'         => $totalItems,
+            'cycle_time'    => $completionDateTime,
+            'cycle_real'    => $actualDifference,
+            'cycle_diff'    => $diffFromEstimationToReal,
         ];
     }
     

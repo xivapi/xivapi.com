@@ -104,8 +104,11 @@ class MarketUpdater
         $api->useAsync();
 
         // 1st pass - send queue requests for all Item Prices + History
-        $a = microtime(true);
-        foreach ($this->items as $item) {
+        $a     = microtime(true);
+        $total = count($this->items);
+        foreach ($this->items as $i => $item) {
+            $i = $i + 1;
+            
             $itemId = $item['item'];
             $server = $item['server'];
 
@@ -124,18 +127,24 @@ class MarketUpdater
 
             // send requests and wait
             $api->Sight()->settle($requests)->wait();
-            $this->console("Sent queue requests for: {$itemId}");
+            $this->console("({$i}/{$total}) Sent queue requests for: {$itemId}");
 
             // record requests on Google Analytics
             GoogleAnalytics::companionTrackItemAsUrl("/prices/{$itemId}");
             GoogleAnalytics::companionTrackItemAsUrl("/history/{$itemId}");
-
-            // wait to reduce spam
-            usleep(
-                (CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS) * 1000
-            );
+            
+            usleep(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS * 1000);
         }
         $this->times->firstPass = microtime(true) - $a;
+
+        // delay if the 1st pass was fast.
+        $firstPassDelay = 25 - ceil($this->times->firstPass);
+        
+        $this->console("1st Pass = {$this->times->firstPass} seconds");
+        if ($firstPassDelay > 0) {
+            $this->console("Waiting after first pass of: {$firstPassDelay} seconds");
+            sleep($firstPassDelay);
+        }
 
         // 2nd pass - request results of all Item Prices + History
         $a = microtime(true);
@@ -158,9 +167,6 @@ class MarketUpdater
             $results = $api->Sight()->settle($requests)->wait();
             $this->console("Fetch queue responses for: {$itemId}");
 
-            print_r($results);
-            die;
-
             // save data
             $this->storeMarketData($item, $results);
 
@@ -177,6 +183,7 @@ class MarketUpdater
 
         // update the database market entries with the latest updated timestamps
         $this->updateDatabaseMarketItemEntries();
+        $this->em->flush();
 
         // finish, output completed duration
         $duration = round(microtime(true) - $this->times->startTime, 1);
@@ -274,10 +281,14 @@ class MarketUpdater
                 array_unshift($marketItem->History, MarketHistory::build($id, $row));
             }
         }
+        
+        file_put_contents(
+            __DIR__."/debug_{$itemId}.json",
+            json_encode($marketItem, JSON_PRETTY_PRINT)
+        );
 
         // save market item
-        $this->market->set($marketItem);
-        $this->console("- Updated: {$itemId}");
+        #$this->market->set($marketItem);
 
         // record update
         $this->em->persist(
@@ -400,7 +411,7 @@ class MarketUpdater
             $this->tokens[$id] = $token;
         }
 
-        $this->em->close();
+        $this->em->clear();
     }
 
     /**
@@ -408,7 +419,7 @@ class MarketUpdater
      */
     private function updateDatabaseMarketItemEntries()
     {
-        $this->console('Updating database item entries')
+        $this->console('Updating database item entries');
         foreach ($this->marketItemEntryUpdated as $item) {
             [$id, $patreonQueue] = $item;
 

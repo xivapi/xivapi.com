@@ -2,6 +2,7 @@
 
 namespace App\Service\Companion;
 
+use App\Command\Companion\Companion_AutoPrioritiseLoginsCommand;
 use App\Entity\CompanionMarketItemEntry;
 use App\Repository\CompanionMarketItemEntryRepository;
 use App\Service\Companion\Models\MarketItem;
@@ -60,11 +61,13 @@ class CompanionItemManager
      * Populate the market database with marketable items so they can be auto-updated,
      * all newly added items start on priority 10 and will shift over time.
      */
-    public function populateMarketDatabaseWithItems()
+    public function populateMarketDatabaseWithItems(string $server = null)
     {
         $total = count($this->getMarketItemIds());
         $this->output->writeln("Adding: {$total} items to the companion market database.");
         $section = $this->output->section();
+        
+        $server = $server ? GameServers::getServerId($server) : null;
 
         // loop through all marketable items.
         foreach ($this->getMarketItemIds() as $itemId) {
@@ -72,6 +75,10 @@ class CompanionItemManager
 
             // loop through each server
             foreach (GameServers::LIST as $serverId => $serverName) {
+                if ($server && $server != $serverId) {
+                    continue;
+                }
+                
                 // check for an existing entry
                 $obj = $this->repository->findOneBy([
                     'item' => $itemId,
@@ -85,7 +92,11 @@ class CompanionItemManager
 
                 // create new entry with a priority of 10
                 $this->em->persist(
-                    new CompanionMarketItemEntry($itemId, $serverId, 10)
+                    new CompanionMarketItemEntry(
+                        $itemId,
+                        $serverId,
+                        CompanionConfiguration::PRIORITY_ITEM_IS_NEW
+                    )
                 );
             }
 
@@ -137,9 +148,8 @@ class CompanionItemManager
                 // Calculate
                 // ------------------------------------------------------------
 
-                // if the item is still "new" (7 days)
-                if ($obj->getAdded() > (time() - (60 * 60 * 24 * 7))) {
-                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_IS_NEW);
+                // if the item is still "new", ignore for now (another command handles it)
+                if ($obj->getPriority() === CompanionConfiguration::PRIORITY_ITEM_IS_NEW) {
                     $this->em->persist($obj);
                     continue;
                 }

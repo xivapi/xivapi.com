@@ -20,7 +20,7 @@ class CompanionConfiguration
     const CRONJOB_ASYNC_DELAY_MS = 3500;
 
     // the delay between requests
-    const DELAY_BETWEEN_REQUESTS_MS = 800;
+    const DELAY_BETWEEN_REQUESTS_MS = 25;
 
     // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;
@@ -35,39 +35,38 @@ class CompanionConfiguration
     const PRIORITY_TIMES_DEFAULT = 7;
 
     // Item was added to the database within the past 7 days
-    const PRIORITY_ITEM_IS_NEW = 8;
-
-    // Item has not update
-    const PRIORITY_ITEM_NEVER_SOLD = 10;
+    const PRIORITY_ITEM_IS_NEW = 10;
 
     // How long until exceptions are ignored.
     const EXCEPTION_TIMEOUT_SECONDS = (60 * 60);
     
     const QUEUE_INFO = [
         // name, consumers
-        1 => '< 1 hour',
-        2 => '< 3 hours',
-        3 => '< 6 hours',
-        4 => '< 12 hours',
-        5 => '< 24 hours',
-        6 => '< 48 hours',
-        7 => '> 48+ hours',
+        1  => '< 1 hour',
+        2  => '< 3 hours',
+        3  => '< 6 hours',
+        4  => '< 12 hours',
+        5  => '< 24 hours',
+        6  => '< 48 hours',
+        7  => '> 48+ hours',
 
-        8 => 'Item newly added to XIVAPI',
-        9 => '(not used)',
+        8  => '(not used)',
+        9  => '(not used)',
+        10 => 'Item is new'
     ];
     
     const QUEUE_CONSUMERS = [
-        1 => 2,
-        2 => 3,
-        3 => 3,
-        4 => 4,
-        5 => 4,
-        6 => 3,
-        7 => 5,
+        1  => 2,
+        2  => 3,
+        3  => 3,
+        4  => 4,
+        5  => 4,
+        6  => 3,
+        7  => 5,
         
-        8 => 0,
-        9 => 0,
+        8  => 0,
+        9  => 0,
+        10 => 0,
     ];
     
     // Priority values against a slot of time
