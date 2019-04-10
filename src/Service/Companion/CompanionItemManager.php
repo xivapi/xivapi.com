@@ -124,10 +124,10 @@ class CompanionItemManager
 
         // loop through all marketable items.
         foreach ($items as $itemId) {
-            $section->overwrite("Calculating priority for item: {$itemId}");
-
             // loop through each server
             foreach (GameServers::LIST as $serverId => $serverName) {
+                $section->overwrite("Calculating priority for item: {$itemId} on {$serverName}");
+                
                 // grab recorded document
                 /** @var MarketItem $document */
                 $document = $this->companionMarket->get($serverId, $itemId);
@@ -215,6 +215,44 @@ class CompanionItemManager
             $this->em->clear();
         }
 
+        $this->output->writeln('Finished calculating item priority.');
+        $this->output->writeln("End Time: ". date('Y-m-d H:i:s'));
+    }
+    
+    public function populateRedisWithItemPriorities()
+    {
+        $this->output->writeln('Populating Redis with Item Priority Numbers ...');
+        $this->output->writeln("Start Time: ". date('Y-m-d H:i:s'));
+    
+        $section = $this->output->section();
+    
+        $this->output->writeln("Getting market item ids ...");
+        $items = $this->getMarketItemIds();
+        
+        // 7 days cache
+        $cachetime = (60*60*24*7);
+    
+        // loop through all marketable items.
+        foreach ($items as $itemId) {
+            // loop through each server
+            foreach (GameServers::LIST as $serverId => $serverName) {
+                $section->overwrite("Storing priority value for: {$itemId} on {$serverName}");
+                
+                /** @var CompanionMarketItemEntry $obj */
+                $obj = $this->repository->findOneBy([
+                    'item' => $itemId,
+                    'server' => $serverId
+                ]);
+    
+                if ($obj === null) {
+                    Redis::Cache()->set("market_item_priority_{$serverId}_{$itemId}", 1, $cachetime);
+                    continue;
+                }
+    
+                Redis::Cache()->set("market_item_priority_{$serverId}_{$itemId}", $obj->getPriority(), $cachetime);
+            }
+        }
+    
         $this->output->writeln('Finished calculating item priority.');
         $this->output->writeln("End Time: ". date('Y-m-d H:i:s'));
     }

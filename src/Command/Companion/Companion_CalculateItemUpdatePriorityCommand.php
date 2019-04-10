@@ -29,5 +29,6 @@ class Companion_CalculateItemUpdatePriorityCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->companionItemManager->calculateItemUpdatePriority();
+        $this->companionItemManager->populateRedisWithItemPriorities();
     }
 }
