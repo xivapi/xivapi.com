@@ -234,7 +234,7 @@ class CompanionStatistics
         $exceptions = [];
         
         /** @var CompanionMarketItemException $ex */
-        foreach($this->repositoryExceptions->findAll() as $ex) {
+        foreach($this->repositoryExceptions->findBy([], ['added' => 'desc'], 10) as $ex) {
             $type = 'Unknown';
             
             if (stripos($ex->getMessage(), '340000')) {
@@ -254,9 +254,10 @@ class CompanionStatistics
             }
             
             $exceptions[] = [
-                'type'      => $type,
-                'arguments' => $ex->getException(),
-                'hash'      => sha1($ex->getMessage()),
+                'Added'     => $ex->getAdded(),
+                'Arguments' => $ex->getException(),
+                'Type'      => $type,
+                'Hash'      => sha1($ex->getMessage()),
             ];
         }
         
