@@ -81,7 +81,7 @@ class CompanionStatistics
         }
         
         $message = "<@42667995159330816> - Companion Auto-Update Statistics\n```". implode("\n", $table) ."```";
-        Discord::mog()->sendMessage(null, $message);
+        # Discord::mog()->sendMessage(null, $message);
     }
     
     private function buildQueueStatistics($priority)
@@ -117,7 +117,7 @@ class CompanionStatistics
         $completionDateTimeSeconds = time() + $completionTimeViaConsumers;
         $completionDateTimeSecondsReal = time() + ($recentUpdate->getUpdated() - $lastUpdate->getUpdated());
         
-        $completionDateTime = Carbon::createFromTimestamp(time() + $completionDateTimeSeconds);
+        $completionDateTime = Carbon::createFromTimestamp($completionDateTimeSeconds);
         $completionDateTimeReal = Carbon::createFromTimestamp($completionDateTimeSecondsReal);
         $completionDateFormatted = Carbon::now()->diff($completionDateTime)->format('%d days, %h hr, %i min');
         
@@ -148,8 +148,8 @@ class CompanionStatistics
         ];
     
         $this->reportSmall[$priority] = [
-            str_pad("[{$priority} | {$consumers}] {$name}", 20, " ", STR_PAD_RIGHT),
-            str_pad(number_format($totalItems), 20, " ", STR_PAD_RIGHT),
+            str_pad("[{$priority} | {$consumers}] {$name}", 25, " ", STR_PAD_RIGHT),
+            str_pad(number_format($totalItems), 15, " ", STR_PAD_RIGHT),
             str_pad($completionDateFormatted, 30, " ", STR_PAD_RIGHT),
             str_pad($actualDifferenceFormatted, 30, " ", STR_PAD_RIGHT),
             str_pad($cycleRealDiffFormatted, 30, " ", STR_PAD_RIGHT),
