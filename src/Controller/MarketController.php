@@ -52,8 +52,8 @@ class MarketController extends AbstractController
     public function companionStatistics()
     {
         return $this->json([
-            'statistics' => $this->companionStatistics->getStatistics(),
-            'exceptions' => $this->companionStatistics->getExceptions()
+            'Stats' => $this->companionStatistics->getStatistics(),
+            'Errors' => $this->companionStatistics->getExceptions()
         ]);
     }
     
