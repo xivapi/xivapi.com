@@ -81,7 +81,7 @@ class CompanionStatistics
         }
         
         $message = "<@42667995159330816> - Companion Auto-Update Statistics\n```". implode("\n", $table) ."```";
-        # Discord::mog()->sendMessage(null, $message);
+        Discord::mog()->sendMessage(null, $message);
     }
     
     private function buildQueueStatistics($priority)
@@ -270,11 +270,10 @@ class CompanionStatistics
     public function saveStatistics()
     {
         $data = [
-            'updated'           => time(),
-            'report'            => $this->report,
-            'avgSecondsPerItem' => $this->avgSecondsPerItem,
-            'updateQueueSizes'  => $this->updateQueueSizes,
-            'getStatisticsView' => $this->getStatisticsView(),
+            'ReportUpdated'     => time(),
+            'Report'            => $this->report,
+            'ItemQueuePriority' => $this->updateQueueSizes,
+            'DatabaseSqlReport' => $this->getStatisticsView(),
         ];
         
         Redis::Cache()->set('stats_CompanionUpdateStatistics', $data, (60 * 60 * 24 * 7));
