@@ -21,12 +21,12 @@ class Discord
      */
     private static function getClass($namespace, $className)
     {
-        if (self::$classes[$namespace]) {
+        if (isset(self::$classes[$namespace])) {
             return self::$classes[$namespace];
         }
-
+    
         self::$classes[$namespace] = new $className();
-
+    
         return self::$classes[$namespace];
     }
 }
