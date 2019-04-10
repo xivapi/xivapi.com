@@ -143,7 +143,7 @@ class CompanionStatistics
             'CycleTime'          => $completionDateFormatted,
             'CycleTimeReal'      => $actualDifferenceFormatted,
             'CycleDifference'    => $cycleRealDiffFormatted,
-            'CycleDifferenceSec' => $completionDateTimeSecondsReal - $completionDateTimeSeconds
+            'CycleDifferenceSec' => ceil($completionDateTimeSecondsReal - $completionDateTimeSeconds)
             
         ];
     
@@ -153,6 +153,7 @@ class CompanionStatistics
             str_pad($completionDateFormatted, 30, " ", STR_PAD_RIGHT),
             str_pad($actualDifferenceFormatted, 30, " ", STR_PAD_RIGHT),
             str_pad($cycleRealDiffFormatted, 30, " ", STR_PAD_RIGHT),
+            ceil($completionDateTimeSecondsReal - $completionDateTimeSeconds)
         ];
     }
     
