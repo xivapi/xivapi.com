@@ -27,10 +27,10 @@ class MarketListing
     /**
      * Build a MarketListing object from SE API response
      */
-    public static function build(\stdClass $data): MarketListing
+    public static function build(string $id, \stdClass $data): MarketListing
     {
         $obj                        = new MarketListing();
-        $obj->ID                    = sha1($data->itemId); // avoid overflow
+        $obj->ID                    = $id;
         $obj->Added                 = time();
         $obj->IsCrafted             = (bool)($data->isCrafted ? true : false);
         $obj->IsHQ                  = (bool)($data->hq ? true : false);
