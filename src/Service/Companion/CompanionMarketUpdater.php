@@ -93,6 +93,7 @@ class CompanionMarketUpdater
 
         $this->console->writeln(date('H:i:s') .' | A');
         $this->console->writeln("Priority: {$priority} - Queue: {$queue} - Patreon Queue: {$patreonQueue}");
+        $this->console->writeln("Deadline: ". date('H:i:s', $this->deadline));
 
         $queueStartTime = microtime(true);
         if ($this->hasExceptionsExceededLimit()) {
