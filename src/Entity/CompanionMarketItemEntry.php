@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="item", columns={"item"}),
  *          @ORM\Index(name="priority", columns={"priority"}),
  *          @ORM\Index(name="server", columns={"server"}),
+ *          @ORM\Index(name="patreon_queue", columns={"patreon_queue"}),
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\CompanionMarketItemEntryRepository")
