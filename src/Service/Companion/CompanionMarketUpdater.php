@@ -84,7 +84,7 @@ class CompanionMarketUpdater
         $this->console = new ConsoleOutput();
     }
     
-    public function update(int $priority, int $queue, ?bool $manual = false)
+    public function update(int $priority, int $queue, int $patreonQueue = null)
     {
         $this->start = time();
         $this->console->writeln(date('H:i:s') .' | A');
@@ -110,11 +110,9 @@ class CompanionMarketUpdater
         $limit = CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * $queue;
 
         $this->console->writeln(date('H:i:s') .' | GETTING ITEMS');
-        if ($manual) {
-            $items = $this->repository->findManualItemsToUpdate($start, $limit);
-        } else {
-            $items = $this->repository->findItemsToUpdate($priority, $start, $limit);
-        }
+        $items = $patreonQueue
+            ? $this->repository->findPatreonItemsToUpdate($patreonQueue, $start, $limit)
+            : $this->repository->findItemsToUpdate($priority, $start, $limit);
         $this->console->writeln(date('H:i:s') .' | GOT ITEMS');
         
         // loop through chunks

@@ -27,7 +27,7 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     }
     
     /**
-     * Returns a list of items that can be updated with valid servers
+     * Returns a list of items to update
      */
     public function findItemsToUpdate(int $priority, int $limit, int $offset)
     {
@@ -41,26 +41,12 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Returns a list of items that can be updated with valid servers
+     * Returns patreo nitems to update
      */
     public function findPatreonItemsToUpdate(int $patreonPriority, int $limit, int $offset)
     {
         $sql = $this->createQueryBuilder('a');
-        $sql->where("a.priorityPatreon = :a")->setParameter('a', $patreonPriority)
-            ->orderBy('a.updated', 'asc')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset);
-
-        return $sql->getQuery()->getResult();
-    }
-
-    /**
-     * Returns a list of items that can be updated with valid servers
-     */
-    public function findManualItemsToUpdate(int $limit, int $offset)
-    {
-        $sql = $this->createQueryBuilder('a');
-        $sql->where("a.manual = :a")->setParameter('a', true)
+        $sql->where("a.patreonQueue = :a")->setParameter('a', $patreonPriority)
             ->orderBy('a.updated', 'asc')
             ->setMaxResults($limit)
             ->setFirstResult($offset);
