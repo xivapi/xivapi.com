@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\CompanionMarketItemEntry;
 use App\Service\Companion\CompanionMarketUpdater;
 use App\Service\Companion\CompanionTokenManager;
+use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -85,15 +87,30 @@ class MarketPrivateController extends AbstractController
         $itemId = (int)$request->get('item_id');
         $server = ucwords($request->get('server'));
 
+        /** @var CompanionMarketItemEntry $marketEntry */
+        $marketEntry = $this->companionMarketUpdater->getMarketItemEntry(GameServers::getServerId($server), $itemId);
 
-        $alreadySentRecent = Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$server}");
 
-        if ($alreadySentRecent) {
-            return $this->json(false);
+        /**
+         * First, check if the item was passed here within the past 5 minutes.
+         */
+
+        $requestLastSent = Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$server}");
+
+        if ($requestLastSent) {
+            return $this->json([ false, $requestLastSent, 'Item already requested to be updated within the past 5 minutes.' ]);
         }
 
-        // avoid processing the same item in a 5 minute period.
+        // Place the item on this server in a 300 second cooldown
         Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", true, 300);
+
+        /**
+         * Check when the item was last updated, maybe it updated within the last 5 minutes,
+         * if so then we don't need to update it again.
+         */
+        if ($marketEntry->getUpdated() > (time() - (60 * 5))) {
+            return $this->json([ false, $marketEntry->getUpdated(), 'Item already updated within the past 5 minutes' ]);
+        }
 
         /**
          * Find an empty queue
@@ -115,6 +132,10 @@ class MarketPrivateController extends AbstractController
          */
         $queue = $queue ? $queue : $queues[array_rand($queues)];
         $this->companionMarketUpdater->updateManual($itemId, $server, $queue);
-        return $this->json(true);
+        return $this->json([
+            true,
+            time(),
+            "Item will be updated by patreon queue: {$queue}"
+        ]);
     }
 }

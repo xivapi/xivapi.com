@@ -162,6 +162,17 @@ class CompanionMarketUpdater
     }
 
     /**
+     * Get a single market item entry.
+     */
+    public function getMarketItemEntry(int $serverId, int $itemId)
+    {
+        return $this->repository->findOneBy([
+            'server' => $serverId,
+            'item'   => $itemId,
+        ]);
+    }
+
+    /**
      * Update a group of items
      */
     private function updateChunk($chunkList, $priority)
