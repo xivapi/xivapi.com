@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Exception\InvalidCompanionMarketRequestException;
 use App\Exception\InvalidCompanionMarketRequestServerSizeException;
 use App\Service\Companion\Companion;
+use App\Service\Companion\CompanionItemManager;
 use App\Service\Companion\CompanionMarket;
 use App\Service\Companion\CompanionStatistics;
 use App\Service\Content\GameServers;
@@ -23,16 +24,20 @@ class MarketController extends AbstractController
     private $companionStatistics;
     /** @var CompanionMarket */
     private $companionMarket;
+    /** @var CompanionItemManager */
+    private $companionItemManager;
     /** @var Companion */
     private $companion;
     
     public function __construct(
         Companion $companion,
         CompanionMarket $companionMarket,
+        CompanionItemManager $companionItemManager,
         CompanionStatistics $companionStatistics
     ) {
         $this->companion = $companion;
         $this->companionMarket = $companionMarket;
+        $this->companionItemManager = $companionItemManager;
         $this->companionStatistics = $companionStatistics;
     }
     
@@ -64,6 +69,16 @@ class MarketController extends AbstractController
     {
         return $this->json(
             false //$this->companionMarket->search()
+        );
+    }
+
+    /**
+     * @Route("/market/ids")
+     */
+    public function sellable(Request $request)
+    {
+        return $this->json(
+            $this->companionItemManager->getMarketItemIds()
         );
     }
     
