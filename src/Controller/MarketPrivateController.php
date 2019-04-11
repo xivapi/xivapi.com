@@ -93,7 +93,6 @@ class MarketPrivateController extends AbstractController
         /**
          * First, check if the item was passed here within the past 5 minutes.
          */
-
         $requestLastSent = Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$server}");
 
         if ($requestLastSent) {

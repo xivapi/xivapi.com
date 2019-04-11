@@ -33,26 +33,30 @@ class Temp_AddRegionToItems extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln("Getting items");
+        $jp = GameServers::LIST_DC['Elemental'] + GameServers::LIST_DC['Gaia'] + GameServers::LIST_DC['Mana'];
+        $na = GameServers::LIST_DC['Aether'] + GameServers::LIST_DC['Primal'] + GameServers::LIST_DC['Crystal'];
+        $eu = GameServers::LIST_DC['Chaos'] + GameServers::LIST_DC['Light'];
 
-        $items = $this->em->getRepository(CompanionMarketItemEntry::class)->findAll();
-        $total = count($items);
-
-        $output->writeln("Total Items: {$total}");
-        $section = (new ConsoleOutput())->section();
-
-        /** @var CompanionMarketItemEntry $item */
-        foreach ($items as $item) {
-            // get region
-            $dc = GameServers::getDataCenter(GameServers::LIST[$item->getServer()]);
-            $region = GameServers::LIST_DC_REGIONS[$dc];
-
-            $item->setRegion($region);
-
-            $this->em->persist($item);
-            $this->em->flush();
-
-            $section->overwrite("{$item->getId()} {$item->getServer()} = {$item->getRegion()}");
+        foreach ($jp as $i => $serverName) {
+            $jp[$i] = GameServers::getServerId($serverName);
         }
+
+        foreach ($na as $i => $serverName) {
+            $na[$i] = GameServers::getServerId($serverName);
+        }
+
+        foreach ($eu as $i => $serverName) {
+            $eu[$i] = GameServers::getServerId($serverName);
+        }
+
+        $sql1 = "UPDATE companion_market_item_entry SET region = 1 WHERE server IN (". $jp .")";
+        $sql2 = "UPDATE companion_market_item_entry SET region = 1 WHERE server IN (". $na .")";
+        $sql3 = "UPDATE companion_market_item_entry SET region = 1 WHERE server IN (". $eu .")";
+
+        print_r([
+            $sql1,
+            $sql2,
+            $sql3
+        ]);
     }
 }
