@@ -89,12 +89,13 @@ class CompanionMarketUpdater
         $this->start = time();
         $this->console->writeln(date('H:i:s') .' | A');
 
+        $this->console->writeln("[[ Priority: {$priority} - Queue: {$queue} - Patreon Queue: {$patreonQueue} ]]");
+
         $queueStartTime = microtime(true);
         if ($this->hasExceptionsExceededLimit()) {
             $this->console->writeln(date('H:i:s') .' | !! Error exceptions exceeded limit. Auto-Update stopped');
             exit();
         }
-
 
         // grab our companion tokens
         $this->tokens = $this->companionTokenManager->getCompanionTokensPerServer();
