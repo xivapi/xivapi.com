@@ -121,7 +121,7 @@ class CompanionMarketItemEntry
         return $this->patreonQueue;
     }
 
-    public function setPatreonQueue(int $patreonQueue)
+    public function setPatreonQueue(?int $patreonQueue = null)
     {
         $this->patreonQueue = $patreonQueue;
 

@@ -36,8 +36,8 @@ class Companion_AutoUpdateCommand extends Command
     {
         /**
          * php bin/console Companion_AutoUpdateCommand 10 1
-         * php bin/console Companion_AutoUpdateCommand 10 1 1234
-         * php bin/console Companion_AutoUpdateCommand 10 1 1234
+         * php bin/console Companion_AutoUpdateCommand 10 1 1
+         * php bin/console Companion_AutoUpdateCommand 10 1 2
          */
         $this->companionMarketUpdater->update(
             $input->getArgument('priority'),
