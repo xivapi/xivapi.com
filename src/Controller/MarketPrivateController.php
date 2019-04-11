@@ -85,6 +85,16 @@ class MarketPrivateController extends AbstractController
         $itemId = (int)$request->get('item_id');
         $server = ucwords($request->get('server'));
 
+
+        $alreadySentRecent = Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$server}");
+
+        if ($alreadySentRecent) {
+            return $this->json(false);
+        }
+
+        // avoid processing the same item in a 5 minute period.
+        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", true, 300);
+
         /**
          * Find an empty queue
          */
