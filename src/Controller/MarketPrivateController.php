@@ -85,18 +85,25 @@ class MarketPrivateController extends AbstractController
         $itemId = (int)$request->get('item_id');
         $server = ucwords($request->get('server'));
 
-        // max set to 99
-        $queue = 99;
-        foreach (range(1, 5) as $num) {
-            $status = Redis::Cache()->get("companion_market_manual_queue_{$num}");
+        /**
+         * Find an empty queue
+         */
+        $queue  = null;
+        $queues = range(1, 5);
+        foreach ($queues as $i => $num) {
+            $size = Redis::Cache()->get("companion_market_manual_queue_{$num}");
 
-            if ($status === null) {
+            if ($size === null) {
+                Redis::Cache()->set("companion_market_manual_queue_{$num}", 1, 60);
                 $queue = $num;
                 break;
             }
         }
 
-        Redis::Cache()->set("companion_market_manual_queue_{$queue}", true, 60);
+        /**
+         * if we have a queue, use it, otherwise pick oen at random
+         */
+        $queue = $queue ? $queue : $queues[array_rand($queues)];
         $this->companionMarketUpdater->updateManual($itemId, $server, $queue);
         return $this->json(true);
     }
