@@ -50,8 +50,8 @@ class Temp_AddRegionToItems extends Command
         }
 
         $sql1 = "UPDATE companion_market_item_entry SET region = 1 WHERE server IN (". implode(',', $jp) .")";
-        $sql2 = "UPDATE companion_market_item_entry SET region = 1 WHERE server IN (". implode(',', $na) .")";
-        $sql3 = "UPDATE companion_market_item_entry SET region = 1 WHERE server IN (". implode(',', $eu) .")";
+        $sql2 = "UPDATE companion_market_item_entry SET region = 2 WHERE server IN (". implode(',', $na) .")";
+        $sql3 = "UPDATE companion_market_item_entry SET region = 3 WHERE server IN (". implode(',', $eu) .")";
 
         print_r([
             $sql1,
