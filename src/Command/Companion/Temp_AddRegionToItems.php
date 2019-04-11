@@ -33,9 +33,9 @@ class Temp_AddRegionToItems extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $jp = GameServers::LIST_DC['Elemental'] + GameServers::LIST_DC['Gaia'] + GameServers::LIST_DC['Mana'];
-        $na = GameServers::LIST_DC['Aether'] + GameServers::LIST_DC['Primal'] + GameServers::LIST_DC['Crystal'];
-        $eu = GameServers::LIST_DC['Chaos'] + GameServers::LIST_DC['Light'];
+        $jp = array_merge(GameServers::LIST_DC['Elemental'], GameServers::LIST_DC['Gaia'], GameServers::LIST_DC['Mana']);
+        $na = array_merge(GameServers::LIST_DC['Aether'], GameServers::LIST_DC['Primal'], GameServers::LIST_DC['Crystal']);
+        $eu = array_merge(GameServers::LIST_DC['Chaos'], GameServers::LIST_DC['Light']);
 
         foreach ($jp as $i => $serverName) {
             $jp[$i] = GameServers::getServerId($serverName);
