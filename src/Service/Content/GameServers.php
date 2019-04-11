@@ -78,6 +78,19 @@ class GameServers
         'Zodiark',      # 65
         
     ];
+
+    const LIST_DC_REGIONS = [
+        'Elemental' => 1,
+        'Gaia'      => 1,
+        'Mana'      => 1,
+
+        'Aether'    => 2,
+        'Primal'    => 2,
+        'Crystal'   => 2,
+
+        'Chaos'     => 3,
+        'Light'     => 3,
+    ];
     
     const LIST_DC = [
         // jp

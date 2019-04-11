@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="item", columns={"item"}),
  *          @ORM\Index(name="priority", columns={"priority"}),
  *          @ORM\Index(name="server", columns={"server"}),
+ *          @ORM\Index(name="region", columns={"region"}),
  *          @ORM\Index(name="patreon_queue", columns={"patreon_queue"}),
  *     }
  * )
@@ -49,17 +50,23 @@ class CompanionMarketItemEntry
     private $server;
     /**
      * @var int
+     * @ORM\Column(type="integer")
+     */
+    private $region;
+    /**
+     * @var int
      * @ORM\Column(type="integer", nullable=true)
      */
     private $patreonQueue;
     
-    public function __construct(int $itemId = null, int $serverId = null, int $priority = null)
+    public function __construct(int $itemId = null, int $serverId = null, int $priority = null, int $region = null)
     {
         $this->id       = Uuid::uuid4();
         $this->updated  = time();
         $this->item     = $itemId;
         $this->server   = $serverId;
         $this->priority = $priority;
+        $this->region   = $region;
     }
     
     public function getId(): string
@@ -114,6 +121,18 @@ class CompanionMarketItemEntry
     public function setServer(int $server)
     {
         $this->server = $server;
+        return $this;
+    }
+
+    public function getRegion(): int
+    {
+        return $this->region;
+    }
+
+    public function setRegion(int $region)
+    {
+        $this->region = $region;
+
         return $this;
     }
 

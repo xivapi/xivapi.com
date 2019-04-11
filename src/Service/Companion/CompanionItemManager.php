@@ -78,6 +78,11 @@ class CompanionItemManager
                 if ($server && $server != $serverId) {
                     continue;
                 }
+
+                // ignore servers offline
+                if (in_array($serverName, CompanionTokenManager::SERVERS_OFFLINE)) {
+                    continue;
+                }
                 
                 // check for an existing entry
                 $obj = $this->repository->findOneBy([
@@ -90,12 +95,17 @@ class CompanionItemManager
                     continue;
                 }
 
+                // get region
+                $dc = GameServers::getDataCenter($serverName);
+                $region = GameServers::LIST_DC_REGIONS[$dc];
+
                 // create new entry with a priority of 10
                 $this->em->persist(
                     new CompanionMarketItemEntry(
                         $itemId,
                         $serverId,
-                        CompanionConfiguration::PRIORITY_ITEM_IS_NEW
+                        CompanionConfiguration::PRIORITY_ITEM_IS_NEW,
+                        $region
                     )
                 );
             }
