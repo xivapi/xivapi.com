@@ -88,8 +88,7 @@ class MarketPrivateController extends AbstractController
         $server = ucwords($request->get('server'));
 
         /** @var CompanionMarketItemEntry $marketEntry */
-        $marketEntry = $this->companionMarketUpdater->getMarketItemEntry(GameServers::getServerId($server), $itemId);
-
+        $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
 
         /**
          * First, check if the item was passed here within the past 5 minutes.
@@ -102,7 +101,7 @@ class MarketPrivateController extends AbstractController
         }
 
         // Place the item on this server in a 300 second cooldown
-        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", true, 300);
+        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", time(), 300);
 
         /**
          * Check when the item was last updated, maybe it updated within the last 5 minutes,
