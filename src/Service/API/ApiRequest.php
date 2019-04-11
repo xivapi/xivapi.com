@@ -203,12 +203,12 @@ class ApiRequest
     {
         // current and last second
         $key = $key .'_v3_'. (int)date('s');
-
+        
         // increment
-        $count = Redis::Cache()->get($key);
+        $count = (int)Redis::Cache()->get($key);
         $count++;
-        Redis::Cache()->set($key, $count, 2);
-
+        Redis::Cache()->set($key, $count, 3);
+        
         // throw exception if hit count too high
         if ($count > $limit) {
             throw new ApiRateLimitException();

@@ -66,7 +66,6 @@ trait QueueTrait
             }
         }
 
-
         $ids = is_array($ids) ? $ids : [ $ids ];
         
         $rabbit = new RabbitMQ();
