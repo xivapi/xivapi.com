@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\CompanionMarketItemEntry;
 use App\Service\Companion\CompanionMarketUpdater;
 use App\Service\Companion\CompanionTokenManager;
-use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,7 +37,7 @@ class MarketPrivateController extends AbstractController
      */
     public function itemPrices(Request $request)
     {
-        if ($request->get('companion_access_key') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
+        if ($request->get('access') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
             throw new UnauthorizedHttpException('Denied');
         }
 
@@ -59,7 +58,7 @@ class MarketPrivateController extends AbstractController
      */
     public function itemHistory(Request $request)
     {
-        if ($request->get('companion_access_key') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
+        if ($request->get('access') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
             throw new UnauthorizedHttpException('Denied');
         }
 
@@ -80,12 +79,12 @@ class MarketPrivateController extends AbstractController
      */
     public function manualUpdateItem(Request $request)
     {
-        if ($request->get('companion_access_key') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
+        if ($request->get('access') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
             throw new UnauthorizedHttpException('Denied');
         }
 
         $itemId = (int)$request->get('item_id');
-        $server = ucwords($request->get('server'));
+        $server = (int)$request->get('server');
 
         /** @var CompanionMarketItemEntry $marketEntry */
         $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
