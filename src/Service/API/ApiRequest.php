@@ -121,6 +121,9 @@ class ApiRequest
         // send any developer Google Analytics data
         $this->sendUsageAnalyticData();
         $this->sendDeveloperAnalyticData();
+
+        // log daily limits
+        $this->recordDailyLimit();
     }
 
     /**
@@ -278,5 +281,21 @@ class ApiRequest
         GoogleAnalytics::hit($key, $this->request->getPathInfo());
         GoogleAnalytics::event($key, 'Requests', 'Endpoint', $this->getRequestEndpoint());
         GoogleAnalytics::event($key, 'Requests', 'Language', Language::current());
+    }
+
+    /**
+     * Records daily limit for requests
+     */
+    private function recordDailyLimit()
+    {
+        $key = ApiRequest::$idStatic;
+
+        // increment current count
+        Redis::Cache()->increment("api_key_request_count_{$key}");
+
+        // if the counter is above 50,000 - that is a lot....
+        if (Redis::Cache()->getCount("api_key_request_count_{$key}") > 50000) {
+            throw new \Exception("You have reached a daily limit of requests, how have you done this? Jump in discord and confess your sins.");
+        }
     }
 }
