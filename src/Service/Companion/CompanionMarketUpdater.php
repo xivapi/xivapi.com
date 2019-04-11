@@ -283,12 +283,25 @@ class CompanionMarketUpdater
             
                 // append current prices
                 foreach ($prices->entries as $row) {
+                    // try build a semi unique id
+                    $id = sha1(
+                        implode("_", [
+                            $itemId,
+                            $row->isCrafted,
+                            $row->hq,
+                            $row->sellPrice,
+                            $row->stack,
+                            $row->registerTown,
+                            $row->sellRetainerName,
+                        ])
+                    );
+
                     // grab internal records
                     $row->_retainerId = $this->getInternalRetainerId($row->sellRetainerName);
                     $row->_creatorSignatureId = $this->getInternalSignatureId($row->signatureName);
-                    
+
                     // append prices
-                    $marketItem->Prices[] = MarketListing::build($row);
+                    $marketItem->Prices[] = MarketListing::build($id, $row);
                 }
             }
         
@@ -299,13 +312,15 @@ class CompanionMarketUpdater
                 foreach ($history->history as $row) {
                     // build a custom ID based on a few factors (History can't change)
                     // we don't include character name as I'm unsure if it changes if you rename yourself
-                    $id = sha1(vsprintf("%s_%s_%s_%s_%s", [
-                        $itemId,
-                        $row->stack,
-                        $row->hq,
-                        $row->sellPrice,
-                        $row->buyRealDate,
-                    ]));
+                    $id = sha1(
+                        implode("_", [
+                            $itemId,
+                            $row->stack,
+                            $row->hq,
+                            $row->sellPrice,
+                            $row->buyRealDate,
+                        ])
+                    );
                 
                     // if this entry is in our history, then just finish
                     $found = false;
