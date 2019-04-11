@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Service\Companion\CompanionMarketUpdater;
 use App\Service\Companion\CompanionTokenManager;
+use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -84,8 +85,19 @@ class MarketPrivateController extends AbstractController
         $itemId = (int)$request->get('item_id');
         $server = ucwords($request->get('server'));
 
-        $this->companionMarketUpdater->updateManual($itemId, $server);
+        // max set to 99
+        $queue = 99;
+        foreach (range(1, 5) as $num) {
+            $status = Redis::Cache()->get("companion_market_manual_queue_{$num}");
 
+            if ($status === null) {
+                $queue = $num;
+                break;
+            }
+        }
+
+        Redis::Cache()->set("companion_market_manual_queue_{$queue}", true, 60);
+        $this->companionMarketUpdater->updateManual($itemId, $server, $queue);
         return $this->json(true);
     }
 }

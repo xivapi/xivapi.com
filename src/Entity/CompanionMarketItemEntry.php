@@ -46,6 +46,11 @@ class CompanionMarketItemEntry
      * @ORM\Column(type="integer")
      */
     private $server;
+    /**
+     * @var int
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $patreonQueue;
     
     public function __construct(int $itemId = null, int $serverId = null, int $priority = null)
     {
@@ -108,6 +113,18 @@ class CompanionMarketItemEntry
     public function setServer(int $server)
     {
         $this->server = $server;
+        return $this;
+    }
+
+    public function getPatreonQueue(): ?int
+    {
+        return $this->patreonQueue;
+    }
+
+    public function setPatreonQueue(int $patreonQueue)
+    {
+        $this->patreonQueue = $patreonQueue;
+
         return $this;
     }
 }

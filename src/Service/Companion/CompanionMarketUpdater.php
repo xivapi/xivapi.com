@@ -144,14 +144,14 @@ class CompanionMarketUpdater
     /**
      * Mark an item to be manually updated on an DC
      */
-    public function updateManual(int $itemId, string $server)
+    public function updateManual(int $itemId, string $server, int $queueNumber)
     {
         $servers = GameServers::getDataCenterServersIds($server);
         $items   = $this->repository->findItemsInServers($itemId, $servers);
 
         /** @var CompanionMarketItemEntry $item */
         foreach ($items as $item) {
-            $item->setManual(true);
+            $item->setPatreonQueue($queueNumber);
             $this->em->persist($item);
         }
 
@@ -331,8 +331,11 @@ class CompanionMarketUpdater
             $this->recordUpdate($priority, $itemId, $server, $duration);
         
             // update entry
-            $item->setUpdated(time())->incUpdates()->setManual(false);
-            $this->em->persist($item);
+            $this->em->persist(
+                $item
+                    ->setUpdated(time())
+                    ->setPatreonQueue(null)
+            );
 
             $this->console->writeln($msg);
             $this->updateCount++;
