@@ -56,6 +56,8 @@ class CompanionMarketUpdater
     /** @var int */
     private $start;
     /** @var int */
+    private $deadline;
+    /** @var int */
     private $updateCount = 0;
     /** @var int */
     private $exceptionCount = 0;
@@ -86,10 +88,11 @@ class CompanionMarketUpdater
     
     public function update(int $priority, int $queue, int $patreonQueue = null)
     {
-        $this->start = time();
-        $this->console->writeln(date('H:i:s') .' | A');
+        $this->start    = time();
+        $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
 
-        $this->console->writeln("[[ Priority: {$priority} - Queue: {$queue} - Patreon Queue: {$patreonQueue} ]]");
+        $this->console->writeln(date('H:i:s') .' | A');
+        $this->console->writeln("Priority: {$priority} - Queue: {$queue} - Patreon Queue: {$patreonQueue}");
 
         $queueStartTime = microtime(true);
         if ($this->hasExceptionsExceededLimit()) {
@@ -118,8 +121,8 @@ class CompanionMarketUpdater
         
         // loop through chunks
         foreach (array_chunk($items, CompanionConfiguration::MAX_ITEMS_PER_REQUEST) as $i => $itemChunk) {
-            // if we're close to the CronJob minute mark, end
-            if ((time() - $this->start) > CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS) {
+            // if we go over the deadline, we stop.
+            if (time() > $this->deadline) {
                 $this->console->writeln(date('H:i:s') ." | [{$priority}] (Updates: {$this->updateCount}) Ending auto-update as time limit seconds reached.");
                 break;
             }
