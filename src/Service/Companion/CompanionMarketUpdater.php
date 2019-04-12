@@ -22,6 +22,7 @@ use App\Service\Redis\Redis;
 use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
+use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -297,8 +298,8 @@ class CompanionMarketUpdater
                     );
 
                     // grab internal records
-                    $row->_retainerId = $this->getInternalRetainerId($row->sellRetainerName);
-                    $row->_creatorSignatureId = $this->getInternalSignatureId($row->signatureName);
+                    $row->_retainerId = $this->getInternalRetainerId($server, $row->sellRetainerName);
+                    $row->_creatorSignatureId = $this->getInternalSignatureId($server, $row->signatureName);
 
                     // append prices
                     $marketItem->Prices[] = MarketListing::build($id, $row);
@@ -337,7 +338,7 @@ class CompanionMarketUpdater
                     }
     
                     // grab internal record
-                    $row->_characterId = $this->getInternalCharacterId($row->buyCharacterName);
+                    $row->_characterId = $this->getInternalCharacterId($server, $row->buyCharacterName);
                 
                     // add history to front
                     array_unshift($marketItem->History, MarketHistory::build($id, $row));
@@ -459,57 +460,62 @@ class CompanionMarketUpdater
     /**
      * Returns the ID for internally stored retainers
      */
-    private function getInternalRetainerId(string $name): ?string
+    private function getInternalRetainerId(int $server, string $name): ?string
     {
-        if (empty($name)) {
-            return null;
-        }
-        
-        $obj = $this->repositoryCompanionRetainer->findOneBy([ 'name' => $name ]);
-        
-        if ($obj === null) {
-            $obj = new CompanionRetainer($name);
-            $this->em->persist($obj);
-        }
-        
-        return $obj->getId();
+        return $this->handleMarketTrackingNames(
+            $server,
+            $name,
+            $this->repositoryCompanionRetainer,
+            CompanionRetainer::class
+        );
     }
     
     /**
      * Returns the ID for internally stored signature ids
      */
-    private function getInternalSignatureId(string $name): ?string
+    private function getInternalSignatureId(int $server, string $name): ?string
     {
-        if (empty($name)) {
-            return null;
-        }
-        
-        $obj = $this->repositoryCompanionSignature->findOneBy([ 'name' => $name ]);
-    
-        if ($obj === null) {
-            $obj = new CompanionSignature($name);
-            $this->em->persist($obj);
-        }
-    
-        return $obj->getId();
+        return $this->handleMarketTrackingNames(
+            $server,
+            $name,
+            $this->repositoryCompanionSignature,
+            CompanionSignature::class
+        );
     }
     
     /**
      * Returns the ID for internally stored character ids
      */
-    private function getInternalCharacterId(string $name): ?string
+    private function getInternalCharacterId(int $server, string $name): ?string
+    {
+        return $this->handleMarketTrackingNames(
+            $server,
+            $name,
+            $this->repositoryCompanionCharacter,
+            CompanionCharacter::class
+        );
+    }
+
+    /**
+     * Handles the tracking logic for all name fields
+     */
+    private function handleMarketTrackingNames(int $server, string $name, ObjectRepository $repository, $class)
     {
         if (empty($name)) {
             return null;
         }
-        
-        $obj = $this->repositoryCompanionCharacter->findOneBy([ 'name' => $name ]);
-    
+
+        $obj = $repository->findOneBy([
+            'name'   => $name,
+            'server' => $server,
+        ]);
+
         if ($obj === null) {
-            $obj = new CompanionCharacter($name);
+            $obj = new $class($name, $server);
             $this->em->persist($obj);
+            $this->em->flush();
         }
-    
+
         return $obj->getId();
     }
 
