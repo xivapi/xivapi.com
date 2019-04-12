@@ -25,7 +25,7 @@ class CompanionCharacters
     public function populate()
     {
         $console    = new ConsoleOutput();
-        $characters = $this->repository->findBy([ 'server' => null ], [ 'added' => 'asc' ], 100);
+        $characters = $this->repository->findBy([ 'lodestoneId' => null ], [ 'added' => 'asc' ], 100);
 
         $console->writeln(count($characters) ." characters");
         $section = $console->section();
