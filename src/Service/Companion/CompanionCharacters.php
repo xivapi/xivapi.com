@@ -30,7 +30,7 @@ class CompanionCharacters
         $console->writeln(count($characters) ." characters");
         $section = $console->section();
 
-        $api = new Api()
+        $api = new Api();
 
         /** @var CompanionCharacter $character */
         foreach ($characters as $character) {
