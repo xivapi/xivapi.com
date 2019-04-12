@@ -6,8 +6,8 @@ use App\Entity\CompanionCharacter;
 use App\Repository\CompanionCharacterRepository;
 use App\Service\Content\GameServers;
 use Doctrine\ORM\EntityManagerInterface;
+use Lodestone\Api;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use XIVAPI\XIVAPI;
 
 class CompanionCharacters
 {
@@ -30,7 +30,7 @@ class CompanionCharacters
         $console->writeln(count($characters) ." characters");
         $section = $console->section();
 
-        $api = new XIVAPI();
+        $api = new Api()
 
         /** @var CompanionCharacter $character */
         foreach ($characters as $character) {
@@ -38,7 +38,7 @@ class CompanionCharacters
             $name   = $character->getName();
 
             $section->overwrite("{$name} - {$server}");
-            $results = $api->character->search($name, $server);
+            $results = $api->searchCharacter($name, $server);
 
             // found none
             if ($results->Pagination->ResultsTotal == 0) {
