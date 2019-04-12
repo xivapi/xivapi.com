@@ -24,9 +24,10 @@ class CompanionCharacters
 
     public function populate()
     {
+        $start      = time();
         $date       = date('H:i:s');
         $console    = new ConsoleOutput();
-        $characters = $this->repository->findBy([ 'lodestoneId' => null ], [ 'added' => 'asc' ], 20);
+        $characters = $this->repository->findBy([ 'lodestoneId' => null ], [ 'added' => 'asc' ], 30);
 
         $console->writeln(count($characters) ." characters - Start time: {$date}");
         $section = $console->section();
@@ -35,6 +36,11 @@ class CompanionCharacters
 
         /** @var CompanionCharacter $character */
         foreach ($characters as $character) {
+            if (time() - $start > 55) {
+                $console->writeln("Ending due to time limit reached.");
+                break;
+            }
+
             $server = GameServers::LIST[$character->getServer()];
             $name   = $character->getName();
             $date   = date('H:i:s');
