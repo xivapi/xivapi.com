@@ -24,10 +24,11 @@ class CompanionCharacters
 
     public function populate()
     {
+        $date       = date('H:i:s');
         $console    = new ConsoleOutput();
         $characters = $this->repository->findBy([ 'lodestoneId' => null ], [ 'added' => 'asc' ], 20);
 
-        $console->writeln(count($characters) ." characters");
+        $console->writeln(count($characters) ." characters - Start time: {$date}");
         $section = $console->section();
 
         $api = new Api();
