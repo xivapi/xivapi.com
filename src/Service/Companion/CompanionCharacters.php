@@ -25,7 +25,7 @@ class CompanionCharacters
     public function populate()
     {
         $console    = new ConsoleOutput();
-        $characters = $this->repository->findBy([ 'lodestoneId' => null ], [ 'added' => 'asc' ], 100);
+        $characters = $this->repository->findBy([ 'lodestoneId' => null ], [ 'added' => 'asc' ], 20);
 
         $console->writeln(count($characters) ." characters");
         $section = $console->section();
@@ -36,8 +36,9 @@ class CompanionCharacters
         foreach ($characters as $character) {
             $server = GameServers::LIST[$character->getServer()];
             $name   = $character->getName();
+            $date   = date('H:i:s');
 
-            $section->overwrite("{$name} - {$server}");
+            $section->overwrite("[{$date}] {$name} - {$server}");
             $results = $api->searchCharacter($name, $server);
 
             // found none
@@ -50,11 +51,12 @@ class CompanionCharacters
                 if ($res->Name == $name && $res->Server == $server) {
                     $character->setLodestoneId($res->ID);
                     $this->em->persist($character);
+                    $this->em->flush();
                     break;
                 }
             }
         }
 
-        $this->em->flush();
+
     }
 }
