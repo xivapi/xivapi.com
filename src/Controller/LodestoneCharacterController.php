@@ -66,12 +66,12 @@ class LodestoneCharacterController extends AbstractController
         ];
         
         $response = (Object)[
-            'Character'             => null,
-            'Achievements'          => null,
-            'Friends'               => null,
-            'FreeCompany'           => null,
-            'FreeCompanyMembers'    => null,
-            'PvPTeam'               => null,
+            'Character'              => null,
+            'Achievements'           => null,
+            'Friends'                => null,
+            'FreeCompany'            => null,
+            'FreeCompanyMembers'     => null,
+            'PvPTeam'                => null,
             'Info' => (Object)[
                 'Character'          => null,
                 'Achievements'       => null,

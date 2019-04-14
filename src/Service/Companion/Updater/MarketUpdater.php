@@ -6,11 +6,9 @@ use App\Entity\CompanionCharacter;
 use App\Entity\CompanionMarketItemException;
 use App\Entity\CompanionMarketItemUpdate;
 use App\Entity\CompanionRetainer;
-use App\Entity\CompanionSignature;
 use App\Entity\CompanionToken;
 use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionRetainerRepository;
-use App\Repository\CompanionSignatureRepository;
 use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionMarket;
 use App\Service\Companion\Models\MarketHistory;
@@ -20,6 +18,7 @@ use App\Service\Content\GameServers;
 use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
+use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -35,8 +34,6 @@ class MarketUpdater
     private $repositoryCompanionCharacter;
     /** @var CompanionRetainerRepository */
     private $repositoryCompanionRetainer;
-    /** @var CompanionSignatureRepository */
-    private $repositoryCompanionSignature;
 
     /** @var ConsoleOutput */
     private $console;
@@ -76,7 +73,6 @@ class MarketUpdater
         // repositories for market data
         $this->repositoryCompanionCharacter = $this->em->getRepository(CompanionCharacter::class);
         $this->repositoryCompanionRetainer  = $this->em->getRepository(CompanionRetainer::class);
-        $this->repositoryCompanionSignature = $this->em->getRepository(CompanionSignature::class);
     }
 
     public function update(int $priority, int $queue, int $patreonQueue = null)
@@ -250,8 +246,8 @@ class MarketUpdater
                 );
 
                 // grab internal records
-                $row->_retainerId = $this->getInternalRetainerId($row->sellRetainerName);
-                $row->_creatorSignatureId = $this->getInternalSignatureId($row->signatureName);
+                $row->_retainerId = $this->getInternalRetainerId($server, $row->sellRetainerName);
+                $row->_creatorSignatureId = $this->getInternalCharacterId($server, $row->signatureName);
 
                 // append prices
                 $marketItem->Prices[] = MarketListing::build($id, $row);
@@ -290,7 +286,7 @@ class MarketUpdater
                 }
 
                 // grab internal record
-                $row->_characterId = $this->getInternalCharacterId($row->buyCharacterName);
+                $row->_characterId = $this->getInternalCharacterId($server, $row->buyCharacterName);
 
                 // add history to front
                 array_unshift($marketItem->History, MarketHistory::build($id, $row));
@@ -310,61 +306,53 @@ class MarketUpdater
             new CompanionMarketItemUpdate($itemId, $server, $this->priority)
         );
     }
-
+    
     /**
      * Returns the ID for internally stored retainers
      */
-    private function getInternalRetainerId(string $name): ?string
+    private function getInternalRetainerId(int $server, string $name): ?string
     {
-        if (empty($name)) {
-            return null;
-        }
-
-        $obj = $this->repositoryCompanionRetainer->findOneBy([ 'name' => $name ]);
-
-        if ($obj === null) {
-            $obj = new CompanionRetainer($name);
-            $this->em->persist($obj);
-        }
-
-        return $obj->getId();
+        return $this->handleMarketTrackingNames(
+            $server,
+            $name,
+            $this->repositoryCompanionRetainer,
+            CompanionRetainer::class
+        );
     }
-
-    /**
-     * Returns the ID for internally stored signature ids
-     */
-    private function getInternalSignatureId(string $name): ?string
-    {
-        if (empty($name)) {
-            return null;
-        }
-
-        $obj = $this->repositoryCompanionSignature->findOneBy([ 'name' => $name ]);
-
-        if ($obj === null) {
-            $obj = new CompanionSignature($name);
-            $this->em->persist($obj);
-        }
-
-        return $obj->getId();
-    }
-
+    
     /**
      * Returns the ID for internally stored character ids
      */
-    private function getInternalCharacterId(string $name): ?string
+    private function getInternalCharacterId(int $server, string $name): ?string
+    {
+        return $this->handleMarketTrackingNames(
+            $server,
+            $name,
+            $this->repositoryCompanionCharacter,
+            CompanionCharacter::class
+        );
+    }
+    
+    /**
+     * Handles the tracking logic for all name fields
+     */
+    private function handleMarketTrackingNames(int $server, string $name, ObjectRepository $repository, $class)
     {
         if (empty($name)) {
             return null;
         }
-
-        $obj = $this->repositoryCompanionCharacter->findOneBy([ 'name' => $name ]);
-
+        
+        $obj = $repository->findOneBy([
+            'name'   => $name,
+            'server' => $server,
+        ]);
+        
         if ($obj === null) {
-            $obj = new CompanionCharacter($name);
+            $obj = new $class($name, $server);
             $this->em->persist($obj);
+            $this->em->flush();
         }
-
+        
         return $obj->getId();
     }
 

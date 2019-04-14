@@ -20,6 +20,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CompanionCharacter
 {
+    const STATUS_NEW = 0;
+    const STATUS_FOUND = 1;
+    const STATUS_NOT_FOUND = 2;
+    
     /**
      * @var string
      * @ORM\Id
@@ -51,6 +55,11 @@ class CompanionCharacter
      * @ORM\Column(type="integer", length=16)
      */
     public $added = 0;
+    /**
+     * @var int
+     * @ORM\Column(type="integer", length=3, options={"default": 0})
+     */
+    public $status = 0;
     
     public function __construct(string $name, int $server)
     {
@@ -69,7 +78,7 @@ class CompanionCharacter
     public function setId(string $id)
     {
         $this->id = $id;
-
+        
         return $this;
     }
     
@@ -81,22 +90,22 @@ class CompanionCharacter
     public function setName(string $name)
     {
         $this->name = $name;
-
+        
         return $this;
     }
-
+    
     public function getServer(): int
     {
         return $this->server;
     }
-
+    
     public function setServer(int $server)
     {
         $this->server = $server;
-
+        
         return $this;
     }
-
+    
     public function getLodestoneId(): int
     {
         return $this->lodestoneId;
@@ -105,7 +114,7 @@ class CompanionCharacter
     public function setLodestoneId(int $lodestoneId)
     {
         $this->lodestoneId = $lodestoneId;
-
+        
         return $this;
     }
     
@@ -117,7 +126,7 @@ class CompanionCharacter
     public function setUpdated(int $updated)
     {
         $this->updated = $updated;
-
+        
         return $this;
     }
     
@@ -129,7 +138,19 @@ class CompanionCharacter
     public function setAdded(int $added)
     {
         $this->added = $added;
-
+        
+        return $this;
+    }
+    
+    public function getStatus(): int
+    {
+        return $this->status;
+    }
+    
+    public function setStatus(int $status)
+    {
+        $this->status = $status;
+        
         return $this;
     }
 }

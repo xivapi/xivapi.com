@@ -9,8 +9,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Api;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class CompanionCharacters
+class CompanionLodestone
 {
+    const MAX_UPDATE = 30;
+    
     /** @var EntityManagerInterface */
     private $em;
     /** @var CompanionCharacterRepository */
@@ -22,48 +24,60 @@ class CompanionCharacters
         $this->repository = $em->getRepository(CompanionCharacter::class);
     }
 
-    public function populate()
+    public function populate(int $offset = 0)
     {
         $start      = time();
         $date       = date('H:i:s');
         $console    = new ConsoleOutput();
-        $characters = $this->repository->findBy([ 'lodestoneId' => null ], [ 'added' => 'asc' ], 30);
-
+        $characters = $this->repository->findBy(
+            [ 'lodestoneId' => null, 'status' => 0 ],
+            [ 'updated' => 'asc' ],
+            self::MAX_UPDATE,
+            self::MAX_UPDATE * $offset
+        );
+    
         $console->writeln(count($characters) ." characters - Start time: {$date}");
         $section = $console->section();
-
+    
         $api = new Api();
-
+    
         /** @var CompanionCharacter $character */
         foreach ($characters as $character) {
             if (time() - $start > 55) {
                 $console->writeln("Ending due to time limit reached.");
                 break;
             }
-
+        
             $server = GameServers::LIST[$character->getServer()];
             $name   = $character->getName();
             $date   = date('H:i:s');
-
+        
             $section->overwrite("[{$date}] {$name} - {$server}");
             $results = $api->searchCharacter($name, $server);
-
+        
             // found none
             if ($results->Pagination->ResultsTotal == 0) {
                 continue;
             }
-
+        
             // loop through
+            $found = false;
             foreach ($results->Results as $res) {
                 if ($res->Name == $name && $res->Server == $server) {
-                    $character->setLodestoneId($res->ID);
-                    $this->em->persist($character);
-                    $this->em->flush();
+                    $character->setLodestoneId($res->ID)->setStatus(CompanionCharacter::STATUS_FOUND);
+                    $found = true;
                     break;
                 }
             }
+    
+            if ($found === false) {
+                $character
+                    ->setStatus(CompanionCharacter::STATUS_NOT_FOUND)
+                    ->setUpdated(time());
+            }
+    
+            $this->em->persist($character);
+            $this->em->flush();
         }
-
-
     }
 }

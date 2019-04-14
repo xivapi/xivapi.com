@@ -7,13 +7,11 @@ use App\Entity\CompanionMarketItemEntry;
 use App\Entity\CompanionMarketItemException;
 use App\Entity\CompanionMarketItemUpdate;
 use App\Entity\CompanionRetainer;
-use App\Entity\CompanionSignature;
 use App\Entity\CompanionToken;
 use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionMarketItemEntryRepository;
 use App\Repository\CompanionMarketItemExceptionRepository;
 use App\Repository\CompanionRetainerRepository;
-use App\Repository\CompanionSignatureRepository;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
@@ -42,8 +40,6 @@ class CompanionMarketUpdater
     private $repositoryCompanionCharacter;
     /** @var CompanionRetainerRepository */
     private $repositoryCompanionRetainer;
-    /** @var CompanionSignatureRepository */
-    private $repositoryCompanionSignature;
     /** @var CompanionMarketItemExceptionRepository */
     private $repositoryExceptions;
     /** @var Companion */
@@ -82,7 +78,6 @@ class CompanionMarketUpdater
         $this->repository = $this->em->getRepository(CompanionMarketItemEntry::class);
         $this->repositoryCompanionCharacter = $this->em->getRepository(CompanionCharacter::class);
         $this->repositoryCompanionRetainer = $this->em->getRepository(CompanionRetainer::class);
-        $this->repositoryCompanionSignature = $this->em->getRepository(CompanionSignature::class);
         $this->repositoryExceptions = $this->em->getRepository(CompanionMarketItemException::class);
         $this->console = new ConsoleOutput();
     }
@@ -299,7 +294,7 @@ class CompanionMarketUpdater
 
                     // grab internal records
                     $row->_retainerId = $this->getInternalRetainerId($server, $row->sellRetainerName);
-                    $row->_creatorSignatureId = $this->getInternalSignatureId($server, $row->signatureName);
+                    $row->_creatorSignatureId = $this->getInternalCharacterId($server, $row->signatureName);
 
                     // append prices
                     $marketItem->Prices[] = MarketListing::build($id, $row);
@@ -467,19 +462,6 @@ class CompanionMarketUpdater
             $name,
             $this->repositoryCompanionRetainer,
             CompanionRetainer::class
-        );
-    }
-    
-    /**
-     * Returns the ID for internally stored signature ids
-     */
-    private function getInternalSignatureId(int $server, string $name): ?string
-    {
-        return $this->handleMarketTrackingNames(
-            $server,
-            $name,
-            $this->repositoryCompanionSignature,
-            CompanionSignature::class
         );
     }
     
