@@ -54,23 +54,21 @@ class CompanionLodestone
         
             $section->overwrite("[{$date}] {$name} - {$server}");
             $results = $api->searchCharacter($name, $server);
-        
-            // found none
-            if ($results->Pagination->ResultsTotal == 0) {
-                continue;
-            }
-        
-            // loop through
+
+            // find character
             $found = false;
-            foreach ($results->Results as $res) {
-                if ($res->Name == $name && $res->Server == $server) {
-                    $character->setLodestoneId($res->ID)->setStatus(CompanionCharacter::STATUS_FOUND);
-                    $found = true;
-                    break;
+            if ($results->Pagination->ResultsTotal != 0) {
+                foreach ($results->Results as $res) {
+                    if ($res->Name == $name && $res->Server == $server) {
+                        $character->setLodestoneId($res->ID)->setStatus(CompanionCharacter::STATUS_FOUND);
+                        $found = true;
+                        break;
+                    }
                 }
             }
     
             if ($found === false) {
+                $section->overwrite('Character not found');
                 $character
                     ->setStatus(CompanionCharacter::STATUS_NOT_FOUND)
                     ->setUpdated(time());
