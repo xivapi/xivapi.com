@@ -31,6 +31,11 @@ class RequestListener
         /** @var Request $request */
         $request = $event->getRequest();
 
+        // look for multiple ?'s
+        if (substr_count($request->getQueryString(), '?') > 1) {
+            throw new \Exception('https://en.wikipedia.org/wiki/Query_string');
+        }
+
         // Another quick hack to convert all queries into the request object
         if ($queries = $request->query->all()) {
             foreach ($queries as $key => $value) {
