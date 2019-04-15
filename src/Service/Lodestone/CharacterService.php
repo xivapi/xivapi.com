@@ -137,6 +137,11 @@ class CharacterService extends AbstractService
                 $character->setActive(false);
             }
 
+            // patrons always stay active!
+            if ($character->getPriority() == Entity::PRIORITY_PATRON) {
+                $character->setActive(true);
+            }
+
             $character->setActiveLastSet(time());
             $this->em->persist($character);
             $this->em->flush();
