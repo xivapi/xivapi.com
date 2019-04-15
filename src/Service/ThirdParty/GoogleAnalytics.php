@@ -103,6 +103,11 @@ class GoogleAnalytics
     {
         self::event('xivapi', 'Users', 'API Key', $apiKey);
     }
+
+    public static function trackApiKeyHardCapped(string $apiKey)
+    {
+        self::event('xivapi', 'Users', 'API Key Hard Capped', $apiKey);
+    }
     
     public static function companionTrackItemAsUrl(string $itemId)
     {

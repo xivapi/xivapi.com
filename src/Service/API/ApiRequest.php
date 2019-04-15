@@ -29,7 +29,7 @@ class ApiRequest
 {
     const KEY_FIELD             = 'private_key';
     const MAX_RATE_LIMIT_KEY    = 30;
-    const MAX_RATE_LIMIT_GLOBAL = 10;
+    const MAX_RATE_LIMIT_GLOBAL = 5;
     
     /**
      * List of controllers that require a API Key
@@ -288,21 +288,24 @@ class ApiRequest
      */
     private function recordDailyLimit()
     {
-        $key = ApiRequest::$idStatic;
+        if (empty($this->apikey)) {
+            return;
+        }
 
-        $cap = 200000;
-        $day = date('z');
-        $key = "api_key_request_count_{$key}_{$day}";
+        $cap  = 500000;
+        $hour = date('zH');
+        $key  = "apikey_request_count_{$this->apikey}_{$hour}";
 
         $count = Redis::Cache()->get($key) ?: 0;
         $count = (int)$count;
         $count++;
 
         if ($count > $cap) {
-            throw new \Exception("You have hit the Hard Cap for request count. Come back tomorrow.");
+            GoogleAnalytics::trackApiKeyHardCapped($this->apikey ?: 'no_api_key');
+            throw new \Exception("You have reached the request hard-cap. Please re-think your API usage...");
         }
 
-        // Saves for up to 2 days (since the TTL will keep pushing until midnight when the key changes)
-        Redis::Cache()->set($key, $count, (60 * 60 * 24));
+        // Record for an hour
+        Redis::Cache()->set($key, $count, (60 * 60));
     }
 }
