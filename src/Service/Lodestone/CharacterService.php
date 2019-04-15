@@ -12,7 +12,6 @@ use App\Service\LodestoneQueue\CharacterAchievementQueue;
 use App\Service\LodestoneQueue\CharacterConverter;
 use App\Service\LodestoneQueue\CharacterFriendQueue;
 use App\Service\LodestoneQueue\CharacterQueue;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
 class CharacterService extends AbstractService
@@ -114,39 +113,5 @@ class CharacterService extends AbstractService
             'ent'  => new CharacterFriends($lodestoneId),
             'data' => null,
         ];
-    }
-
-    /**
-     * Checks the inactive status for each character
-     */
-    public function checkInactiveStatus()
-    {
-        $characters = $this->getRepository(Character::class)->findBy([], [ 'activeLastSet' => 'asc' ], 2500);
-
-        $console = new ConsoleOutput();
-        $console = $console->section();
-        $console->writeln("Checking 1000 characters ...");
-
-        $deadline = time() - self::ACTIVE_TIMEOUT;
-
-        /** @var Character $character */
-        foreach ($characters as $i => $character) {
-            $console->overwrite("{$i} - {$character->getId()}");
-
-            if ($character->getLastRequest() < $deadline) {
-                $character->setActive(false);
-            }
-
-            // patrons always stay active!
-            if ($character->getPriority() == Entity::PRIORITY_PATRON) {
-                $character->setActive(true);
-            }
-
-            $character->setActiveLastSet(time());
-            $this->em->persist($character);
-            $this->em->flush();
-        }
-
-        $console->writeln("Done");
     }
 }

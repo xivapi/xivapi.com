@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\Lodestone\CharacterService;
 use Doctrine\ORM\Mapping as ORM;
 
 class Entity
@@ -48,15 +49,7 @@ class Entity
      * @ORM\Column(type="integer", length=16)
      */
     public $lastRequest = 0;
-    /**
-     * @ORM\Column(type="boolean", name="is_active", options={"default" : 0})
-     */
-    public $active = false;
-    /**
-     * @ORM\Column(type="integer", length=16)
-     */
-    public $activeLastSet = 0;
-    
+
     public function __construct(string $id)
     {
         $this->id = $id;
@@ -150,6 +143,11 @@ class Entity
         return $this->getState() == self::STATE_PRIVATE;
     }
 
+    public function isActive()
+    {
+        return $this->lastRequest > (time() - CharacterService::ACTIVE_TIMEOUT);
+    }
+
     public function getUpdated()
     {
         return $this->updated;
@@ -222,25 +220,5 @@ class Entity
         return $this;
     }
 
-    public function isActive()
-    {
-        return $this->active;
-    }
 
-    public function setActive($active)
-    {
-        $this->active = $active;
-        return $this;
-    }
-
-    public function getActiveLastSet()
-    {
-        return $this->activeLastSet;
-    }
-
-    public function setActiveLastSet($activeLastSet)
-    {
-        $this->activeLastSet = $activeLastSet;
-        return $this;
-    }
 }
