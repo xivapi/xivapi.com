@@ -10,6 +10,7 @@ use App\Entity\CompanionToken;
 use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionRetainerRepository;
 use App\Service\Companion\CompanionConfiguration;
+use App\Service\Companion\CompanionErrorHandler;
 use App\Service\Companion\CompanionMarket;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
@@ -39,6 +40,8 @@ class MarketUpdater
     private $console;
     /** @var CompanionMarket */
     private $market;
+    /** @var CompanionErrorHandler */
+    private $errorHandler;
     /** @var array */
     private $tokens = [];
     /** @var array */
@@ -63,12 +66,14 @@ class MarketUpdater
 
     public function __construct(
         EntityManagerInterface $em,
-        CompanionMarket $companionMarket
+        CompanionMarket $companionMarket,
+        CompanionErrorHandler $companionErrorHandler
     ) {
-        $this->em = $em;
-        $this->market = $companionMarket;
-        $this->console = new ConsoleOutput();
-        $this->times = (Object)$this->times;
+        $this->em           = $em;
+        $this->market       = $companionMarket;
+        $this->errorHandler = $companionErrorHandler;
+        $this->console      = new ConsoleOutput();
+        $this->times        = (Object)$this->times;
 
         // repositories for market data
         $this->repositoryCompanionCharacter = $this->em->getRepository(CompanionCharacter::class);
@@ -84,7 +89,7 @@ class MarketUpdater
 
         //--------------------------------------------------------------------------------------------------------------
 
-        if ($this->hasExceptionsExceededLimit()) {
+        if ($this->errorHandler->getCriticalExceptionCount() > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
             $this->console('Exceptions are above the ERROR_COUNT_THRESHOLD.');
             exit();
         }
@@ -202,11 +207,17 @@ class MarketUpdater
         $history = $results[$requestKeys[1]];
 
         if (isset($prices->error)) {
-            $this->recordException('prices', $itemId, $server, $prices->reason);
+            $this->errorHandler->exception(
+                $prices->reason,
+                "Prices: {$itemId} / {$server}"
+            );
         }
 
         if (isset($history->error)) {
-            $this->recordException('history', $itemId, $server, $history->reason);
+            $this->errorHandler->exception(
+                $prices->reason,
+                "History: {$itemId} / {$server}"
+            );
         }
 
         // if responses null or both have errors
@@ -433,70 +444,6 @@ class MarketUpdater
             $stmt = $this->em->getConnection()->prepare($sql);
             $stmt->execute();
         }
-    }
-
-    /**
-     * Checks exceptions, this is done only at the start
-     */
-    private function hasExceptionsExceededLimit()
-    {
-        $timeout = time() - CompanionConfiguration::EXCEPTION_TIMEOUT_SECONDS;
-        $sql     = "SELECT count(*) as total_exceptions FROM companion_market_item_exception WHERE added > {$timeout}";
-
-        $stmt = $this->em->getConnection()->prepare($sql);
-        $stmt->execute();
-
-        $result = $stmt->fetch();
-
-        return $result['total_exceptions'] >= CompanionConfiguration::ERROR_COUNT_THRESHOLD;
-    }
-
-    /**
-     * Record failed queries and send the information to discord.
-     */
-    private function recordException($type, $itemId, $server, $error)
-    {
-        // Analytics
-        GoogleAnalytics::companionTrackItemAsUrl('companion_error');
-
-        $this->console("!!! EXCEPTION: {$type}, {$itemId}, {$server}");
-        $this->exceptions++;
-
-        $exception = new CompanionError();
-        $exception->setException("{$type}, {$itemId}, {$server}")->setMessage($error);
-        $this->em->persist($exception);
-        $this->em->flush();
-
-        // discord msg
-        $serverName = GameServers::LIST[$server];
-        $errorSimple = str_ireplace('GuzzleHttp\Exception\ServerException -- ', null, $error);
-        $discordEmbed = [
-            'description'   => "```{$errorSimple}```",
-            'color'         => hexdec('f44242'),
-            'author'        => [
-                'name'      => 'Companion Auto-Update Error',
-                'icon_url'  => 'https://xivapi.com/discord/offline.png',
-            ],
-            'fields' => [
-                [
-                    'name'   => 'Item',
-                    'value'  => "{$itemId}",
-                    'inline' => true,
-                ],
-                [
-                    'name'   => 'Server',
-                    'value'  => "{$server} - {$serverName}",
-                    'inline' => true,
-                ],
-                [
-                    'name'   => 'Type',
-                    'value'  => ucwords($type),
-                    'inline' => true,
-                ],
-            ]
-        ];
-
-        Discord::mog()->sendMessage(null, '<@42667995159330816>', $discordEmbed);
     }
 
     /**
