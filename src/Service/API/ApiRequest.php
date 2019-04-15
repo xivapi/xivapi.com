@@ -290,12 +290,19 @@ class ApiRequest
     {
         $key = ApiRequest::$idStatic;
 
-        // increment current count
-        Redis::Cache()->increment("api_key_request_count_{$key}");
+        $cap = 200000;
+        $day = date('z');
+        $key = "api_key_request_count_{$key}_{$day}";
 
-        // if the counter is above 50,000 - that is a lot....
-        if (Redis::Cache()->getCount("api_key_request_count_{$key}") > 50000) {
-            throw new \Exception("You have reached a daily limit of requests, how have you done this? Jump in discord and confess your sins.");
+        $count = Redis::Cache()->get($key) ?: 0;
+        $count = (int)$count;
+        $count++;
+
+        if ($count > $cap) {
+            throw new \Exception("You have hit the Hard Cap for request count. Come back tomorrow.");
         }
+
+        // Saves for up to 2 days (since the TTL will keep pushing until midnight when the key changes)
+        Redis::Cache()->set($key, $count, (60 * 60 * 24));
     }
 }
