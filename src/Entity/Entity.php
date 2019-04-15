@@ -49,10 +49,9 @@ class Entity
      */
     public $lastRequest = 0;
     /**
-     * @var bool
-     * @ORM\Column(type="boolean", options={"default" : 0})
+     * @ORM\Column(type="boolean", name="is_active", options={"default" : 0})
      */
-    private $inactive = false;
+    public $active = false;
     
     public function __construct(string $id)
     {
@@ -65,7 +64,7 @@ class Entity
             'State'       => $this->getState(),
             'Updated'     => $this->getUpdated(),
             'Priority'    => $this->getPriority(),
-            'Inactive'    => $this->isInactive(),
+            'IsActive'    => $this->isActive(),
         ];
     }
     
@@ -146,7 +145,7 @@ class Entity
     {
         return $this->getState() == self::STATE_PRIVATE;
     }
-    
+
     public function getUpdated()
     {
         return $this->updated;
@@ -219,14 +218,14 @@ class Entity
         return $this;
     }
 
-    public function isInactive(): bool
+    public function isActive()
     {
-        return $this->inactive;
+        return $this->active;
     }
 
-    public function setInactive(bool $inactive)
+    public function setActive($active)
     {
-        $this->inactive = $inactive;
+        $this->active = $active;
         return $this;
     }
 }
