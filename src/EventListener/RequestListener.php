@@ -32,7 +32,7 @@ class RequestListener
         $request = $event->getRequest();
 
         // look for multiple ?'s
-        if (substr_count($request->getQueryString(), '?') > 1) {
+        if (substr_count(urldecode($request->getQueryString()), '?') > 0) {
             throw new \Exception('https://en.wikipedia.org/wiki/Query_string');
         }
 
