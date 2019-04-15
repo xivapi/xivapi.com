@@ -65,18 +65,12 @@ class LodestoneFreeCompanyController extends AbstractController
 
         $freecompany = $this->service->get($lodestoneId);
         $response->FreeCompany = $freecompany->data;
-        $response->Info->FreeCompany = [
-            'State'     => $freecompany->ent->getState(),
-            'Updated'   => $freecompany->ent->getUpdated()
-        ];
+        $response->Info->FreeCompany = $freecompany->ent->getInfo();
     
         if ($content->FCM) {
             $members = $this->service->getMembers($lodestoneId);
             $response->FreeCompanyMembers = $members;
-            $response->Info->FreeCompanyMembers = [
-                'State'     => $members->ent->getState(),
-                'Updated'   => $members->ent->getUpdated()
-            ];
+            $response->Info->FreeCompanyMembers = $members->ent->getInfo();
         }
     
         return $this->json($response);

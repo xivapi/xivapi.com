@@ -56,10 +56,7 @@ class LodestonePvPTeamController extends AbstractController
     
         $pvp = $this->service->get($lodestoneId);
         $response->Linkshell = $pvp->data;
-        $response->Info->Linkshell = [
-            'State'     => $pvp->ent->getState(),
-            'Updated'   => $pvp->ent->getUpdated()
-        ];
+        $response->Info->Linkshell = $pvp->ent->getInfo();
   
         return $this->json($response);
     }

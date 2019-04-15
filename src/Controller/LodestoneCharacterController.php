@@ -84,29 +84,20 @@ class LodestoneCharacterController extends AbstractController
 
         $character = $this->service->get($lodestoneId, $request->get('extended'));
         $response->Character = $character->data;
-        $response->Info->Character = [
-            'State'     => $character->ent->getState(),
-            'Updated'   => $character->ent->getUpdated()
-        ];
+        $response->Info->Character = $character->ent->getInfo();
 
         // achievements
         if ($content->AC) {
             $achievements = $this->service->getAchievements($lodestoneId, $request->get('extended'));
             $response->Achievements = $achievements->data;
-            $response->Info->Achievements = [
-                'State'     => $achievements->ent->getState(),
-                'Updated'   => $achievements->ent->getUpdated()
-            ];
+            $response->Info->Achievements = $achievements->ent->getInfo();
         }
         
         // friends
         if ($content->FR) {
             $friends = $this->service->getFriends($lodestoneId);
             $response->Friends = $friends->data;
-            $response->Info->Friends = [
-                'State'     => $friends->ent->getState(),
-                'Updated'   => $friends->ent->getUpdated()
-            ];
+            $response->Info->Friends = $friends->ent->getInfo();
         }
         
         // free company
@@ -114,19 +105,13 @@ class LodestoneCharacterController extends AbstractController
             if ($content->FC) {
                 $freecompany = $this->fcService->get($character->data->FreeCompanyId);
                 $response->FreeCompany = $freecompany->data;
-                $response->Info->FreeCompany = [
-                    'State'     => $freecompany->ent->getState(),
-                    'Updated'   => $freecompany->ent->getUpdated()
-                ];
+                $response->Info->FreeCompany = $freecompany->ent->getInfo();
             }
             
             if ($content->FCM) {
                 $members = $this->fcService->getMembers($character->data->FreeCompanyId);
                 $response->FreeCompanyMembers = $members->data;
-                $response->Info->FreeCompanyMembers = [
-                    'State'     => $members->ent->getState(),
-                    'Updated'   => $members->ent->getUpdated()
-                ];
+                $response->Info->FreeCompanyMembers = $members->ent->getInfo();
             }
         }
 
@@ -135,10 +120,7 @@ class LodestoneCharacterController extends AbstractController
             if ($content->PVP) {
                 $pvp = $this->pvpService->get($character->data->PvPTeamId);
                 $response->PvPTeam = $pvp->data;
-                $response->Info->PvPTeam = [
-                    'State'     => $pvp->ent->getState(),
-                    'Updated'   => $pvp->ent->getUpdated()
-                ];
+                $response->Info->PvPTeam = $pvp->ent->getInfo();
             }
         }
     

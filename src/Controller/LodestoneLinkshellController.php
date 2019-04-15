@@ -57,10 +57,7 @@ class LodestoneLinkshellController extends AbstractController
 
         $linkshell = $this->service->get($lodestoneId);
         $response->Linkshell = $linkshell->data;
-        $response->Info->Linkshell = [
-            'State'     => $linkshell->ent->getState(),
-            'Updated'   => $linkshell->ent->getUpdated()
-        ];
+        $response->Info->Linkshell = $linkshell->ent->getInfo();
     
         return $this->json($response);
     }

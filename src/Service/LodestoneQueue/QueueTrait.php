@@ -5,6 +5,7 @@ namespace App\Service\LodestoneQueue;
 use App\Entity\Character;
 use App\Service\API\ApiPermissions;
 use App\Service\API\ApiRequest;
+use App\Service\Lodestone\CharacterService;
 use App\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Exceptions\AchievementsPrivateException;
@@ -51,19 +52,20 @@ trait QueueTrait
      */
     public static function request($ids, string $queue, bool $isManual = false)
     {
-        // a single "access point" (ip/account) can add 8 characters per day. This is what SE limit to.
+        // hard cap spam
         if ($isManual) {
-            $limit = 8;
             $key   = 'lodestone_queue_count_'. ApiRequest::$idStatic;
-            $count = Redis::Cache()->get($key);
+            $count = Redis::Cache()->get($key) ?: 0;
+            $count = (int)$count;
             $count++;
 
-            Redis::Cache()->set($key, $count);
-
             // if the individual user has reached the limit and doesn't have special permissions, block them
-            if ($count > $limit && ApiPermissions::has(ApiPermissions::PERMISSION_LODESTONE) === false) {
+            if ($count > CharacterService::ADD_DAILY_CAP && ApiPermissions::has(ApiPermissions::PERMISSION_LODESTONE) === false) {
                 return;
+
             }
+
+            Redis::Cache()->set($key, $count, 3600);
         }
 
         $ids = is_array($ids) ? $ids : [ $ids ];

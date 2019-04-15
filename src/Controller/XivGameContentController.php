@@ -85,7 +85,7 @@ class XivGameContentController extends AbstractController
     public function ids($contentName)
     {
         $contentName = $this->game->validate($contentName);
-        
+
         return $this->json(
             Redis::Cache()->get("ids_{$contentName}")
         );

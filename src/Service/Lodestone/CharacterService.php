@@ -16,6 +16,8 @@ use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
 class CharacterService extends AbstractService
 {
+    const ADD_DAILY_CAP = 100;
+
     /**
      * Get a character; this will add the character if they do not exist
      */
@@ -34,6 +36,13 @@ class CharacterService extends AbstractService
                 
                 if ($extended) {
                     LodestoneCharacter::extendCharacterData($data);
+                }
+
+                // if last request is below 1 hour, update it
+                if ($ent->getLastRequest() < (time() - 3600)) {
+                    $ent->setLastRequest(time());
+                    $this->em->persist($ent);
+                    $this->em->flush();
                 }
             }
             

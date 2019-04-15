@@ -44,10 +44,29 @@ class Entity
      * @ORM\Column(type="integer", length=16, options={"default": 0})
      */
     public $achievementsPrivateChecks = 0;
+    /**
+     * @ORM\Column(type="integer", length=16)
+     */
+    public $lastRequest = 0;
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", options={"default" : 0})
+     */
+    private $inactive = false;
     
     public function __construct(string $id)
     {
         $this->id = $id;
+    }
+
+    public function getInfo()
+    {
+        return [
+            'State'       => $this->getState(),
+            'Updated'     => $this->getUpdated(),
+            'Priority'    => $this->getPriority(),
+            'Inactive'    => $this->isInactive(),
+        ];
     }
     
     public function getId()
@@ -186,6 +205,28 @@ class Entity
     {
         $this->updated = time();
         $this->setAchievementsPrivateChecks($this->achievementsPrivateChecks+1);
+        return $this;
+    }
+
+    public function getLastRequest()
+    {
+        return $this->lastRequest;
+    }
+
+    public function setLastRequest($lastRequest)
+    {
+        $this->lastRequest = $lastRequest;
+        return $this;
+    }
+
+    public function isInactive(): bool
+    {
+        return $this->inactive;
+    }
+
+    public function setInactive(bool $inactive)
+    {
+        $this->inactive = $inactive;
         return $this;
     }
 }
