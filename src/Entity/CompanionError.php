@@ -8,15 +8,15 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * - This has UpperCase variables as its game content
  * @ORM\Table(
- *     name="companion_market_item_exception",
+ *     name="companion_errors",
  *     indexes={
  *          @ORM\Index(name="added", columns={"added"}),
- *          @ORM\Index(name="exception", columns={"exception"})
+ *          @ORM\Index(name="code", columns={"code"})
  *     }
  * )
- * @ORM\Entity(repositoryClass="App\Repository\CompanionMarketItemExceptionRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\CompanionErrorRepository")
  */
-class CompanionMarketItemException
+class CompanionError
 {
     /**
      * @var string
@@ -31,12 +31,17 @@ class CompanionMarketItemException
     private $added;
     /**
      * @var string
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", length=255)
+     */
+    private $code;
+    /**
+     * @var string
+     * @ORM\Column(type="text")
      */
     private $exception;
     /**
      * @var string
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="text")
      */
     private $message;
     
@@ -54,7 +59,6 @@ class CompanionMarketItemException
     public function setId(string $id)
     {
         $this->id = $id;
-        
         return $this;
     }
     
@@ -66,10 +70,20 @@ class CompanionMarketItemException
     public function setAdded(int $added)
     {
         $this->added = $added;
-        
         return $this;
     }
-    
+
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function setCode(string $code)
+    {
+        $this->code = $code;
+        return $this;
+    }
+
     public function getException(): string
     {
         return $this->exception;
@@ -78,7 +92,6 @@ class CompanionMarketItemException
     public function setException(string $exception)
     {
         $this->exception = $exception;
-        
         return $this;
     }
     
@@ -90,7 +103,6 @@ class CompanionMarketItemException
     public function setMessage(string $message)
     {
         $this->message = $message;
-        
         return $this;
     }
 }

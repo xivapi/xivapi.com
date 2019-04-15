@@ -4,11 +4,7 @@ namespace App\Service\Companion;
 
 use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
-use App\Service\Common\Mog;
 use App\Service\Content\GameServers;
-use App\Service\ThirdParty\Discord\Discord;
-use Carbon\Carbon;
-use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -111,12 +107,15 @@ class CompanionTokenManager
     private $console;
     /** @var CompanionTokenRepository */
     private $repository;
+    /** @var CompanionErrorHandler */
+    private $companionErrorHandler;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, CompanionErrorHandler $companionErrorHandler)
     {
-        $this->em = $em;
-        $this->repository = $em->getRepository(CompanionToken::class);
-        $this->console = new ConsoleOutput();
+        $this->em                    = $em;
+        $this->repository            = $em->getRepository(CompanionToken::class);
+        $this->companionErrorHandler = $companionErrorHandler;
+        $this->console               = new ConsoleOutput();
     }
 
     /**
@@ -260,8 +259,12 @@ class CompanionTokenManager
             $entity
                 ->setMessage('Failed to login: '. $ex->getMessage())
                 ->setOnline(false);
-    
-            $this->postCompanionStatusOnDiscord($ex, $server);
+
+            $this->companionErrorHandler->exception(
+                "(SE_Login) Failed to login to server account",
+                "Could not login to server: {$server}"
+            );
+
             $this->console->writeln('- Character failed to login: '. $ex->getMessage());
         }
     
@@ -314,27 +317,5 @@ class CompanionTokenManager
         }
         
         throw new \Exception('No token found for server: '. $server);
-    }
-
-    /**
-     * Post companion login status on discord (if any failed)
-     */
-    private function postCompanionStatusOnDiscord(\Exception $ex, $server)
-    {
-        if (getenv('APP_ENV') == 'dev') {
-            print_r([ $ex->getMessage(), $server ]);
-            return;
-        }
-
-        $discordEmbed = [
-            'description'   => "Failed to login to: {$server} \n\n ```{$ex->getMessage()}```",
-            'color'         => hexdec('f44242'),
-            'author'        => [
-                'name' => 'Companion Login Error',
-                'icon_url' => 'https://xivapi.com/discord/offline.png',
-            ]
-        ];
-
-        Discord::mog()->sendMessage(null, '<@42667995159330816>', $discordEmbed);
     }
 }

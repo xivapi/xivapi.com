@@ -2,15 +2,15 @@
 
 namespace App\Repository;
 
-use App\Entity\CompanionMarketItemException;
+use App\Entity\CompanionError;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-class CompanionMarketItemExceptionRepository extends ServiceEntityRepository
+class CompanionErrorRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
-        parent::__construct($registry, CompanionMarketItemException::class);
+        parent::__construct($registry, CompanionError::class);
     }
 
     /**

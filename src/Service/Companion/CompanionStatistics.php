@@ -3,10 +3,10 @@
 namespace App\Service\Companion;
 
 use App\Entity\CompanionMarketItemEntry;
-use App\Entity\CompanionMarketItemException;
+use App\Entity\CompanionError;
 use App\Entity\CompanionMarketItemUpdate;
 use App\Repository\CompanionMarketItemEntryRepository;
-use App\Repository\CompanionMarketItemExceptionRepository;
+use App\Repository\CompanionErrorRepository;
 use App\Repository\CompanionMarketItemUpdateRepository;
 use App\Service\Redis\Redis;
 use App\Service\ThirdParty\Discord\Discord;
@@ -28,7 +28,7 @@ class CompanionStatistics
     private $repository;
     /** @var CompanionMarketItemEntryRepository */
     private $repositoryEntries;
-    /** @var CompanionMarketItemExceptionRepository */
+    /** @var CompanionErrorRepository */
     private $repositoryExceptions;
     /** @var ConsoleOutput */
     private $console;
@@ -44,7 +44,7 @@ class CompanionStatistics
         $this->em = $em;
         $this->repository = $em->getRepository(CompanionMarketItemUpdate::class);
         $this->repositoryEntries = $em->getRepository(CompanionMarketItemEntry::class);
-        $this->repositoryExceptions = $em->getRepository(CompanionMarketItemException::class);
+        $this->repositoryExceptions = $em->getRepository(CompanionError::class);
 
         $this->console = new ConsoleOutput();
     }
@@ -234,7 +234,7 @@ class CompanionStatistics
     {
         $exceptions = [];
         
-        /** @var CompanionMarketItemException $ex */
+        /** @var CompanionError $ex */
         foreach($this->repositoryExceptions->findBy([], ['added' => 'desc'], 10) as $ex) {
             $type = 'Unknown';
             

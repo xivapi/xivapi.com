@@ -58,6 +58,10 @@ class CompanionMarketItemEntry
      * @ORM\Column(type="integer", nullable=true)
      */
     private $patreonQueue;
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $skipped = false;
     
     public function __construct(int $itemId = null, int $serverId = null, int $priority = null, int $region = null)
     {
@@ -145,6 +149,17 @@ class CompanionMarketItemEntry
     {
         $this->patreonQueue = $patreonQueue;
 
+        return $this;
+    }
+
+    public function isSkipped()
+    {
+        return $this->skipped;
+    }
+
+    public function setSkipped($skipped)
+    {
+        $this->skipped = $skipped;
         return $this;
     }
 }

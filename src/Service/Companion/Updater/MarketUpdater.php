@@ -3,7 +3,7 @@
 namespace App\Service\Companion\Updater;
 
 use App\Entity\CompanionCharacter;
-use App\Entity\CompanionMarketItemException;
+use App\Entity\CompanionError;
 use App\Entity\CompanionMarketItemUpdate;
 use App\Entity\CompanionRetainer;
 use App\Entity\CompanionToken;
@@ -462,7 +462,7 @@ class MarketUpdater
         $this->console("!!! EXCEPTION: {$type}, {$itemId}, {$server}");
         $this->exceptions++;
 
-        $exception = new CompanionMarketItemException();
+        $exception = new CompanionError();
         $exception->setException("{$type}, {$itemId}, {$server}")->setMessage($error);
         $this->em->persist($exception);
         $this->em->flush();
