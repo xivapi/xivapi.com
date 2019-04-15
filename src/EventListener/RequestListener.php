@@ -5,6 +5,7 @@ namespace App\EventListener;
 use App\Service\API\ApiRequest;
 use App\Service\Common\Environment;
 use App\Service\Common\Language;
+use App\Service\Redis\Redis;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
@@ -33,7 +34,10 @@ class RequestListener
 
         // look for multiple ?'s
         if (substr_count(urldecode($request->getQueryString()), '?') > 0) {
-            throw new \Exception('https://en.wikipedia.org/wiki/Query_string');
+            Redis::Cache()->increment('query_params_errors');
+            $counter = (int)Redis::Cache()->getCount('query_params_errors');
+
+            throw new \Exception("({$counter}) https://en.wikipedia.org/wiki/Query_string");
         }
 
         // Another quick hack to convert all queries into the request object
