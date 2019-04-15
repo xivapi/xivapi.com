@@ -12,11 +12,13 @@ use App\Service\LodestoneQueue\CharacterAchievementQueue;
 use App\Service\LodestoneQueue\CharacterConverter;
 use App\Service\LodestoneQueue\CharacterFriendQueue;
 use App\Service\LodestoneQueue\CharacterQueue;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
 class CharacterService extends AbstractService
 {
     const ADD_DAILY_CAP = 100;
+    const ACTIVE_TIMEOUT = (60 * 60 * 24 * 14);
 
     /**
      * Get a character; this will add the character if they do not exist
@@ -112,5 +114,34 @@ class CharacterService extends AbstractService
             'ent'  => new CharacterFriends($lodestoneId),
             'data' => null,
         ];
+    }
+
+    /**
+     * Checks the inactive status for each character
+     */
+    public function checkInactiveStatus()
+    {
+        $characters = $this->getRepository(Character::class)->findBy([], [ 'activeLastSet' => 'asc' ], 1000);
+
+        $console = new ConsoleOutput();
+        $console = $console->section();
+        $console->writeln("Checking 1000 characters ...");
+
+        $deadline = time() - self::ACTIVE_TIMEOUT;
+
+        /** @var Character $character */
+        foreach ($characters as $character) {
+            $console->overwrite("ID: {$character->getId()}");
+
+            if ($character->getLastRequest() < $deadline) {
+                $character->setActive(false);
+            }
+
+            $character->setActiveLastSet(time());
+            $this->em->persist($character);
+            $this->em->flush();
+        }
+
+        $console->writeln("Done");
     }
 }

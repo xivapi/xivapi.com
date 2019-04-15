@@ -52,6 +52,10 @@ class Entity
      * @ORM\Column(type="boolean", name="is_active", options={"default" : 0})
      */
     public $active = false;
+    /**
+     * @ORM\Column(type="integer", length=16)
+     */
+    public $activeLastSet = 0;
     
     public function __construct(string $id)
     {
@@ -226,6 +230,17 @@ class Entity
     public function setActive($active)
     {
         $this->active = $active;
+        return $this;
+    }
+
+    public function getActiveLastSet()
+    {
+        return $this->activeLastSet;
+    }
+
+    public function setActiveLastSet($activeLastSet)
+    {
+        $this->activeLastSet = $activeLastSet;
         return $this;
     }
 }
