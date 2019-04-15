@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command\Companion;
+namespace App\Command\Lodestone;
 
 use App\Command\CommandConfigureTrait;
 use App\Service\Lodestone\CharacterService;
