@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Service\Content\GameData;
 use App\Service\Content\GameServers;
 use App\Service\GamePatch\Patch;
+use App\Service\Redis\Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -75,6 +76,18 @@ class XivGameContentController extends AbstractController
     {
         return $this->json(
             $this->game->schema($contentName)
+        );
+    }
+
+    /**
+     * @Route("/{contentName}/ids")
+     */
+    public function ids($contentName)
+    {
+        $contentName = $this->game->validate($contentName);
+        
+        return $this->json(
+            Redis::Cache()->get("ids_{$contentName}")
         );
     }
 

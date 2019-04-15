@@ -76,7 +76,7 @@ class GameData
     /**
      * Validate the passed content name, this will
      */
-    private function validate(string $contentName): string
+    public function validate(string $contentName): string
     {
         $contentName = $this->getContentName($contentName);
 
