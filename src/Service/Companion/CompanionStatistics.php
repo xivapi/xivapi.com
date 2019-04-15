@@ -228,44 +228,6 @@ class CompanionStatistics
     }
     
     /**
-     * Get exceptions thrown
-     */
-    public function getExceptions()
-    {
-        $exceptions = [];
-        
-        /** @var CompanionError $ex */
-        foreach($this->repositoryExceptions->findBy([], ['added' => 'desc'], 10) as $ex) {
-            $type = 'Unknown';
-            
-            if (stripos($ex->getMessage(), '340000')) {
-                $type = 'Sight Server Error';
-            }
-    
-            if (stripos($ex->getMessage(), '319201')) {
-                $type = 'Server Emergency Maintenance';
-            }
-    
-            if (stripos($ex->getMessage(), '111001')) {
-                $type = 'SE Account Token Expired';
-            }
-    
-            if (stripos($ex->getMessage(), 'cURL error 28')) {
-                $type = 'Sight Timed-Out';
-            }
-            
-            $exceptions[] = [
-                'Added'     => $ex->getAdded(),
-                'Arguments' => $ex->getException(),
-                'Type'      => $type,
-                'Hash'      => sha1($ex->getMessage()),
-            ];
-        }
-        
-        return $exceptions;
-    }
-    
-    /**
      * Save our statistics
      */
     public function saveStatistics()

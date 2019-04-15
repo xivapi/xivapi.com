@@ -44,6 +44,12 @@ class CompanionErrorHandler
         $errors = $this->repository->findAll();
         $errorTable = [];
 
+        if (empty($errors)) {
+            $message = "<@42667995159330816> No companion errors to report.";
+            Discord::mog()->sendMessage(null, $message);
+            return;
+        }
+
         /** @var CompanionError $error */
         foreach ($errors as $i => $error) {
             if (!isset($errorTable[$error->getCode()])) {
@@ -70,7 +76,7 @@ class CompanionErrorHandler
             $message .= "\n";
         }
 
-        $message = "<@42667995159330816> Companion Error Report:\n```{$message}```";
+        $message = "<@42667995159330816> Companion error report:\n```{$message}```";
         Discord::mog()->sendMessage(null, $message);
 
         /**
@@ -81,6 +87,9 @@ class CompanionErrorHandler
         }
 
         $this->em->flush();
+
+        // delete Redis record
+        Redis::Cache()->delete(self::REDIS_KEY_CRITICAL_EXCEPTIONS);
     }
 
     /**
@@ -107,6 +116,26 @@ class CompanionErrorHandler
 
         $this->em->persist($error);
         $this->em->flush();
+    }
+
+    /**
+     * Get exceptions thrown
+     */
+    public function getExceptions()
+    {
+        $exceptions = [];
+
+        /** @var CompanionError $ex */
+        foreach($this->repository->findBy([], ['added' => 'desc'], 10) as $ex) {
+            $exceptions[] = [
+                'Added'     => $ex->getAdded(),
+                'Exception' => $ex->getException(),
+                'Message'   => $ex->getMessage(),
+                'Type'      => $ex->getCode(),
+            ];
+        }
+
+        return $exceptions;
     }
 
     /**

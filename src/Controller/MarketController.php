@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Exception\InvalidCompanionMarketRequestException;
 use App\Exception\InvalidCompanionMarketRequestServerSizeException;
 use App\Service\Companion\Companion;
+use App\Service\Companion\CompanionConfiguration;
+use App\Service\Companion\CompanionErrorHandler;
 use App\Service\Companion\CompanionItemManager;
 use App\Service\Companion\CompanionMarket;
 use App\Service\Companion\CompanionStatistics;
@@ -26,6 +28,8 @@ class MarketController extends AbstractController
     private $companionMarket;
     /** @var CompanionItemManager */
     private $companionItemManager;
+    /** @var CompanionErrorHandler */
+    private $companionErrorHandler;
     /** @var Companion */
     private $companion;
     
@@ -33,12 +37,14 @@ class MarketController extends AbstractController
         Companion $companion,
         CompanionMarket $companionMarket,
         CompanionItemManager $companionItemManager,
-        CompanionStatistics $companionStatistics
+        CompanionStatistics $companionStatistics,
+        CompanionErrorHandler $companionErrorHandler
     ) {
-        $this->companion = $companion;
-        $this->companionMarket = $companionMarket;
-        $this->companionItemManager = $companionItemManager;
-        $this->companionStatistics = $companionStatistics;
+        $this->companion                = $companion;
+        $this->companionMarket          = $companionMarket;
+        $this->companionItemManager     = $companionItemManager;
+        $this->companionStatistics      = $companionStatistics;
+        $this->companionErrorHandler    = $companionErrorHandler;
     }
     
     /**
@@ -56,9 +62,13 @@ class MarketController extends AbstractController
      */
     public function companionStatistics()
     {
+        $criticalCount = $this->companionErrorHandler->getCriticalExceptionCount();
+
         return $this->json([
-            'Stats' => $this->companionStatistics->getStatistics(),
-            'Errors' => $this->companionStatistics->getExceptions()
+            'Stats'         => $this->companionStatistics->getStatistics(),
+            'Errors'        => $this->companionErrorHandler->getExceptions(),
+            'IsCritical'    => $criticalCount > CompanionConfiguration::ERROR_COUNT_THRESHOLD,
+            'CriticalCount' => $criticalCount,
         ]);
     }
     
@@ -75,7 +85,7 @@ class MarketController extends AbstractController
     /**
      * @Route("/market/ids")
      */
-    public function sellable(Request $request)
+    public function sellable()
     {
         return $this->json(
             $this->companionItemManager->getMarketItemIds()
