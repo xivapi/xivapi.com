@@ -121,7 +121,7 @@ class CharacterService extends AbstractService
      */
     public function checkInactiveStatus()
     {
-        $characters = $this->getRepository(Character::class)->findBy([], [ 'activeLastSet' => 'asc' ], 1000);
+        $characters = $this->getRepository(Character::class)->findBy([], [ 'activeLastSet' => 'asc' ], 2500);
 
         $console = new ConsoleOutput();
         $console = $console->section();
@@ -130,8 +130,8 @@ class CharacterService extends AbstractService
         $deadline = time() - self::ACTIVE_TIMEOUT;
 
         /** @var Character $character */
-        foreach ($characters as $character) {
-            $console->overwrite("ID: {$character->getId()}");
+        foreach ($characters as $i => $character) {
+            $console->overwrite("{$i} - {$character->getId()}");
 
             if ($character->getLastRequest() < $deadline) {
                 $character->setActive(false);
