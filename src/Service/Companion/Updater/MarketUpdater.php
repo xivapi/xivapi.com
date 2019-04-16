@@ -263,6 +263,11 @@ class MarketUpdater
                 // append prices
                 $marketItem->Prices[] = MarketListing::build($id, $row);
             }
+
+            // sort prices low -> high
+            usort($marketItem->Prices, function($first,$second) {
+                return $first->PricePerUnit > $second->PricePerUnit;
+            });
         }
 
         // ---------------------------------------------------------------------------------------------------------
@@ -302,15 +307,15 @@ class MarketUpdater
                 // add history to front
                 array_unshift($marketItem->History, MarketHistory::build($id, $row));
             }
+
+            // sort history new -> old
+            usort($marketItem->History, function($first,$second) {
+                return $first->PurchaseDate < $second->PurchaseDate;
+            });
         }
         
-        file_put_contents(
-            __DIR__."/debug_{$itemId}.json",
-            json_encode($marketItem, JSON_PRETTY_PRINT)
-        );
-
         // save market item
-        #$this->market->set($marketItem);
+        $this->market->set($marketItem);
 
         // record update
         $this->em->persist(
