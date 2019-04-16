@@ -60,6 +60,8 @@ class CompanionMarketUpdater
     /** @var int */
     private $exceptionCount = 0;
     /** @var int */
+    private $companionDelay = 0;
+    /** @var int */
     private $chunkStartTime;
     /** @var float */
     private $gaDuration;
@@ -218,10 +220,12 @@ class CompanionMarketUpdater
         $api->Sight()->settle($requests)->wait();
         $secondPassFinish = (microtime(true) - $companionStart) * 1000;
 
-        // Wait for the results, this dynamically adjusts basedo n how long the 1st pass took.
+        // Wait for the results, this dynamically adjusts based on how long the 1st pass took.
         usleep(
             (CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS - $secondPassFinish) * 1000
         );
+
+        $this->companionDelay = (CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS - $secondPassFinish);
 
         // 2nd pass (this will have the request results)
         $results = $api->Sight()->settle($requests)->wait();
@@ -368,6 +372,7 @@ class CompanionMarketUpdater
             $msg .= sprintf("Server: <comment>%s</comment>", str_pad(GameServers::LIST[$server], 20, ' '));
             $msg .= sprintf("Duration: <comment>%s</comment>", str_pad($duration, 15, ' '));
             $msg .= sprintf("Companion: <comment>%s</comment>", str_pad($this->companionDuration, 15, ' '));
+            $msg .= sprintf("Companion Delay: <comment>%s</comment>", str_pad($this->companionDelay, 15, ' '));
             $msg .= sprintf("GA Duration: %s", $this->gaDuration);
             
             // record
