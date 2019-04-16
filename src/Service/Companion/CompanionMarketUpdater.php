@@ -12,6 +12,7 @@ use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionMarketItemEntryRepository;
 use App\Repository\CompanionErrorRepository;
 use App\Repository\CompanionRetainerRepository;
+use App\Service\Common\Arrays;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
@@ -285,7 +286,7 @@ class CompanionMarketUpdater
             if ($prices && isset($prices->error) === false && $prices->entries) {
                 // reset prices
                 $marketItem->Prices = [];
-            
+
                 // append current prices
                 foreach ($prices->entries as $row) {
                     // try build a semi unique id
@@ -308,6 +309,10 @@ class CompanionMarketUpdater
                     // append prices
                     $marketItem->Prices[] = MarketListing::build($id, $row);
                 }
+
+                usort($marketItem->Prices, function($first,$second) {
+                    return $first->PricePerUnit > $second->PricePerUnit;
+                });
             }
         
             // ---------------------------------------------------------------------------------------------------------
@@ -343,10 +348,14 @@ class CompanionMarketUpdater
     
                     // grab internal record
                     $row->_characterId = $this->getInternalCharacterId($server, $row->buyCharacterName);
-                
+
                     // add history to front
                     array_unshift($marketItem->History, MarketHistory::build($id, $row));
                 }
+
+                usort($marketItem->History, function($first,$second) {
+                    return $first->PurchaseDate < $second->PurchaseDate;
+                });
             }
             
             // put
@@ -383,7 +392,7 @@ class CompanionMarketUpdater
      */
     private function getMarketItemDocument(CompanionMarketItemEntry $entry): MarketItem
     {
-        $marketItem = $this->companionMarket->get($entry->getServer(), $entry->getItem());
+        $marketItem = $this->companionMarket->get($entry->getServer(), $entry->getItem(), null, true);
         $marketItem = $marketItem ?: new MarketItem($entry->getServer(), $entry->getItem());
         return $marketItem;
     }

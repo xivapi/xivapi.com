@@ -68,7 +68,7 @@ class CompanionMarket
     /**
      * Get the current prices for an item
      */
-    public function get(int $server, int $itemId, int $maxHistory = null): ?MarketItem
+    public function get(int $server, int $itemId, int $maxHistory = null, bool $internal = false): ?MarketItem
     {
         $item = new MarketItem($server, $itemId);
         
@@ -77,17 +77,13 @@ class CompanionMarket
         } catch (\Exception $ex) {
             return $item;
         }
-        
+
         // grab document source
         $source = $result['_source'];
-        
+
         // grab updated time
         $item->Updated = $source['Updated'];
-        
-        // sort results
-        Arrays::sortBySubKey($source['Prices'], 'PricePerUnit', true);
-        Arrays::sortBySubKey($source['History'], 'PurchaseDate');
-        
+
         // map out current prices
         foreach ($source['Prices'] as $price) {
             $obj = new MarketListing();
@@ -96,36 +92,39 @@ class CompanionMarket
             foreach($price as $key => $value) {
                 $obj->{$key} = $value;
             }
-    
+
             $item->Prices[] = $obj;
         }
-        
+
         // map out historic prices
         foreach ($source['History'] as $i => $price) {
             // limit history
             if ($maxHistory && $i >= $maxHistory) {
                 break;
             }
-            
+
             $obj = new MarketHistory();
-        
+
             // these fields map 1:1
             foreach($price as $key => $value) {
                 $obj->{$key} = $value;
             }
-    
+
             $item->History[] = $obj;
         }
 
-        // append item information
-        $item->Item = GameItem::build($itemId);
-        
-        // append priority information
-        $item->UpdatePriority = Redis::Cache()->get("market_item_priority_{$server}_{$itemId}");
-        
+        // if not internally called, append some more info
+        if ($internal === false) {
+            // append item information
+            $item->Item = GameItem::build($itemId);
+
+            // append priority information
+            $item->UpdatePriority = Redis::Cache()->get("market_item_priority_{$server}_{$itemId}");
+        }
+
         return $item;
     }
-    
+
     /**
      * Perform searches
      */
