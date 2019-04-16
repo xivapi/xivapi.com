@@ -222,7 +222,7 @@ class CompanionMarketUpdater
 
         // Wait for the results, this dynamically adjusts based on how long the 1st pass took.
         usleep(
-            (CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS - $secondPassFinish) * 1000
+            ceil((CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS - $secondPassFinish)) * 1000
         );
 
         $this->companionDelay = (CompanionConfiguration::CRONJOB_ASYNC_DELAY_MS - $secondPassFinish);
