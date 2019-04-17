@@ -66,15 +66,21 @@ class CompanionStatistics
         $message = [];
 
         foreach ($this->report as $row) {
-            $message[] = "[{$row['Priority']}][{$row['Name']}][Items: {$row['Items']} - {$row['Requests']}]";
+            $CycleTime     = str_pad($row['CycleTime'], 16, ' ', STR_PAD_RIGHT);
+            $CycleTimeReal = str_pad($row['CycleTimeReal'], 16, ' ', STR_PAD_RIGHT);
+            $CycleDiff     = str_pad($row['CycleDiff'], 16, ' ', STR_PAD_RIGHT);
+            $CycleDiffSec  = str_pad($row['CycleDiffSec'], 16, ' ', STR_PAD_RIGHT);
 
-            $CycleTime     = str_pad($row['CycleTime'], 15, ' ', STR_PAD_RIGHT);
-            $CycleTimeReal = str_pad($row['CycleTimeReal'], 15, ' ', STR_PAD_RIGHT);
-            $CycleDiff     = str_pad($row['CycleDiff'], 15, ' ', STR_PAD_RIGHT);
-            $CycleDiffSec  = str_pad($row['CycleDiffSec'], 15, ' ', STR_PAD_RIGHT);
+            $title = sprintf("[%s] %s (%s items)", $row['Priority'], $row['Name'], $row['Items']);
+            $title = str_pad($title, 50, ' ', STR_PAD_RIGHT);
 
-            $message[] = sprintf('-- %s%s%s%s', $CycleTime, $CycleTimeReal, $CycleDiff, $CycleDiffSec);
-            $message[] = "";
+            $message[] = sprintf('[%s - %s%s%s%s',
+                $title,
+                $CycleTime,
+                $CycleTimeReal,
+                $CycleDiff,
+                $CycleDiffSec
+            );
         }
         
         Discord::mog()->sendMessage(null, "<@42667995159330816> - Companion Auto-Update Statistics\n```". implode("\n", $message) ."```");
@@ -112,13 +118,13 @@ class CompanionStatistics
         $completionDateTimeReal        = Carbon::createFromTimestamp(time() + $realUpdateSeconds);
 
         // compare now against our estimation
-        $completionDateTimeEstimationFormatted = Carbon::now()->diff($completionDateTimeEstimation)->format('%d-%h:%i');
+        $completionDateTimeEstimationFormatted = Carbon::now()->diff($completionDateTimeEstimation)->format('%d days, %h:%i');
 
         // compare now against our real time
-        $completionDateTimeRealFormatted = Carbon::now()->diff($completionDateTimeReal)->format('%d-%h:%i');
+        $completionDateTimeRealFormatted = Carbon::now()->diff($completionDateTimeReal)->format('%d days, %h:%i');
 
         // Work out the time difference
-        $completionDateTimeDifference = Carbon::now()->diff(Carbon::now()->addSeconds($realUpdateSeconds))->format('%d-%h:%i');
+        $completionDateTimeDifference = Carbon::now()->diff(Carbon::now()->addSeconds($realUpdateSeconds))->format('%d days, %h:%i');
 
         $this->report[$priority] = [
             'Name'          => $name,
@@ -128,7 +134,7 @@ class CompanionStatistics
             'CycleTime'     => $completionDateTimeEstimationFormatted,
             'CycleTimeReal' => $completionDateTimeRealFormatted,
             'CycleDiff'     => $completionDateTimeDifference,
-            'CycleDiffSec'  => $updateSecondsDiff,
+            'CycleDiffSec'  => number_format($updateSecondsDiff),
         ];
     }
 
