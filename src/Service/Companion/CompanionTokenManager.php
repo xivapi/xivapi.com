@@ -244,6 +244,10 @@ class CompanionTokenManager
             // get character status
             $api->login()->getCharacterStatus();
             $this->console->writeln('- Character world status confirmed');
+
+            // wait a bit
+            $this->console->writeln('- Testing market in 3 seconds ...');
+            sleep(3);
     
             // perform a test
             $api->market()->getItemMarketListings(5);
