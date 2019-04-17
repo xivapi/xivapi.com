@@ -20,7 +20,7 @@ class CompanionStatistics
     const FILENAME = __DIR__ . '/CompanionStatistics.json';
 
     // max time to keep updates
-    const UPDATE_TIME_LIMIT = (60 * 180);
+    const UPDATE_TIME_LIMIT = (60 * 60);
 
     /** @var EntityManagerInterface */
     private $em;
@@ -140,23 +140,23 @@ class CompanionStatistics
             'CycleDifferenceSec' => $updateSecondsDiff,
         ];
     }
-    
+
     /**
      * Deletes out of date update records
      */
     private function removeOutOfDateUpdates()
     {
         $this->console->writeln('Removing out of date updates...');
-        
+
         $timeout = time() - self::UPDATE_TIME_LIMIT;
-        
+
         /** @var CompanionMarketItemUpdate $update */
         foreach($this->repository->findAll() as $update) {
             if ($update->getAdded() < $timeout) {
                 $this->em->remove($update);
             }
         }
-        
+
         $this->em->flush();
     }
 
