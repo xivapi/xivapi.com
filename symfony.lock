@@ -1,7 +1,4 @@
 {
-    "art4/json-api-client": {
-        "version": "0.9.1"
-    },
     "clue/stream-filter": {
         "version": "v1.4.0"
     },
@@ -142,9 +139,6 @@
     },
     "paragonie/random_compat": {
         "version": "v2.0.17"
-    },
-    "patreon/patreon": {
-        "version": "0.3.1"
     },
     "php-amqplib/php-amqplib": {
         "version": "v2.8.1"

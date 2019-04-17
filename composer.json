@@ -30,7 +30,7 @@
         "wildbit/postmark-php": "^2.6",
         "wohali/oauth2-discord-new": "^1.0",
         "xivapi/companion-php": "^1.2.1",
-        "xivapi/lodestone-parser": "^1.8.20"
+        "xivapi/lodestone-parser": "^1.8.21"
     },
     "require-dev": {
         "symfony/dotenv": "^4.2",
