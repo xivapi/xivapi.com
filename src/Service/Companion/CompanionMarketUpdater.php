@@ -372,9 +372,6 @@ class CompanionMarketUpdater
             $msg .= sprintf("Companion Delay: <comment>%s</comment>", str_pad($this->companionDelay, 15, ' '));
             $msg .= sprintf("GA Duration: %s", $this->gaDuration);
             
-            // record
-            $this->recordUpdate($priority, $itemId, $server, $duration);
-        
             // update entry
             $this->em->persist(
                 $item
@@ -397,19 +394,6 @@ class CompanionMarketUpdater
         $marketItem = $this->companionMarket->get($entry->getServer(), $entry->getItem(), null, true);
         $marketItem = $marketItem ?: new MarketItem($entry->getServer(), $entry->getItem());
         return $marketItem;
-    }
-
-    /**
-     * Record an item update
-     */
-    private function recordUpdate($priority, $item, $server, $duration)
-    {
-        // this is technically divided by number we do concurrently
-        $duration = round($duration / CompanionConfiguration::MAX_ITEMS_PER_REQUEST, 2);
-        
-        $this->em->persist(
-            new CompanionMarketItemUpdate($item, $server, $priority, $duration)
-        );
     }
     
     /**
