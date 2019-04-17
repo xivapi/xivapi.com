@@ -17,6 +17,7 @@ use App\Exception\ApiRateLimitException;
 use App\Exception\ApiUnauthorizedAccessException;
 use App\Service\Common\Language;
 use App\Service\Redis\Redis;
+use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use App\Service\User\Users;
 use Ramsey\Uuid\Uuid;
@@ -292,20 +293,25 @@ class ApiRequest
             return;
         }
 
-        $cap  = 500000;
-        $hour = date('zH');
-        $key  = "apikey_request_count_{$this->apikey}_{$hour}";
+        $cap  = 1500;
+        $timestamp = date('zHi');
+        $key  = "apikey_request_count_{$this->apikey}_{$timestamp}";
 
         $count = Redis::Cache()->get($key) ?: 0;
         $count = (int)$count;
         $count++;
 
         if ($count > $cap) {
-            GoogleAnalytics::trackApiKeyHardCapped($this->apikey ?: 'no_api_key');
-            throw new \Exception("You have reached the request hard-cap. Please re-think your API usage...");
+            GoogleAnalytics::trackApiKeyHardCapped($this->apikey);
+            //throw new \Exception("You have reached the request hard-cap. Please re-think your API usage...");
+
+            if (Redis::Cache()->get($key . "_alert") == null) {
+                Redis::Cache()->set($key . "_alert", true, 3600);
+                Discord::mog()->sendMessage(null, "The API Key: {$this->apikey} ({$this->user->getUsername()}) has performed over 1500 requests in the past 60 seconds.");
+            }
         }
 
         // Record for an hour
-        Redis::Cache()->set($key, $count, (60 * 60));
+        Redis::Cache()->set($key, $count, 60);
     }
 }
