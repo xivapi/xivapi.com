@@ -126,13 +126,13 @@ class CompanionStatistics
         $completionDateTimeReal        = Carbon::createFromTimestamp(time() + $realUpdateSeconds);
 
         // compare now against our estimation
-        $completionDateTimeEstimationFormatted = Carbon::now()->diff($completionDateTimeEstimation)->format('%d days, %h:%i');
+        $completionDateTimeEstimationFormatted = Carbon::now()->diff($completionDateTimeEstimation)->format('%d days, %H:%I');
 
         // compare now against our real time
-        $completionDateTimeRealFormatted = Carbon::now()->diff($completionDateTimeReal)->format('%d days, %h:%i');
+        $completionDateTimeRealFormatted = Carbon::now()->diff($completionDateTimeReal)->format('%d days, %H:%I');
 
         // Work out the time difference
-        $completionDateTimeDifference = Carbon::now()->diff(Carbon::now()->addSeconds($realUpdateSeconds))->format('%d days, %h:%i');
+        $completionDateTimeDifference = Carbon::now()->diff(Carbon::now()->addSeconds($realUpdateSeconds))->format('%d days, %H:%I');
 
         $this->report[$priority] = [
             'Name'          => $name,
