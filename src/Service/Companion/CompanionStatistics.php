@@ -63,24 +63,21 @@ class CompanionStatistics
         $table->setStyle('box')->render();
         
         // discord message
-        $message = [
-            "<@42667995159330816> - Companion Auto-Update Statistics"
-        ];
+        $message = [];
 
         foreach ($this->report as $row) {
-            $message[] = "Name: {$row['Name']} - Priority: {$row['QueuePriority']}";
-            $message[] = "Items: {$row['TotalItems']} ({$row['TotalApiRequests']} requests)";
+            $message[] = "[{$row['Priority']}][{$row['Name']}][Items: {$row['Items']} - {$row['Requests']}]";
 
-            $CycleTime = str_pad($row['CycleTime'], 30, ' ', STR_PAD_RIGHT);
-            $CycleTimeReal = str_pad($row['CycleTimeReal'], 30, ' ', STR_PAD_RIGHT);
-            $CycleDifference = str_pad($row['CycleDifference'], 30, ' ', STR_PAD_RIGHT);
-            $CycleDifferenceSec = str_pad($row['CycleDifferenceSec'], 30, ' ', STR_PAD_RIGHT);
+            $CycleTime     = str_pad($row['CycleTime'], 25, ' ', STR_PAD_RIGHT);
+            $CycleTimeReal = str_pad($row['CycleTimeReal'], 25, ' ', STR_PAD_RIGHT);
+            $CycleDiff     = str_pad($row['CycleDiff'], 25, ' ', STR_PAD_RIGHT);
+            $CycleDiffSec  = str_pad($row['CycleDiffSec'], 25, ' ', STR_PAD_RIGHT);
 
-            $message[] = sprintf('%s%s%s%s', $CycleTime, $CycleTimeReal, $CycleDifference, $CycleDifferenceSec);
-            $message[] = "---";
+            $message[] = sprintf('%s%s%s%s', $CycleTime, $CycleTimeReal, $CycleDiff, $CycleDiffSec);
+            $message[] = "";
         }
         
-        Discord::mog()->sendMessage(null, "```". implode("\n", $message) ."```");
+        Discord::mog()->sendMessage(null, "<@42667995159330816> - Companion Auto-Update Statistics\n```". implode("\n", $message) ."```");
     }
     
     private function buildQueueStatistics($priority)
@@ -115,23 +112,23 @@ class CompanionStatistics
         $completionDateTimeReal        = Carbon::createFromTimestamp(time() + $realUpdateSeconds);
 
         // compare now against our estimation
-        $completionDateTimeEstimationFormatted = Carbon::now()->diff($completionDateTimeEstimation)->format('%d days, %h hr, %i min');
+        $completionDateTimeEstimationFormatted = Carbon::now()->diff($completionDateTimeEstimation)->format('%d d, %h h, %i m');
 
         // compare now against our real time
-        $completionDateTimeRealFormatted = Carbon::now()->diff($completionDateTimeReal)->format('%d days, %h hr, %i min');
+        $completionDateTimeRealFormatted = Carbon::now()->diff($completionDateTimeReal)->format('%d d, %h h, %i m');
 
         // Work out the time difference
-        $completionDateTimeDifference = Carbon::now()->diff(Carbon::now()->addSeconds($realUpdateSeconds))->format('%d days, %h hr, %i min');
+        $completionDateTimeDifference = Carbon::now()->diff(Carbon::now()->addSeconds($realUpdateSeconds))->format('%d d, %h h, %i m');
 
         $this->report[$priority] = [
-            'Name'               => $name,
-            'QueuePriority'      => $priority,
-            'TotalItems'         => number_format($totalItems),
-            'TotalApiRequests'   => number_format($totalItems * 4),
-            'CycleTime'          => $completionDateTimeEstimationFormatted,
-            'CycleTimeReal'      => $completionDateTimeRealFormatted,
-            'CycleDifference'    => $completionDateTimeDifference,
-            'CycleDifferenceSec' => $updateSecondsDiff,
+            'Name'          => $name,
+            'Priority'      => $priority,
+            'Items'         => number_format($totalItems),
+            'Requests'      => number_format($totalItems * 4),
+            'CycleTime'     => $completionDateTimeEstimationFormatted,
+            'CycleTimeReal' => $completionDateTimeRealFormatted,
+            'CycleDiff'     => $completionDateTimeDifference,
+            'CycleDiffSec'  => $updateSecondsDiff,
         ];
     }
 
@@ -177,7 +174,7 @@ class CompanionStatistics
         $data = [
             'ReportUpdated'     => time(),
             'Report'            => $this->report,
-            'ItemQueuePriority' => $this->updateQueueSizes,
+            'ItemPriority' => $this->updateQueueSizes,
             'DatabaseSqlReport' => $this->getStatisticsView(),
         ];
         
