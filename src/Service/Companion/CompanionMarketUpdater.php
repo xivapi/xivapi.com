@@ -371,7 +371,7 @@ class CompanionMarketUpdater
             $msg .= sprintf("Companion: <comment>%s</comment>", str_pad($this->companionDuration, 15, ' '));
             $msg .= sprintf("Companion Delay: <comment>%s</comment>", str_pad($this->companionDelay, 15, ' '));
             $msg .= sprintf("GA Duration: %s", $this->gaDuration);
-            
+
             // update entry
             $this->em->persist(
                 $item

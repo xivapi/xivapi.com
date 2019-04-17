@@ -63,18 +63,26 @@ class CompanionStatistics
         $table->setStyle('box')->render();
         
         // discord message
-        $message = [];
+        $message = [
+            implode("", [
+                str_pad("Title", 35, ' ', STR_PAD_RIGHT),
+                str_pad('CycleTime', 18, ' ', STR_PAD_RIGHT),
+                str_pad('CycleTimeReal', 18, ' ', STR_PAD_RIGHT),
+                str_pad('CycleDiff', 18, ' ', STR_PAD_RIGHT),
+                str_pad('CycleDiffSec', 18, ' ', STR_PAD_RIGHT),
+            ])
+        ];
 
         foreach ($this->report as $row) {
-            $CycleTime     = str_pad($row['CycleTime'], 16, ' ', STR_PAD_RIGHT);
-            $CycleTimeReal = str_pad($row['CycleTimeReal'], 16, ' ', STR_PAD_RIGHT);
-            $CycleDiff     = str_pad($row['CycleDiff'], 16, ' ', STR_PAD_RIGHT);
-            $CycleDiffSec  = str_pad($row['CycleDiffSec'], 16, ' ', STR_PAD_RIGHT);
+            $CycleTime     = str_pad($row['CycleTime'], 18, ' ', STR_PAD_RIGHT);
+            $CycleTimeReal = str_pad($row['CycleTimeReal'], 18, ' ', STR_PAD_RIGHT);
+            $CycleDiff     = str_pad($row['CycleDiff'], 18, ' ', STR_PAD_RIGHT);
+            $CycleDiffSec  = str_pad($row['CycleDiffSec'], 18, ' ', STR_PAD_RIGHT);
 
             $title = sprintf("[%s] %s (%s items)", $row['Priority'], $row['Name'], $row['Items']);
-            $title = str_pad($title, 50, ' ', STR_PAD_RIGHT);
+            $title = str_pad($title, 35, ' ', STR_PAD_RIGHT);
 
-            $message[] = sprintf('[%s - %s%s%s%s',
+            $message[] = sprintf('%s%s%s%s%s',
                 $title,
                 $CycleTime,
                 $CycleTimeReal,
