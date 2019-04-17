@@ -35,8 +35,6 @@ class CompanionStatistics
     
     // stats vars
     private $report = [];
-    private $reportSmall = [];
-    private $avgSecondsPerItem = 0;
     private $updateQueueSizes = [];
 
     public function __construct(EntityManagerInterface $em)
@@ -53,10 +51,7 @@ class CompanionStatistics
     {
         // delete out of date updates
         $this->removeOutOfDateUpdates();
-        
-        // calculate the avg seconds per item
-        $this->setAverageTimePerUpdate();
-    
+
         // Get queue sizes
         $this->setUpdateQueueSizes();
     
@@ -69,19 +64,29 @@ class CompanionStatistics
         $this->saveStatistics();
     
         // table
-        $this->console->writeln("<info>Avg Seconds per Item: {$this->avgSecondsPerItem}</info>");
         $table = new Table($this->console);
         $table->setHeaders(array_keys($this->report[1]))->setRows($this->report);
         $table->setStyle('box')->render();
         
         // discord message
-        $table = [];
-        foreach ($this->reportSmall as $row) {
-            $table[] = implode('', $row);
+        $message = [
+            "<@42667995159330816> - Companion Auto-Update Statistics"
+        ];
+
+        foreach ($this->report as $row) {
+            $message[] = "Name: {$row['Name']} - Priority: {$row['QueuePriority']}";
+            $message[] = "Items: {$row['TotalItems']} ({$row['TotalApiRequests']} requests)";
+
+            $CycleTime = str_pad($row['CycleTime'], 30, ' ', STR_PAD_RIGHT);
+            $CycleTimeReal = str_pad($row['CycleTimeReal'], 30, ' ', STR_PAD_RIGHT);
+            $CycleDifference = str_pad($row['CycleDifference'], 30, ' ', STR_PAD_RIGHT);
+            $CycleDifferenceSec = str_pad($row['CycleDifferenceSec'], 30, ' ', STR_PAD_RIGHT);
+
+            $message[] = sprintf('%s%s%s%s', $CycleTime, $CycleTimeReal, $CycleDifference, $CycleDifferenceSec);
+            $message[] = "---";
         }
         
-        $message = "<@42667995159330816> - Companion Auto-Update Statistics\n```". implode("\n", $table) ."```";
-        Discord::mog()->sendMessage(null, $message);
+        Discord::mog()->sendMessage(null, "```". implode("\n", $message) ."```");
     }
     
     private function buildQueueStatistics($priority)
@@ -99,61 +104,40 @@ class CompanionStatistics
             return;
         }
         
-        $this->console->writeln("- Total Items: {$totalItems}");
-    
-        // get the number of consumers for this queue
-        $consumers = CompanionConfiguration::QUEUE_CONSUMERS[$priority] ?? 0;
-    
-        // The completion time would be the total items multiple by how many seconds
-        // it takes per item, divided by the number of consumers.
-        $completionTime = ($totalItems * $this->avgSecondsPerItem);
-        $completionTimeViaConsumers = $completionTime / $consumers;
-    
-        // Get the last updated entry
-        $recentUpdate = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'desc' ]);
-        $lastUpdate   = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ]);
-    
-        // Work out the cycle speed
-        $completionDateTimeSeconds = time() + $completionTimeViaConsumers;
-        $completionDateTimeSecondsReal = time() + ($recentUpdate->getUpdated() - $lastUpdate->getUpdated());
-        
-        $completionDateTime = Carbon::createFromTimestamp($completionDateTimeSeconds);
-        $completionDateTimeReal = Carbon::createFromTimestamp($completionDateTimeSecondsReal);
-        $completionDateFormatted = Carbon::now()->diff($completionDateTime)->format('%d days, %h hr, %i min');
-        
-        // work out the real time difference
-        $actualDifferenceFormatted = Carbon::createFromTimestamp($recentUpdate->getUpdated())->diff(Carbon::createFromTimestamp($lastUpdate->getUpdated()))->format('%d days, %h hr, %i min');
-    
-        // work out the difference from the real cycle time vs the estimated cycle time
-        $cycleRealDiffFormatted = $completionDateTimeReal->diff($completionDateTime)->format('%d days, %h hr, %i min');
-    
-        $secondsPerItem = round(($this->avgSecondsPerItem / $consumers), 2);
-        $updatedRecent  = date('Y-m-d H:i:s', $recentUpdate->getUpdated());
-        $updatedOldest  = date('Y-m-d H:i:s', $lastUpdate->getUpdated());
-        
+        // Get the expected update time, if one doesn't exist we'll set it as 3 days
+        $expectedUpdateSeconds = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 72);
+
+        // Get the actual update time, we skip some of the early ones incase there was a one off error.
+        $recent = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'desc' ], 0, 30);
+        $oldest = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ], 0, 30);
+        $realUpdateSeconds = ($recent->getUpdated() - $oldest->getUpdated());
+
+        // work out the diff from real-fake
+        $updateSecondsDiff = ceil($realUpdateSeconds - $expectedUpdateSeconds);
+
+
+        // convert our estimation and our real into Carbons
+        $completionDateTimeEstimation  = Carbon::createFromTimestamp(time() + $expectedUpdateSeconds);
+        $completionDateTimeReal        = Carbon::createFromTimestamp(time() + $realUpdateSeconds);
+
+        // compare now against our estimation
+        $completionDateTimeEstimationFormatted = Carbon::now()->diff($completionDateTimeEstimation)->format('%d days, %h hr, %i min');
+
+        // compare now against our real time
+        $completionDateTimeRealFormatted = Carbon::now()->diff($completionDateTimeReal)->format('%d days, %h hr, %i min');
+
+        // Work out the time difference
+        $completionDateTimeDifference = Carbon::now()->diff(Carbon::now()->addSeconds($realUpdateSeconds))->format('%d days, %h hr, %i min');
+
         $this->report[$priority] = [
             'Name'               => $name,
             'QueuePriority'      => $priority,
-            'QueueConsumers'     => $consumers,
-            'SecondsPerItem'     => $secondsPerItem,
             'TotalItems'         => number_format($totalItems),
             'TotalApiRequests'   => number_format($totalItems * 4),
-            'UpdatedRecently'    => $updatedRecent,
-            'UpdatedLatest'      => $updatedOldest,
-            'CycleTime'          => $completionDateFormatted,
-            'CycleTimeReal'      => $actualDifferenceFormatted,
-            'CycleDifference'    => $cycleRealDiffFormatted,
-            'CycleDifferenceSec' => ceil($completionDateTimeSecondsReal - $completionDateTimeSeconds)
-            
-        ];
-    
-        $this->reportSmall[$priority] = [
-            str_pad("[{$priority} | {$consumers}] {$name}", 25, " ", STR_PAD_RIGHT),
-            str_pad(number_format($totalItems), 15, " ", STR_PAD_RIGHT),
-            str_pad($completionDateFormatted, 30, " ", STR_PAD_RIGHT),
-            str_pad($actualDifferenceFormatted, 30, " ", STR_PAD_RIGHT),
-            str_pad($cycleRealDiffFormatted, 30, " ", STR_PAD_RIGHT),
-            ceil($completionDateTimeSecondsReal - $completionDateTimeSeconds)
+            'CycleTime'          => $completionDateTimeEstimationFormatted,
+            'CycleTimeReal'      => $completionDateTimeRealFormatted,
+            'CycleDifference'    => $completionDateTimeDifference,
+            'CycleDifferenceSec' => $updateSecondsDiff,
         ];
     }
     
@@ -175,24 +159,7 @@ class CompanionStatistics
         
         $this->em->flush();
     }
-    
-    /**
-     * This sets the average seconds per item based on durations stored in the database.
-     */
-    private function setAverageTimePerUpdate()
-    {
-        $this->console->writeln('Calculating average time per item update ...');
-        
-        $durations = [];
-        
-        /** @var CompanionMarketItemUpdate $update */
-        foreach($this->repository->findAll() as $update) {
-            $durations[] = $update->getDuration();
-        }
-        
-        $this->avgSecondsPerItem = round(array_sum($durations) / count($durations), 5);
-    }
-    
+
     /**
      * Set the queue sizes for us
      */
