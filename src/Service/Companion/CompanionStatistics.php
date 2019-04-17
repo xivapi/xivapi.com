@@ -24,8 +24,6 @@ class CompanionStatistics
 
     /** @var EntityManagerInterface */
     private $em;
-    /** @var CompanionMarketItemUpdateRepository */
-    private $repository;
     /** @var CompanionMarketItemEntryRepository */
     private $repositoryEntries;
     /** @var CompanionErrorRepository */
@@ -40,7 +38,6 @@ class CompanionStatistics
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->repository = $em->getRepository(CompanionMarketItemUpdate::class);
         $this->repositoryEntries = $em->getRepository(CompanionMarketItemEntry::class);
         $this->repositoryExceptions = $em->getRepository(CompanionError::class);
 
@@ -49,9 +46,6 @@ class CompanionStatistics
 
     public function run()
     {
-        // delete out of date updates
-        $this->removeOutOfDateUpdates();
-
         // Get queue sizes
         $this->setUpdateQueueSizes();
     
@@ -110,9 +104,8 @@ class CompanionStatistics
         // Get the actual update time, we skip some of the early ones incase there was a one off error.
         /** @var CompanionMarketItemEntry $recent */
         /** @var CompanionMarketItemEntry $oldest */
-        $recent = $this->repositoryEntries->findBy([ 'priority' => $priority, ], [ 'updated' => 'desc' ], 1, 5)[0];
         $oldest = $this->repositoryEntries->findBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ], 1, 5)[0];
-        $realUpdateSeconds = ($recent->getUpdated() - $oldest->getUpdated());
+        $realUpdateSeconds = (time() - $oldest->getUpdated());
 
         // work out the diff from real-fake
         $updateSecondsDiff = $realUpdateSeconds - $expectedUpdateSeconds;
@@ -140,25 +133,6 @@ class CompanionStatistics
             'CycleDifference'    => $completionDateTimeDifference,
             'CycleDifferenceSec' => $updateSecondsDiff,
         ];
-    }
-
-    /**
-     * Deletes out of date update records
-     */
-    private function removeOutOfDateUpdates()
-    {
-        $this->console->writeln('Removing out of date updates...');
-
-        $timeout = time() - self::UPDATE_TIME_LIMIT;
-
-        /** @var CompanionMarketItemUpdate $update */
-        foreach($this->repository->findAll() as $update) {
-            if ($update->getAdded() < $timeout) {
-                $this->em->remove($update);
-            }
-        }
-
-        $this->em->flush();
     }
 
     /**
