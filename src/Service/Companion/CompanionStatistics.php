@@ -108,13 +108,14 @@ class CompanionStatistics
         $expectedUpdateSeconds = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 72);
 
         // Get the actual update time, we skip some of the early ones incase there was a one off error.
-        $recent = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'desc' ], 0, 30);
-        $oldest = $this->repositoryEntries->findOneBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ], 0, 30);
+        /** @var CompanionMarketItemEntry $recent */
+        /** @var CompanionMarketItemEntry $oldest */
+        $recent = $this->repositoryEntries->findBy([ 'priority' => $priority, ], [ 'updated' => 'desc' ], 1, 5)[0];
+        $oldest = $this->repositoryEntries->findBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ], 1, 5)[0];
         $realUpdateSeconds = ($recent->getUpdated() - $oldest->getUpdated());
 
         // work out the diff from real-fake
-        $updateSecondsDiff = ceil($realUpdateSeconds - $expectedUpdateSeconds);
-
+        $updateSecondsDiff = $realUpdateSeconds - $expectedUpdateSeconds;
 
         // convert our estimation and our real into Carbons
         $completionDateTimeEstimation  = Carbon::createFromTimestamp(time() + $expectedUpdateSeconds);
