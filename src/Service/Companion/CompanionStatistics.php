@@ -104,7 +104,7 @@ class CompanionStatistics
         // Get the actual update time, we skip some of the early ones incase there was a one off error.
         /** @var CompanionMarketItemEntry $recent */
         /** @var CompanionMarketItemEntry $oldest */
-        $oldest = $this->repositoryEntries->findBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ], 1, 5)[0];
+        $oldest = $this->repositoryEntries->findBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ], 1, 50)[0];
         $realUpdateSeconds = (time() - $oldest->getUpdated());
 
         // work out the diff from real-fake
