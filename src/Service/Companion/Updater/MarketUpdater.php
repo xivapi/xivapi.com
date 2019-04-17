@@ -80,6 +80,9 @@ class MarketUpdater
         $this->repositoryCompanionRetainer  = $this->em->getRepository(CompanionRetainer::class);
     }
 
+    /**
+     * Update a series of items in a queue.
+     */
     public function update(int $priority, int $queue, int $patreonQueue = null)
     {
         $this->console("Priority: {$priority} - Queue: {$queue}");
@@ -192,6 +195,9 @@ class MarketUpdater
         $this->console("-> Completed. Duration: <comment>{$duration}</comment>");
     }
 
+    /**
+     * Store the market data
+     */
     private function storeMarketData($item, $results)
     {
         $itemId = $item['item'];
@@ -377,9 +383,8 @@ class MarketUpdater
      */
     private function getMarketItemDocument($server, $itemId): MarketItem
     {
-        $marketItem = $this->market->get($server, $itemId);
-        $marketItem = $marketItem ?: new MarketItem($server, $itemId);
-        return $marketItem;
+        // return an existing one, otherwise return a new one
+        return $this->market->get($server, $itemId, null, true);
     }
 
     /**

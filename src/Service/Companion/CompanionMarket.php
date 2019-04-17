@@ -78,6 +78,11 @@ class CompanionMarket
             return $item;
         }
 
+        // just incase...
+        if ($result === null) {
+            return $item;
+        }
+
         // grab document source
         $source = $result['_source'];
 

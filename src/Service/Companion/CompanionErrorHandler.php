@@ -41,8 +41,16 @@ class CompanionErrorHandler
      */
     public function report()
     {
-        $errors = $this->repository->findAll();
-        $errorTable = [];
+        $errors = [];
+        foreach ($this->getExceptions() as $ex) {
+            $errors[] = sprintf(
+                "[%s][%s] %s: %s",
+                date('Y-m-d H:i:s', $ex['Added']),
+                $ex['Type'],
+                $ex['Exception'],
+                $ex['Message']
+            );
+        }
 
         if (empty($errors)) {
             $message = "<@42667995159330816> No companion errors to report.";
@@ -50,43 +58,17 @@ class CompanionErrorHandler
             return;
         }
 
-        /** @var CompanionError $error */
-        foreach ($errors as $i => $error) {
-            if (!isset($errorTable[$error->getCode()])) {
-                $errorTable[$error->getCode()] = [];
-            }
-
-            $errorTable[$error->getCode()][] = $error->getMessage();
-        }
-
-        /**
-         * Build error message for discord
-         */
-        $message = '';
-        foreach ($errorTable as $errorCode => $errorMessages) {
-            $total = count($errorMessages);
-
-            // error title
-            $message .= "[{$errorTable}] {$errorMessages} - Total: {$total}\n";
-
-            foreach ($errorMessages as $errorMessage) {
-                $message .= "- {$errorMessage}\n";
-            }
-
-            $message .= "\n";
-        }
-
-        $message = "<@42667995159330816> Companion error report:\n```{$message}```";
+        $errors  = implode("\n", $errors);
+        $message = "<@42667995159330816> Companion error report:\n```{$errors}```";
         Discord::mog()->sendMessage(null, $message);
 
         /**
          * Delete old error records
          */
-        foreach ($errors as $error) {
+        foreach ($this->repository->findAll() as $error) {
             $this->em->remove($error);
+            $this->em->flush();
         }
-
-        $this->em->flush();
 
         // delete Redis record
         Redis::Cache()->delete(self::REDIS_KEY_CRITICAL_EXCEPTIONS);
