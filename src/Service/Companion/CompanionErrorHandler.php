@@ -15,7 +15,7 @@ class CompanionErrorHandler
 
     const ERRORS = [
         'cURL error 28' => 'Sight Timed-out (CURL 28)',
-        'SE_Login' => 'Failed to login to Server',
+        'SE_Login_Failure' => 'Failed to login to Server',
 
         '111001' => 'SE Account Token Expired',
         '311004' => 'Unknown',

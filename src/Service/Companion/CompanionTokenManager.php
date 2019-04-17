@@ -261,7 +261,7 @@ class CompanionTokenManager
                 ->setOnline(false);
 
             $this->companionErrorHandler->exception(
-                "(SE_Login) Failed to login to server account",
+                "SE_Login_Failure",
                 "Could not login to server: {$server}"
             );
 
