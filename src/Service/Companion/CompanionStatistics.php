@@ -132,7 +132,7 @@ class CompanionStatistics
         $completionDateTimeRealFormatted = Carbon::now()->diff($completionDateTimeReal)->format('%d days, %H:%I');
 
         // Work out the time difference
-        $completionDateTimeDifference = Carbon::now()->diff(Carbon::now()->addSeconds($realUpdateSeconds))->format('%d days, %H:%I');
+        $completionDateTimeDifference = Carbon::now()->diff(Carbon::now()->addSeconds(abs($updateSecondsDiff)))->format('%d days, %H:%I');
 
         $this->report[$priority] = [
             'Name'          => $name,
