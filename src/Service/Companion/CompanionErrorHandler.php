@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class CompanionErrorHandler
 {
-    const REDIS_KEY_CRITICAL_EXCEPTIONS = 'companion_critical_exception_count';
+    const REDIS_KEY_CRITICAL_EXCEPTIONS = 'companion_critical_exception_count_v2';
 
     const ERRORS = [
         'cURL error 28' => 'Sight Timed-out (CURL 28)',
@@ -138,7 +138,7 @@ class CompanionErrorHandler
         $count = (int)$count;
         $count++;
 
-        Redis::Cache()->set(self::REDIS_KEY_CRITICAL_EXCEPTIONS, $count, (60 * 60 * 24 * 3));
+        Redis::Cache()->set(self::REDIS_KEY_CRITICAL_EXCEPTIONS, $count, (60 * 30));
     }
 
     /**

@@ -61,7 +61,6 @@ class DownloadLodestoneIconsCommand extends Command
         $this->io->title('Lodestone Icon Downloader');
     
         $ids   = Redis::Cache()->get('ids_Item');
-        $total = count($ids);
         $test  = $input->getArgument('item_id');
         
         // load out completed list
@@ -111,8 +110,6 @@ class DownloadLodestoneIconsCommand extends Command
             }
             
             // download both icons
-            #$this->downloadIcon($lodestoneMarket->Icon, __DIR__.'/Icons/Companion/', $itemId);
-            #$this->downloadIcon($lodestoneMarket->IconHq, __DIR__.'/Icons/CompanionHq/', $itemId);
             $this->downloadIcon($lodestoneItem->Icon, __DIR__.'/Icons/Lodestone/', $itemId);
             
             // save
