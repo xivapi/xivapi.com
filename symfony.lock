@@ -410,6 +410,9 @@
     "xivapi/lodestone-parser": {
         "version": "dev-master"
     },
+    "xivapi/xivapi-php": {
+        "version": "1.6.6"
+    },
     "zendframework/zend-code": {
         "version": "3.3.0"
     },

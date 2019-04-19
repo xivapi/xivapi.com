@@ -13,6 +13,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use XIVAPI\XIVAPI;
 
 class DownloadLodestoneIconsCommand extends Command
 {
@@ -31,6 +32,8 @@ class DownloadLodestoneIconsCommand extends Command
     private $guzzle;
     /** @var Api */
     private $lodestone;
+    /** @var XIVAPI */
+    private $xivapi;
     /** @var array */
     private $exceptions = [];
     /** @var int */
@@ -44,6 +47,7 @@ class DownloadLodestoneIconsCommand extends Command
         
         $this->guzzle    = new Client([ 'base_uri' => 'https://xivapi.com' ]);
         $this->lodestone = new Api();
+        $this->xivapi    = new XIVAPI();
     }
     
     protected function configure()
@@ -82,21 +86,18 @@ class DownloadLodestoneIconsCommand extends Command
             }
 
             // grab lodestone market data
-            $lodestoneMarket = $this->getLodestoneMarketData($itemId);
+            $lodestoneId = $this->getLodestoneId($itemId);
 
             // skip if no lodestone id
-            if (!isset($lodestoneMarket->LodestoneId)) {
+            if (!isset($lodestoneId)) {
                 $this->markComplete(false, 'No lodestone ID', $itemId);
                 continue;
             }
             
-            // fix url on lodestone market url
-            $lodestoneMarket->Icon   = empty($lodestoneMarket->Icon) ? null : sprintf(self::COMPANION_ICON_URL, $lodestoneMarket->Icon);
-            $lodestoneMarket->IconHq = empty($lodestoneMarket->IconHq) ? null : sprintf(self::COMPANION_ICON_URL, $lodestoneMarket->IconHq);
             
             // parse db page for the "big" icon
             try {
-                $lodestoneItem = $this->lodestone->getDatabaseItem($lodestoneMarket->LodestoneId);
+                $lodestoneItem = $this->lodestone->getDatabaseItem($lodestoneId);
             } catch (\Exception $ex) {
                 $this->exceptions[$itemId] = $ex->getMessage();
                 $this->markComplete(false, 'No lodestone database item icon', $itemId, $lodestoneMarket);
@@ -150,6 +151,17 @@ class DownloadLodestoneIconsCommand extends Command
         $saved = json_decode($saved);
         
         foreach ($saved as $itemId => $info) {
+            $hasPassed = $info->Status;
+            
+            // ignore ones that are OK
+            if ($hasPassed) {
+                continue;
+            }
+
+            if (!empty($info->LodestoneMarket->Icon)) {
+                continue;
+            }
+    
             $this->completed[] = $itemId;
         }
         
@@ -199,21 +211,14 @@ class DownloadLodestoneIconsCommand extends Command
     /**
      * Grab lodestone data from Market API
      */
-    private function getLodestoneMarketData(int $itemId): ?\stdClass
+    private function getLodestoneId(int $itemId): ?\stdClass
     {
-        try {
-            $request = $this->guzzle->get(sprintf(self::XIVAPI_MARKET_URL, $itemId), [
-                RequestOptions::QUERY => [
-                    'key' => 'testing'
-                ]
-            ]);
-    
-            $item = json_decode($request->getBody());
-        } catch (\Exception $ex) {
-            $this->exceptions[$itemId] = $ex;
-            return null;
-        }
+        $market = $this->xivapi->_private->itemPrices(
+            getenv('SITE_CONFIG_COMPANION_TOKEN_PASS'),
+            $itemId,
+            'Phoenix'
+        );
         
-        return $item->Lodestone;
+        return $market->eorzeadbItemId;
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "3db16f84b35213ab52f21e1ffb9348d1",
+    "content-hash": "a1cf2d5813a9ed34180c4acf0a22fce7",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -5352,7 +5352,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "backendtea@gmail.com"
+                    "email": "BackEndTea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
@@ -6459,6 +6459,55 @@
                 "php"
             ],
             "time": "2019-04-16T23:35:10+00:00"
+        },
+        {
+            "name": "xivapi/xivapi-php",
+            "version": "1.6.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/xivapi/xivapi-php.git",
+                "reference": "80758c06c4445048d0f40c31847415e1b7715243"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/xivapi/xivapi-php/zipball/80758c06c4445048d0f40c31847415e1b7715243",
+                "reference": "80758c06c4445048d0f40c31847415e1b7715243",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.3",
+                "php": "^7.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "XIVAPI\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Josh Freeman",
+                    "email": "josh@viion.co.uk",
+                    "homepage": "http://xivapi.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A PHP SDK for xivapi.com",
+            "homepage": "https://github.com/xivapi/xivapi-php",
+            "keywords": [
+                "api",
+                "ffxiv",
+                "php",
+                "sdk"
+            ],
+            "time": "2019-04-19T01:31:05+00:00"
         },
         {
             "name": "zendframework/zend-code",
