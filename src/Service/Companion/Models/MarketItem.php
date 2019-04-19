@@ -15,6 +15,8 @@ class MarketItem
     public $ItemID;
     /** @var GameItem */
     public $Item;
+    /** @var string */
+    public $LodestoneID;
     /** @var int */
     public $Updated;
     /** @var MarketListing[] */

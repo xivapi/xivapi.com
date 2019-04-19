@@ -239,6 +239,9 @@ class MarketUpdater
 
         // grab market item document
         $marketItem = $this->getMarketItemDocument($server, $itemId);
+    
+        // record lodestone info
+        $marketItem->LodestoneID = $prices->eorzeadbItemId;
 
         // ---------------------------------------------------------------------------------------------------------
         // CURRENT PRICES

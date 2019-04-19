@@ -233,13 +233,13 @@ class CompanionMarketUpdater
         $this->companionDuration = round(microtime(true) - $companionStart, 1);
 
         // Store the results
-        $this->storeMarketData($chunkList, $results, $requestId, $priority);
+        $this->storeMarketData($chunkList, $results, $requestId);
     }
     
     /**
      * Update a chunk of items to the document storage
      */
-    private function storeMarketData($chunkList, $results, $requestId, $priority)
+    private function storeMarketData($chunkList, $results, $requestId)
     {
         // process the chunk list from our results
         /** @var CompanionMarketItemEntry $item */
@@ -280,6 +280,9 @@ class CompanionMarketUpdater
         
             // grab market item document
             $marketItem = $this->getMarketItemDocument($item);
+            
+            // record lodestone info
+            $marketItem->LodestoneID = $prices->eorzeadbItemId;
         
             // ---------------------------------------------------------------------------------------------------------
             // CURRENT PRICES
