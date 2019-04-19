@@ -174,4 +174,16 @@ class MarketController extends AbstractController
         
         return $this->json($response);
     }
+    
+    /**
+     * Obtain all the items a retainer is selling
+     *
+     * @Route("/market/retainer/{retainerId}")
+     */
+    public function retainerItems(string $retainerId)
+    {
+        return $this->json(
+            $this->companionMarket->retainerItems($retainerId)
+        );
+    }
 }

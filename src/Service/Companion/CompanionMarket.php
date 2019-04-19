@@ -82,68 +82,129 @@ class CompanionMarket
         if ($result === null) {
             return $item;
         }
-
+    
         // grab document source
         $source = $result['_source'];
-
+    
         // grab updated time
         $item->Updated = $source['Updated'];
-
+    
         // map out current prices
         foreach ($source['Prices'] as $price) {
             $obj = new MarketListing();
-
+        
             // these fields map 1:1
-            foreach($price as $key => $value) {
+            foreach ($price as $key => $value) {
                 $obj->{$key} = $value;
             }
-
+        
             $item->Prices[] = $obj;
         }
-
+    
         // map out historic prices
         foreach ($source['History'] as $i => $price) {
             // limit history
             if ($maxHistory && $i >= $maxHistory) {
                 break;
             }
-
+        
             $obj = new MarketHistory();
-
+        
             // these fields map 1:1
-            foreach($price as $key => $value) {
+            foreach ($price as $key => $value) {
                 $obj->{$key} = $value;
             }
-
+        
             $item->History[] = $obj;
         }
-
+    
         // if not internally called, append some more info
         if ($internal === false) {
             // append item information
-            $item->Item = GameItem::build($itemId);
-
+            $item->Item = GameItem::build($item->ItemID);
+        
             // append priority information
-            $item->UpdatePriority = Redis::Cache()->get("market_item_priority_{$server}_{$itemId}");
+            $item->UpdatePriority = Redis::Cache()->get("market_item_priority_{$item->Server}_{$item->ItemID}");
         }
-
+    
         return $item;
     }
+    
+    /**
+     * Get items being sold by a retainer
+     */
+    public function retainerItems(string $retainerId)
+    {
+        if ($data = Redis::Cache()->get(__METHOD__ . $retainerId)) {
+            return $data;
+        }
+    
+        /**
+         * Build retainer queries
+         */
+        $query1 = new ElasticQuery();
+        $query1->queryMatchPhrase('Prices.RetainerID', $retainerId);
 
+        $query2 = new ElasticQuery();
+        $query2->nested('Prices', $query1->getQuery());
+        $query2->limit(0, 30);
+    
+        /**
+         * Grab items for sale
+         */
+        $results = $this->elastic->search(self::INDEX, self::INDEX, $query2->getQuery());
+    
+        /**
+         * Build retainer store
+         */
+        $store = [];
+        foreach ($results['hits']['hits'] as $hit) {
+            $source = $hit['_source'];
+            
+            // entry object
+            // todo - this should be a model
+            $entry = (Object)[
+                'Item'    => GameItem::build($source['ItemID']),
+                'Prices'  => [],
+                'Updated' => time(),
+            ];
+            
+            // grab the prices
+            foreach ($source['Prices'] as $price) {
+                if ($price['RetainerID'] == $retainerId) {
+                    $obj = new MarketListing();
+    
+                    // these fields map 1:1
+                    foreach ($price as $key => $value) {
+                        $obj->{$key} = $value;
+                    }
+                    
+                    $entry->Prices[] = $obj;
+                }
+            }
+            
+            $store[] = $entry;
+        }
+        
+        // cache for 5 minutes.
+        Redis::Cache()->set(__METHOD__ . $retainerId, $store, 300);
+        return $store;
+    }
+    
     /**
      * Perform searches
      */
     public function search()
     {
         $query1 = new ElasticQuery();
-        $query1->filterTerm('prices.retainer_id', 69926);
-        #$query1->filterRange('prices.price_total', 9900000, 'gte');
+        $query1->queryMatch('Prices.RetainerID', 'f935eac3-6560-4a4e-b07b-84ba4b37d60a');
+        #$query1->filterRange('Prices.PricePerUnit', 50000, 'gte');
         
         $query2 = new ElasticQuery();
-        $query2->nested('prices', $query1->getQuery());
+        $query2->nested('Prices', $query1->getQuery());
         $query2->limit(0, 2);
         $query2->sort([
-            [ 'prices.price_total', 'desc' ]
+            [ 'Prices.PricePerUnit', 'desc' ]
         ]);
         
         $results = $this->elastic->search(self::INDEX, self::INDEX, $query2->getQuery());
