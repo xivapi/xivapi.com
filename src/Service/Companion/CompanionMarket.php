@@ -98,8 +98,9 @@ class CompanionMarket
         // grab document source
         $source = $result['_source'];
     
-        // grab updated time
+        // set some basic info
         $item->Updated = $source['Updated'];
+        $item->LodestoneID = $source['LodestoneID'];
     
         // map out current prices
         foreach ($source['Prices'] as $price) {
