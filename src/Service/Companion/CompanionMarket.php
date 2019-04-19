@@ -2,15 +2,22 @@
 
 namespace App\Service\Companion;
 
+use App\Entity\CompanionRetainer;
+use App\Repository\CompanionRetainerRepository;
 use App\Service\Common\Arrays;
 use App\Service\Companion\Models\GameItem;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
+use App\Service\Companion\Models\Retainer;
+use App\Service\Companion\Models\RetainerListing;
 use App\Service\Content\GameData;
+use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
 use App\Service\SearchElastic\ElasticQuery;
 use App\Service\SearchElastic\ElasticSearch;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Handles the Elastic Search Companion Market info
@@ -21,9 +28,14 @@ class CompanionMarket
     
     /** @var ElasticSearch */
     private $elastic;
+    /** @var CompanionRetainerRepository */
+    private $retainerRepository;
     
-    public function __construct(GameData $gamedata)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        GameData $gamedata
+    ) {
+        $this->retainerRepository = $em->getRepository(CompanionRetainer::class);
         $this->elastic  = new ElasticSearch('ELASTIC_SERVER_COMPANION');
         $this->gamedata = $gamedata;
     }
@@ -135,60 +147,46 @@ class CompanionMarket
      */
     public function retainerItems(string $retainerId)
     {
+        // if the retainer is not in the database, it doesn't exist.
+        /** @var CompanionRetainer $companionRetainer */
+        $companionRetainer = $this->retainerRepository->find($retainerId);
+        if ($companionRetainer === null) {
+            throw new NotFoundHttpException();
+        }
+        
+        // check cache
         if ($data = Redis::Cache()->get(__METHOD__ . $retainerId)) {
             return $data;
         }
     
         /**
-         * Build retainer queries
+         * Setup a new retainer
+         */
+        $retainer = new Retainer();
+        $retainer->ID     = $retainerId;
+        $retainer->Name   = $companionRetainer->getName();
+        $retainer->Server = GameServers::LIST[$companionRetainer->getServer()];
+        
+        /**
+         * Build retainer query, limit to 30 results.
          */
         $query1 = new ElasticQuery();
         $query1->queryMatchPhrase('Prices.RetainerID', $retainerId);
-
         $query2 = new ElasticQuery();
         $query2->nested('Prices', $query1->getQuery());
         $query2->limit(0, 30);
-    
-        /**
-         * Grab items for sale
-         */
         $results = $this->elastic->search(self::INDEX, self::INDEX, $query2->getQuery());
     
         /**
          * Build retainer store
          */
-        $store = [];
         foreach ($results['hits']['hits'] as $hit) {
-            $source = $hit['_source'];
-            
-            // entry object
-            // todo - this should be a model
-            $entry = (Object)[
-                'Item'    => GameItem::build($source['ItemID']),
-                'Prices'  => [],
-                'Updated' => time(),
-            ];
-            
-            // grab the prices
-            foreach ($source['Prices'] as $price) {
-                if ($price['RetainerID'] == $retainerId) {
-                    $obj = new MarketListing();
-    
-                    // these fields map 1:1
-                    foreach ($price as $key => $value) {
-                        $obj->{$key} = $value;
-                    }
-                    
-                    $entry->Prices[] = $obj;
-                }
-            }
-            
-            $store[] = $entry;
+            $retainer->Items[] = RetainerListing::build($hit['_source'], $retainerId);
         }
         
         // cache for 5 minutes.
-        Redis::Cache()->set(__METHOD__ . $retainerId, $store, 300);
-        return $store;
+        Redis::Cache()->set(__METHOD__ . $retainerId, $retainer, 300);
+        return $retainer;
     }
     
     /**
