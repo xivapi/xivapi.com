@@ -2,7 +2,9 @@
 
 namespace App\EventListener;
 
+use App\Service\API\ApiPermissions;
 use App\Service\Common\Environment;
+use App\Service\ThirdParty\Discord\Discord;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,7 +39,6 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
             return null;
         }
         
-        
         $path = $event->getRequest()->getPathInfo();
         $pi   = pathinfo($path);
     
@@ -63,10 +64,17 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
                 'Action'  => $event->getRequest()->attributes->get('_controller'),
                 'Code'    => method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : 500,
                 'Date'    => date('Y-m-d H:i:s'),
-                'Note'    => "Get on discord: https://discord.gg/MFFVHWC and complain to @Vekien :) - Please remove your key from any url provided in the discord.",
+                'Note'    => "Get on discord: https://discord.gg/MFFVHWC and complain to @Vekien :)",
                 'Env'     => constant(Environment::CONSTANT),
             ]
         ];
+    
+        if (ApiPermissions::has(ApiPermissions::PERMISSION_KING) !== false) {
+            Discord::mog()->sendMessage(
+                '569118527345131561',
+                "```". json_encode($json, JSON_PRETTY_PRINT) ."```"
+            );
+        }
 
         $response = new JsonResponse($json, $json->Debug->Code);
         $response->headers->set('Content-Type','application/json');

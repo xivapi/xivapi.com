@@ -7,6 +7,7 @@ class ApiPermissions
     // user permissions, statically held
     const PERMISSION_LODESTONE = 'lodestone';
     const PERMISSION_MAPPY     = 'mappy';
+    const PERMISSION_KING      = 'king';
 
     private static $permissions = [];
 

@@ -2,7 +2,6 @@
 
 namespace App\Service\Common;
 
-use App\Exception\ApiUnauthorizedAccessException;
 use Symfony\Component\HttpFoundation\Request;
 
 class Environment
@@ -15,7 +14,6 @@ class Environment
     public static function register(Request $request)
     {
         self::setEnvironmentConstant($request);
-        self::checkValidHostDomain($request);
     }
 
     /**
@@ -47,27 +45,5 @@ class Environment
         if (!defined(self::CONSTANT)) {
             define(self::CONSTANT, $environment);
         }
-    }
-
-    /**
-     * Checks the request came from a valid host, this restricts
-     * '/japan/xxx' endpoints to 'lodestone.xivapi.com'
-     */
-    public static function checkValidHostDomain(Request $request)
-    {
-        $path = explode('/', $request->getPathInfo());
-        
-        if (constant(self::CONSTANT) === 'companion') {
-            if ($path[1] !== 'companion') {
-                throw new ApiUnauthorizedAccessException();
-            }
-        }
-    
-        if (constant(self::CONSTANT) === 'lodestone') {
-            if ($path[1] !== 'japan') {
-                throw new ApiUnauthorizedAccessException();
-            }
-        }
-        
     }
 }

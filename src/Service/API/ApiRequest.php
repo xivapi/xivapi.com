@@ -292,8 +292,12 @@ class ApiRequest
         if (empty($this->apikey)) {
             return;
         }
+        
+        if (ApiPermissions::has(ApiPermissions::PERMISSION_KING) !== false) {
+            return;
+        }
 
-        $cap  = 1500;
+        $cap  = 1000;
         $timestamp = date('zHi');
         $key  = "apikey_request_count_{$this->apikey}_{$timestamp}";
 
@@ -311,7 +315,6 @@ class ApiRequest
             }
         }
 
-        // Record for an hour
         Redis::Cache()->set($key, $count, 60);
     }
 }
