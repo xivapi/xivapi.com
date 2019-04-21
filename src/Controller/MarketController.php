@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\CompanionToken;
 use App\Exception\InvalidCompanionMarketRequestException;
 use App\Exception\InvalidCompanionMarketRequestServerSizeException;
 use App\Service\Companion\Companion;
@@ -10,6 +11,7 @@ use App\Service\Companion\CompanionErrorHandler;
 use App\Service\Companion\CompanionItemManager;
 use App\Service\Companion\CompanionMarket;
 use App\Service\Companion\CompanionStatistics;
+use App\Service\Companion\CompanionTokenManager;
 use App\Service\Content\GameServers;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +32,8 @@ class MarketController extends AbstractController
     private $companionItemManager;
     /** @var CompanionErrorHandler */
     private $companionErrorHandler;
+    /** @var CompanionTokenManager */
+    private $companionTokenManager;
     /** @var Companion */
     private $companion;
     
@@ -38,13 +42,15 @@ class MarketController extends AbstractController
         CompanionMarket $companionMarket,
         CompanionItemManager $companionItemManager,
         CompanionStatistics $companionStatistics,
-        CompanionErrorHandler $companionErrorHandler
+        CompanionErrorHandler $companionErrorHandler,
+        CompanionTokenManager $companionTokenManager
     ) {
         $this->companion                = $companion;
         $this->companionMarket          = $companionMarket;
         $this->companionItemManager     = $companionItemManager;
         $this->companionStatistics      = $companionStatistics;
         $this->companionErrorHandler    = $companionErrorHandler;
+        $this->companionTokenManager    = $companionTokenManager;
     }
     
     /**
@@ -60,7 +66,7 @@ class MarketController extends AbstractController
     /**
      * @Route("/market/stats", name="market_stats")
      */
-    public function companionStatistics()
+    public function statistics()
     {
         $criticalCount = $this->companionErrorHandler->getCriticalExceptionCount();
 
@@ -69,6 +75,30 @@ class MarketController extends AbstractController
             'Errors'        => $this->companionErrorHandler->getExceptions(),
             'IsCritical'    => $criticalCount > CompanionConfiguration::ERROR_COUNT_THRESHOLD,
             'CriticalCount' => $criticalCount,
+        ]);
+    }
+    
+    /**
+     * @Route("/market/online", name="market_online")
+     */
+    public function online()
+    {
+        $status  = [];
+        $offline = CompanionTokenManager::SERVERS_OFFLINE;
+        
+        /** @var CompanionToken $token */
+        foreach ($this->companionTokenManager->getCompanionTokens() as $token) {
+            $status[] = [
+                'Server'     => $token->getServer(),
+                'Message'    => $token->getMessage(),
+                'LastOnline' => $token->getLastOnline(),
+                'Online'     => $token->isOnline(),
+            ];
+        }
+        
+        return $this->json([
+            'Offline' => $offline,
+            'Status'  => $status
         ]);
     }
     
