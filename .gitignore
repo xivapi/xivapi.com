@@ -31,6 +31,7 @@ SaintCoinach\.Cmd\.lnk
 /sites
 /src/Service/SaintCoinach/data
 /src/Service/SaintCoinach/documents
+/src/Service/Companion/Census
 
 #
 # Symfony
