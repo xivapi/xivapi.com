@@ -91,9 +91,6 @@ class MarketUpdater
         $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
         $this->priority = $priority;
         $this->queue = $queue;
-    
-        // sleep for 8-12 seconds, as the queues are built, bit hacky but works.
-        sleep(mt_rand(8, 12));
         $this->console('Starting!');
         
         //--------------------------------------------------------------------------------------------------------------

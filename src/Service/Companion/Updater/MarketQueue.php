@@ -30,6 +30,8 @@ class MarketQueue
     
     public function queue()
     {
+        // run this 30 seconds in.
+        sleep(30);
         $s = microtime(true);
         $console = new ConsoleOutput();
     
