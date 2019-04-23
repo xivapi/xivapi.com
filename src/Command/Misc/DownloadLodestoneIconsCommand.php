@@ -2,52 +2,29 @@
 
 namespace App\Command\Misc;
 
-use App\Command\CommandHelperTrait;
-use App\Command\GameData\SaintCoinachRedisCommand;
+use App\Entity\ItemIcon;
+use App\Repository\ItemIconRepository;
 use App\Service\Redis\Redis;
-use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
+use Doctrine\ORM\EntityManagerInterface;
+use Intervention\Image\ImageManager;
 use Lodestone\Api;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use XIVAPI\XIVAPI;
 
 class DownloadLodestoneIconsCommand extends Command
 {
-    use CommandHelperTrait;
-
-    // store our data so we don't have to re-download everything.
-    const SAVED_LIST_FILENAME = __DIR__ . '/db.json';
-    // url to grab lodestone info from, we can get this from the market
-    const XIVAPI_MARKET_URL = '/market/phoenix/items/%s';
-    // url to companion icon, which is a bit smaller than the lodestone one
-    const COMPANION_ICON_URL = 'https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/%s.png';
-    // path to icon directory
-    const ICON_DIRECTORY = __DIR__.'/../../../public/i2/ls/';
+    /** @var EntityManagerInterface */
+    private $em;
     
-    /** @var Client */
-    private $guzzle;
-    /** @var Api */
-    private $lodestone;
-    /** @var XIVAPI */
-    private $xivapi;
-    /** @var array */
-    private $exceptions = [];
-    /** @var int */
-    private $saved = 0;
-    /** @var array */
-    private $completed = [];
-    
-    public function __construct(?string $name = null)
+    public function __construct(EntityManagerInterface $em, ?string $name = null)
     {
-        parent::__construct($name);
+        $this->em = $em;
         
-        $this->guzzle    = new Client([ 'base_uri' => 'https://xivapi.com' ]);
-        $this->lodestone = new Api();
-        $this->xivapi    = new XIVAPI();
+        parent::__construct($name);
     }
     
     protected function configure()
@@ -55,170 +32,184 @@ class DownloadLodestoneIconsCommand extends Command
         $this
             ->setName('DownloadLodestoneIconsCommand')
             ->setDescription('Downloads a bunch of info from Lodestone, including icons.')
-            ->addArgument('item_id', InputArgument::OPTIONAL, 'Test Item');
+            ->addArgument('item_id', InputArgument::OPTIONAL, 'Custom ID')
         ;
     }
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->setSymfonyStyle($input, $output);
-        $this->io->title('Lodestone Icon Downloader');
-    
-        $ids   = Redis::Cache()->get('ids_Item');
-        $test  = $input->getArgument('item_id');
+        $date = date('Y-m-d H:i:s');
+        $console = new ConsoleOutput();
+        $console->writeln("Started: {$date}");
+        $console->writeln("Downloading Icons");
         
-        // load out completed list
-        $this->loadCompleted();
+        /** @var ItemIconRepository $repo */
+        $repo = $this->em->getRepository(ItemIcon::class);
         
-        $this->io->section('Downloading icons');
-        $this->io->progressStart(count($ids));
-        foreach ($ids as $i => $itemId) {
-            $this->io->progressAdvance();
-            
-            // skip non test ones
-            if ($test && $test != $itemId) {
-                continue;
-            }
-            
-            // if we've completed, skip it
-            if ($test == null && in_array($itemId, $this->completed)) {
-                continue;
-            }
-
-            // grab lodestone market data
-            $lodestoneId = $this->getLodestoneId($itemId);
-
-            // skip if no lodestone id
-            if (!isset($lodestoneId)) {
-                $this->markComplete(false, 'No lodestone ID', $itemId);
-                continue;
-            }
-            
-            
-            // parse db page for the "big" icon
-            try {
-                $lodestoneItem = $this->lodestone->getDatabaseItem($lodestoneId);
-            } catch (\Exception $ex) {
-                $this->exceptions[$itemId] = $ex->getMessage();
-                $this->markComplete(false, 'No lodestone database item icon', $itemId, $lodestoneMarket);
-                continue;
-            }
-            
-            // skip if it fields
-            if ($lodestoneItem == null || empty($lodestoneItem->Icon)) {
-                $this->markComplete(false, 'No lodestone database item icon', $itemId);
-                continue;
-            }
-            
-            // download both icons
-            $this->downloadIcon($lodestoneItem->Icon, __DIR__.'/Icons/Lodestone/', $itemId);
-            
-            // save
-            $this->markComplete(true, 'Download OK', $itemId, $lodestoneMarket, $lodestoneItem);
-        }
-        $this->io->progressFinish();
-
-        // print exceptions
-        $this->io->text(count($this->exceptions) . ' exceptions were recorded.');
-        foreach ($this->exceptions as $itemId => $error) {
-            $this->io->text("Exception: {$itemId} = {$error}");
-        }
-        
-        // print saved total
-        $this->io->text([ ' ', "Saved: {$this->saved} icons" ]);
-        
-        // copy icons
-        $this->io->section('Copying files');
-        $this->io->progressStart(count($ids));
-        foreach ($ids as $i => $itemId) {
-            $file = __DIR__."/Icons/Lodestone/{$itemId}.png";
-            $this->io->progressAdvance();
-            
-            if (file_exists($file)) {
-                copy($file, self::ICON_DIRECTORY . $itemId . ".png");
-            }
-        }
-        $this->io->progressFinish();
-    }
-    
-    /**
-     * Load the item ids that have been completed.
-     */
-    private function loadCompleted()
-    {
-        $this->io->text('Loading the complete list');
-        $saved = file_get_contents(self::SAVED_LIST_FILENAME);
-        $saved = json_decode($saved);
-        
-        foreach ($saved as $itemId => $info) {
-            $hasPassed = $info->Status;
-            
-            // ignore ones that are OK
-            if ($hasPassed) {
-                continue;
-            }
-
-            if (!empty($info->LodestoneMarket->Icon)) {
-                continue;
-            }
-    
-            $this->completed[] = $itemId;
-        }
-        
-        $this->complete();
-        unset($saved);
-    }
-    
-    /**
-     * marks an item as complete
-     */
-    private function markComplete($status, $message, $itemId, $lodestoneMarket = null, $lodestoneItem = null)
-    {
-        // load current saved list
-        $saved = file_get_contents(self::SAVED_LIST_FILENAME);
-        $saved = json_decode($saved);
-        
-        // append item
-        $saved->{$itemId} = [
-            'ItemID'          => $itemId,
-            'Status'          => $status,
-            'Message'         => $message,
-            'LodestoneMarket' => $lodestoneMarket,
-            'LodestoneItem'   => $lodestoneItem,
+        /** @var $xivapi */
+        $xivapi = new XIVAPI();
+        $xivapiColumns = [
+            'columns' => 'LodestoneID,eorzeadbItemId'
         ];
         
-        // re save
-        file_put_contents(self::SAVED_LIST_FILENAME, json_encode($saved, JSON_PRETTY_PRINT));
-    }
+        /** @var Api $lodestone */
+        $lodestone = new Api();
     
-    /**
-     * Download the icons
-     */
-    private function downloadIcon($url, $path, $filename)
-    {
-        if (!is_dir($path)) {
-            mkdir($path, 0777, true);
+        /** @var ImageManager $manager */
+        $manager = new ImageManager(['driver' => 'imagick']);
+        
+        //
+        // Grab all item ids
+        //
+        $ids   = Redis::Cache()->get('ids_Item');
+        $total = number_format(count($ids));
+        $console->writeln("Total Items: {$total}");
+
+        //
+        // Process items
+        //
+        $section = $console->section();
+        foreach ($ids as $i => $itemId) {
+            $i = ($i + 1);
+            
+            if ($input->getArgument('item_id') && $itemId != $input->getArgument('item_id')) {
+                continue;
+            }
+            
+            $section->overwrite("[{$i}] {$itemId}");
+            
+            // get entity or make a new one
+            $entity = $repo->findOneBy([ 'item' => $itemId ]) ?: new ItemIcon();
+            $entity->setItem($itemId);
+            
+            if ($entity->isComplete()) {
+                continue;
+            }
+            
+            // Ignore any item that fell into these states.
+            $ignoreStatuses = [
+                ItemIcon::STATUS_COMPLETE,
+                ItemIcon::STATUS_NO_MARKET_ID,
+                ItemIcon::STATUS_NO_LDS_ID,
+            ];
+            
+            if (in_array($entity->getStatus(), $ignoreStatuses)) {
+                continue;
+            }
+
+            /**
+             * If we don't have a lodestone id, get it from market
+             */
+            if ($entity->getLodestoneId() == null) {
+                /**
+                 * Get market lodestone id
+                 */
+                $section->overwrite("[{$i}] {$itemId} - Getting lodestone id from XIVAPI Market");
+                $market = $xivapi->queries($xivapiColumns)->market->item($itemId, ['Phoenix']);
+                $section->overwrite("[{$i}] {$itemId} - Response: {$market->LodestoneID}");
+
+                /**
+                 * todo - this is temp until mogboard has been running for a few days
+                 */
+                if (empty($market->LodestoneID)) {
+                    try {
+                        $section->overwrite("[{$i}] {$itemId} - Getting lodestone id from Companion directly.");
+                        $market = $xivapi->_private->itemPrices(
+                            'C5gLlU9LZHvybBP6J4aL',
+                            $itemId,
+                            'Phoenix'
+                        );
+                        
+                        if (isset($market->Error) || empty($market->eorzeadbItemId)) {
+                            throw new \Exception('Error or still empty');
+                        }
+    
+                        $lodestoneId = $market->eorzeadbItemId;
+                        $entity->setLodestoneId($lodestoneId);
+                    } catch (\Exception $ex) {
+                        $section->overwrite("[{$i}] {$itemId} - Item has no lodestone id");
+                        $entity->setStatus(ItemIcon::STATUS_NO_LDS_ID);
+                        $this->em->persist($entity);
+                        $this->em->flush();
+                        continue;
+                    }
+                }
+                
+                /**
+                 * If empty, there is no market id yet
+                 */
+                /*
+                if (empty($market->LodestoneID)) {
+                    $section->overwrite("[{$i}] {$itemId} - No lodestone ID yet, need to wait");
+                    $entity->setStatus(ItemIcon::STATUS_NO_MARKET_ID);
+                    $this->em->persist($entity);
+                    $this->em->flush();
+                    continue;
+                }
+                
+                $entity->setLodestoneId($market->LodestoneID);
+                */
+            }
+            
+            if (empty($entity->getLodestoneId())) {
+                continue;
+            }
+    
+            /**
+             * If we don't have a lodestone icon url, parse it from lodestone
+             */
+            if ($entity->getLodestoneIcon() == null) {
+                /**
+                 * Parse lodestone
+                 */
+                try {
+                    $lodestoneItem = $lodestone->getDatabaseItem($entity->getLodestoneId());
+                    
+                    if (empty($lodestoneItem->Icon)) {
+                        throw new \Exception("Icon not found on lodestone page");
+                    }
+                    
+                    $entity->setLodestoneIcon($lodestoneItem->Icon);
+                } catch (\Exception $ex) {
+                    $section->overwrite("[{$i}] {$itemId} - Lodestone Exception: {$ex->getMessage()}");
+                    $entity->setStatus(ItemIcon::LODESTONE_EXCEPTION);
+                    $this->em->persist($entity);
+                    $this->em->flush();
+                    continue;
+                }
+            }
+    
+            /**
+             * Download the icon if we don't have it.
+             */
+            $saveFilename = __DIR__."/../../../public/i2/ls/{$itemId}.png";
+            if (file_exists($saveFilename) === false) {
+                $section->overwrite("[{$i}] {$itemId} - Download icon...");
+                copy($entity->getLodestoneIcon() . "?t=" . time(), $saveFilename);
+                
+                /**
+                 * Add corners
+                 */
+                $item = Redis::Cache()->get("xiv_Item_{$itemId}");
+                $img = $manager->make($saveFilename);
+                $img->insert(
+                    $manager->make(sprintf(__DIR__ .'/../../../public/i2/borders/rarity%s.png', $item->Rarity))
+                );
+                $img->save($saveFilename);
+    
+                /**
+                 * Compress image
+                 */
+                $img = imagecreatefrompng($saveFilename);
+                imagejpeg($img, $saveFilename, 95);
+            }
+    
+            $section->overwrite("[{$i}] {$itemId} - Complete");
+            $entity->setStatus(ItemIcon::STATUS_COMPLETE);
+            $this->em->persist($entity);
+            $this->em->flush();
         }
         
-        if (empty($url)) {
-            return;
-        }
-        
-        copy($url . "?t=" . time(), $path . $filename . ".png");
-        $this->saved++;
-    }
-    
-    /**
-     * Grab lodestone data from Market API
-     */
-    private function getLodestoneId(int $itemId): ?\stdClass
-    {
-        $market = $this->xivapi->_private->itemPrices(
-            getenv('SITE_CONFIG_COMPANION_TOKEN_PASS'),
-            $itemId,
-            'Phoenix'
-        );
-        
-        return $market->eorzeadbItemId;
+        $console->writeln("Finished");
     }
 }

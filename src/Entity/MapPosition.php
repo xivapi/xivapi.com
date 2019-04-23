@@ -7,7 +7,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * - This has UpperCase variables as its game content
- * @ORM\Table(name="map_positions")
  * @ORM\Table(
  *     name="map_positions",
  *     indexes={
