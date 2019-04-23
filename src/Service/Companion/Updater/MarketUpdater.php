@@ -137,10 +137,6 @@ class MarketUpdater
             $api->Sight()->settle($requests)->wait();
             $this->console("({$i}/{$total}) Sent queue requests for: {$itemId}");
 
-            // record requests on Google Analytics
-            GoogleAnalytics::companionTrackItemAsUrl("/prices/{$itemId}");
-            GoogleAnalytics::companionTrackItemAsUrl("/history/{$itemId}");
-            
             usleep(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS * 1000);
         }
         $this->times->firstPass = microtime(true) - $a;
@@ -178,15 +174,15 @@ class MarketUpdater
             // save data
             $this->storeMarketData($item, $results);
 
-            // record requests on Google Analytics
-            GoogleAnalytics::companionTrackItemAsUrl("/prices/{$itemId}");
-            GoogleAnalytics::companionTrackItemAsUrl("/history/{$itemId}");
-
             // update item entry
             $this->marketItemEntryUpdated[] = [
                 $id,
                 $patreonQueue
             ];
+    
+            // update analytics
+            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}");
+            usleep(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS * 1000);
         }
 
         // update the database market entries with the latest updated timestamps
