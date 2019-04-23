@@ -440,10 +440,12 @@ class MarketUpdater
     private function updateDatabaseMarketItemEntries()
     {
         $this->console('Updating database item entries');
+        $conn = $this->em->getConnection();
+
         foreach ($this->marketItemEntryUpdated as $id) {
             $sql = "UPDATE companion_market_item_entry SET updated = ". time() ." WHERE id = '{$id}'";
 
-            $stmt = $this->em->getConnection()->prepare($sql);
+            $stmt = $conn->prepare($sql);
             $stmt->execute();
         }
     }
