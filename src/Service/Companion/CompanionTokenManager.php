@@ -52,6 +52,7 @@ class CompanionTokenManager
         'Pandaemonium'  => 'COMPANION_APP_ACCOUNT_B',
         'Shinryu'       => 'COMPANION_APP_ACCOUNT_B',
         'Titan'         => 'COMPANION_APP_ACCOUNT_B',
+        'Mandragora'    => 'COMPANION_APP_ACCOUNT_B',
 
         // US Servers
         'Balmung'       => 'COMPANION_APP_ACCOUNT_A',
