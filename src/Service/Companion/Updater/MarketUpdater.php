@@ -437,6 +437,8 @@ class MarketUpdater
             ORDER BY updated ASC
             LIMIT {$limit}
         ";
+        
+        $this->console->writeln("SQL: {$sql}");
 
         $stmt = $this->em->getConnection()->prepare($sql);
         $stmt->execute();
