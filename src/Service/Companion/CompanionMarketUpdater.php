@@ -212,6 +212,7 @@ class CompanionMarketUpdater
         
         // if failed to pull any requests, skip!
         if (empty($requests)) {
+            $this->console->writeln("Failed to build requests");
             return;
         }
 
