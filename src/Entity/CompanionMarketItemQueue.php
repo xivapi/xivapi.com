@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *     name="companion_market_item_queue",
  *     indexes={
- *          @ORM\Index(name="updated", columns={"updated"}),
+ *          @ORM\Index(name="consumer", columns={"consumer"}),
  *          @ORM\Index(name="item", columns={"item"}),
  *          @ORM\Index(name="priority", columns={"priority"}),
  *          @ORM\Index(name="server", columns={"server"}),
