@@ -64,9 +64,9 @@ class CompanionConfiguration
         6  => 3,
         7  => 5,
         
-        8  => 0,
-        9  => 0,
-        10 => 0,
+        8  => 0, // not used
+        9  => 0, // not used
+        10 => 0, // item is new
     ];
     
     // Priority values against a slot of time

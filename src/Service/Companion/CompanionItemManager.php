@@ -70,7 +70,7 @@ class CompanionItemManager
         $server = $server ? GameServers::getServerId($server) : null;
 
         // loop through all marketable items.
-        foreach ($this->getMarketItemIds() as $itemId) {
+        foreach ($this->getMarketItemIds() as $i => $itemId) {
             $section->overwrite("Adding: {$itemId}");
 
             // loop through each server
@@ -110,9 +110,11 @@ class CompanionItemManager
                 );
             }
 
-            // flush and clear
-            $this->em->flush();
-            $this->em->clear();
+            if ($i % 50 == 0) {
+                // flush and clear
+                $this->em->flush();
+                $this->em->clear();
+            }
         }
 
         $totalItems = $total * count(GameServers::LIST);
