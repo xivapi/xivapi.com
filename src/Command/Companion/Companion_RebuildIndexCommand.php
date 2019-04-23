@@ -29,7 +29,7 @@ class Companion_RebuildIndexCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('Rebuilding index ...');
-        $this->companionMarket->rebuildIndex();
+        # $this->companionMarket->rebuildIndex();
         $output->writeln('Done.');
     }
 }

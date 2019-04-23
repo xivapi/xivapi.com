@@ -15,15 +15,6 @@ class CompanionTokenManager
      * Current servers that are offline due to character restrictions
      */
     const SERVERS_OFFLINE = [
-        // JP
-        'Gungnir',
-        'Bahamut',
-        'Chocobo',
-        'Mandragora',
-        'Shinryu',
-
-        // NA
-        'Balmung',
     ];
     
     /**
