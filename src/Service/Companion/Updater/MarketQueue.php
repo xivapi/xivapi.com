@@ -31,16 +31,18 @@ class MarketQueue
     public function queue()
     {
         $console = new ConsoleOutput();
-        
+    
         /**
          * Clear out all current items
          */
-        $console->writeln("Clearing out the queue");
-        foreach ($this->repo->findAll() as $item) {
-            $this->em->remove($item);
-            $this->em->flush();
-        }
-
+        $con = $this->em->getConnection();
+        $sql = 'TRUNCATE TABLE companion_market_item_queue';
+        $sql = $con->prepare($sql);
+        $sql->execute();
+    
+        /**
+         * Add the new entries
+         */
         foreach(CompanionConfiguration::QUEUE_CONSUMERS as $priority => $consumers) {
             $updateItems = $this->repoEntries->findBy([ 'priority' => $priority ], [ 'updated' => 'desc' ], 250);
             
@@ -52,10 +54,11 @@ class MarketQueue
             
             foreach (array_chunk($updateItems, CompanionConfiguration::MAX_ITEMS_PER_CRONJOB) as $i => $items) {
                 $console->writeln("Adding items for {$priority}, consumer: {$i}");
-                
+
                 /** @var CompanionMarketItemEntry $item */
                 foreach ($items as $item) {
-                    $queued = new CompanionMarketItemQueue(
+                    $sql = sprintf(
+                        "INSERT INTO companion_market_item_queue (id,item,priority,consumer,server,region,patreon_queue) VALUES ('%s',%s,%s,%s,%s,%s,%s)",
                         $item->getId(),
                         $item->getItem(),
                         $item->getServer(),
@@ -63,17 +66,14 @@ class MarketQueue
                         $item->getRegion(),
                         $i
                     );
-                    
-                    $this->em->persist($queued);
+    
+                    $sql = $con->prepare($sql);
+                    $sql->execute();
                 }
-                
-                $this->em->flush();
             }
         }
-        
-        $this->em->clear();
-        $this->em->flush();
-        
+
+        $con->close();
         $console->writeln("Done");
     }
 }
