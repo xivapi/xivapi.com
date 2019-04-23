@@ -30,7 +30,7 @@ class ApiRequest
 {
     const KEY_FIELD             = 'private_key';
     const MAX_RATE_LIMIT_KEY    = 30;
-    const MAX_RATE_LIMIT_GLOBAL = 5;
+    const MAX_RATE_LIMIT_GLOBAL = 15;
     
     /**
      * List of controllers that require a API Key
