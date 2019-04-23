@@ -70,6 +70,8 @@ class CompanionItemManager
         
         $server = $server ? GameServers::getServerId($server) : null;
         
+        $this->output->writeln($server ? "Updating server: {$server}" : "Updating ALL servers");
+        
         $conn = $this->em->getConnection();
 
         // loop through all marketable items.
