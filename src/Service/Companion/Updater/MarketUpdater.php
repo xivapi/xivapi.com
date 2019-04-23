@@ -57,6 +57,8 @@ class MarketUpdater
     private $deadline = 0;
     /** @var int */
     private $exceptions = 0;
+    /** @var string */
+    private $requestId = '';
     /** @var array */
     private $times = [
         'startTime'  => 0,
@@ -92,6 +94,8 @@ class MarketUpdater
         $this->priority = $priority;
         $this->queue = $queue;
         $this->console('Starting!');
+        
+        $this->requestId = Uuid::uuid4()->toString();
         
         //--------------------------------------------------------------------------------------------------------------
 
@@ -142,10 +146,9 @@ class MarketUpdater
             $api->Token()->set($token);
 
             // build requests (PRICES, HISTORY)
-            $time = time();
             $requests = [
-                "{$time}_{$itemId}_{$server}_prices"  => $api->Market()->getItemMarketListings($itemId),
-                "{$time}_{$itemId}_{$server}_history" => $api->Market()->getTransactionHistory($itemId),
+                "{$this->requestId}_{$itemId}_{$server}_prices"  => $api->Market()->getItemMarketListings($itemId),
+                "{$this->requestId}_{$itemId}_{$server}_history" => $api->Market()->getTransactionHistory($itemId),
             ];
 
             // store requests
@@ -192,7 +195,7 @@ class MarketUpdater
             $this->console("({$i}/{$total}) Fetch queue responses for: {$itemId} on: {$server}");
 
             // save data
-            $this->storeMarketData($item, $results);
+            $this->storeMarketData($itemId, $server, $results);
 
             // update item entry
             $this->marketItemEntryUpdated[] = $id;
@@ -230,19 +233,13 @@ class MarketUpdater
     /**
      * Store the market data
      */
-    private function storeMarketData($item, $results)
+    private function storeMarketData($itemId, $server, $results)
     {
-        $itemId = $item['item'];
-        $server = $item['server'];
-
-        // grab request keys
-        $requestKeys = array_keys($this->requests[$server . $itemId]);
-
         // grab prices and history from response
         /** @var \stdClass $prices */
         /** @var \stdClass $history */
-        $prices  = $results[$requestKeys[0]];
-        $history = $results[$requestKeys[1]];
+        $prices  = $results["{$this->requestId}_{$itemId}_{$server}_prices"];
+        $history = $results["{$this->requestId}_{$itemId}_{$server}_history"];
 
         if (isset($prices->error)) {
             $this->errorHandler->exception(
@@ -272,9 +269,12 @@ class MarketUpdater
         // grab market item document
         $marketItem = $this->getMarketItemDocument($server, $itemId);
     
-        if ($marketItem->Item == 3 && $marketItem->Server == 46) {
+        if ($itemId == 3 && $server == 46) {
             file_put_contents(
                 __DIR__.'/debug.json', json_encode($prices, JSON_PRETTY_PRINT)
+            );
+            file_put_contents(
+                __DIR__.'/debug_2.json', json_encode($marketItem, JSON_PRETTY_PRINT)
             );
         }
     
