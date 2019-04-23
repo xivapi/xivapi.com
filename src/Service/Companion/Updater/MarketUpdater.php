@@ -91,6 +91,7 @@ class MarketUpdater
 
         if ($this->errorHandler->getCriticalExceptionCount() > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
             $this->console('Exceptions are above the ERROR_COUNT_THRESHOLD.');
+            $this->closeDatabaseConnection();
             exit();
         }
 
@@ -99,6 +100,12 @@ class MarketUpdater
 
         // fetch item ids to update
         $this->fetchItemIdsToUpdate($priority, $queue, $patreonQueue);
+        
+        if (empty($this->items)) {
+            $this->console('No items to update');
+            $this->closeDatabaseConnection();
+            return;
+        }
 
         // initialize Companion API
         $api = new CompanionApi();
@@ -190,6 +197,7 @@ class MarketUpdater
         $duration = round(microtime(true) - $this->times->startTime, 1);
         $this->times->secondPass = microtime(true) - $a;
         $this->console("-> Completed. Duration: <comment>{$duration}</comment>");
+        $this->closeDatabaseConnection();
     }
 
     /**
@@ -457,5 +465,16 @@ class MarketUpdater
     private function console($text)
     {
         $this->console->writeln(date('Y-m-d H:i:s') . " | {$this->priority} | {$this->queue} | {$text}");
+    }
+    
+    /**
+     * Close the db connections
+     */
+    private function closeDatabaseConnection()
+    {
+        $this->em->flush();
+        $this->em->clear();
+        $this->em->close();
+        $this->em->getConnection()->close();
     }
 }
