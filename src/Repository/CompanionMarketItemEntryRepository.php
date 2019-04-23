@@ -29,43 +29,18 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     /**
      * Returns a list of items to update
      */
-    public function findItemsToUpdate(int $priority, int $limit, int $offset)
+    public function findItemsToUpdate(int $priority, int $limit)
     {
         $sql = $this->createQueryBuilder('a');
-        $sql->where("a.priority = :a")->setParameter('a', $priority)
+        $sql->where("a.priority = {$priority}")
             ->orderBy('a.updated', 'asc')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset);
+            ->setMaxResults($limit);
+    
+        /**
+         * Temp ignore Balmung, it's having issues, we'll get through it
+         */
+        $sql->andWhere('a.server != 26');
     
         return $sql->getQuery()->getResult();
-    }
-
-    /**
-     * Returns patreo nitems to update
-     */
-    public function findPatreonItemsToUpdate(int $patreonPriority, int $limit, int $offset)
-    {
-        $sql = $this->createQueryBuilder('a');
-        $sql->where("a.patreonQueue = :a")->setParameter('a', $patreonPriority)
-            ->orderBy('a.updated', 'asc')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset);
-
-        return $sql->getQuery()->getResult();
-    }
-
-    /**
-     * Returns a total item count for a given priority.
-     */
-    public function findTotalOfItems(int $priority = null)
-    {
-        $sql = $this->createQueryBuilder('a');
-        $sql->select('count(a.id)');
-
-        if ($priority) {
-            $sql->where("a.priority = :a")->setParameter('a', $priority);
-        }
-
-        return $sql->getQuery()->getSingleScalarResult();
     }
 }

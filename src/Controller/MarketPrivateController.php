@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\CompanionMarketItemEntry;
 use App\Service\Companion\CompanionConfiguration;
-use App\Service\Companion\CompanionMarketUpdater;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Companion\Updater\MarketUpdater;
 use App\Service\Redis\Redis;

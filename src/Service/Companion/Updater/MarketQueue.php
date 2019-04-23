@@ -51,7 +51,7 @@ class MarketQueue
          * Insert new items
          */
         foreach (CompanionConfiguration::QUEUE_CONSUMERS as $priority => $consumers) {
-            $updateItems = $this->repoEntries->findBy([ 'priority' => $priority ], [ 'updated' => 'asc' ], 250);
+            $updateItems = $this->repoEntries->findItemsToUpdate($priority, 500);
             
             // skip queue if no items for that priority
             if (empty($updateItems)) {
@@ -62,6 +62,11 @@ class MarketQueue
             foreach (array_chunk($updateItems, CompanionConfiguration::MAX_ITEMS_PER_CRONJOB) as $i => $items) {
                 $console->writeln("Adding items for {$priority}, consumer: {$i}");
                 
+                // end if we go above the max consumers, there is never more than 10.
+                if ($i > 10) {
+                    break;
+                }
+    
                 /** @var CompanionMarketItemEntry $item */
                 foreach ($items as $item) {
                     $queued = new CompanionMarketItemQueue(
@@ -79,6 +84,8 @@ class MarketQueue
                 
                 $this->em->flush();
             }
+            
+            $this->em->flush();
         }
     
         /**
