@@ -136,7 +136,13 @@ class MarketUpdater
 
             /** @var CompanionToken $token */
             $token  = $this->tokens[$server];
-            $api->Token()->set($token->getToken());
+            
+            if ($token == null) {
+                $this->console("Token has expired, skipping...");
+                continue;
+            }
+            
+            $api->Token()->set($token);
 
             // build requests (PRICES, HISTORY)
             $requests = [
@@ -462,20 +468,17 @@ class MarketUpdater
      */
     private function fetchCompanionTokens()
     {
-        /** @var CompanionToken[] $tokens */
-        $tokens = $this->em->getRepository(CompanionToken::class)->findAll();
-
-        foreach ($tokens as $token) {
-            // skip offline or expired tokens
-            if ($token->isOnline() === false) {
-                continue;
-            }
-
-            $id = GameServers::getServerId($token->getServer());
-            $this->tokens[$id] = $token;
+        $conn = $this->em->getConnection();
+        $sql  = "SELECT server, online, token FROM companion_tokens";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        
+        foreach ($stmt->fetchAll() as $arr) {
+            $serverId = GameServers::getServerId($arr['server']);
+            $token = json_decode($arr['token']);
+    
+            $this->tokens[$serverId] = $arr['online'] ? $token->token : null;
         }
-
-        $this->em->clear();
     }
 
     /**
