@@ -87,7 +87,7 @@ class CompanionItemManager
                     continue;
                 }
                 
-                $sql = "SELECT id FROM companion_market_item_entry WHERE item = {$itemId} AND server = {$server} LIMIT 0,1";
+                $sql = "SELECT id FROM companion_market_item_entry WHERE item = {$itemId} AND server = {$serverId} LIMIT 0,1";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();
                 
