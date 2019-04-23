@@ -30,6 +30,7 @@ class MarketQueue
     
     public function queue()
     {
+        $s = microtime(true);
         $console = new ConsoleOutput();
     
         /**
@@ -75,6 +76,8 @@ class MarketQueue
         $this->em->clear();
         $this->em->flush();
         
-        $console->writeln("Done");
+        $duration = round(microtime(true) - $s, 2);
+        
+        $console->writeln("Done: {$duration} seconds.");
     }
 }
