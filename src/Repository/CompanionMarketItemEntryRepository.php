@@ -38,8 +38,9 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     
         /**
          * Temp ignore Balmung, it's having issues, we'll get through it
+         * Temp ignore Shinryu too.... FFS!?
          */
-        $sql->andWhere('a.server != 26');
+        $sql->andWhere('a.server != 26 AND a.server !=51');
     
         return $sql->getQuery()->getResult();
     }
