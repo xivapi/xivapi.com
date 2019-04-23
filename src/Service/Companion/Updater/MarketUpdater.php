@@ -138,7 +138,7 @@ class MarketUpdater
             $token  = $this->tokens[$server];
             
             if ($token == null) {
-                $this->console("Token has expired, skipping...");
+                $this->console("Token has expired for server: {$server}, skipping...");
                 continue;
             }
             
