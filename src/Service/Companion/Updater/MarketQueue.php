@@ -43,7 +43,7 @@ class MarketQueue
         /**
          * Insert new items
          */
-        foreach(CompanionConfiguration::QUEUE_CONSUMERS as $priority => $consumers) {
+        foreach (CompanionConfiguration::QUEUE_CONSUMERS as $priority => $consumers) {
             $updateItems = $this->repoEntries->findBy([ 'priority' => $priority ], [ 'updated' => 'desc' ], 250);
             
             // skip queue if no items for that priority
@@ -71,6 +71,37 @@ class MarketQueue
                 
                 $this->em->flush();
             }
+        }
+    
+        /**
+         * Inset patreon items
+         */
+        foreach ([1,2,3,4,5,6,7,8,9,10] as $patreonQueue) {
+            $updateItems = $this->repoEntries->findBy([ 'patreon_queue' => $patreonQueue ], [ 'updated' => 'desc' ], CompanionConfiguration::MAX_ITEMS_PER_CRONJOB);
+    
+            // skip queue if no items for that priority
+            if (empty($updateItems)) {
+                $console->writeln("No items for priority: {$priority}");
+                continue;
+            }
+    
+            /** @var CompanionMarketItemEntry $item */
+            foreach ($items as $item) {
+                $queued = new CompanionMarketItemQueue(
+                    $item->getId(),
+                    $item->getItem(),
+                    $item->getServer(),
+                    $item->getPriority(),
+                    $item->getRegion(),
+                    $i
+                );
+                
+                $queued->setPatreonQueue($item->getPatreonQueue());
+        
+                $this->em->persist($queued);
+            }
+    
+            $this->em->flush();
         }
         
         $this->em->clear();

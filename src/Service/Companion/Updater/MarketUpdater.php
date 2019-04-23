@@ -92,8 +92,8 @@ class MarketUpdater
         $this->priority = $priority;
         $this->queue = $queue;
     
-        // sleep based on queue, so not all crons spam the server at once.
-        sleep($priority);
+        // sleep for 8-12 seconds, as the queues are built, bit hacky but works.
+        sleep(mt_rand(8, 12));
         $this->console('Starting!');
         
         //--------------------------------------------------------------------------------------------------------------
@@ -431,24 +431,18 @@ class MarketUpdater
      */
     private function fetchItemIdsToUpdate($priority, $queue, $patreonQueue)
     {
-        $limit = implode(',', [
-            CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * $queue,
-            CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
-        ]);
-
         // get items to update
         $this->console('Finding Item IDs to Auto-Update');
         $s = microtime(true);
 
         // patreon get their own table.
-        $where = $patreonQueue ? "patreon_queue = {$patreonQueue}" : "priority = {$priority}";
+        $limit = CompanionConfiguration::MAX_ITEMS_PER_CRONJOB;
+        $where = $patreonQueue ? "patreon_queue = {$patreonQueue}" : "priority = {$priority} AND consumer = ${queue}";
 
         $sql = "
             SELECT id, item, server
-            FROM companion_market_item_entry
-            FORCE INDEX (updated_priority)
+            FROM companion_market_item_queue
             WHERE {$where}
-            ORDER BY updated ASC
             LIMIT {$limit}
         ";
         
