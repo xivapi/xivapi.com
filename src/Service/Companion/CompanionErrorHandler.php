@@ -138,7 +138,7 @@ class CompanionErrorHandler
         $count = (int)$count;
         $count++;
 
-        Redis::Cache()->set(self::REDIS_KEY_CRITICAL_EXCEPTIONS, $count, (60 * 30));
+        Redis::Cache()->set(self::REDIS_KEY_CRITICAL_EXCEPTIONS, $count, (60 * 15));
     }
 
     /**
