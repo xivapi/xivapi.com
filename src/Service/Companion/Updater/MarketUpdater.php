@@ -151,13 +151,12 @@ class MarketUpdater
                 "{$this->requestId}_{$itemId}_{$server}_history" => $api->Market()->getTransactionHistory($itemId),
             ];
 
-            // store requests
-            $this->requests[$server . $itemId] = $requests;
-
             // send requests and wait
             $api->Sight()->settle($requests)->wait();
             $this->console("({$i}/{$total}) Sent queue requests for: {$itemId} on: {$server}");
-
+    
+            // store requests
+            $this->requests[$server . $itemId] = $requests;
             usleep(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS * 1000);
         }
         $this->times->firstPass = microtime(true) - $a;
