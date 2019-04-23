@@ -9,6 +9,7 @@ use App\Service\Companion\Models\MarketItem;
 use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionItemManager
@@ -68,6 +69,8 @@ class CompanionItemManager
         $section = $this->output->section();
         
         $server = $server ? GameServers::getServerId($server) : null;
+        
+        $conn = $this->em->getConnection();
 
         // loop through all marketable items.
         foreach ($this->getMarketItemIds() as $i => $itemId) {
@@ -84,36 +87,24 @@ class CompanionItemManager
                     continue;
                 }
                 
-                // check for an existing entry
-                $obj = $this->repository->findOneBy([
-                    'item' => $itemId,
-                    'server' => $serverId
-                ]);
-
-                // if it exists, skip
-                if ($obj) {
+                $sql = "SELECT id FROM companion_market_item_entry WHERE item = {$itemId} AND server = {$server} LIMIT 0,1";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+                
+                // exists
+                if ($stmt->fetch()) {
                     continue;
                 }
 
                 // get region
                 $dc = GameServers::getDataCenter($serverName);
                 $region = GameServers::LIST_DC_REGIONS[$dc];
-
-                // create new entry with a priority of 10
-                $this->em->persist(
-                    new CompanionMarketItemEntry(
-                        $itemId,
-                        $serverId,
-                        CompanionConfiguration::PRIORITY_ITEM_IS_NEW,
-                        $region
-                    )
-                );
-            }
-
-            if ($i % 50 == 0) {
-                // flush and clear
-                $this->em->flush();
-                $this->em->clear();
+                
+                $id   = Uuid::uuid4()->toString();
+                $time = time();
+                $sql  = "INSERT INTO companion_market_item_entry (id, updated, item, priority, server, region, patreon_queue, skipped) VALUES ('{$id}', {$time}, $itemId, 1, $serverId, $region, NULL, 0);";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
             }
         }
 
