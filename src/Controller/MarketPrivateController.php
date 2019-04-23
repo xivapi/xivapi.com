@@ -113,7 +113,7 @@ class MarketPrivateController extends AbstractController
          * Find an empty queue
          */
         $queue  = null;
-        $queues = range(1, 5);
+        $queues = range(1, 10);
         foreach ($queues as $i => $num) {
             $size = Redis::Cache()->get("companion_market_manual_queue_{$num}");
 
