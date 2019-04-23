@@ -146,17 +146,17 @@ class MarketUpdater
             $api->Token()->set($token);
 
             // build requests (PRICES, HISTORY)
-            $requests = [
+            $async = [
                 "{$this->requestId}_{$itemId}_{$server}_prices"  => $api->Market()->getItemMarketListings($itemId),
                 "{$this->requestId}_{$itemId}_{$server}_history" => $api->Market()->getTransactionHistory($itemId),
             ];
 
             // send requests and wait
-            $api->Sight()->settle($requests)->wait();
+            $api->Sight()->settle($async)->wait();
             $this->console("({$i}/{$total}) Sent queue requests for: {$itemId} on: {$server}");
     
             // store requests
-            $this->requests[$server . $itemId] = $requests;
+            $this->requests[$server . $itemId] = $async;
             usleep(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS * 1000);
         }
         $this->times->firstPass = microtime(true) - $a;
@@ -188,10 +188,11 @@ class MarketUpdater
 
             // grab request
             $requests = $this->requests[$server . $itemId];
-
+            
             // request them again
             $results = $api->Sight()->settle($requests)->wait();
             $results = $api->Sight()->handle($results);
+            
             $this->console("({$i}/{$total}) Fetch queue responses for: {$itemId} on: {$server}");
 
             // save data
@@ -238,9 +239,9 @@ class MarketUpdater
         // grab prices and history from response
         /** @var \stdClass $prices */
         /** @var \stdClass $history */
-        $prices  = $results["{$this->requestId}_{$itemId}_{$server}_prices"];
-        $history = $results["{$this->requestId}_{$itemId}_{$server}_history"];
-    
+        $prices  = $results->{"{$this->requestId}_{$itemId}_{$server}_prices"} ?? null;
+        $history = $results->{"{$this->requestId}_{$itemId}_{$server}_history"} ?? null;
+        
         /**
          * Query error
          */
@@ -489,7 +490,7 @@ class MarketUpdater
             $serverId = GameServers::getServerId($arr['server']);
             $token = json_decode($arr['token']);
     
-            $this->tokens[$serverId] = $arr['online'] ? $token->token : null;
+            $this->tokens[$serverId] = $arr['online'] ? $token : null;
         }
     }
 
