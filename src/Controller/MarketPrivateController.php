@@ -99,8 +99,8 @@ class MarketPrivateController extends AbstractController
             return $this->json([ false, $requestLastSent, 'Item already requested to be updated within the past 5 minutes.' ]);
         }
 
-        // Place the item on this server in a 300 second cooldown
-        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", time(), 300);
+        // Place the item on this server in a 8 minute cooldown
+        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", time(), (60 * 8));
 
         /**
          * Check when the item was last updated, maybe it updated within the last 5 minutes,
