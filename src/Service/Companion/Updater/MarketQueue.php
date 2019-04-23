@@ -46,7 +46,7 @@ class MarketQueue
          * Insert new items
          */
         foreach (CompanionConfiguration::QUEUE_CONSUMERS as $priority => $consumers) {
-            $updateItems = $this->repoEntries->findBy([ 'priority' => $priority ], [ 'updated' => 'desc' ], 250);
+            $updateItems = $this->repoEntries->findBy([ 'priority' => $priority ], [ 'updated' => 'asc' ], 250);
             
             // skip queue if no items for that priority
             if (empty($updateItems)) {
@@ -81,7 +81,7 @@ class MarketQueue
          */
         $console->writeln("Adding Patreon Queues");
         foreach ([1,2,3,4,5,6,7,8,9,10] as $patreonQueue) {
-            $updateItems = $this->repoEntries->findBy([ 'patreonQueue' => $patreonQueue ], [ 'updated' => 'desc' ], CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * 2);
+            $updateItems = $this->repoEntries->findBy([ 'patreonQueue' => $patreonQueue ], [ 'updated' => 'asc' ], CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * 2);
     
             // skip queue if no items for that priority
             if (empty($updateItems)) {
