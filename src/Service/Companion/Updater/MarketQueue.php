@@ -57,13 +57,13 @@ class MarketQueue
                 /** @var CompanionMarketItemEntry $item */
                 foreach ($items as $item) {
                     $sql = sprintf(
-                        "INSERT INTO companion_market_item_queue (id,item,priority,consumer,server,region,patreon_queue) VALUES ('%s',%s,%s,%s,%s,%s,%s)",
+                        "INSERT INTO companion_market_item_queue (id,item,priority,consumer,server,region,patreon_queue) VALUES ('%s',%s,%s,%s,%s,%s,0)",
                         $item->getId(),
                         $item->getItem(),
-                        $item->getServer(),
                         $item->getPriority(),
-                        $item->getRegion(),
-                        $i
+                        $i,
+                        $item->getServer(),
+                        $item->getRegion()
                     );
     
                     $stmt = $conn->prepare($sql);
