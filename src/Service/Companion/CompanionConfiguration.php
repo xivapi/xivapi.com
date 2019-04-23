@@ -20,7 +20,7 @@ class CompanionConfiguration
     const CRONJOB_ASYNC_DELAY_MS = 3200;
 
     // the delay between requests
-    const DELAY_BETWEEN_REQUESTS_MS = 70;
+    const DELAY_BETWEEN_REQUESTS_MS = 30;
 
     // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;
