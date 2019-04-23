@@ -85,7 +85,7 @@ class MarketQueue
          * Inset patreon items
          */
         $console->writeln("Adding Patreon Queues");
-        foreach ([1,2,3,4,5] as $patreonQueue) {
+        foreach (CompanionConfiguration::QUEUE_CONSUMERS_PATREON as $patreonQueue) {
             $updateItems = $this->repoEntries->findBy([ 'patreonQueue' => $patreonQueue ], [ 'updated' => 'asc' ], 500);
     
             // skip queue if no items for that priority

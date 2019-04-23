@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\CompanionMarketItemEntry;
+use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionMarketUpdater;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Companion\Updater\MarketUpdater;
@@ -111,10 +112,14 @@ class MarketPrivateController extends AbstractController
         }
 
         /**
-         * Find an empty queue
+         * Pick a random queue, it should distribute mostly... evenly.
          */
         $queue  = null;
-        $queues = range(1, 5);
+        $queues = range(
+            min(CompanionConfiguration::QUEUE_CONSUMERS_PATREON),
+            max(CompanionConfiguration::QUEUE_CONSUMERS_PATREON)
+        );
+        
         foreach ($queues as $i => $num) {
             $size = Redis::Cache()->get("companion_market_manual_queue_{$num}");
 

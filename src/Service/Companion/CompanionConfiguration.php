@@ -72,6 +72,19 @@ class CompanionConfiguration
         10 => 0, // item is new
     ];
     
+    const QUEUE_CONSUMERS_PATREON = [
+        1,
+        2,
+        #3,
+        #4,
+        #5,
+        #5,
+        #6,
+        #7,
+        #8,
+        #9,
+    ]
+    
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
         (60 * 60 * 1)   => 1,
