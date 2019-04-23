@@ -140,7 +140,7 @@ class CompanionStatistics
             'CycleTime'     => $completionDateTimeEstimationFormatted,
             'CycleTimeReal' => $completionDateTimeRealFormatted,
             'CycleDiff'     => $completionDateTimeDifference,
-            'CycleDiffSec'  => number_format($updateSecondsDiff),
+            'CycleDiffSec'  => $updateSecondsDiff,
         ];
     }
 
