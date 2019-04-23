@@ -3,9 +3,11 @@
 namespace App\Service\Companion\Updater;
 
 use App\Entity\CompanionCharacter;
+use App\Entity\CompanionMarketItemEntry;
 use App\Entity\CompanionRetainer;
 use App\Entity\CompanionToken;
 use App\Repository\CompanionCharacterRepository;
+use App\Repository\CompanionMarketItemEntryRepository;
 use App\Repository\CompanionRetainerRepository;
 use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionErrorHandler;
@@ -138,8 +140,8 @@ class MarketUpdater
 
             // build requests (PRICES, HISTORY)
             $requests = [
-                Uuid::uuid4()->toString() => $api->Market()->getItemMarketListings($itemId),
-                Uuid::uuid4()->toString() => $api->Market()->getTransactionHistory($itemId),
+                Uuid::uuid4()->toString() . '_prices' => $api->Market()->getItemMarketListings($itemId),
+                Uuid::uuid4()->toString() . '_history' => $api->Market()->getTransactionHistory($itemId),
             ];
 
             // store requests
@@ -503,5 +505,35 @@ class MarketUpdater
         $this->em->clear();
         $this->em->close();
         $this->em->getConnection()->close();
+    }
+    
+    /**
+     * Get a single market item entry.
+     */
+    public function getMarketItemEntry(int $serverId, int $itemId)
+    {
+        return $this->em->getRepository(CompanionMarketItemEntry::class)->findOneBy([
+            'server' => $serverId,
+            'item'   => $itemId,
+        ]);
+    }
+    
+    /**
+     * Mark an item to be manually updated on an DC
+     */
+    public function updateManual(int $itemId, int $server, int $queueNumber)
+    {
+        /** @var CompanionMarketItemEntryRepository $repo */
+        $repo    = $this->em->getRepository(CompanionMarketItemEntry::class);
+        $servers = GameServers::getDataCenterServersIds(GameServers::LIST[$server]);
+        $items   = $repo->findItemsInServers($itemId, $servers);
+        
+        /** @var CompanionMarketItemEntry $item */
+        foreach ($items as $item) {
+            $item->setPatreonQueue($queueNumber);
+            $this->em->persist($item);
+        }
+        
+        $this->em->flush();
     }
 }

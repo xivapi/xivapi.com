@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\CompanionMarketItemEntry;
 use App\Service\Companion\CompanionMarketUpdater;
 use App\Service\Companion\CompanionTokenManager;
+use App\Service\Companion\Updater\MarketUpdater;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,12 +22,12 @@ class MarketPrivateController extends AbstractController
 {
     /** @var CompanionTokenManager */
     private $companionTokenManager;
-    /** @var CompanionMarketUpdater */
+    /** @var MarketUpdater */
     private $companionMarketUpdater;
 
     public function __construct(
         CompanionTokenManager $companionTokenManager,
-        CompanionMarketUpdater $companionMarketUpdater
+        MarketUpdater $companionMarketUpdater
     ) {
         $this->companionTokenManager  = $companionTokenManager;
         $this->companionMarketUpdater = $companionMarketUpdater;
