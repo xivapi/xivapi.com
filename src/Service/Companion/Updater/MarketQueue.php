@@ -77,7 +77,7 @@ class MarketQueue
          * Inset patreon items
          */
         foreach ([1,2,3,4,5,6,7,8,9,10] as $patreonQueue) {
-            $updateItems = $this->repoEntries->findBy([ 'patreon_queue' => $patreonQueue ], [ 'updated' => 'desc' ], CompanionConfiguration::MAX_ITEMS_PER_CRONJOB);
+            $updateItems = $this->repoEntries->findBy([ 'patreonQueue' => $patreonQueue ], [ 'updated' => 'desc' ], CompanionConfiguration::MAX_ITEMS_PER_CRONJOB);
     
             // skip queue if no items for that priority
             if (empty($updateItems)) {
