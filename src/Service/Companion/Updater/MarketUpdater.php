@@ -142,9 +142,10 @@ class MarketUpdater
             $api->Token()->set($token);
 
             // build requests (PRICES, HISTORY)
+            $time = time();
             $requests = [
-                Uuid::uuid4()->toString() . '_prices' => $api->Market()->getItemMarketListings($itemId),
-                Uuid::uuid4()->toString() . '_history' => $api->Market()->getTransactionHistory($itemId),
+                "{$time}_{$itemId}_{$server}_prices"  => $api->Market()->getItemMarketListings($itemId),
+                "{$time}_{$itemId}_{$server}_history" => $api->Market()->getTransactionHistory($itemId),
             ];
 
             // store requests
