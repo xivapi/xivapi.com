@@ -4,10 +4,8 @@ namespace App\Service\Companion;
 
 use App\Entity\CompanionMarketItemEntry;
 use App\Entity\CompanionError;
-use App\Entity\CompanionMarketItemUpdate;
 use App\Repository\CompanionMarketItemEntryRepository;
 use App\Repository\CompanionErrorRepository;
-use App\Repository\CompanionMarketItemUpdateRepository;
 use App\Service\Redis\Redis;
 use App\Service\ThirdParty\Discord\Discord;
 use Carbon\Carbon;

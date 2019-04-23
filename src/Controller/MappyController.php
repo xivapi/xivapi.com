@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\MapPosition;
-use App\Entity\MemoryData;
 use App\Entity\User;
 use App\Service\API\ApiPermissions;
 use App\Service\API\ApiRequest;

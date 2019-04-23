@@ -3,8 +3,6 @@
 namespace App\Service\Companion\Updater;
 
 use App\Entity\CompanionCharacter;
-use App\Entity\CompanionError;
-use App\Entity\CompanionMarketItemUpdate;
 use App\Entity\CompanionRetainer;
 use App\Entity\CompanionToken;
 use App\Repository\CompanionCharacterRepository;
@@ -16,7 +14,6 @@ use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
-use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
 use Doctrine\Common\Persistence\ObjectRepository;
@@ -325,11 +322,6 @@ class MarketUpdater
         
         // save market item
         $this->market->set($marketItem);
-
-        // record update
-        $this->em->persist(
-            new CompanionMarketItemUpdate($itemId, $server, $this->priority)
-        );
     }
     
     /**

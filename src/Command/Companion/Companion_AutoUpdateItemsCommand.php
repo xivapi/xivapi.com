@@ -38,9 +38,9 @@ class Companion_AutoUpdateItemsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /**
-         * php bin/console Companion_AutoUpdateCommand 1 0
-         * php bin/console Companion_AutoUpdateCommand 1 0
-         * php bin/console Companion_AutoUpdateCommand 1 0 1
+         * php bin/console Companion_AutoUpdateItemsCommand 1 0
+         * php bin/console Companion_AutoUpdateItemsCommand 1 0
+         * php bin/console Companion_AutoUpdateItemsCommand 8 5
          */
         $this->marketUpdater->update(
             $input->getArgument('priority'),
