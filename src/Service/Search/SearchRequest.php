@@ -22,7 +22,7 @@ class SearchRequest
     const STRING_SIMILAR             = 'similar';
 
     const MIN_LIMIT = 1;
-    const MAX_LIMIT = 100;
+    const MAX_LIMIT = 250;
 
     const STRING_ALGORITHM_DEFAULT = self::STRING_WILDCARD;
     const STRING_ALGORITHMS = [
