@@ -52,6 +52,8 @@ class MarketUpdater
     /** @var int */
     private $queue = 0;
     /** @var int */
+    private $deadline = 0;
+    /** @var int */
     private $exceptions = 0;
     /** @var array */
     private $times = [
@@ -84,6 +86,7 @@ class MarketUpdater
     {
         $this->console("Priority: {$priority} - Queue: {$queue}");
         $this->times->startTime = microtime(true);
+        $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
         $this->priority = $priority;
         $this->queue = $queue;
 
@@ -110,6 +113,11 @@ class MarketUpdater
         // initialize Companion API
         $api = new CompanionApi();
         $api->useAsync();
+        
+        // check things didn't take too long to start
+        if ($this->atDeadline()) {
+            exit;
+        }
 
         // 1st pass - send queue requests for all Item Prices + History
         $a     = microtime(true);
@@ -135,11 +143,16 @@ class MarketUpdater
 
             // send requests and wait
             $api->Sight()->settle($requests)->wait();
-            $this->console("({$i}/{$total}) Sent queue requests for: {$itemId}");
+            $this->console("({$i}/{$total}) Sent queue requests for: {$itemId} on: {$server}");
 
             usleep(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS * 1000);
         }
         $this->times->firstPass = microtime(true) - $a;
+    
+        // check things didn't take too long to start
+        if ($this->atDeadline()) {
+            exit;
+        }
 
         // delay if the 1st pass was fast.
         $firstPassDelay = 25 - ceil($this->times->firstPass);
@@ -152,7 +165,9 @@ class MarketUpdater
 
         // 2nd pass - request results of all Item Prices + History
         $a = microtime(true);
-        foreach ($this->items as $item) {
+        foreach ($this->items as $i => $item) {
+            $i = $i + 1;
+            
             // if exceptions were thrown in any request, we stop
             // (store market updates exceptions if any thrown)
             if ($this->exceptions >= CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
@@ -169,7 +184,7 @@ class MarketUpdater
 
             // request them again
             $results = $api->Sight()->settle($requests)->wait();
-            $this->console("Fetch queue responses for: {$itemId}");
+            $this->console("({$i}/{$total}) Fetch queue responses for: {$itemId} on: {$server}");
 
             // save data
             $this->storeMarketData($item, $results);
@@ -191,6 +206,20 @@ class MarketUpdater
         $this->times->secondPass = microtime(true) - $a;
         $this->console("-> Completed. Duration: <comment>{$duration}</comment>");
         $this->closeDatabaseConnection();
+    }
+    
+    /**
+     * Tests to see if the time deadline has hit
+     */
+    private function atDeadline()
+    {
+        // if we go over the deadline, we stop.
+        if (time() > $this->deadline) {
+            $this->console->writeln(date('H:i:s') ." | Ending auto-update as time limit seconds reached.");
+            return true;
+        }
+        
+        return false;
     }
 
     /**
