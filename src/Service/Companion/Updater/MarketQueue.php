@@ -46,7 +46,7 @@ class MarketQueue
             
             // skip queue if no items for that priority
             if (empty($updateItems)) {
-                $console->writeln("No items for priority: {$priority}")
+                $console->writeln("No items for priority: {$priority}");
                 continue;
             }
             
