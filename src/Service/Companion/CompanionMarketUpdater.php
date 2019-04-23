@@ -99,7 +99,8 @@ class CompanionMarketUpdater
         $queueStartTime = microtime(true);
         if ($this->companionErrorHandler->getCriticalExceptionCount() > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
             $this->console->writeln(date('H:i:s') .' | !! Error exceptions exceeded limit. Auto-Update stopped');
-            exit();
+            $this->closeDatabaseConnection();
+            return;
         }
 
         // grab our companion tokens
@@ -144,6 +145,7 @@ class CompanionMarketUpdater
         // report
         $duration = round(microtime(true) - $queueStartTime, 2);
         $this->console->writeln(date('H:i:s') ." | (Updates: {$this->updateCount}) Finished queue: {$priority}:{$queue} - Duration: {$duration}");
+        $this->closeDatabaseConnection();
     }
 
     /**
@@ -447,5 +449,13 @@ class CompanionMarketUpdater
         }
 
         return $obj->getId();
+    }
+    
+    private function closeDatabaseConnection()
+    {
+        $this->em->flush();
+        $this->em->clear();
+        $this->em->close();
+        $this->em->getConnection()->close();
     }
 }
