@@ -155,7 +155,7 @@ class MarketUpdater
         }
 
         // delay if the 1st pass was fast.
-        $firstPassDelay = 25 - ceil($this->times->firstPass);
+        $firstPassDelay = 15 - ceil($this->times->firstPass);
         
         $this->console("1st Pass = {$this->times->firstPass} seconds");
         if ($firstPassDelay > 0) {
