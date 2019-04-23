@@ -14,7 +14,7 @@ class CompanionConfiguration
     const MAX_ITEMS_PER_REQUEST = 2;
 
     // the total time a cronjob should stay active
-    const CRONJOB_TIMEOUT_SECONDS  = 60;
+    const CRONJOB_TIMEOUT_SECONDS  = 140;
     
     // Delay pass time
     const CRONJOB_PASS_DELAY  = [5, 10];
