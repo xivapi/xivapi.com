@@ -157,7 +157,9 @@ class MarketUpdater
     
             // store requests
             $this->requests[$server . $itemId] = $async;
-            usleep(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS * 1000);
+            usleep(
+                mt_rand(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[0], CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[1]) * 1000
+            );
         }
         $this->times->firstPass = microtime(true) - $a;
     
@@ -205,7 +207,9 @@ class MarketUpdater
     
             // update analytics
             GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}");
-            usleep(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS * 1000);
+            usleep(
+                mt_rand(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[0], CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[1]) * 1000
+            );
         }
 
         // update the database market entries with the latest updated timestamps
