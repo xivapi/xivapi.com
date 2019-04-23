@@ -168,7 +168,9 @@ class MarketUpdater
 
         // sleep
         $this->console("Sleeping until requests ...");
-        sleep(CompanionConfiguration::CRONJOB_PASS_DELAY);
+        sleep(
+            mt_rand(CompanionConfiguration::CRONJOB_PASS_DELAY[0], CompanionConfiguration::CRONJOB_PASS_DELAY[1])
+        );
 
         // 2nd pass - request results of all Item Prices + History
         $a = microtime(true);
