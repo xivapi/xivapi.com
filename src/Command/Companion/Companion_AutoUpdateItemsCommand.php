@@ -38,9 +38,13 @@ class Companion_AutoUpdateItemsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /**
-         * php bin/console Companion_AutoUpdateItemsCommand 1 0
-         * php bin/console Companion_AutoUpdateItemsCommand 1 0
-         * php bin/console Companion_AutoUpdateItemsCommand 8 5
+         *   php bin/console Companion_AutoUpdateItemsCommand 1 0
+         *
+         * Priority 8, start offset 5
+         *   php bin/console Companion_AutoUpdateItemsCommand 8 5
+         *
+         * Patreon Queue 5
+         *   php bin/console Companion_AutoUpdateItemsCommand 0 0 5
          */
         $this->marketUpdater->update(
             $input->getArgument('priority'),

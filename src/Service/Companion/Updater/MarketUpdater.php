@@ -397,11 +397,11 @@ class MarketUpdater
         $this->console('Finding Item IDs to Auto-Update');
 
         // patreon get their own table.
-        $tableName = $patreonQueue ? "companion_market_item_patreon" : "companion_market_item_entry";
+        $where = $patreonQueue ? "patreon_queue = {$patreonQueue}" : "priority = {$priority}";
 
         $sql = "
-            SELECT id, item, server FROM {$tableName}
-            WHERE priority = {$priority}
+            SELECT id, item, server FROM companion_market_item_entry
+            WHERE {$where}
             LIMIT {$limit}
         ";
 
