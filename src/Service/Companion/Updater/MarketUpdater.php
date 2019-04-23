@@ -192,6 +192,7 @@ class MarketUpdater
 
             // request them again
             $results = $api->Sight()->settle($requests)->wait();
+            $results = $api->Sight()->handle($results);
             $this->console("({$i}/{$total}) Fetch queue responses for: {$itemId} on: {$server}");
 
             // save data
