@@ -42,10 +42,11 @@ class MarketQueue
         }
 
         foreach(CompanionConfiguration::QUEUE_CONSUMERS as $priority => $consumers) {
-            $updateItems = $this->repoEntries->findBy([ 'priority' => $priority ], [ 'updated' => 'desc' ], 0, 250);
+            $updateItems = $this->repoEntries->findBy([ 'priority' => $priority ], [ 'updated' => 'desc' ], 250);
             
             // skip queue if no items for that priority
             if (empty($updateItems)) {
+                $console->writeln("No items for priority: {$priority}")
                 continue;
             }
             
