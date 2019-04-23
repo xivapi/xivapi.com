@@ -433,6 +433,7 @@ class MarketUpdater
             SELECT id, item, server FROM companion_market_item_entry
             WHERE {$where}
             LIMIT {$limit}
+            ORDER BY updated ASC
         ";
 
         $stmt = $this->em->getConnection()->prepare($sql);
