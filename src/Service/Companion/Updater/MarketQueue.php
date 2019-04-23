@@ -39,6 +39,8 @@ class MarketQueue
         $conn = $this->em->getConnection();
         $stmt = $conn->prepare('TRUNCATE TABLE companion_market_item_queue');
         $stmt->execute();
+        
+        $insertedItems = [];
     
         /**
          * Insert new items
@@ -67,6 +69,7 @@ class MarketQueue
                     );
                     
                     $this->em->persist($queued);
+                    $insertedItems[] = $item->getId();
                 }
                 
                 $this->em->flush();
@@ -77,7 +80,7 @@ class MarketQueue
          * Inset patreon items
          */
         foreach ([1,2,3,4,5,6,7,8,9,10] as $patreonQueue) {
-            $updateItems = $this->repoEntries->findBy([ 'patreonQueue' => $patreonQueue ], [ 'updated' => 'desc' ], CompanionConfiguration::MAX_ITEMS_PER_CRONJOB);
+            $updateItems = $this->repoEntries->findBy([ 'patreonQueue' => $patreonQueue ], [ 'updated' => 'desc' ], CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * 2);
     
             // skip queue if no items for that priority
             if (empty($updateItems)) {
@@ -87,6 +90,11 @@ class MarketQueue
     
             /** @var CompanionMarketItemEntry $item */
             foreach ($items as $item) {
+                // don't add items we already have queued.
+                if (in_array($item->getId(), $insertedItems)) {
+                    continue;
+                }
+                
                 $queued = new CompanionMarketItemQueue(
                     $item->getId(),
                     $item->getItem(),
