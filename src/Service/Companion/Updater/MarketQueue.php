@@ -35,10 +35,9 @@ class MarketQueue
         /**
          * Clear out all current items
          */
-        $con = $this->em->getConnection();
-        $sql = 'TRUNCATE TABLE companion_market_item_queue';
-        $sql = $con->prepare($sql);
-        $sql->execute();
+        $conn = $this->em->getConnection();
+        $stmt = $conn->prepare('TRUNCATE TABLE companion_market_item_queue');
+        $stmt->execute();
     
         /**
          * Add the new entries
@@ -67,13 +66,13 @@ class MarketQueue
                         $i
                     );
     
-                    $sql = $con->prepare($sql);
-                    $sql->execute();
+                    $stmt = $conn->prepare($sql);
+                    $stmt->execute();
                 }
             }
         }
 
-        $con->close();
+        $conn->close();
         $console->writeln("Done");
     }
 }
