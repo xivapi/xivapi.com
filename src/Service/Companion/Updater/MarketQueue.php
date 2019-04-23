@@ -40,7 +40,7 @@ class MarketQueue
         $stmt->execute();
     
         /**
-         * Add the new entries
+         * Insert new items
          */
         foreach(CompanionConfiguration::QUEUE_CONSUMERS as $priority => $consumers) {
             $updateItems = $this->repoEntries->findBy([ 'priority' => $priority ], [ 'updated' => 'desc' ], 250);
@@ -53,26 +53,28 @@ class MarketQueue
             
             foreach (array_chunk($updateItems, CompanionConfiguration::MAX_ITEMS_PER_CRONJOB) as $i => $items) {
                 $console->writeln("Adding items for {$priority}, consumer: {$i}");
-
+                
                 /** @var CompanionMarketItemEntry $item */
                 foreach ($items as $item) {
-                    $sql = sprintf(
-                        "INSERT INTO companion_market_item_queue (id,item,priority,consumer,server,region,patreon_queue) VALUES ('%s',%s,%s,%s,%s,%s,0)",
+                    $queued = new CompanionMarketItemQueue(
                         $item->getId(),
                         $item->getItem(),
-                        $item->getPriority(),
-                        $i,
                         $item->getServer(),
-                        $item->getRegion()
+                        $item->getPriority(),
+                        $item->getRegion(),
+                        $i
                     );
-    
-                    $stmt = $conn->prepare($sql);
-                    $stmt->execute();
+                    
+                    $this->em->persist($queued);
                 }
+                
+                $this->em->flush();
             }
         }
-
-        $conn->close();
+        
+        $this->em->clear();
+        $this->em->flush();
+        
         $console->writeln("Done");
     }
 }
