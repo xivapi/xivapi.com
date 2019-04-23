@@ -83,7 +83,7 @@ class CompanionConfiguration
         #7,
         #8,
         #9,
-    ]
+    ];
     
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
