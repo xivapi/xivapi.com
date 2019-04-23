@@ -91,7 +91,7 @@ class MarketUpdater
         $this->queue = $queue;
     
         // sleep based on queue, so not all crons spam the server at once.
-        sleep($queue);
+        sleep($priority);
         $this->console('Starting!');
         
         //--------------------------------------------------------------------------------------------------------------
