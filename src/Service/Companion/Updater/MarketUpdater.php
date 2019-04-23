@@ -84,8 +84,6 @@ class MarketUpdater
      */
     public function update(int $priority, int $queue, int $patreonQueue = null)
     {
-        
-        
         $this->console("Priority: {$priority} - Queue: {$queue}");
         $this->times->startTime = microtime(true);
         $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
@@ -160,14 +158,9 @@ class MarketUpdater
             exit;
         }
 
-        // delay if the 1st pass was fast.
-        $firstPassDelay = CompanionConfiguration::CRONJOB_PASS_DELAY - ceil($this->times->firstPass);
-        
-        $this->console("1st Pass = {$this->times->firstPass} seconds");
-        if ($firstPassDelay > 0) {
-            $this->console("Waiting after first pass of: {$firstPassDelay} seconds");
-            sleep($firstPassDelay);
-        }
+        // sleep
+        $this->console("Sleeping until requests ...");
+        sleep(CompanionConfiguration::CRONJOB_PASS_DELAY);
 
         // 2nd pass - request results of all Item Prices + History
         $a = microtime(true);
@@ -431,12 +424,15 @@ class MarketUpdater
 
         // get items to update
         $this->console('Finding Item IDs to Auto-Update');
+        $s = microtime(true);
 
         // patreon get their own table.
         $where = $patreonQueue ? "patreon_queue = {$patreonQueue}" : "priority = {$priority}";
 
         $sql = "
-            SELECT id, item, server FROM companion_market_item_entry
+            SELECT id, item, server
+            FROM companion_market_item_entry
+            FORCE INDEX (updated_priority)
             WHERE {$where}
             ORDER BY updated ASC
             LIMIT {$limit}
@@ -446,7 +442,9 @@ class MarketUpdater
         $stmt->execute();
 
         $this->items = $stmt->fetchAll();
-        $this->console('-> Complete');
+        
+        $sqlDuration = round(microtime(true) - $s, 2);
+        $this->console("Obtained items in: {$sqlDuration} seconds");
     }
 
     /**

@@ -17,7 +17,7 @@ class CompanionConfiguration
     const CRONJOB_TIMEOUT_SECONDS  = 60;
     
     // Delay pass time
-    const CRONJOB_PASS_DELAY  = 30;
+    const CRONJOB_PASS_DELAY  = 15;
 
     // the delay between sending requests and asking for request response data
     const CRONJOB_ASYNC_DELAY_MS = 3200;
