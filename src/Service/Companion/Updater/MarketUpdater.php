@@ -286,20 +286,9 @@ class MarketUpdater
             $this->console("!!! EMPTY RESPONSE");
             return;
         }
-        
-        
     
         // grab market item document
         $marketItem = $this->getMarketItemDocument($server, $itemId);
-    
-        if ($itemId == 3 && $server == 46) {
-            file_put_contents(
-                __DIR__.'/debug.json', json_encode($prices, JSON_PRETTY_PRINT)
-            );
-            file_put_contents(
-                __DIR__.'/debug_2.json', json_encode($marketItem, JSON_PRETTY_PRINT)
-            );
-        }
     
         // record lodestone info
         $marketItem->LodestoneID = $prices->eorzeadbItemId;
