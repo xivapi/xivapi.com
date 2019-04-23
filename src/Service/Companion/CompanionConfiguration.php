@@ -15,12 +15,15 @@ class CompanionConfiguration
 
     // the total time a cronjob should stay active
     const CRONJOB_TIMEOUT_SECONDS  = 60;
+    
+    // Delay pass time
+    const CRONJOB_PASS_DELAY  = 30;
 
     // the delay between sending requests and asking for request response data
     const CRONJOB_ASYNC_DELAY_MS = 3200;
 
     // the delay between requests
-    const DELAY_BETWEEN_REQUESTS_MS = 30;
+    const DELAY_BETWEEN_REQUESTS_MS = 20;
 
     // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;
