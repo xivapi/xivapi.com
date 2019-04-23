@@ -240,7 +240,10 @@ class MarketUpdater
         /** @var \stdClass $history */
         $prices  = $results["{$this->requestId}_{$itemId}_{$server}_prices"];
         $history = $results["{$this->requestId}_{$itemId}_{$server}_history"];
-
+    
+        /**
+         * Query error
+         */
         if (isset($prices->error)) {
             $this->errorHandler->exception(
                 $prices->reason,
@@ -251,6 +254,23 @@ class MarketUpdater
         if (isset($history->error)) {
             $this->errorHandler->exception(
                 $prices->reason,
+                "History: {$itemId} / {$server}"
+            );
+        }
+    
+        /**
+         * Rejected
+         */
+        if (isset($prices->state) && $prices->state == "rejected") {
+            $this->errorHandler->exception(
+                "Rejected",
+                "Prices: {$itemId} / {$server}"
+            );
+        }
+    
+        if (isset($history->state) && $history->state == "rejected") {
+            $this->errorHandler->exception(
+                "Rejected",
                 "History: {$itemId} / {$server}"
             );
         }
@@ -265,6 +285,8 @@ class MarketUpdater
             $this->console("!!! EMPTY RESPONSE");
             return;
         }
+        
+        
     
         // grab market item document
         $marketItem = $this->getMarketItemDocument($server, $itemId);
