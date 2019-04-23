@@ -84,6 +84,9 @@ class MarketUpdater
      */
     public function update(int $priority, int $queue, int $patreonQueue = null)
     {
+        // sleep based on queue, so not all crons spam the server at once.
+        sleep($queue);
+        
         $this->console("Priority: {$priority} - Queue: {$queue}");
         $this->times->startTime = microtime(true);
         $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
