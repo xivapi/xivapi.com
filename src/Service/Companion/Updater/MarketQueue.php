@@ -30,10 +30,13 @@ class MarketQueue
     
     public function queue()
     {
-        // run this 30 seconds in.
-        sleep(30);
-        $s = microtime(true);
         $console = new ConsoleOutput();
+        $console->writeln("Market Item Queue, waiting 20 seconds...");
+
+        // run this 20 seconds in.
+        sleep(20);
+
+        $s = microtime(true);
     
         /**
          * Clear out all current items
