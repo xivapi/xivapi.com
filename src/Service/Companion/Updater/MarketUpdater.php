@@ -175,10 +175,7 @@ class MarketUpdater
             $this->storeMarketData($item, $results);
 
             // update item entry
-            $this->marketItemEntryUpdated[] = [
-                $id,
-                $patreonQueue
-            ];
+            $this->marketItemEntryUpdated[] = $id;
     
             // update analytics
             GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}");
@@ -443,12 +440,8 @@ class MarketUpdater
     private function updateDatabaseMarketItemEntries()
     {
         $this->console('Updating database item entries');
-        foreach ($this->marketItemEntryUpdated as $item) {
-            [$id, $patreonQueue] = $item;
-
-            $tableName = $patreonQueue ? "companion_market_item_patreon" : "companion_market_item_entry";
-
-            $sql = "UPDATE {$tableName} SET updated = ". time() ." WHERE id = '{$id}'";
+        foreach ($this->marketItemEntryUpdated as $id) {
+            $sql = "UPDATE companion_market_item_entry SET updated = ". time() ." WHERE id = '{$id}'";
 
             $stmt = $this->em->getConnection()->prepare($sql);
             $stmt->execute();
