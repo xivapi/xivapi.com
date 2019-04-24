@@ -11,13 +11,16 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class CompanionErrorHandler
 {
-    const REDIS_KEY_CRITICAL_EXCEPTIONS = 'companion_critical_exception_count_v2';
+    const CRITICAL_EXCEPTIONS = 'companion_critical_exception_count_v2';
+    const CRITICAL_EXCEPTIONS_TIMEOUT = (60 * 10);
 
     const ERRORS = [
-        'cURL error 28' => 'Sight Timed-out (CURL 28)',
-        'SE_Login_Failure' => 'Failed to login to Server',
-
+        'cURL error 28'     => 'Sight Timed-out (CURL 28)',
+        'SE_Login_Failure'  => 'Failed to login to Server',
+        'rejected'          => 'Request Rejected',
+        
         '111001' => 'SE Account Token Expired',
+        '210010' => 'Companion Server Down/Having Issues',
         '311004' => 'Unknown',
         '311007' => 'Invalid Cookie',
         '311009' => 'Character Unconfirmed',
@@ -71,7 +74,7 @@ class CompanionErrorHandler
         }
 
         // delete Redis record
-        Redis::Cache()->delete(self::REDIS_KEY_CRITICAL_EXCEPTIONS);
+        Redis::Cache()->delete(self::CRITICAL_EXCEPTIONS);
     }
 
     /**
@@ -86,7 +89,7 @@ class CompanionErrorHandler
         [$errorCode, $errorException] = $this->getExceptionCodeAndType($companionError);
 
         // some errors will increase the critical exception error rate
-        if (in_array($errorCode, ['unknown', '340000','319201', 'cURL error 28'])) {
+        if (in_array($errorCode, ['unknown', 'rejected', '210010', '340000','319201', 'cURL error 28'])) {
             $this->incrementCriticalExceptionCount();
         }
 
@@ -125,7 +128,7 @@ class CompanionErrorHandler
      */
     public function getCriticalExceptionCount()
     {
-        $count = Redis::Cache()->get(self::REDIS_KEY_CRITICAL_EXCEPTIONS) ?: 0;
+        $count = Redis::Cache()->get(self::CRITICAL_EXCEPTIONS) ?: 0;
         return (int)$count;
     }
 
@@ -134,11 +137,11 @@ class CompanionErrorHandler
      */
     private function incrementCriticalExceptionCount()
     {
-        $count = Redis::Cache()->get(self::REDIS_KEY_CRITICAL_EXCEPTIONS) ?: 0;
+        $count = Redis::Cache()->get(self::CRITICAL_EXCEPTIONS) ?: 0;
         $count = (int)$count;
         $count++;
 
-        Redis::Cache()->set(self::REDIS_KEY_CRITICAL_EXCEPTIONS, $count, (60 * 15));
+        Redis::Cache()->set(self::CRITICAL_EXCEPTIONS, $count, (60 * 15));
     }
 
     /**
