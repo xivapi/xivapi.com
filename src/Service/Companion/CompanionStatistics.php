@@ -186,7 +186,7 @@ class CompanionStatistics
         $data = [
             'ReportUpdated'     => time(),
             'Report'            => $this->report,
-            'ItemPriority' => $this->updateQueueSizes,
+            'ItemPriority'      => $this->updateQueueSizes,
             'DatabaseSqlReport' => $this->getStatisticsView(),
         ];
         
