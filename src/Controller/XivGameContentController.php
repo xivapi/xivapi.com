@@ -58,7 +58,25 @@ class XivGameContentController extends AbstractController
     {
         return $this->json($this->game->content());
     }
-
+    
+    /**
+     * @Route("/Item/Lodestone")
+     * @Route("/item/lodestone")
+     */
+    public function itemLodestone()
+    {
+        $key = 'xiv_item_lodestone_ids';
+        
+        if ($data = Redis::Cache()->get($key)) {
+            return $this->json($data);
+        }
+        
+        $data = $this->game->getLodestoneIds();
+        Redis::Cache()->set($key, $data);
+        
+        return $this->json($data);
+    }
+    
     /**
      * @Route("/{contentName}")
      */

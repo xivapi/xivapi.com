@@ -2,20 +2,45 @@
 
 namespace App\Service\Content;
 
+use App\Entity\ItemIcon;
 use App\Service\Redis\Redis;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GameData
 {
+    /** @var EntityManagerInterface */
+    private $em;
     /** @var ContentList */
     private $contentList;
 
-    public function __construct(ContentList $contentList)
+    public function __construct(EntityManagerInterface $em, ContentList $contentList)
     {
+        $this->em = $em;
         $this->contentList = $contentList;
     }
-
+    
+    /**
+     * Returns all item ids to lodestone ids
+     */
+    public function getLodestoneIds()
+    {
+        $list = [];
+        
+        /** @var ItemIcon $item */
+        foreach ($this->em->getRepository(ItemIcon::class)->findAll() as $item) {
+            $list[] = [
+                'ID'            => $item->getItem(),
+                'LodestoneID'   => $item->getLodestoneId(),
+                'LodestoneIcon' => $item->getLodestoneIcon(),
+                'Status'        => $item->getStatus(),
+            ];
+        }
+        
+        return $list;
+    }
+    
     /**
      * get a single piece of content from the cache
      */
@@ -32,7 +57,7 @@ class GameData
         $additional = [
             'xiv2',
             'xiv_korean',
-            'xiv_chinese'
+            'xiv_chinese',
         ];
 
         foreach($additional as $add) {
