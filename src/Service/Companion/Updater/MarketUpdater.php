@@ -95,7 +95,7 @@ class MarketUpdater
         $this->queue = $queue;
         $this->console('Starting!');
         
-        foreach (range(0,CompanionConfiguration::MAX_ITEMS_PER_CRONJOB) as $i) {
+        foreach (range(0,CompanionConfiguration::MAX_ITEMS_PER_CRONJOB + 10) as $i) {
             $this->requestIds[$i] = Uuid::uuid4()->toString();
         }
         
