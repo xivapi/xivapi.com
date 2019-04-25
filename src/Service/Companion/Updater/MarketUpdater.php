@@ -89,6 +89,15 @@ class MarketUpdater
      */
     public function update(int $priority, int $queue, int $patreonQueue = null)
     {
+        /**
+         * It feels like SE restart their servers every hour
+         */
+        $minute = (int)date('i');
+        if (in_array($minute, [7,8])) {
+            $this->console("Skipping as minute: {$minute}");
+            exit();
+        }
+        
         $this->console("Priority: {$priority} - Queue: {$queue}");
         $this->startTime = microtime(true);
         $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
