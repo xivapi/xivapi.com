@@ -63,13 +63,13 @@ class CompanionErrorHandler
         }
 
         if (empty($errors)) {
-            $message = "<@571009215532105758> No companion errors to report in the past 12 hours.";
+            $message = "No companion errors to report in the past 12 hours.";
             Discord::mog()->sendMessage('571007332616503296', $message);
             return;
         }
 
         $errors  = implode("\n", $errors);
-        $message = "<@571009215532105758> Companion error report (12 hours):\n```{$errors}```";
+        $message = "Companion error report (12 hours):\n```{$errors}```";
         Discord::mog()->sendMessage('571007332616503296', $message);
 
         // delete Redis record
@@ -102,7 +102,7 @@ class CompanionErrorHandler
         $date = date('Y-m-d H:i:s', $error->getAdded());
         Discord::mog()->sendMessage(
             '571007332616503296',
-            "<@571009215532105758> [{$date} UTC] **Companion Error:** {$error->getCode()} {$error->getMessage()} {$error->getException()}"
+            "[{$date} UTC] **Companion Error:** {$error->getCode()} {$error->getMessage()} {$error->getException()}"
         );
     }
 
@@ -153,7 +153,7 @@ class CompanionErrorHandler
         if ($count > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
             Discord::mog()->sendMessage(
                 '571007332616503296',
-                '<@571009215532105758> **Companion Auto-Update has stopped for 1 hour due to errors exceeding maximum allowed value.**'
+                '**Companion Auto-Update has stopped for 1 hour due to errors exceeding maximum allowed value.**'
             );
         }
     }
