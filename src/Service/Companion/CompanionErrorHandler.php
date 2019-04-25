@@ -88,10 +88,8 @@ class CompanionErrorHandler
         // Get the error exception type
         [$errorCode, $errorException] = $this->getExceptionCodeAndType($companionError);
 
-        // some errors will increase the critical exception error rate
-        if (in_array($errorCode, ['unknown', 'rejected', '210010', '340000','319201', 'cURL error 28'])) {
-            $this->incrementCriticalExceptionCount();
-        }
+        // Increase critical exception count
+        $this->incrementCriticalExceptionCount();
 
         $error = new CompanionError();
         $error
@@ -141,7 +139,18 @@ class CompanionErrorHandler
         $count = (int)$count;
         $count++;
 
-        Redis::Cache()->set(self::CRITICAL_EXCEPTIONS, $count, (60 * 15));
+        Redis::Cache()->set(
+            self::CRITICAL_EXCEPTIONS,
+            $count,
+            CompanionConfiguration::ERROR_SYSTEM_TIMEOUT
+        );
+        
+        if ($count > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
+            Discord::mog()->sendMessage(
+                '477631558317244427',
+                '**Companion Auto-Update has stopped for 1 hour due to errors exceeding maximum allowed value.**'
+            );
+        }
     }
 
     /**

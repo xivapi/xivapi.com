@@ -5,16 +5,19 @@ namespace App\Service\Companion;
 class CompanionConfiguration
 {
     // If we hit this number of errors, the system will stop.
-    const ERROR_COUNT_THRESHOLD = 5;
+    const ERROR_COUNT_THRESHOLD = 1;
 
+    // Any error will stop the whole system for 1 hour.
+    const ERROR_SYSTEM_TIMEOUT = (60 * 60);
+    
     // the total number of items to process per cronjob
-    const MAX_ITEMS_PER_CRONJOB = 25;
+    const MAX_ITEMS_PER_CRONJOB = 20;
 
     // the total number of items to process per request
     const MAX_ITEMS_PER_REQUEST = 2;
 
     // the total time a cronjob should stay active
-    const CRONJOB_TIMEOUT_SECONDS  = 55;
+    const CRONJOB_TIMEOUT_SECONDS  = 50;
     
     // Delay pass time
     const CRONJOB_PASS_DELAY  = [5, 10];
@@ -23,7 +26,7 @@ class CompanionConfiguration
     const CRONJOB_ASYNC_DELAY_MS = 3200;
 
     // the delay between requests
-    const DELAY_BETWEEN_REQUESTS_MS = [200,500];
+    const DELAY_BETWEEN_REQUESTS_MS = [400,800];
 
     // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;

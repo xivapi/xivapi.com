@@ -84,7 +84,6 @@ class MarketController extends AbstractController
     public function online()
     {
         $status  = [];
-        $offline = CompanionTokenManager::SERVERS_OFFLINE;
         
         /** @var CompanionToken $token */
         foreach ($this->companionTokenManager->getCompanionTokens() as $token) {
@@ -97,7 +96,8 @@ class MarketController extends AbstractController
         }
         
         return $this->json([
-            'Offline' => $offline,
+            'list'    => GameServers::LIST,
+            'Offline' => CompanionTokenManager::SERVERS_OFFLINE,
             'Status'  => $status
         ]);
     }

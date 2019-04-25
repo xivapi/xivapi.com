@@ -15,6 +15,7 @@ class CompanionTokenManager
      * Current servers that are offline due to character restrictions
      */
     const SERVERS_OFFLINE = [
+        1,2,3,4,5,6,9,12,14,17,22,23,26,27,29,30,32,38,39,45,48,49,51,54,55,56,57,58,60,61,62,64
     ];
     
     /**
@@ -187,7 +188,8 @@ class CompanionTokenManager
         $this->em->flush();
     
         // check if server is an "offline" server
-        if (in_array($server, self::SERVERS_OFFLINE)) {
+        $serverId = GameServers::getServerId($server);
+        if (in_array($serverId, self::SERVERS_OFFLINE)) {
             $this->console->writeln('No characters available on this server at this time.');
             return false;
         }

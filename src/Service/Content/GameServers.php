@@ -6,6 +6,10 @@ use App\Exception\CompanionMarketServerException;
 
 class GameServers
 {
+    const MARKET_OFFLINE = [
+        1,2,3,4,5,6,9,12,14,17,22,23,26,27,29,30,32,38,39,45,48,49,51,54,55,56,57,58,60,61,62,64
+    ];
+    
     /**
      * It is important new servers are added to the end of this list.
      */

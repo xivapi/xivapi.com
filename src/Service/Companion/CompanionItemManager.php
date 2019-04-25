@@ -85,7 +85,7 @@ class CompanionItemManager
                 }
 
                 // ignore servers offline
-                if (in_array($serverName, CompanionTokenManager::SERVERS_OFFLINE)) {
+                if (in_array($server, CompanionTokenManager::SERVERS_OFFLINE)) {
                     continue;
                 }
                 
