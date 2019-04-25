@@ -101,11 +101,8 @@ class MarketUpdater
         
         //--------------------------------------------------------------------------------------------------------------
 
-        if ($this->errorHandler->getCriticalExceptionCount() > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
-            $this->console('Exceptions are above the ERROR_COUNT_THRESHOLD.');
-            $this->closeDatabaseConnection();
-            exit();
-        }
+        // check error status
+        $this->checkErrorState();
 
         // fetch companion tokens
         $this->fetchCompanionTokens();
@@ -124,9 +121,7 @@ class MarketUpdater
         $api->useAsync();
         
         // check things didn't take too long to start
-        if ($this->atDeadline()) {
-            exit;
-        }
+        $this->checkDeadline();
 
         // 1st pass - send queue requests for all Item Prices + History
         $a     = microtime(true);
@@ -134,6 +129,8 @@ class MarketUpdater
         $rejections = [];
         foreach ($this->items as $i => $item) {
             $i = $i + 1;
+    
+            $this->checkErrorState();
             
             $itemId     = $item['item'];
             $server     = $item['server'];
@@ -188,10 +185,10 @@ class MarketUpdater
         }
         $this->times->firstPass = microtime(true) - $a;
     
+        $this->checkErrorState();
+    
         // check things didn't take too long to start
-        if ($this->atDeadline()) {
-            exit;
-        }
+        $this->checkDeadline();
 
         // sleep
         $this->console("Sleeping until requests ...");
@@ -203,6 +200,8 @@ class MarketUpdater
         $a = microtime(true);
         foreach ($this->items as $i => $item) {
             $i = $i + 1;
+    
+            $this->checkErrorState();
             
             // if exceptions were thrown in any request, we stop
             // (store market updates exceptions if any thrown)
@@ -262,18 +261,26 @@ class MarketUpdater
         $this->closeDatabaseConnection();
     }
     
+    private function checkErrorState()
+    {
+        if ($this->errorHandler->getCriticalExceptionCount() > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
+            $this->console('Exceptions are above the ERROR_COUNT_THRESHOLD.');
+            $this->closeDatabaseConnection();
+            exit();
+        }
+    }
+    
     /**
      * Tests to see if the time deadline has hit
      */
-    private function atDeadline()
+    private function checkDeadline()
     {
         // if we go over the deadline, we stop.
         if (time() > $this->deadline) {
-            $this->console->writeln(date('H:i:s') ." | Ending auto-update as time limit seconds reached.");
-            return true;
+            $this->console(date('H:i:s') ." | Ending auto-update as time limit seconds reached.");
+            $this->closeDatabaseConnection();
+            exit();
         }
-        
-        return false;
     }
 
     /**
