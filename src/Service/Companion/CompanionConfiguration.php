@@ -20,13 +20,13 @@ class CompanionConfiguration
     const CRONJOB_TIMEOUT_SECONDS  = 50;
     
     // Delay pass time
-    const CRONJOB_PASS_DELAY  = [5, 10];
+    const CRONJOB_PASS_DELAY  = [15, 15];
 
     // the delay between sending requests and asking for request response data
     const CRONJOB_ASYNC_DELAY_MS = 3200;
 
     // the delay between requests
-    const DELAY_BETWEEN_REQUESTS_MS = [400,800];
+    const DELAY_BETWEEN_REQUESTS_MS = [300,300];
 
     // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;
