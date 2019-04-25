@@ -131,6 +131,7 @@ class MarketUpdater
         // 1st pass - send queue requests for all Item Prices + History
         $a     = microtime(true);
         $total = count($this->items);
+        $rejections = [];
         foreach ($this->items as $i => $item) {
             $i = $i + 1;
             
@@ -150,19 +151,37 @@ class MarketUpdater
             $api->Token()->set($token);
 
             // build requests (PRICES, HISTORY)
-            $async = [
+            $requests = [
                 "{$this->requestIds[$i]}{$itemId}{$server}a"  => $api->Market()->getItemMarketListings($itemId),
                 "{$this->requestIds[$i]}{$itemId}{$server}b" => $api->Market()->getTransactionHistory($itemId),
             ];
 
             // send requests and wait
-            $api->Sight()->settle($async)->wait();
-            $this->console("({$i}/{$total}) Sent queue requests for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
+            try {
+                // request them again
+                $results = $api->Sight()->settle($requests)->wait();
+                $results = $api->Sight()->handle($results);
+    
+                // get prices + history response data
+                $prices  = $results->{"{$this->requestIds[$i]}{$itemId}{$server}a"} ?? null;
+                $history = $results->{"{$this->requestIds[$i]}{$itemId}{$server}b"} ?? null;
+                
+                if (isset($prices->state) && $prices->state == "rejected" || isset($history->state) && $history->state == "rejected") {
+                    $this->errorHandler->exception("Rejected", "Error: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
+                    $rejections[$itemId] = true;
+                }
+            } catch (\Exception $ex) {
+                $this->console("({$i}/{$total}) - Exception thrown for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
+                continue;
+            }
+    
             GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/Prices");
             GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/History");
+            
+            $this->console("({$i}/{$total}) Sent queue requests for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
     
             // store requests
-            $this->requests[$server . $itemId] = $async;
+            $this->requests[$server . $itemId] = $results;
             usleep(
                 mt_rand(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[0], CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[1]) * 1000
             );
@@ -197,6 +216,11 @@ class MarketUpdater
             $server     = $item['server'];
             $serverName = GameServers::LIST[$server];
             $serverDc   = GameServers::getDataCenter($serverName);
+            
+            // if request was rejected, skip
+            if ($rejections[$itemId]) {
+                continue;
+            }
 
             // grab request
             $requests = $this->requests[$server . $itemId];
@@ -257,6 +281,9 @@ class MarketUpdater
      */
     private function storeMarketData($i, $itemId, $server, $results)
     {
+        $serverName = GameServers::LIST[$server];
+        $serverDc   = GameServers::getDataCenter($serverName);
+        
         // grab prices and history from response
         /** @var \stdClass $prices */
         /** @var \stdClass $history */
@@ -266,35 +293,15 @@ class MarketUpdater
         /**
          * Query error
          */
-        if (isset($prices->error)) {
-            $this->errorHandler->exception(
-                $prices->reason,
-                "Prices: {$itemId} / {$server}"
-            );
+        if (isset($prices->error) || isset($history->error)) {
+            $this->errorHandler->exception($prices->reason, "Error: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
         }
 
-        if (isset($history->error)) {
-            $this->errorHandler->exception(
-                $prices->reason,
-                "History: {$itemId} / {$server}"
-            );
-        }
-    
         /**
          * Rejected
          */
-        if (isset($prices->state) && $prices->state == "rejected") {
-            $this->errorHandler->exception(
-                "Rejected",
-                "Prices: {$itemId} / {$server}"
-            );
-        }
-    
-        if (isset($history->state) && $history->state == "rejected") {
-            $this->errorHandler->exception(
-                "Rejected",
-                "History: {$itemId} / {$server}"
-            );
+        if (isset($prices->state) && $prices->state == "rejected" || isset($history->state) && $history->state == "rejected") {
+            $this->errorHandler->exception("Rejected", "Error: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
         }
 
         // if responses null or both have errors
