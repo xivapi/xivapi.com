@@ -175,31 +175,47 @@ class Users
      */
     public function checkPatreonTiers()
     {
+        $users   = $this->repository->findAll();
+        $total   = count($users);
         $console = new ConsoleOutput();
-        $console->writeln('Checking Patreon Tiers...');
-        $section = $console->section();
+        $start   = microtime(true);
         
         /** @var User $user */
-        foreach ($this->repository->findAll() as $user) {
-            $discordId = $user->getSsoDiscordId();
-    
-            try {
-                $roleTier = Discord::mog()->getUserRole($discordId);
-                $section->writeln("User: {$user->getUsername()} = {$roleTier}");
-            } catch (\Exception $ex) {
-                $section->writeln("User: {$user->getUsername()} failed to fetch, likely not on the discord server");
-                continue;
+        foreach ($users as $i => $user) {
+            $i = ($i + 1);
+            $console->writeln("({$i}/{$total}) Checking: {$user->getSsoDiscordId()} {$user->getUsername()}");
+            $this->checkPatreonTierForUser($user);
+            usleep(100000);
+            
+            if ($i % 50 == 0) {
+                $this->em->flush();
             }
-            
-            $user->setPatron($roleTier ?: 0);
-            
-            $this->em->persist($user);
-            $this->em->flush();
-    
-            usleep(200000);
         }
+    
+        $this->em->flush();
         $this->em->clear();
-        
-        $console->writeln('Complete!');
+        $duration = round(microtime(true) - $start, 2);
+        $console->writeln("Finished, duration: {$duration}");
+    }
+    
+    /**
+     * @param User $user
+     */
+    public function checkPatreonTierForUser(User $user)
+    {
+        try {
+            $response = Discord::mog()->getUserRole($user->getSsoDiscordId());
+            $tier = $response->data;
+        } catch (\Exception $ex) {
+            return;
+        }
+    
+        // don't do anything if the response was not a 200
+        if ($response->code != 200) {
+            return;
+        }
+    
+        $user->setPatron($tier ?: 0);
+        $this->em->persist($user);
     }
 }
