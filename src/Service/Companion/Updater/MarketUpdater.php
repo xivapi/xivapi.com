@@ -198,7 +198,7 @@ class MarketUpdater
             $history = $results->{$this->requestIds[$i + self::HISTORY]} ?? null;
         
             // check if we were rejected
-            $this->checkRequestForRejection($itemId, $prices, $history);
+            $this->checkRequestForRejection($item, $prices, $history);
         } catch (\Exception $ex) {
             $this->console("({$i}) - Exception thrown for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
             return null;
