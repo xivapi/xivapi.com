@@ -158,6 +158,8 @@ class MarketUpdater
             // send requests and wait
             $api->Sight()->settle($async)->wait();
             $this->console("({$i}/{$total}) Sent queue requests for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
+            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/Prices");
+            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/History");
     
             // store requests
             $this->requests[$server . $itemId] = $async;
@@ -207,6 +209,9 @@ class MarketUpdater
                 $this->console("({$i}/{$total}) - Exception thrown for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
                 continue;
             }
+    
+            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/Prices");
+            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/History");
             
             $this->console("({$i}/{$total}) Fetch queue responses for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
 
@@ -217,7 +222,6 @@ class MarketUpdater
             $this->marketItemEntryUpdated[] = $id;
     
             // update analytics
-            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}");
             usleep(
                 mt_rand(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[0], CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[1]) * 1000
             );
