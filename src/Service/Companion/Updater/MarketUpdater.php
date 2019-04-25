@@ -316,7 +316,6 @@ class MarketUpdater
     
         // record lodestone info
         $marketItem->LodestoneID = $prices->eorzeadbItemId;
-        $this->console("Lodestone ID: = {$prices->eorzeadbItemId}");
 
         // CURRENT PRICES
         if ($prices && isset($prices->error) === false && $prices->entries) {
