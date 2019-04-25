@@ -135,7 +135,7 @@ class MarketUpdater
         $this->checkDeadline();
 
         // sleep
-        $this->console("Sleeping until requests ...");
+        $this->console("--- Waiting ---");
         sleep(
             mt_rand(
                 CompanionConfiguration::DELAY_BETWEEN_REQUEST_RESPONSE[0],
@@ -276,8 +276,8 @@ class MarketUpdater
         // grab prices and history from response
         /** @var \stdClass $prices */
         /** @var \stdClass $history */
-        $prices  = $results[$this->requestIds[$i + self::PRICES]]  ?? null;
-        $history = $results[$this->requestIds[$i + self::HISTORY]] ?? null;
+        $prices  = $results->{$this->requestIds[$i + self::PRICES]} ?? null;
+        $history = $results->{$this->requestIds[$i + self::HISTORY]} ?? null;
         
         // check for errors
         if (isset($prices->error) || isset($history->error)) {
