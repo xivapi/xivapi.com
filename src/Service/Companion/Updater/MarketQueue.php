@@ -51,7 +51,8 @@ class MarketQueue
          * Insert new items
          */
         foreach (CompanionConfiguration::QUEUE_CONSUMERS as $priority) {
-            $updateItems = $this->repoEntries->findItemsToUpdate($priority, 500);
+            // 100 items = max of 5 consumers per queue
+            $updateItems = $this->repoEntries->findItemsToUpdate($priority, 100);
             
             // skip queue if no items for that priority
             if (empty($updateItems)) {
