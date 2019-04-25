@@ -80,6 +80,9 @@ class MarketPrivateController extends AbstractController
      */
     public function manualUpdateItem(Request $request)
     {
+        // 10 minute timeout per item.
+        $timeout = 10;
+        
         if ($request->get('access') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
             throw new UnauthorizedHttpException('Denied');
         }
@@ -91,22 +94,27 @@ class MarketPrivateController extends AbstractController
         $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
 
         /**
-         * First, check if the item was passed here within the past 5 minutes.
+         * First, check if the item was passed here already
          */
         $requestLastSent = Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$server}");
 
         if ($requestLastSent) {
-            return $this->json([ false, $requestLastSent, 'Item already requested to be updated within the past 5 minutes.' ]);
+            return $this->json([ false, $requestLastSent, 'Item already requested to be updated' ]);
         }
 
         // Place the item on this server in a 8 minute cooldown
-        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", time(), (60 * 8));
+        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", time(), (60 * $timeout));
+        
+        // if the item is already in the patreon queue, skip it
+        if ($marketEntry->getPatreonQueue() > 0) {
+            return $this->json([ false, $requestLastSent, 'Item already in the queue' ]);
+        }
 
         /**
          * Check when the item was last updated, maybe it updated within the last 5 minutes,
          * if so then we don't need to update it again.
          */
-        if ($marketEntry->getUpdated() > (time() - (60 * 5))) {
+        if ($marketEntry->getUpdated() > (time() - (60 * $timeout))) {
             return $this->json([ false, $marketEntry->getUpdated(), 'Item already updated within the past 5 minutes' ]);
         }
 

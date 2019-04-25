@@ -59,30 +59,22 @@ class CompanionConfiguration
     ];
     
     const QUEUE_CONSUMERS = [
-        1  => 2,
-        2  => 3,
-        3  => 3,
-        4  => 4,
-        5  => 4,
-        6  => 3,
-        7  => 5,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
         
-        8  => 0, // not used
-        9  => 0, // not used
-        10 => 0, // item is new
+        8,  // Balmung
+        9,  // not used
+        10, // item is new
     ];
     
     const QUEUE_CONSUMERS_PATREON = [
         1,
         2,
-        #3,
-        #4,
-        #5,
-        #5,
-        #6,
-        #7,
-        #8,
-        #9,
     ];
     
     // Priority values against a slot of time
