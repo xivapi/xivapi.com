@@ -124,7 +124,6 @@ class MarketUpdater
         // 1st pass - Send Requests
         foreach ($this->items as $i => $item) {
             $this->performRequests($i, $item, 'SEND REQUESTS');
-            break;
         }
     
         $this->checkErrorState();
@@ -144,11 +143,7 @@ class MarketUpdater
         // 2nd pass - Fetch Responses
         foreach ($this->items as $i => $item) {
             [$prices, $history] = $this->performRequests($i, $item, 'FETCH RESPONSES');
-            
-            print_r($prices);
-            die;
-            
-            $this->storeMarketData($i, $item, $prices, $history);
+            $this->storeMarketData($item, $prices, $history);
         }
 
         // update the database market entries with the latest updated timestamps
@@ -269,37 +264,52 @@ class MarketUpdater
 
     /**
      * Store the market data
+    *
+     * @param array $item
+     * @param \stdClass $prices
+     * @param \stdClass $history
      */
-    private function storeMarketData($i, $item, $prices, $history)
+    private function storeMarketData($item, $prices, $history)
     {
         $itemId     = $item['item'];
         $server     = $item['server'];
         $serverName = GameServers::LIST[$server];
         $serverDc   = GameServers::getDataCenter($serverName);
+    
+        /**
+         * CHECK SHIT DIDNT BREAK --------------------------------------------------------------------------------------
+         */
 
         // check for errors
         if (isset($prices->error) || isset($history->error)) {
-            $this->errorHandler->exception($prices->reason, "Error: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
+            $this->errorHandler->exception($prices->reason, "RESPONSE ERROR: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
+            GoogleAnalytics::companionTrackItemAsUrl('companion_error');
+            $this->console("! Error Response");
+            return;
         }
 
         // check for rejections
         if (isset($prices->state) && $prices->state == "rejected" || isset($history->state) && $history->state == "rejected") {
-            $this->errorHandler->exception("Rejected", "Error: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
+            $this->errorHandler->exception("Rejected", "REJECTED: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
+            GoogleAnalytics::companionTrackItemAsUrl('companion_rejected');
+            $this->console("! Rejected Response");
+            return;
         }
 
-        // if responses null or both have errors
-        if (
-            ($prices === null && $history == null) ||
-            (isset($prices->error) && isset($history->error))
-        ) {
-            // Analytics
+        // if responses are null
+        if ($prices === null && $history == null) {
+            $this->errorHandler->exception('Empty Response', "DATA EMPTY: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
             GoogleAnalytics::companionTrackItemAsUrl('companion_empty');
-            $this->console("!!! EMPTY RESPONSE");
+            $this->console("! Empty Response");
             return;
         }
     
         // update item entry
         $this->marketItemEntryUpdated[] = $itemId;
+    
+        /**
+         * SAVE --------------------------------------------------------------------------------------------------------
+         */
     
         // grab market item document
         $marketItem = $this->getMarketItemDocument($server, $itemId);
@@ -308,9 +318,7 @@ class MarketUpdater
         $marketItem->LodestoneID = $prices->eorzeadbItemId;
         $this->console("Lodestone ID: = {$prices->eorzeadbItemId}");
 
-        // ---------------------------------------------------------------------------------------------------------
         // CURRENT PRICES
-        // ---------------------------------------------------------------------------------------------------------
         if ($prices && isset($prices->error) === false && $prices->entries) {
             // reset prices
             $marketItem->Prices = [];
@@ -344,9 +352,7 @@ class MarketUpdater
             });
         }
 
-        // ---------------------------------------------------------------------------------------------------------
         // CURRENT HISTORY
-        // ---------------------------------------------------------------------------------------------------------
         if ($history && isset($history->error) === false && $history->history) {
             foreach ($history->history as $row) {
                 // build a custom ID based on a few factors (History can't change)
