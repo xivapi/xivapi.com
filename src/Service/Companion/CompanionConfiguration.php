@@ -23,7 +23,7 @@ class CompanionConfiguration
     const DELAY_BETWEEN_REQUEST_RESPONSE = [5, 5];
     
     // the delay between requests
-    const DELAY_BETWEEN_REQUESTS_MS = [850,850];
+    const DELAY_BETWEEN_REQUESTS_MS = [500,500];
 
     // how long a time has to be between sales to count against avg
     const ITEM_HISTORY_THRESHOLD = 0;
