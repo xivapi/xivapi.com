@@ -132,8 +132,10 @@ class MarketUpdater
         foreach ($this->items as $i => $item) {
             $i = $i + 1;
             
-            $itemId = $item['item'];
-            $server = $item['server'];
+            $itemId     = $item['item'];
+            $server     = $item['server'];
+            $serverName = GameServers::LIST[$server];
+            $serverDc   = GameServers::getDataCenter($serverName);
 
             /** @var CompanionToken $token */
             $token  = $this->tokens[$server];
@@ -153,8 +155,6 @@ class MarketUpdater
 
             // send requests and wait
             $api->Sight()->settle($async)->wait();
-            $serverName = GameServers::LIST[$server];
-            $serverDc   = GameServers::getDataCenter($serverName);
             $this->console("({$i}/{$total}) Sent queue requests for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
     
             // store requests
@@ -188,18 +188,25 @@ class MarketUpdater
                 break;
             }
 
-            $id     = $item['id'];
-            $itemId = $item['item'];
-            $server = $item['server'];
+            $id         = $item['id'];
+            $itemId     = $item['item'];
+            $server     = $item['server'];
+            $serverName = GameServers::LIST[$server];
+            $serverDc   = GameServers::getDataCenter($serverName);
 
             // grab request
             $requests = $this->requests[$server . $itemId];
             
-            // request them again
-            $results = $api->Sight()->settle($requests)->wait();
-            $results = $api->Sight()->handle($results);
+            try {
+                // request them again
+                $results = $api->Sight()->settle($requests)->wait();
+                $results = $api->Sight()->handle($results);
+            } catch (\Exception $ex) {
+                $this->console("({$i}/{$total}) - Exception thrown for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
+                continue;
+            }
             
-            $this->console("({$i}/{$total}) Fetch queue responses for: {$itemId} on: {$server}");
+            $this->console("({$i}/{$total}) Fetch queue responses for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
 
             // save data
             $this->storeMarketData($itemId, $server, $results);
