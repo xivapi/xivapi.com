@@ -56,8 +56,6 @@ class MarketUpdater
     private $queue = 0;
     /** @var int */
     private $deadline = 0;
-    /** @var int */
-    private $exceptions = 0;
     /** @var array */
     private $requestIds = [];
     /** @var array */
@@ -76,7 +74,6 @@ class MarketUpdater
         $this->market       = $companionMarket;
         $this->errorHandler = $companionErrorHandler;
         $this->console      = new ConsoleOutput();
-        $this->times        = (Object)$this->times;
 
         // repositories for market data
         $this->repositoryCompanionCharacter = $this->em->getRepository(CompanionCharacter::class);
@@ -126,7 +123,8 @@ class MarketUpdater
 
         // 1st pass - Send Requests
         foreach ($this->items as $i => $item) {
-            $this->performRequests($i + 1, $item, 'SEND REQUESTS');
+            $this->performRequests($i, $item, 'SEND REQUESTS');
+            break;
         }
     
         $this->checkErrorState();
@@ -145,8 +143,12 @@ class MarketUpdater
 
         // 2nd pass - Fetch Responses
         foreach ($this->items as $i => $item) {
-            $results = $this->performRequests($i + 1, $item, 'FETCH RESPONSES');
-            $this->storeMarketData($i, $item, $results);
+            [$prices, $history] = $this->performRequests($i, $item, 'FETCH RESPONSES');
+            
+            print_r($prices);
+            die;
+            
+            $this->storeMarketData($i, $item, $prices, $history);
         }
 
         // update the database market entries with the latest updated timestamps
@@ -164,6 +166,8 @@ class MarketUpdater
      */
     private function performRequests($i, $item, $stage)
     {
+        $i = $i + 1;
+        
         $this->checkErrorState();
     
         $itemId     = $item['item'];
@@ -176,7 +180,7 @@ class MarketUpdater
     
         if ($token == null) {
             $this->console("Token has expired for server: ({$server}) {$serverName} - {$serverDc}, skipping...");
-            return null;
+            return [null,null];
         }
     
         // Set server token
@@ -201,7 +205,7 @@ class MarketUpdater
             $this->checkRequestForRejection($item, $prices, $history);
         } catch (\Exception $ex) {
             $this->console("({$i}) - Exception thrown for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
-            return null;
+            return [null,null];
         }
     
         // Record to Google Analytics
@@ -219,7 +223,7 @@ class MarketUpdater
             ) * 1000
         );
         
-        return $results;
+        return [$prices, $history];
     }
     
     /**
@@ -266,19 +270,13 @@ class MarketUpdater
     /**
      * Store the market data
      */
-    private function storeMarketData($i, $item, $results)
+    private function storeMarketData($i, $item, $prices, $history)
     {
         $itemId     = $item['item'];
         $server     = $item['server'];
         $serverName = GameServers::LIST[$server];
         $serverDc   = GameServers::getDataCenter($serverName);
-        
-        // grab prices and history from response
-        /** @var \stdClass $prices */
-        /** @var \stdClass $history */
-        $prices  = $results->{$this->requestIds[$i + self::PRICES]} ?? null;
-        $history = $results->{$this->requestIds[$i + self::HISTORY]} ?? null;
-        
+
         // check for errors
         if (isset($prices->error) || isset($history->error)) {
             $this->errorHandler->exception($prices->reason, "Error: {$itemId} : ({$server}) {$serverName} - {$serverDc}");

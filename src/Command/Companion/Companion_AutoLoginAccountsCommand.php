@@ -37,7 +37,7 @@ class Companion_AutoLoginAccountsCommand extends Command
          * php bin/console Companion_AutoLoginAccountsCommand COMPANION_APP_ACCOUNT_A
          * php bin/console Companion_AutoLoginAccountsCommand COMPANION_APP_ACCOUNT_B
          *
-         * php bin/console Companion_AutoLoginAccountsCommand Cerberus,Lich,Phoenix
+         * php bin/console Companion_AutoLoginAccountsCommand Phoenix
          */
         if ($action = $input->getArgument('action')) {
             // if an account is provided
