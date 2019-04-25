@@ -305,7 +305,7 @@ class MarketUpdater
         }
     
         // update item entry
-        $this->marketItemEntryUpdated[] = $itemId;
+        $this->marketItemEntryUpdated[] = $item['id'];
     
         /**
          * SAVE --------------------------------------------------------------------------------------------------------
