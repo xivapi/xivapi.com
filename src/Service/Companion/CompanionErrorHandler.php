@@ -7,6 +7,7 @@ use App\Repository\CompanionErrorRepository;
 use App\Service\Redis\Redis;
 use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
+use Companion\Exceptions\CompanionException;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CompanionErrorHandler
@@ -45,7 +46,13 @@ class CompanionErrorHandler
     public function report()
     {
         $errors = [];
-        foreach ($this->getExceptions() as $ex) {
+        $timeout = time() - (60 * 60 * 12);
+        
+        foreach ($this->getExceptions(999) as $ex) {
+            if ($ex['Added'] < $timeout) {
+                continue;
+            }
+            
             $errors[] = sprintf(
                 "[%s][%s] %s: %s",
                 date('Y-m-d H:i:s', $ex['Added']),
@@ -56,22 +63,14 @@ class CompanionErrorHandler
         }
 
         if (empty($errors)) {
-            $message = "<@42667995159330816> No companion errors to report.";
-            Discord::mog()->sendMessage(null, $message);
+            $message = "<@571009215532105758> No companion errors to report in the past 12 hours.";
+            Discord::mog()->sendMessage('571007332616503296', $message);
             return;
         }
 
         $errors  = implode("\n", $errors);
-        $message = "<@42667995159330816> Companion error report:\n```{$errors}```";
-        Discord::mog()->sendMessage(null, $message);
-
-        /**
-         * Delete old error records
-         */
-        foreach ($this->repository->findAll() as $error) {
-            $this->em->remove($error);
-            $this->em->flush();
-        }
+        $message = "<@571009215532105758> Companion error report (12 hours):\n```{$errors}```";
+        Discord::mog()->sendMessage('571007332616503296', $message);
 
         // delete Redis record
         Redis::Cache()->delete(self::CRITICAL_EXCEPTIONS);
@@ -103,19 +102,19 @@ class CompanionErrorHandler
         $date = date('Y-m-d H:i:s', $error->getAdded());
         Discord::mog()->sendMessage(
             '571007332616503296',
-            "[{$date} UTC] **Companion Error:** {$error->getCode()} {$error->getMessage()} {$error->getException()}"
+            "<@571009215532105758> [{$date} UTC] **Companion Error:** {$error->getCode()} {$error->getMessage()} {$error->getException()}"
         );
     }
 
     /**
      * Get exceptions thrown
      */
-    public function getExceptions()
+    public function getExceptions($limit = 10)
     {
         $exceptions = [];
 
         /** @var CompanionError $ex */
-        foreach($this->repository->findBy([], ['added' => 'desc'], 10) as $ex) {
+        foreach($this->repository->findBy([], ['added' => 'desc'], $limit) as $ex) {
             $exceptions[] = [
                 'Added'     => $ex->getAdded(),
                 'Exception' => $ex->getException(),
@@ -154,7 +153,7 @@ class CompanionErrorHandler
         if ($count > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
             Discord::mog()->sendMessage(
                 '571007332616503296',
-                '**Companion Auto-Update has stopped for 1 hour due to errors exceeding maximum allowed value.**'
+                '<@571009215532105758> **Companion Auto-Update has stopped for 1 hour due to errors exceeding maximum allowed value.**'
             );
         }
     }
