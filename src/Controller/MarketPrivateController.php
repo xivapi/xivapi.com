@@ -97,7 +97,6 @@ class MarketPrivateController extends AbstractController
          * First, check if the item was passed here already
          */
         $requestLastSent = Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$server}");
-
         if ($requestLastSent) {
             return $this->json([ false, $requestLastSent, 'Item already requested to be updated' ]);
         }

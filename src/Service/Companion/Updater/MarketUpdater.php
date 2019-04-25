@@ -513,7 +513,7 @@ class MarketUpdater
         $conn = $this->em->getConnection();
 
         foreach ($this->marketItemEntryUpdated as $id) {
-            $sql = "UPDATE companion_market_item_entry SET updated = ". time() ." WHERE id = '{$id}'";
+            $sql = "UPDATE companion_market_item_entry SET updated = ". time() .", patreon_queue = NULL WHERE id = '{$id}'";
 
             $stmt = $conn->prepare($sql);
             $stmt->execute();
