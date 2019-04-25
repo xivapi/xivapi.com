@@ -99,6 +99,12 @@ class CompanionErrorHandler
 
         $this->em->persist($error);
         $this->em->flush();
+        
+        $date = date('Y-m-d H:i:s', $error->getAdded());
+        Discord::mog()->sendMessage(
+            '571007332616503296',
+            "[{$date} UTC] **Companion Error:** {$error->getCode()} {$error->getMessage()} {$error->getException()}"
+        );
     }
 
     /**
@@ -147,7 +153,7 @@ class CompanionErrorHandler
         
         if ($count > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
             Discord::mog()->sendMessage(
-                '477631558317244427',
+                '571007332616503296',
                 '**Companion Auto-Update has stopped for 1 hour due to errors exceeding maximum allowed value.**'
             );
         }
