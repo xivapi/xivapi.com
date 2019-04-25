@@ -173,7 +173,7 @@ class MarketUpdater
         // sleep
         $this->console("Sleeping until requests ...");
         sleep(
-            mt_rand(CompanionConfiguration::CRONJOB_PASS_DELAY[0], CompanionConfiguration::CRONJOB_PASS_DELAY[1])
+            mt_rand(CompanionConfiguration::DELAY_BETWEEN_REQUEST_RESPONSE[0], CompanionConfiguration::DELAY_BETWEEN_REQUEST_RESPONSE[1])
         );
 
         // 2nd pass - request results of all Item Prices + History
