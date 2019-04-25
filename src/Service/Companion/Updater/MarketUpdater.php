@@ -57,8 +57,8 @@ class MarketUpdater
     private $deadline = 0;
     /** @var int */
     private $exceptions = 0;
-    /** @var string */
-    private $requestId = '';
+    /** @var array */
+    private $requestIds = [];
     /** @var array */
     private $times = [
         'startTime'  => 0,
@@ -95,7 +95,9 @@ class MarketUpdater
         $this->queue = $queue;
         $this->console('Starting!');
         
-        $this->requestId = Uuid::uuid4()->toString();
+        foreach (range(0,CompanionConfiguration::MAX_ITEMS_PER_CRONJOB) as $i) {
+            $this->requestIds[$i] = Uuid::uuid4()->toString();
+        }
         
         //--------------------------------------------------------------------------------------------------------------
 
@@ -149,8 +151,8 @@ class MarketUpdater
 
             // build requests (PRICES, HISTORY)
             $async = [
-                "{$this->requestId}_{$itemId}_{$server}_prices"  => $api->Market()->getItemMarketListings($itemId),
-                "{$this->requestId}_{$itemId}_{$server}_history" => $api->Market()->getTransactionHistory($itemId),
+                "{$this->requestIds[$i]}{$itemId}{$server}a"  => $api->Market()->getItemMarketListings($itemId),
+                "{$this->requestIds[$i]}{$itemId}{$server}b" => $api->Market()->getTransactionHistory($itemId),
             ];
 
             // send requests and wait
@@ -209,7 +211,7 @@ class MarketUpdater
             $this->console("({$i}/{$total}) Fetch queue responses for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
 
             // save data
-            $this->storeMarketData($itemId, $server, $results);
+            $this->storeMarketData($i, $itemId, $server, $results);
 
             // update item entry
             $this->marketItemEntryUpdated[] = $id;
@@ -249,13 +251,13 @@ class MarketUpdater
     /**
      * Store the market data
      */
-    private function storeMarketData($itemId, $server, $results)
+    private function storeMarketData($i, $itemId, $server, $results)
     {
         // grab prices and history from response
         /** @var \stdClass $prices */
         /** @var \stdClass $history */
-        $prices  = $results->{"{$this->requestId}_{$itemId}_{$server}_prices"} ?? null;
-        $history = $results->{"{$this->requestId}_{$itemId}_{$server}_history"} ?? null;
+        $prices  = $results->{"{$this->requestIds[$i]}{$itemId}{$server}a"} ?? null;
+        $history = $results->{"{$this->requestIds[$i]}{$itemId}{$server}b"} ?? null;
         
         /**
          * Query error
