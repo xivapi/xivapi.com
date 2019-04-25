@@ -153,7 +153,7 @@ class MarketUpdater
 
             // send requests and wait
             $api->Sight()->settle($async)->wait();
-            $serverName = GameServers::getServerId($server);
+            $serverName = GameServers::LIST[$server];
             $serverDc   = GameServers::getDataCenter($serverName);
             $this->console("({$i}/{$total}) Sent queue requests for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
     
