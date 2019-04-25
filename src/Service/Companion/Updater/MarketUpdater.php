@@ -28,6 +28,9 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 class MarketUpdater
 {
+    const PRICES  = 10;
+    const HISTORY = 50;
+    
     /** @var EntityManagerInterface */
     private $em;
     /** @var CompanionCharacterRepository */
@@ -47,8 +50,6 @@ class MarketUpdater
     private $items = [];
     /** @var array */
     private $marketItemEntryUpdated = [];
-    /** @var array  */
-    private $requests = [];
     /** @var int */
     private $priority = 0;
     /** @var int */
@@ -60,12 +61,11 @@ class MarketUpdater
     /** @var array */
     private $requestIds = [];
     /** @var array */
-    private $times = [
-        'startTime'  => 0,
-        'firstPass'  => 0,
-        'secondPass' => 0,
-    ];
-
+    private $requestRejections = [];
+    /** @var CompanionApi */
+    private $api;
+    /** @var array */
+    private $startTime;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -81,6 +81,10 @@ class MarketUpdater
         // repositories for market data
         $this->repositoryCompanionCharacter = $this->em->getRepository(CompanionCharacter::class);
         $this->repositoryCompanionRetainer  = $this->em->getRepository(CompanionRetainer::class);
+    
+        // initialize Companion API
+        $this->api = new CompanionApi();
+        $this->api->useAsync();
     }
 
     /**
@@ -89,13 +93,14 @@ class MarketUpdater
     public function update(int $priority, int $queue, int $patreonQueue = null)
     {
         $this->console("Priority: {$priority} - Queue: {$queue}");
-        $this->times->startTime = microtime(true);
+        $this->startTime = microtime(true);
         $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
         $this->priority = $priority;
         $this->queue = $queue;
         $this->console('Starting!');
         
-        foreach (range(0,CompanionConfiguration::MAX_ITEMS_PER_CRONJOB + 10) as $i) {
+        // Build 100 (50 for prices, 50 for history
+        foreach (range(0, 100) as $i) {
             $this->requestIds[$i] = Uuid::uuid4()->toString();
         }
         
@@ -116,74 +121,13 @@ class MarketUpdater
             return;
         }
 
-        // initialize Companion API
-        $api = new CompanionApi();
-        $api->useAsync();
-        
         // check things didn't take too long to start
         $this->checkDeadline();
 
-        // 1st pass - send queue requests for all Item Prices + History
-        $a     = microtime(true);
-        $total = count($this->items);
-        $rejections = [];
+        // 1st pass - Send Requests
         foreach ($this->items as $i => $item) {
-            $i = $i + 1;
-    
-            $this->checkErrorState();
-            
-            $itemId     = $item['item'];
-            $server     = $item['server'];
-            $serverName = GameServers::LIST[$server];
-            $serverDc   = GameServers::getDataCenter($serverName);
-
-            /** @var CompanionToken $token */
-            $token  = $this->tokens[$server];
-            
-            if ($token == null) {
-                $this->console("Token has expired for server: {$server}, skipping...");
-                continue;
-            }
-            
-            $api->Token()->set($token);
-
-            // build requests (PRICES, HISTORY)
-            $requests = [
-                "{$this->requestIds[$i]}{$itemId}{$server}a"  => $api->Market()->getItemMarketListings($itemId),
-                "{$this->requestIds[$i]}{$itemId}{$server}b" => $api->Market()->getTransactionHistory($itemId),
-            ];
-
-            // send requests and wait
-            try {
-                // request them again
-                $results = $api->Sight()->settle($requests)->wait();
-                $results = $api->Sight()->handle($results);
-    
-                // get prices + history response data
-                $prices  = $results->{"{$this->requestIds[$i]}{$itemId}{$server}a"} ?? null;
-                $history = $results->{"{$this->requestIds[$i]}{$itemId}{$server}b"} ?? null;
-                
-                if (isset($prices->state) && $prices->state == "rejected" || isset($history->state) && $history->state == "rejected") {
-                    $this->errorHandler->exception("Rejected", "Error: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
-                    $rejections[$itemId] = true;
-                }
-            } catch (\Exception $ex) {
-                $this->console("({$i}/{$total}) - Exception thrown for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
-                continue;
-            }
-    
-            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/Prices");
-            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/History");
-            
-            $this->console("({$i}/{$total}) Sent queue requests for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
-    
-            // store requests
-            $this->requests[$server . $itemId] = $results;
-            usleep(
-                mt_rand(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[0], CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[1]) * 1000
-            );
+            $this->performRequests($i + 1, $item, 'SEND REQUESTS');
         }
-        $this->times->firstPass = microtime(true) - $a;
     
         $this->checkErrorState();
     
@@ -193,61 +137,16 @@ class MarketUpdater
         // sleep
         $this->console("Sleeping until requests ...");
         sleep(
-            mt_rand(CompanionConfiguration::DELAY_BETWEEN_REQUEST_RESPONSE[0], CompanionConfiguration::DELAY_BETWEEN_REQUEST_RESPONSE[1])
+            mt_rand(
+                CompanionConfiguration::DELAY_BETWEEN_REQUEST_RESPONSE[0],
+                CompanionConfiguration::DELAY_BETWEEN_REQUEST_RESPONSE[1]
+            )
         );
 
-        // 2nd pass - request results of all Item Prices + History
-        $a = microtime(true);
+        // 2nd pass - Fetch Responses
         foreach ($this->items as $i => $item) {
-            $i = $i + 1;
-    
-            $this->checkErrorState();
-            
-            // if exceptions were thrown in any request, we stop
-            // (store market updates exceptions if any thrown)
-            if ($this->exceptions >= CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
-                $this->console('Ending as exceptions have internally hit the limit.');
-                break;
-            }
-
-            $id         = $item['id'];
-            $itemId     = $item['item'];
-            $server     = $item['server'];
-            $serverName = GameServers::LIST[$server];
-            $serverDc   = GameServers::getDataCenter($serverName);
-            
-            // if request was rejected, skip
-            if ($rejections[$itemId]) {
-                continue;
-            }
-
-            // grab request
-            $requests = $this->requests[$server . $itemId];
-            
-            try {
-                // request them again
-                $results = $api->Sight()->settle($requests)->wait();
-                $results = $api->Sight()->handle($results);
-            } catch (\Exception $ex) {
-                $this->console("({$i}/{$total}) - Exception thrown for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
-                continue;
-            }
-    
-            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/Prices");
-            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/History");
-            
-            $this->console("({$i}/{$total}) Fetch queue responses for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
-
-            // save data
-            $this->storeMarketData($i, $itemId, $server, $results);
-
-            // update item entry
-            $this->marketItemEntryUpdated[] = $id;
-    
-            // update analytics
-            usleep(
-                mt_rand(CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[0], CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[1]) * 1000
-            );
+            $results = $this->performRequests($i + 1, $item, 'FETCH RESPONSES');
+            $this->storeMarketData($i, $item, $results);
         }
 
         // update the database market entries with the latest updated timestamps
@@ -255,12 +154,93 @@ class MarketUpdater
         $this->em->flush();
 
         // finish, output completed duration
-        $duration = round(microtime(true) - $this->times->startTime, 1);
-        $this->times->secondPass = microtime(true) - $a;
+        $duration = round(microtime(true) - $this->startTime, 1);
         $this->console("-> Completed. Duration: <comment>{$duration}</comment>");
         $this->closeDatabaseConnection();
     }
     
+    /**
+     * Perform market requests
+     */
+    private function performRequests($i, $item, $stage)
+    {
+        $this->checkErrorState();
+    
+        $itemId     = $item['item'];
+        $server     = $item['server'];
+        $serverName = GameServers::LIST[$server];
+        $serverDc   = GameServers::getDataCenter($serverName);
+    
+        /** @var CompanionToken $token */
+        $token = $this->tokens[$server];
+    
+        if ($token == null) {
+            $this->console("Token has expired for server: ({$server}) {$serverName} - {$serverDc}, skipping...");
+            return null;
+        }
+    
+        // Set server token
+        $this->api->Token()->set($token);
+    
+        // Setup market requests for Price + History
+        $requests = [
+            $this->requestIds[$i + self::PRICES]  => $this->api->Market()->getItemMarketListings($itemId),
+            $this->requestIds[$i + self::HISTORY] => $this->api->Market()->getTransactionHistory($itemId),
+        ];
+    
+        try {
+            // Send async requests
+            $results = $this->api->Sight()->settle($requests)->wait();
+            $results = $this->api->Sight()->handle($results);
+        
+            // Get the response for the Prices + History
+            $prices  = $results->{$this->requestIds[$i + self::PRICES]} ?? null;
+            $history = $results->{$this->requestIds[$i + self::HISTORY]} ?? null;
+        
+            // check if we were rejected
+            $this->checkRequestForRejection($itemId, $prices, $history);
+        } catch (\Exception $ex) {
+            $this->console("({$i}) - Exception thrown for: {$itemId} on: {$server} {$serverName} - {$serverDc}");
+            return null;
+        }
+    
+        // Record to Google Analytics
+        GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/Prices");
+        GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/History");
+    
+        // log
+        $this->console("({$i} {$stage} :: {$itemId} on {$server} {$serverName} - {$serverDc}");
+    
+        // slow down req/sec
+        usleep(
+            mt_rand(
+                CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[0],
+                CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[1]
+            ) * 1000
+        );
+        
+        return $results;
+    }
+    
+    /**
+     * Checks for any req/sec issues
+     */
+    private function checkRequestForRejection(array $item, $prices, $history)
+    {
+        $itemId     = $item['item'];
+        $server     = $item['server'];
+        $serverName = GameServers::LIST[$server];
+        $serverDc   = GameServers::getDataCenter($serverName);
+        
+        if (isset($prices->state) && $prices->state == "rejected" || isset($history->state) && $history->state == "rejected") {
+            $this->errorHandler->exception("Rejected", "Error: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
+            $this->requestRejections[$itemId] = true;
+        }
+    }
+    
+    /**
+     * Check for errors
+     */
     private function checkErrorState()
     {
         if ($this->errorHandler->getCriticalExceptionCount() > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
@@ -286,27 +266,25 @@ class MarketUpdater
     /**
      * Store the market data
      */
-    private function storeMarketData($i, $itemId, $server, $results)
+    private function storeMarketData($i, $item, $results)
     {
+        $itemId     = $item['item'];
+        $server     = $item['server'];
         $serverName = GameServers::LIST[$server];
         $serverDc   = GameServers::getDataCenter($serverName);
         
         // grab prices and history from response
         /** @var \stdClass $prices */
         /** @var \stdClass $history */
-        $prices  = $results->{"{$this->requestIds[$i]}{$itemId}{$server}a"} ?? null;
-        $history = $results->{"{$this->requestIds[$i]}{$itemId}{$server}b"} ?? null;
+        $prices  = $results[$this->requestIds[$i + self::PRICES]]  ?? null;
+        $history = $results[$this->requestIds[$i + self::HISTORY]] ?? null;
         
-        /**
-         * Query error
-         */
+        // check for errors
         if (isset($prices->error) || isset($history->error)) {
             $this->errorHandler->exception($prices->reason, "Error: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
         }
 
-        /**
-         * Rejected
-         */
+        // check for rejections
         if (isset($prices->state) && $prices->state == "rejected" || isset($history->state) && $history->state == "rejected") {
             $this->errorHandler->exception("Rejected", "Error: {$itemId} : ({$server}) {$serverName} - {$serverDc}");
         }
@@ -322,11 +300,15 @@ class MarketUpdater
             return;
         }
     
+        // update item entry
+        $this->marketItemEntryUpdated[] = $itemId;
+    
         // grab market item document
         $marketItem = $this->getMarketItemDocument($server, $itemId);
     
         // record lodestone info
         $marketItem->LodestoneID = $prices->eorzeadbItemId;
+        $this->console("Lodestone ID: = {$prices->eorzeadbItemId}");
 
         // ---------------------------------------------------------------------------------------------------------
         // CURRENT PRICES
