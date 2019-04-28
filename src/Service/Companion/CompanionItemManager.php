@@ -2,10 +2,8 @@
 
 namespace App\Service\Companion;
 
-use App\Command\Companion\Companion_AutoPrioritiseLoginsCommand;
 use App\Entity\CompanionItem;
 use App\Entity\MapPosition;
-use App\Repository\CompanionItemRepository;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
@@ -248,7 +246,8 @@ class CompanionItemManager
                 if ($stmt->fetch()) {
                     continue;
                 }
-                
+    
+                $id     = Uuid::uuid4()->toString();
                 $state = CompanionItem::STATE_UPDATING;
                 
                 // check if it has a shop
@@ -257,17 +256,24 @@ class CompanionItemManager
                 
                 // if the item can be bought from the store, update state
                 if ($shop) {
-                    $state = CompanionItem::STATE_BOUGHT_FROM_NPC;
+                    // insert source info
+                    $stmt = $conn->prepare(
+                        "REPLACE INTO companion_market_item_source (id, item, `data`) " .
+                        "VALUES ('{$id}', {$itemId}, '{$shop}')"
+                    );
+                    $stmt->execute();
+                    continue;
                 }
     
                 // get region
                 $dc     = GameServers::getDataCenter($serverName);
                 $region = GameServers::LIST_DC_REGIONS[$dc];
                 $queue  = CompanionConfiguration::QUEUE_NEW_ITEM;
-                $id     = Uuid::uuid4()->toString();
-                $stmt   = $conn->prepare(
-                    "INSERT INTO companion_market_items (id, updated, item, server, region, normal_queue, patreon_queue, state, `data`)" .
-                    "VALUES ('{$id}', 0, $itemId, $serverId, $region, $queue, 0, {$state}, '{$shop}');"
+                
+                // insert item entry
+                $stmt = $conn->prepare(
+                    "REPLACE INTO companion_market_items (id, updated, item, server, region, normal_queue, patreon_queue, state) " .
+                    "VALUES ('{$id}', 0, {$itemId}, {$serverId}, {$region}, {$queue}, 0, {$state});"
                 );
                 $stmt->execute();
             }
@@ -309,11 +315,6 @@ class CompanionItemManager
                 $stmt->execute();
                 $item = $stmt->fetch();
                 
-                // if it's bought from NPC, ignore
-                if ($item['state'] == CompanionItem::STATE_BOUGHT_FROM_NPC) {
-                    continue;
-                }
-    
                 // grab recorded document
                 /** @var MarketItem $document */
                 $document = $this->companionMarket->get($serverId, $itemId);

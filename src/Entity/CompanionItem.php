@@ -68,11 +68,6 @@ class CompanionItem
      * @ORM\Column(type="integer", nullable=true)
      */
     private $state;
-    /**
-     * @var string
-     * @ORM\Column(type="text")
-     */
-    private $data;
     
     public function getId(): string
     {
@@ -159,17 +154,6 @@ class CompanionItem
     public function setState(int $state)
     {
         $this->state = $state;
-        return $this;
-    }
-    
-    public function getData(): string
-    {
-        return $this->data;
-    }
-    
-    public function setData(string $data)
-    {
-        $this->data = $data;
         return $this;
     }
 }
