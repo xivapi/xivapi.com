@@ -18,50 +18,43 @@ class Companion_AutoLoginAccountsCommand extends Command
         'name' => 'Companion_AutoLoginAccountsCommand',
         'desc' => 'Re-login to each character to obtain a companion token.',
         'args' => [
-            [ 'action', InputArgument::OPTIONAL, '(Optional) Either a list of servers or an account.' ]
+            [ 'action', InputArgument::REQUIRED, '(Optional) action to perform' ],
+            [ 'login', InputArgument::OPTIONAL, '(Optional) provide an account + server' ],
         ]
     ];
 
     /** @var CompanionTokenManager */
-    private $companionTokenManager;
+    private $ctm;
 
-    public function __construct(CompanionTokenManager $companionTokenManager, $name = null)
+    public function __construct(CompanionTokenManager $ctm, $name = null)
     {
-        $this->companionTokenManager = $companionTokenManager;
+        $this->ctm = $ctm;
         parent::__construct($name);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /**
-         * php bin/console Companion_AutoLoginAccountsCommand COMPANION_APP_ACCOUNT_A
-         * php bin/console Companion_AutoLoginAccountsCommand COMPANION_APP_ACCOUNT_B
-         *
-         * php bin/console Companion_AutoLoginAccountsCommand Phoenix
+         * php bin/console Companion_AutoLoginAccountsCommand login MB1,Phoenix
+         * php bin/console Companion_AutoLoginAccountsCommand auto_login
+         * php bin/console Companion_AutoLoginAccountsCommand update_characters
          */
-        if ($action = $input->getArgument('action')) {
-            // if an account is provided
-            if (in_array($action, CompanionTokenManager::SERVERS_ACCOUNTS)) {
-                $this->companionTokenManager->account($action);
-                return;
-            }
+        switch ($input->getArgument('action')) {
+            default:
+                $output->writeln('Unknown, must be: login, auto_login, update_characters');
+                break;
+    
+            case 'login':
+                [$account, $server] = explode(',', $input->getArgument('login'));
+                $this->ctm->login($account, $server);
+                break;
+                
+            case 'auto_login':
+                $this->ctm->autoLoginToExpiringAccount();
+                break;
 
-            // if an data-center is provided
-            if (array_key_exists(ucwords($action), GameServers::LIST_DC)) {
-                $this->companionTokenManager->datacenter($action);
-                return;
-            }
-
-            // loop through supplied servers, THEY MUST BE ON SAME ACC
-            $output->writeln('If your servers are not on the same account, this will fail.');
-            foreach (explode(',', $action) as $server) {
-                $this->companionTokenManager->login($server);
-            }
-            
-            return;
+            case 'update_characters':
+                $this->ctm->autoPopulateCharacters();
         }
-        
-        $output->writeln('Logging into the last logged in account.');
-        $this->companionTokenManager->auto();
     }
 }

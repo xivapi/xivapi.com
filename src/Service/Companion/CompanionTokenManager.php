@@ -6,6 +6,7 @@ use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
 use App\Service\Content\GameServers;
 use Companion\CompanionApi;
+use Companion\Http\Cookies;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -22,6 +23,7 @@ class CompanionTokenManager
      * Current servers and their associated login account
      */
     const SERVERS_ACCOUNTS = [
+        /* - NO JP ATM
         'Aegis'         => 'COMPANION_APP_ACCOUNT_B',
         'Atomos'        => 'COMPANION_APP_ACCOUNT_B',
         'Carbuncle'     => 'COMPANION_APP_ACCOUNT_B',
@@ -54,44 +56,45 @@ class CompanionTokenManager
         'Shinryu'       => 'COMPANION_APP_ACCOUNT_B',
         'Titan'         => 'COMPANION_APP_ACCOUNT_B',
         'Mandragora'    => 'COMPANION_APP_ACCOUNT_B',
+        */
 
         // US Servers
-        'Balmung'       => 'COMPANION_APP_ACCOUNT_A',
-        'Adamantoise'   => 'COMPANION_APP_ACCOUNT_A',
-        'Cactuar'       => 'COMPANION_APP_ACCOUNT_A',
-        'Coeurl'        => 'COMPANION_APP_ACCOUNT_A',
-        'Faerie'        => 'COMPANION_APP_ACCOUNT_A',
-        'Gilgamesh'     => 'COMPANION_APP_ACCOUNT_A',
-        'Goblin'        => 'COMPANION_APP_ACCOUNT_A',
-        'Jenova'        => 'COMPANION_APP_ACCOUNT_A',
-        'Mateus'        => 'COMPANION_APP_ACCOUNT_A',
-        'Midgardsormr'  => 'COMPANION_APP_ACCOUNT_A',
-        'Sargatanas'    => 'COMPANION_APP_ACCOUNT_A',
-        'Siren'         => 'COMPANION_APP_ACCOUNT_A',
-        'Zalera'        => 'COMPANION_APP_ACCOUNT_A',
-        'Behemoth'      => 'COMPANION_APP_ACCOUNT_A',
-        'Brynhildr'     => 'COMPANION_APP_ACCOUNT_A',
-        'Diabolos'      => 'COMPANION_APP_ACCOUNT_A',
-        'Excalibur'     => 'COMPANION_APP_ACCOUNT_A',
-        'Exodus'        => 'COMPANION_APP_ACCOUNT_A',
-        'Famfrit'       => 'COMPANION_APP_ACCOUNT_A',
-        'Hyperion'      => 'COMPANION_APP_ACCOUNT_A',
-        'Lamia'         => 'COMPANION_APP_ACCOUNT_A',
-        'Leviathan'     => 'COMPANION_APP_ACCOUNT_A',
-        'Malboro'       => 'COMPANION_APP_ACCOUNT_A',
-        'Ultros'        => 'COMPANION_APP_ACCOUNT_A',
+        'Balmung'       => 'MB1',
+        'Adamantoise'   => 'MB1',
+        'Cactuar'       => 'MB1',
+        'Coeurl'        => 'MB2',
+        'Faerie'        => 'MB1',
+        'Gilgamesh'     => 'MB1',
+        'Goblin'        => 'MB2',
+        'Jenova'        => 'MB1',
+        'Mateus'        => '',      # congested
+        'Midgardsormr'  => 'MB1',
+        'Sargatanas'    => 'MB1',
+        'Siren'         => 'MB1',
+        'Zalera'        => 'MB2',
+        'Behemoth'      => 'MB1',
+        'Brynhildr'     => 'MB2',
+        'Diabolos'      => 'MB2',
+        'Excalibur'     => 'MB1',
+        'Exodus'        => 'MB1',
+        'Famfrit'       => 'MB1',
+        'Hyperion'      => 'MB1',
+        'Lamia'         => 'MB1',
+        'Leviathan'     => 'MB1',
+        'Malboro'       => 'MB2',
+        'Ultros'        => 'MB1',
 
         // EU Servers
-        'Cerberus'      => 'COMPANION_APP_ACCOUNT_A',
-        'Lich'          => 'COMPANION_APP_ACCOUNT_A',
-        'Louisoix'      => 'COMPANION_APP_ACCOUNT_A',
-        'Moogle'        => 'COMPANION_APP_ACCOUNT_A',
-        'Odin'          => 'COMPANION_APP_ACCOUNT_A',
-        'Omega'         => 'COMPANION_APP_ACCOUNT_A',
-        'Phoenix'       => 'COMPANION_APP_ACCOUNT_A',
-        'Ragnarok'      => 'COMPANION_APP_ACCOUNT_A',
-        'Shiva'         => 'COMPANION_APP_ACCOUNT_A',
-        'Zodiark'       => 'COMPANION_APP_ACCOUNT_A',
+        'Cerberus'      => '',
+        'Lich'          => 'MB3',
+        'Louisoix'      => 'MB3',
+        'Moogle'        => '',
+        'Odin'          => '',
+        'Omega'         => 'MB3',
+        'Phoenix'       => '',
+        'Ragnarok'      => '',
+        'Shiva'         => '',
+        'Zodiark'       => 'MB3',
     ];
 
     /** @var EntityManagerInterface em */
@@ -112,105 +115,114 @@ class CompanionTokenManager
     }
 
     /**
-     * Any server not logged in will move to front of queue with a "last online" of 0
+     * Logs into each account and records all character prep tokens
      */
-    public function reprioritise()
+    public function autoPopulateCharacters()
     {
-        $tokens = $this->repository->findBy([ 'online' => 0 ]);
-
-        /** @var CompanionToken $token */
-        foreach($tokens as $token) {
-            $token->setLastOnline(0);
-            $this->em->persist($token);
-        }
-
-        $this->em->flush();
-    }
+        $accounts = ['MB1','MB2','MB3','MB4','MB5','MB6'];
+        $repo     = $this->em->getRepository(CompanionToken::class);
     
-    /**
-     * Login to an entire account characters.
-     */
-    public function account(string $accountId)
-    {
-        foreach (self::SERVERS_ACCOUNTS as $server => $account) {
-            if ($account == $accountId) {
-                try {
-                    $ok = $this->login($server);
+        // clear cookies
+        Cookies::clear(); sleep(1);
+        
+        // shuffle accounts
+        shuffle($accounts);
+    
+        /**
+         * Login to each account and record characters
+         */
+        $this->console->writeln("Logging into accounts");
+        foreach ($accounts as $account) {
+            [$username, $password] = explode(',', getenv($account));
 
-                    // sleep for a random amount, because SE ?
-                    sleep($ok ? mt_rand(5, 30) : 0);
-                } catch (\Exception $ex) {
-                    $this->console->writeln("! Error: Failed to login to server: {$server}. Skipping...");
-                    continue;
+            try {
+                $this->console->writeln("- Account: {$account} {$username}");
+                $api = new CompanionApi("{$account}_{$username}");
+                $api->Account()->login($username, $password);
+    
+                // Get a list of characters
+                echo "Getting a list of characters\n";
+                foreach ($api->Login()->getCharacters()->accounts[0]->characters as $character) {
+                    $this->console->writeln("Detected Character: {$character->name} {$character->world}");
+                    
+                    /** @var CompanionToken $token */
+                    $token = $repo->findOneBy([ 'characterId' => $character->cid ]);
+                    
+                    // if a token exists for this character, skip
+                    if ($token) {
+                        continue;
+                    }
+                    
+                    $token = new CompanionToken();
+                    $token
+                        ->setCharacterId($character->cid)
+                        ->setServer($character->world)
+                        ->setAccount($account);
+                    
+                    $this->em->persist($token);
+                    $this->em->flush();
                 }
+            } catch (\Exception $ex) {
+                $this->console->writeln('-- EXCEPTION --');
+                $this->console->writeln($ex->getMessage());
+                die;
             }
-        }
-    }
     
-    /**
-     * Automatically select the last updated account and login to it.
-     */
-    public function auto()
-    {
-        $this->login(
-            $this->repository->findLastUpdated()['server']
-        );
+            // ensure cookie file is deleted
+            Cookies::clear(); sleep(mt_rand(0,30));
+        }
     }
 
     /**
-     * Login to all accounts on a single datacenter
+     * Finds the next expiring account and logs into it.
      */
-    public function datacenter($dc)
+    public function autoLoginToExpiringAccount()
     {
-        foreach(GameServers::LIST_DC[ucwords($dc)] as $server) {
-            $this->login($server);
-        }
+        /** @var CompanionToken $token */
+        $token = $this->repository->findExpiringAccount();
+        $this->login($token->getAccount(), $token->getServer());
     }
     
     /**
      * Login to a specific server
      */
-    public function login(string $server): bool
+    public function login(string $account, string $server): bool
     {
-        $this->console->writeln("<comment>Server: {$server}</comment>");
-
+        $this->console->writeln("<comment>Login: {$account} - {$server}</comment>");
+        
         // grab saved token in db
-        $entity = $this->repository->findOneBy([ 'server' => $server ]);
-        $entity = $entity ?: new CompanionToken();
-    
-        // ensure some entity stuff is set
-        $entity
-            ->setServer($server)
-            ->setOnline(false)
-            ->setLastOnline(time());
-    
-        $this->em->persist($entity);
+        /** @var CompanionToken $token */
+        $token = $this->repository->findOneBy([
+            'account' => $account,
+            'server' => $server
+        ]);
+
+        if ($token == null) {
+            throw new \Exception("Token not found...");
+        }
+        
+        // ensure its marked as offline
+        $token->setOnline(false)->setMessage('Offline');
+        $this->em->persist($token);
         $this->em->flush();
-    
+        
         // check if server is an "offline" server
         $serverId = GameServers::getServerId($server);
         if (in_array($serverId, self::SERVERS_OFFLINE)) {
             $this->console->writeln('No characters available on this server at this time.');
             return false;
         }
-    
-        // check if an account exists
-        $account = getenv(self::SERVERS_ACCOUNTS[$server]);
-        if (empty($account)) {
-            $this->console->writeln("No account for the server: {$server}");
-            return false;
-        }
-    
-        [$username, $password] = explode(',', $account);
+        
+        [$username, $password] = explode(',', getenv($account));
         
         try {
             // initialize API and create a new token
-            $api = new CompanionApi("{$username}_{$server}");
+            $api = new CompanionApi("{$account}_{$username}_{$server}");
             
             // login
-            $this->console->writeln("- Account Login: {$username}");
+            $this->console->writeln("- Account Login: {$account} {$username} {$server}");
             $api->Account()->login($username, $password);
-    
+            
             // find character for this server
             $this->console->writeln('- Finding active character ...');
             $cid = null;
@@ -220,53 +232,55 @@ class CompanionTokenManager
                     break;
                 }
             }
-
+            
             // couldn't find a valid character
             if ($cid === null) {
                 $this->console->writeln('- Error: No character on this server...');
                 return false;
             }
-    
+            
             // login with our chosen character!
             $this->console->writeln("- Logging into character: {$cid}");
             $api->Login()->loginCharacter($cid);
-    
+            
             // confirm
             $character = $api->login()->getCharacter()->character;
             $this->console->writeln("- Character logged into: {$character->name} ({$character->world})");
-    
+            
             // get character status
-            $api->login()->getCharacterStatus();
+            $api->login()->getCharacterWorlds();
             $this->console->writeln('- Character world status confirmed');
-
+            
             // wait a bit
-            $this->console->writeln('- Testing market in 3 seconds ...');
-            sleep(3);
-    
+            $this->console->writeln('- Testing market in a moment...');
+            sleep(mt_rand(3,8));
+            
             // perform a test
             $api->market()->getItemMarketListings(5);
             $this->console->writeln('- Market fetch confirmed.');
-    
+            
             // confirm success
-            $entity
+            $token
                 ->setMessage('Online')
                 ->setOnline(true)
-                ->setToken($api->Token()->get()->toArray());
+                ->setExpiring(time() + (60 * 60 * mt_rand(15, 22))) // expires in 15-22 hours
+                ->setToken($api->Token()->get());
             
         } catch (\Exception $ex) {
-            $entity
-                ->setMessage('Failed to login: '. $ex->getMessage())
+            $token
+                ->setMessage('Offline - Failed to login to Companion.')
+                ->setExpiring(time() + (60 * mt_rand(15, 90))) // expires in 15 to 90 minutes
                 ->setOnline(false);
-
+            
             $this->companionErrorHandler->exception(
                 "SE_Login_Failure",
                 "Could not login to server: {$server}"
             );
-
+            
             $this->console->writeln('- Character failed to login: '. $ex->getMessage());
         }
-    
-        $this->em->persist($entity);
+        
+        $this->em->persist($token);
         $this->em->flush();
         
         return true;
@@ -283,21 +297,16 @@ class CompanionTokenManager
     /**
      * @return CompanionToken[]
      */
-    public function getCompanionTokensPerServer(): array
+    public function getOnlineServers(): array
     {
         $list = [];
-        foreach ($this->getCompanionTokens() as $entity) {
-            // skip offline or expired tokens
-            if ($entity->isOnline() === false) {
-                continue;
+    
+        foreach ($this->getCompanionTokens() as $token) {
+            if ($token->isOnline()) {
+                $list[] = GameServers::getServerId($token->getServer());
             }
-            
-            $serverId        = GameServers::getServerId($entity->getServer());
-            $list[$serverId] = $entity;
         }
 
-        $this->em->clear();
-        
         return $list;
     }
     
@@ -308,7 +317,10 @@ class CompanionTokenManager
      */
     public function getCompanionTokenForServer(string $server): CompanionToken
     {
-        foreach ($this->getCompanionTokens() as $entity) {
+        $tokens = $this->getCompanionTokens();
+        shuffle($tokens);
+        
+        foreach ($tokens as $entity) {
             if ($entity->getServer() === $server) {
                 return $entity;
             }

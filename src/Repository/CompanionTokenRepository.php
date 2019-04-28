@@ -13,11 +13,14 @@ class CompanionTokenRepository extends ServiceEntityRepository
         parent::__construct($registry, CompanionToken::class);
     }
     
-    public function findLastUpdated()
+    /**
+     * Find the next expiring time
+     */
+    public function findExpiringAccount()
     {
         $sql = $this->createQueryBuilder('a');
-        $sql->select('a.server')
-            ->orderBy('a.lastOnline', 'asc')
+        $sql->orderBy('a.expiring', 'asc')
+            ->where('a.expiring < '. time())
             ->setMaxResults(1)
             ->setFirstResult(0);
     

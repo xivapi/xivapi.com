@@ -208,6 +208,11 @@ class SaintCoinachRedisCommand extends Command
         $this->io->text('<fg=cyan>Caching content ID lists</>');
         Redis::Cache()->startPipeline();
         foreach ($this->ids as $contentName => $idList) {
+            // this prevents id 0 being added when it has no zero content.
+            if (!in_array($contentName, self::ZERO_CONTENT) && $idList[0] == '0') {
+                unset($idList[0]);
+            }
+            
             Redis::Cache()->set("ids_{$contentName}", $idList, self::REDIS_DURATION);
         }
         Redis::Cache()->executePipeline();

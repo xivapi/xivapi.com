@@ -144,13 +144,13 @@ class CompanionErrorHandler
         $count = (int)$count;
         $count++;
 
-        Redis::Cache()->set(
-            self::CRITICAL_EXCEPTIONS,
-            $count,
-            CompanionConfiguration::ERROR_SYSTEM_TIMEOUT
-        );
+        Redis::Cache()->set(self::CRITICAL_EXCEPTIONS, $count, (60 * 120));
         
         if ($count > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
+            // pause for a random amount of time between 10 and 50 minutes
+            Redis::Cache()->set(self::CRITICAL_EXCEPTIONS, $count, (60 * mt_rand(10, 50)));
+            
+            // alert mogboard
             Discord::mog()->sendMessage(
                 '571007332616503296',
                 '**Companion Auto-Update has stopped for 1 hour due to errors exceeding maximum allowed value.**'

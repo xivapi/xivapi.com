@@ -8,20 +8,25 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * - This has UpperCase variables as its game content
  * @ORM\Table(
- *     name="companion_market_item_queue",
+ *     name="companion_market_items",
  *     indexes={
- *          @ORM\Index(name="consumer", columns={"consumer"}),
+ *          @ORM\Index(name="updated", columns={"updated"}),
  *          @ORM\Index(name="item", columns={"item"}),
- *          @ORM\Index(name="priority", columns={"priority"}),
- *          @ORM\Index(name="server", columns={"server"}),
- *          @ORM\Index(name="region", columns={"region"}),
+ *          @ORM\Index(name="normal_queue", columns={"normal_queue"}),
  *          @ORM\Index(name="patreon_queue", columns={"patreon_queue"}),
+ *          @ORM\Index(name="server", columns={"server"}),
+ *          @ORM\Index(name="region", columns={"region"})
  *     }
  * )
- * @ORM\Entity(repositoryClass="App\Repository\CompanionMarketItemQueueRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\CompanionItemRepository")
  */
-class CompanionMarketItemQueue
+class CompanionItem
 {
+    const STATE_UPDATING        = 1;
+    const STATE_BOUGHT_FROM_NPC = 2;
+    const STATE_NEVER_SOLD      = 3;
+    const STATE_OVER_MAX_TIME   = 9;
+    
     /**
      * @var string
      * @ORM\Id
@@ -32,17 +37,12 @@ class CompanionMarketItemQueue
      * @var int
      * @ORM\Column(type="integer")
      */
+    private $updated;
+    /**
+     * @var int
+     * @ORM\Column(type="integer")
+     */
     private $item;
-    /**
-     * @var int
-     * @ORM\Column(type="integer")
-     */
-    private $priority;
-    /**
-     * @var int
-     * @ORM\Column(type="integer")
-     */
-    private $consumer;
     /**
      * @var int
      * @ORM\Column(type="integer")
@@ -55,19 +55,24 @@ class CompanionMarketItemQueue
     private $region;
     /**
      * @var int
+     * @ORM\Column(type="integer")
+     */
+    private $normalQueue;
+    /**
+     * @var int
      * @ORM\Column(type="integer", nullable=true)
      */
     private $patreonQueue;
-    
-    public function __construct(string $id, int $itemId = null, int $serverId = null, int $priority = null, int $region = null, int $consumer = null)
-    {
-        $this->id       = $id;
-        $this->item     = $itemId;
-        $this->server   = $serverId;
-        $this->priority = $priority;
-        $this->region   = $region;
-        $this->consumer = $consumer;
-    }
+    /**
+     * @var int
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $state;
+    /**
+     * @var string
+     * @ORM\Column(type="text")
+     */
+    private $data;
     
     public function getId(): string
     {
@@ -77,7 +82,17 @@ class CompanionMarketItemQueue
     public function setId(string $id)
     {
         $this->id = $id;
-        
+        return $this;
+    }
+    
+    public function getUpdated(): int
+    {
+        return $this->updated;
+    }
+    
+    public function setUpdated(int $updated)
+    {
+        $this->updated = $updated;
         return $this;
     }
     
@@ -89,31 +104,6 @@ class CompanionMarketItemQueue
     public function setItem(int $item)
     {
         $this->item = $item;
-        
-        return $this;
-    }
-    
-    public function getPriority(): int
-    {
-        return $this->priority;
-    }
-    
-    public function setPriority(int $priority)
-    {
-        $this->priority = $priority;
-        
-        return $this;
-    }
-    
-    public function getConsumer(): int
-    {
-        return $this->consumer;
-    }
-    
-    public function setConsumer(int $consumer)
-    {
-        $this->consumer = $consumer;
-        
         return $this;
     }
     
@@ -125,7 +115,6 @@ class CompanionMarketItemQueue
     public function setServer(int $server)
     {
         $this->server = $server;
-        
         return $this;
     }
     
@@ -137,7 +126,17 @@ class CompanionMarketItemQueue
     public function setRegion(int $region)
     {
         $this->region = $region;
-        
+        return $this;
+    }
+    
+    public function getNormalQueue(): int
+    {
+        return $this->normalQueue;
+    }
+    
+    public function setNormalQueue(int $normalQueue)
+    {
+        $this->normalQueue = $normalQueue;
         return $this;
     }
     
@@ -149,7 +148,28 @@ class CompanionMarketItemQueue
     public function setPatreonQueue(int $patreonQueue)
     {
         $this->patreonQueue = $patreonQueue;
-        
+        return $this;
+    }
+    
+    public function getState(): int
+    {
+        return $this->state;
+    }
+    
+    public function setState(int $state)
+    {
+        $this->state = $state;
+        return $this;
+    }
+    
+    public function getData(): string
+    {
+        return $this->data;
+    }
+    
+    public function setData(string $data)
+    {
+        $this->data = $data;
         return $this;
     }
 }

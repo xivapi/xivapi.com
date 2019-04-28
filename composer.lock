@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "fecf279c49845b480b1586d67f2c447e",
+    "content-hash": "5d5594570a9e5d4173bd2828a5f45bec",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -1113,16 +1113,16 @@
         },
         {
             "name": "doctrine/migrations",
-            "version": "v2.0.0",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/migrations.git",
-                "reference": "0101f5bd7f4e5043bf8630db2930f8fd7da552b6"
+                "reference": "43280c14b696a7896a9c70a5e0e4a312ff003187"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/migrations/zipball/0101f5bd7f4e5043bf8630db2930f8fd7da552b6",
-                "reference": "0101f5bd7f4e5043bf8630db2930f8fd7da552b6",
+                "url": "https://api.github.com/repos/doctrine/migrations/zipball/43280c14b696a7896a9c70a5e0e4a312ff003187",
+                "reference": "43280c14b696a7896a9c70a5e0e4a312ff003187",
                 "shasum": ""
             },
             "require": {
@@ -1191,7 +1191,7 @@
                 "migrations",
                 "php"
             ],
-            "time": "2019-01-03T18:59:09+00:00"
+            "time": "2019-04-25T22:14:55+00:00"
         },
         {
             "name": "doctrine/orm",
@@ -1277,16 +1277,16 @@
         },
         {
             "name": "doctrine/persistence",
-            "version": "v1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/persistence.git",
-                "reference": "c0f1c17602afc18b4cbd8e1c8125f264c9cf7d38"
+                "reference": "3da7c9d125591ca83944f477e65ed3d7b4617c48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/persistence/zipball/c0f1c17602afc18b4cbd8e1c8125f264c9cf7d38",
-                "reference": "c0f1c17602afc18b4cbd8e1c8125f264c9cf7d38",
+                "url": "https://api.github.com/repos/doctrine/persistence/zipball/3da7c9d125591ca83944f477e65ed3d7b4617c48",
+                "reference": "3da7c9d125591ca83944f477e65ed3d7b4617c48",
                 "shasum": ""
             },
             "require": {
@@ -1355,7 +1355,7 @@
                 "orm",
                 "persistence"
             ],
-            "time": "2018-11-21T00:33:13+00:00"
+            "time": "2019-04-23T08:28:24+00:00"
         },
         {
             "name": "doctrine/reflection",
@@ -1434,16 +1434,16 @@
         },
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "v6.1.0",
+            "version": "v6.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/elastic/elasticsearch-php.git",
-                "reference": "b237a37b2cdf23a5a17fd3576cdea771394ad00d"
+                "reference": "3ff319bc725d6e53e90a3e3a8aa4d5538b9a3866"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/b237a37b2cdf23a5a17fd3576cdea771394ad00d",
-                "reference": "b237a37b2cdf23a5a17fd3576cdea771394ad00d",
+                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/3ff319bc725d6e53e90a3e3a8aa4d5538b9a3866",
+                "reference": "3ff319bc725d6e53e90a3e3a8aa4d5538b9a3866",
                 "shasum": ""
             },
             "require": {
@@ -1455,10 +1455,10 @@
             "require-dev": {
                 "cpliakas/git-wrapper": "~1.0",
                 "doctrine/inflector": "^1.1",
-                "mockery/mockery": "0.9.4",
-                "phpstan/phpstan-shim": "0.8.3",
-                "phpunit/phpunit": "6.3.0",
-                "squizlabs/php_codesniffer": "3.0.2",
+                "mockery/mockery": "^1.2",
+                "phpstan/phpstan-shim": "^0.9 || ^0.11",
+                "phpunit/phpunit": "^5.7 || ^6.5",
+                "squizlabs/php_codesniffer": "^3.4",
                 "symfony/finder": "^2.8",
                 "symfony/yaml": "^2.8"
             },
@@ -1479,6 +1479,9 @@
             "authors": [
                 {
                     "name": "Zachary Tong"
+                },
+                {
+                    "name": "Enrico Zimuel"
                 }
             ],
             "description": "PHP Client for Elasticsearch",
@@ -1487,7 +1490,7 @@
                 "elasticsearch",
                 "search"
             ],
-            "time": "2019-01-08T18:53:46+00:00"
+            "time": "2019-04-24T08:57:42+00:00"
         },
         {
             "name": "facebook/webdriver",
@@ -2224,16 +2227,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.17.0",
+            "version": "2.17.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "9b49d637ad009e5e211142bc7492adcb19dbd645"
+                "reference": "96acbc0c03782e8115156dd4dd8b736267155066"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/9b49d637ad009e5e211142bc7492adcb19dbd645",
-                "reference": "9b49d637ad009e5e211142bc7492adcb19dbd645",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/96acbc0c03782e8115156dd4dd8b736267155066",
+                "reference": "96acbc0c03782e8115156dd4dd8b736267155066",
                 "shasum": ""
             },
             "require": {
@@ -2280,7 +2283,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2019-04-17T08:51:36+00:00"
+            "time": "2019-04-27T18:04:27+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -2500,16 +2503,16 @@
         },
         {
             "name": "php-amqplib/php-amqplib",
-            "version": "v2.9.1",
+            "version": "v2.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-amqplib/php-amqplib.git",
-                "reference": "bde215e0b62d361d8316e8c2c1f1a0ffd71deab6"
+                "reference": "76faddcd668dabb8d4f7c00e86b8a9decd781a59"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-amqplib/php-amqplib/zipball/bde215e0b62d361d8316e8c2c1f1a0ffd71deab6",
-                "reference": "bde215e0b62d361d8316e8c2c1f1a0ffd71deab6",
+                "url": "https://api.github.com/repos/php-amqplib/php-amqplib/zipball/76faddcd668dabb8d4f7c00e86b8a9decd781a59",
+                "reference": "76faddcd668dabb8d4f7c00e86b8a9decd781a59",
                 "shasum": ""
             },
             "require": {
@@ -2570,7 +2573,7 @@
                 "queue",
                 "rabbitmq"
             ],
-            "time": "2019-03-26T18:25:18+00:00"
+            "time": "2019-04-24T15:36:21+00:00"
         },
         {
             "name": "php-http/cache-plugin",
@@ -6213,16 +6216,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v2.8.1",
+            "version": "v2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "91cc2594d3143761ce0399c1caffd0b500ffe5b9"
+                "reference": "82a1c055c8ed4c4705023bfd0405f3c74db6e3ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/91cc2594d3143761ce0399c1caffd0b500ffe5b9",
-                "reference": "91cc2594d3143761ce0399c1caffd0b500ffe5b9",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/82a1c055c8ed4c4705023bfd0405f3c74db6e3ae",
+                "reference": "82a1c055c8ed4c4705023bfd0405f3c74db6e3ae",
                 "shasum": ""
             },
             "require": {
@@ -6238,7 +6241,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.8-dev"
+                    "dev-master": "2.9-dev"
                 }
             },
             "autoload": {
@@ -6276,7 +6279,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2019-04-16T17:14:24+00:00"
+            "time": "2019-04-28T06:57:38+00:00"
         },
         {
             "name": "wildbit/postmark-php",
@@ -6373,16 +6376,16 @@
         },
         {
             "name": "xivapi/companion-php",
-            "version": "1.2.1",
+            "version": "1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/xivapi/companion-php.git",
-                "reference": "2da1c8e3e4fd883d30bd572c072d8294fb5ba302"
+                "reference": "7c4550fd1fcce8acb545ffa574f6aa49407af247"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/xivapi/companion-php/zipball/2da1c8e3e4fd883d30bd572c072d8294fb5ba302",
-                "reference": "2da1c8e3e4fd883d30bd572c072d8294fb5ba302",
+                "url": "https://api.github.com/repos/xivapi/companion-php/zipball/7c4550fd1fcce8acb545ffa574f6aa49407af247",
+                "reference": "7c4550fd1fcce8acb545ffa574f6aa49407af247",
                 "shasum": ""
             },
             "require": {
@@ -6408,7 +6411,7 @@
                 "ffxiv",
                 "php"
             ],
-            "time": "2019-03-04T19:15:24+00:00"
+            "time": "2019-04-28T12:43:44+00:00"
         },
         {
             "name": "xivapi/lodestone-parser",

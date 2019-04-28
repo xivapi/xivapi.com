@@ -14,21 +14,20 @@ class Companion_CalculateItemUpdatePriorityCommand extends Command
 
     const COMMAND = [
         'name' => 'Companion_CalculateItemUpdatePriorityCommand',
-        'desc' => 'Automatically calculate the priority for cronjobs',
+        'desc' => 'Automatically calculate the item queues',
     ];
 
     /** @var CompanionItemManager */
-    private $companionItemManager;
+    private $cim;
 
-    public function __construct(CompanionItemManager $companionItemManager, $name = null)
+    public function __construct(CompanionItemManager $cim, $name = null)
     {
-        $this->companionItemManager = $companionItemManager;
+        $this->cim = $cim;
         parent::__construct($name);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->companionItemManager->calculateItemUpdatePriority();
-        $this->companionItemManager->populateRedisWithItemPriorities();
+        $this->cim->calculateItemUpdatePriority();
     }
 }

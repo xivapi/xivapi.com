@@ -2,16 +2,17 @@
 
 namespace App\Repository;
 
-use App\Entity\CompanionMarketItemEntry;
+use App\Entity\CompanionItem;
+use App\Service\Content\GameServers;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-class CompanionMarketItemEntryRepository extends ServiceEntityRepository
+class CompanionItemRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
-        parent::__construct($registry, CompanionMarketItemEntry::class);
+        parent::__construct($registry, CompanionItem::class);
     }
 
     /**
@@ -29,18 +30,13 @@ class CompanionMarketItemEntryRepository extends ServiceEntityRepository
     /**
      * Returns a list of items to update
      */
-    public function findItemsToUpdate(int $priority, int $limit)
+    public function findItemsToUpdate(int $priority, int $limit, array $servers)
     {
         $sql = $this->createQueryBuilder('a');
-        $sql->where("a.priority = {$priority}")
+        $sql->where("a.normalQueue = {$priority}")
+            ->andWhere('a.server IN ('. implode(',', $servers) .')')
             ->orderBy('a.updated', 'asc')
             ->setMaxResults($limit);
-    
-        /**
-         * Temp ignore Balmung, it's having issues, we'll get through it
-         * Temp ignore Shinryu too.... FFS!?
-         */
-        $sql->andWhere('a.server NOT IN (26,51,6,26,51)');
     
         return $sql->getQuery()->getResult();
     }

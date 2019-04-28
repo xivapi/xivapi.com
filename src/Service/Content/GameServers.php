@@ -80,7 +80,6 @@ class GameServers
         'Zalera',       # 63
         'Zeromus',      # 64
         'Zodiark',      # 65
-        
     ];
 
     const LIST_DC_REGIONS = [

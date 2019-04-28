@@ -2,8 +2,8 @@
 
 namespace App\Service\Companion;
 
-use App\Entity\CompanionMarketItemEntry;
-use App\Repository\CompanionMarketItemEntryRepository;
+use App\Entity\CompanionItem;
+use App\Repository\CompanionItemRepository;
 use App\Service\Content\GameServers;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -12,7 +12,7 @@ class CompanionCensus
 {
     /** @var EntityManagerInterface */
     private $em;
-    /** @var CompanionMarketItemEntryRepository */
+    /** @var CompanionItemRepository */
     private $entries;
     /** @var CompanionMarket */
     private $market;
@@ -30,7 +30,7 @@ class CompanionCensus
         $this->em      = $em;
         $this->market  = $market;
         $this->items   = $items;
-        $this->entries = $em->getRepository(CompanionMarketItemEntry::class);
+        $this->entries = $em->getRepository(CompanionItem::class);
         $this->console = new ConsoleOutput();
     }
     

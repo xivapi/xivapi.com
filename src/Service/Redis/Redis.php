@@ -7,6 +7,12 @@ namespace App\Service\Redis;
  */
 class Redis
 {
+    const TIME_1_YEAR   = (60 * 60 * 24 * 365);
+    const TIME_10_YEAR  = (60 * 60 * 24 * 365 * 10);
+    const TIME_30_DAYS  = (60 * 60 * 24 * 30);
+    const TIME_7_DAYS   = (60 * 60 * 24 * 7);
+    const TIME_24_HOURS = (60 * 60 * 24);
+    
     /** @var RedisCache[] */
     private static $instances = [];
     

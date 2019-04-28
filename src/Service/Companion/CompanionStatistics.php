@@ -2,9 +2,9 @@
 
 namespace App\Service\Companion;
 
-use App\Entity\CompanionMarketItemEntry;
+use App\Entity\CompanionItem;
 use App\Entity\CompanionError;
-use App\Repository\CompanionMarketItemEntryRepository;
+use App\Repository\CompanionItemRepository;
 use App\Repository\CompanionErrorRepository;
 use App\Service\Redis\Redis;
 use App\Service\ThirdParty\Discord\Discord;
@@ -22,7 +22,7 @@ class CompanionStatistics
 
     /** @var EntityManagerInterface */
     private $em;
-    /** @var CompanionMarketItemEntryRepository */
+    /** @var CompanionItemRepository */
     private $repositoryEntries;
     /** @var CompanionErrorRepository */
     private $repositoryExceptions;
@@ -36,7 +36,7 @@ class CompanionStatistics
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->repositoryEntries = $em->getRepository(CompanionMarketItemEntry::class);
+        $this->repositoryEntries = $em->getRepository(CompanionItem::class);
         $this->repositoryExceptions = $em->getRepository(CompanionError::class);
 
         $this->console = new ConsoleOutput();
@@ -111,8 +111,8 @@ class CompanionStatistics
         $expectedUpdateSeconds = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 72);
 
         // Get the actual update time, we skip some of the early ones incase there was a one off error.
-        /** @var CompanionMarketItemEntry $recent */
-        /** @var CompanionMarketItemEntry $oldest */
+        /** @var CompanionItem $recent */
+        /** @var CompanionItem $oldest */
         $oldest = $this->repositoryEntries->findBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ], 1, 50)[0];
         $realUpdateSeconds = (time() - $oldest->getUpdated());
 

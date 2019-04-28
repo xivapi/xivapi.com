@@ -2,14 +2,14 @@
 
 namespace App\Repository;
 
-use App\Entity\CompanionMarketItemQueue;
+use App\Entity\CompanionItemQueue;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-class CompanionMarketItemQueueRepository extends ServiceEntityRepository
+class CompanionItemQueueRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
-        parent::__construct($registry, CompanionMarketItemQueue::class);
+        parent::__construct($registry, CompanionItemQueue::class);
     }
 }

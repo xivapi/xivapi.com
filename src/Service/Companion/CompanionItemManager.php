@@ -3,11 +3,13 @@
 namespace App\Service\Companion;
 
 use App\Command\Companion\Companion_AutoPrioritiseLoginsCommand;
-use App\Entity\CompanionMarketItemEntry;
-use App\Repository\CompanionMarketItemEntryRepository;
+use App\Entity\CompanionItem;
+use App\Entity\MapPosition;
+use App\Repository\CompanionItemRepository;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
+use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -22,243 +24,409 @@ class CompanionItemManager
     private $companionMarket;
     /** @var ConsoleOutput */
     private $output;
-    /** @var CompanionMarketItemEntryRepository */
-    private $repository;
+    /** @var array */
+    private $positions = [];
+    /** @var array */
+    private $shops = [];
+    /** @var array */
+    private $itemToShops = [];
+    /** @var array */
+    private $items = [];
 
     public function __construct(EntityManagerInterface $em, CompanionMarket $companionMarket)
     {
         $this->em               = $em;
         $this->companionMarket  = $companionMarket;
-        $this->output           = new ConsoleOutput();
-        $this->repository       = $this->em->getRepository(CompanionMarketItemEntry::class);
-    }
-
-    /**
-     * Get a list of market item ids
-     */
-    public function getMarketItemIds(): array
-    {
-        // if cached, return that
-        if ($items = Redis::Cache()->get(self::MARKET_ITEMS_CACHE_KEY)) {
-            return $items;
-        }
-
-        // build new cache
-        $items = [];
-        foreach (Redis::Cache()->get('ids_Item') as $itemId) {
-            $item = Redis::Cache()->get("xiv_Item_{$itemId}");
-
-            if (isset($item->ItemSearchCategory->ID)) {
-                $items[] = $itemId;
-            }
-        }
-
-        Redis::Cache()->set(self::MARKET_ITEMS_CACHE_KEY, $items);
-
-        return $items;
+        $this->console           = new ConsoleOutput();
     }
 
     /**
      * Populate the market database with marketable items so they can be auto-updated,
      * all newly added items start on priority 10 and will shift over time.
      */
-    public function populateMarketDatabaseWithItems(string $server = null)
+    public function populateMarketDatabaseWithItems()
     {
-        $total = count($this->getMarketItemIds());
-        $this->output->writeln("Adding: {$total} items to the companion market database.");
-        $section = $this->output->section();
+        $start = Carbon::now();
+        $date  = date('Y-m-d H:i:s');
+        $this->console->writeln("<info>-- Market Item Populator --</info>");
+        $this->console->writeln("<info>-- Start: {$date} --</info>");
         
-        $server = $server ? GameServers::getServerId($server) : null;
+        // map positions
+        $this->console->writeln("Building NPC Map Positions");
+        $this->buildMapPositions();
         
-        $this->output->writeln($server ? "Updating server: {$server}" : "Updating ALL servers");
+        // get all NPCs with a "GilShop" and obtain the items
+        $this->console->writeln("Building NPCs with shops");
+        $this->buildNPCWithShops();
         
-        $conn = $this->em->getConnection();
-
-        // loop through all marketable items.
-        foreach ($this->getMarketItemIds() as $i => $itemId) {
-            $section->overwrite("Adding: {$itemId}");
-
-            // loop through each server
-            foreach (GameServers::LIST as $serverId => $serverName) {
-                if ($server && $server != $serverId) {
-                    continue;
-                }
-
-                // ignore servers offline
-                if (in_array($server, CompanionTokenManager::SERVERS_OFFLINE)) {
-                    continue;
-                }
-                
-                $sql = "SELECT id FROM companion_market_item_entry WHERE item = {$itemId} AND server = {$serverId} LIMIT 0,1";
-                $stmt = $conn->prepare($sql);
-                $stmt->execute();
-                
-                // exists
-                if ($stmt->fetch()) {
-                    continue;
-                }
-
-                // get region
-                $dc = GameServers::getDataCenter($serverName);
-                $region = GameServers::LIST_DC_REGIONS[$dc];
-                
-                $id   = Uuid::uuid4()->toString();
-                $time = time();
-                $sql  = "INSERT INTO companion_market_item_entry (id, updated, item, priority, server, region, patreon_queue, skipped) VALUES ('{$id}', {$time}, $itemId, 1, $serverId, $region, NULL, 0);";
-                $stmt = $conn->prepare($sql);
-                $stmt->execute();
-            }
-        }
-
-        $totalItems = $total * count(GameServers::LIST);
-        $this->output->writeln("Complete, total entries in database: {$totalItems}");
+        // get all items and handle their states
+        $this->console->writeln("Building Items");
+        $this->buildItemList();
+        $totalItems        = number_format(count($this->items));
+        $totalItemsInShops = number_format(count($this->itemToShops));
+        $this->console->writeln("Total Items: <info>{$totalItems}</info>");
+        $this->console->writeln("Total Items in Shops: <info>{$totalItemsInShops}</info>");
+        
+        // insert market item entries for online servers
+        $this->console->writeln("Inserting market items");
+        $this->insertMarketItems();
+    
+        // finished
+        $duration = $start->diff(Carbon::now())->format('%h hr, %i min and %s sec');
+        $this->console->writeln("- Complete");
+        $this->console->writeln("- Duration: <comment>{$duration}</comment>");
     }
-
+    
     /**
      * Handles the item update priority
      */
     public function calculateItemUpdatePriority()
     {
-        $this->output->writeln('Calculating item update priority ...');
-        $this->output->writeln("Start Time: ". date('Y-m-d H:i:s'));
-
-        $section = $this->output->section();
-
-        $this->output->writeln("Getting market item ids ...");
-        $items = $this->getMarketItemIds();
-
-        // loop through all marketable items.
-        foreach ($items as $itemId) {
-            // loop through each server
-            foreach (GameServers::LIST as $serverId => $serverName) {
-                $section->overwrite("Calculating priority for item: {$itemId} on {$serverName}");
+        $start = Carbon::now();
+        $date  = date('Y-m-d H:i:s');
+        $this->console->writeln("<info>-- Calculate Item Update Priority --</info>");
+        $this->console->writeln("<info>-- Start: {$date} --</info>");
+    
+        // get all items and handle their states
+        $this->console->writeln("Building Items");
+        $this->buildItemList();
+        $totalItems = number_format(count($this->items));
+        $this->console->writeln("Total Items: <info>{$totalItems}</info>");
+        
+        // update priorities
+        $this->console->writeln("Updating Item Queues");
+        $this->insertMarketItemQueues();
+        
+        // update redis priority cache
+        $this->console->writeln("Updating redis priority cache");
+        $this->insertItemPrioritiesToRedis();
+    
+        // finished
+        $duration = $start->diff(Carbon::now())->format('%h hr, %i min and %s sec');
+        $this->console->writeln("- Complete");
+        $this->console->writeln("- Duration: <comment>{$duration}</comment>");
+    }
+    
+    /**
+     * Build the map positions
+     */
+    private function buildMapPositions()
+    {
+        $mapPositions = $this->em->getRepository(MapPosition::class)->findBy([
+            'Type' => 'NPC'
+        ]);
+    
+        /** @var MapPosition $mp */
+        foreach ($mapPositions as $mp) {
+            $this->positions[$mp->getENpcResidentID()] = [
+                $mp->getMapID(),
+                $mp->getMapTerritoryID(),
+                $mp->getPlaceNameID(),
+                $mp->getPosX(),
+                $mp->getPosY(),
+                $mp->getPixelX(),
+                $mp->getPixelY(),
+            ];
+        }
+    
+        unset($mapPositions);
+    }
+    
+    /**
+     * Build NPCs with shops
+     */
+    private function buildNPCWithShops()
+    {
+        $ids   = Redis::Cache()->get('ids_ENpcResident');
+        $total = count($ids);
+        
+        $section = $this->console->section();
+        foreach ($ids as $i => $id) {
+            $i = $i+1;
+            $section->overwrite("{$i}/{$total} - {$id}");
+            
+            // grab npc
+            $npc = Redis::Cache()->get("xiv_ENpcResident_{$id}");
+            if ($npc === null) {
+                continue;
+            }
+    
+            $section->overwrite("{$i}/{$total} - {$id} = {$npc->Name_en}");
+            
+            // if no gil shop, skip
+            if (!isset($npc->GilShop) || empty($npc->GilShop)) {
+                continue;
+            }
+            
+            foreach ($npc->GilShop as $gs) {
+                $this->shops[$gs->ID] = [
+                    'Name_en' => $gs->Name_en,
+                    'Name_de' => $gs->Name_de,
+                    'Name_fr' => $gs->Name_fr,
+                    'Name_ja' => $gs->Name_ja,
+                ];
                 
+                // record all shops an item is in.
+                foreach ($gs->Items as $item) {
+                    if (!isset($this->itemToShops[$item->ID])) {
+                        $this->itemToShops[$item->ID] = [];
+                    }
+                    
+                    if (in_array($item->ID, $this->itemToShops[$item->ID])) {
+                        continue;
+                    }
+    
+                    $this->itemToShops[$item->ID][] = $gs->ID;
+                }
+            }
+            
+            unset($npc);
+        }
+    
+        $section->overwrite('- Complete');
+    }
+    
+    /**
+     * Builds an item list to insert
+     */
+    private function buildItemList()
+    {
+        $ids     = Redis::Cache()->get('ids_Item');
+        $total   = count($ids);
+        $section = $this->console->section();
+ 
+        foreach ($ids as $i => $id) {
+            $i = $i+1;
+            $section->overwrite("{$i}/{$total} - {$id}");
+            
+            $item = Redis::Cache()->get("xiv_Item_{$id}");
+            if ($item === null) {
+                continue;
+            }
+    
+            $section->overwrite("{$i}/{$total} - {$id} = {$item->Name_en}");
+            
+            // ignore non-sellable
+            if (!isset($item->ItemSearchCategory->ID)) {
+                continue;
+            }
+            
+            $this->items[] = $item->ID;
+        }
+    
+        $section->overwrite('- Complete');
+    }
+    
+    /**
+     * Insert all the items
+     */
+    private function insertMarketItems()
+    {
+        $conn    = $this->em->getConnection();
+        $total   = number_format(count($this->items));
+        $section = $this->console->section();
+
+        foreach ($this->items as $i => $itemId) {
+            $i = $i+1;
+            $section->overwrite("{$i}/{$total} - {$itemId}");
+            
+            foreach (GameServers::LIST as $serverId => $serverName) {
+                // skip offline servers
+                if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
+                    continue;
+                }
+    
+                $section->overwrite("{$i}/{$total} - {$itemId} - {$serverName}");
+    
+                /**
+                 * Skip existing ones
+                 */
+                $stmt = $conn->prepare("SELECT id FROM companion_market_items WHERE item = {$itemId} AND server = {$serverId} LIMIT 0,1");
+                $stmt->execute();
+    
+                // exists
+                if ($stmt->fetch()) {
+                    continue;
+                }
+                
+                $state = CompanionItem::STATE_UPDATING;
+                
+                // check if it has a shop
+                $shop = $this->itemToShops[$itemId] ?? null;
+                $shop = $shop ? json_encode($shop) : '';
+                
+                // if the item can be bought from the store, update state
+                if ($shop) {
+                    $state = CompanionItem::STATE_BOUGHT_FROM_NPC;
+                }
+    
+                // get region
+                $dc     = GameServers::getDataCenter($serverName);
+                $region = GameServers::LIST_DC_REGIONS[$dc];
+                $queue  = CompanionConfiguration::QUEUE_NEW_ITEM;
+                $id     = Uuid::uuid4()->toString();
+                $stmt   = $conn->prepare(
+                    "INSERT INTO companion_market_items (id, updated, item, server, region, normal_queue, patreon_queue, state, `data`)" .
+                    "VALUES ('{$id}', 0, $itemId, $serverId, $region, $queue, 0, {$state}, '{$shop}');"
+                );
+                $stmt->execute();
+            }
+        }
+    
+        $section->overwrite('- Complete');
+    }
+    
+    /**
+     * Insert all the item queues, this goes through the history
+     * of every item and finds out how often it sells and places
+     * it in the correct queue.
+     */
+    private function insertMarketItemQueues()
+    {
+        $conn    = $this->em->getConnection();
+        $total   = number_format(count($this->items));
+        $section = $this->console->section();
+    
+        foreach ($this->items as $i => $itemId) {
+            $i = $i + 1;
+            $section->overwrite("{$i}/{$total} - {$itemId}");
+    
+            foreach (GameServers::LIST as $serverId => $serverName) {
+                // skip offline servers
+                if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
+                    continue;
+                }
+        
+                $section->overwrite("{$i}/{$total} - {$itemId} - {$serverName}");
+    
+                /**
+                 * Grab entry
+                 */
+                $stmt = $conn->prepare(
+                    "SELECT * FROM companion_market_items
+                     WHERE item = {$itemId} AND server = {$serverId} LIMIT 0,1"
+                );
+                $stmt->execute();
+                $item = $stmt->fetch();
+                
+                // if it's bought from NPC, ignore
+                if ($item['state'] == CompanionItem::STATE_BOUGHT_FROM_NPC) {
+                    continue;
+                }
+    
                 // grab recorded document
                 /** @var MarketItem $document */
                 $document = $this->companionMarket->get($serverId, $itemId);
-
-                // grab market db entry
-                /** @var CompanionMarketItemEntry $obj */
-                $obj = $this->repository->findOneBy([
-                    'item' => $itemId,
-                    'server' => $serverId
-                ]);
                 
-                // skip, may not exist (dead server)
-                if ($obj === null) {
+                // if no history, or never sells, update state and continue
+                if (empty($document->History) || count($document->History) < CompanionConfiguration::MINIMUM_SALES_TO_UPDATE) {
+                    $stmt = $conn->prepare(
+                        sprintf(
+                            "UPDATE companion_market_items
+                             SET state = %s, normal_queue = %s, updated = %s
+                             WHERE id = '%s'",
+                            CompanionItem::STATE_NEVER_SOLD,
+                            CompanionConfiguration::STATE_NEVER_SOLD,
+                            time(),
+                            $item['id']
+                        )
+                    );
+                    $stmt->execute();
                     continue;
                 }
-
-                // ------------------------------------------------------------
-                // Calculate
-                // ------------------------------------------------------------
-
-                // if the item is still "new", ignore for now (another command handles it)
-                if ($obj->getPriority() === CompanionConfiguration::PRIORITY_ITEM_IS_NEW) {
-                    $this->em->persist($obj);
-                    continue;
-                }
-
-                // if no history, it has never been sold
-                if (empty($document->History)) {
-                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_LOW_SALES);
-                    $this->em->persist($obj);
-                    continue;
-                }
-
-                // record sale histories, we start with the time the item was last updated.
-                $lastDate        = $obj->getUpdated();
+                
+                // work out the history
+                $lastDate        = $document->History[0]->PurchaseDate;
                 $historyCount    = 0;
-                $historyCountMax = 250;
+                $historyCountMax = 100;
                 $average         = [];
-
+                
+                // 1st one manually assigned
+                unset($document->History[0]);
+    
+                // work out average history
                 foreach ($document->History as $history) {
-                    $diff     = $lastDate - $history->PurchaseDate;
+                    $diff = $lastDate - $history->PurchaseDate;
                     $lastDate = $history->PurchaseDate;
-
-                    // append on sale time difference
-                    if ($diff > CompanionConfiguration::ITEM_HISTORY_THRESHOLD) {
-                        $average[] = $diff;
-                    }
-
+                    $average[] = $diff;
+    
                     // stop after hitting max, we don't care about out of date sales.
                     $historyCount++;
                     if ($historyCount > $historyCountMax) {
                         break;
                     }
                 }
-
-                // item has had less than 5 sales, too low to make a call against
-                if (count($average) < CompanionConfiguration::ITEM_HISTORY_AVG_REQUIREMENT) {
-                    $obj->setPriority(CompanionConfiguration::PRIORITY_ITEM_LOW_SALES);
-                    $this->em->persist($obj);
-                    continue;
-                }
-
+    
                 $saleAverage = floor(array_sum($average) / count($average));
+    
+                // set default queue
+                $queue = CompanionConfiguration::QUEUE_DEFAULT;
                 
-                // set default
-                $obj->setPriority(CompanionConfiguration::PRIORITY_TIMES_DEFAULT);
-
                 // find where it fits in our table
-                foreach (CompanionConfiguration::PRIORITY_TIMES as $time => $priority) {
-                    // continue if the avg is above the time
-                    if ($saleAverage > $time) {
-                        continue;
+                foreach (CompanionConfiguration::PRIORITY_TIMES as $time => $queueNumber) {
+                    // continue if the avg is above the time, skip
+                    if ($saleAverage < $time) {
+                        $queue = $queueNumber;
+                        break;
                     }
-
-                    // sale avg is below the priority time, set the value
-                    $obj->setPriority($priority);
-                    break;
                 }
-
-                $this->em->persist($obj);
+    
+                // update with queue
+                $stmt = $conn->prepare(
+                    sprintf(
+                        "UPDATE companion_market_items
+                         SET state = %s, normal_queue = %s, updated = %s
+                         WHERE id = '%s'",
+                        CompanionItem::STATE_UPDATING,
+                        $queue,
+                        time(),
+                        $item['id']
+                    )
+                );
+                $stmt->execute();
             }
-
-            // flush and clear
-            $this->em->flush();
-            $this->em->clear();
         }
-
-        $this->output->writeln('Finished calculating item priority.');
-        $this->output->writeln("End Time: ". date('Y-m-d H:i:s'));
+    
+        $section->overwrite('- Complete');
     }
     
-    public function populateRedisWithItemPriorities()
+    /**
+     * Insert all priorities to redis
+     */
+    private function insertItemPrioritiesToRedis()
     {
-        $this->output->writeln('Populating Redis with Item Priority Numbers ...');
-        $this->output->writeln("Start Time: ". date('Y-m-d H:i:s'));
-    
-        $section = $this->output->section();
-    
-        $this->output->writeln("Getting market item ids ...");
-        $items = $this->getMarketItemIds();
+        $conn    = $this->em->getConnection();
+        $total   = number_format(count($this->items));
+        $section = $this->console->section();
         
-        // 7 days cache
-        $cachetime = (60*60*24*7);
+        foreach ($this->items as $i => $itemId) {
+            $i = $i + 1;
+            $section->overwrite("{$i}/{$total} - {$itemId}");
     
-        // loop through all marketable items.
-        foreach ($items as $itemId) {
-            // loop through each server
             foreach (GameServers::LIST as $serverId => $serverName) {
-                $section->overwrite("Storing priority value for: {$itemId} on {$serverName}");
-                
-                /** @var CompanionMarketItemEntry $obj */
-                $obj = $this->repository->findOneBy([
-                    'item' => $itemId,
-                    'server' => $serverId
-                ]);
-    
-                if ($obj === null) {
-                    Redis::Cache()->set("market_item_priority_{$serverId}_{$itemId}", 1, $cachetime);
+                // skip offline servers
+                if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
                     continue;
                 }
     
-                Redis::Cache()->set("market_item_priority_{$serverId}_{$itemId}", $obj->getPriority(), $cachetime);
+                $section->overwrite("{$i}/{$total} - {$itemId} - {$serverName}");
+    
+                /**
+                 * Grab entry
+                 */
+                $stmt = $conn->prepare("SELECT * FROM companion_market_items WHERE item = {$itemId} AND server = {$serverId} LIMIT 0,1");
+                $stmt->execute();
+                $item = $stmt->fetch();
+    
+                if ($item === null) {
+                    Redis::Cache()->set("market_item_priority_{$serverId}_{$itemId}", 1, Redis::TIME_1_YEAR);
+                    continue;
+                }
+    
+                Redis::Cache()->set("market_item_priority_{$serverId}_{$itemId}", $item['normal_queue'], Redis::TIME_1_YEAR);
             }
         }
     
-        $this->output->writeln('Finished calculating item priority.');
-        $this->output->writeln("End Time: ". date('Y-m-d H:i:s'));
+        $section->overwrite('- Complete');
     }
 }

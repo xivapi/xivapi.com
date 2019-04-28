@@ -2,11 +2,12 @@
 
 namespace App\Service\Companion\Updater;
 
-use App\Entity\CompanionMarketItemEntry;
-use App\Entity\CompanionMarketItemQueue;
-use App\Repository\CompanionMarketItemEntryRepository;
-use App\Repository\CompanionMarketItemQueueRepository;
+use App\Entity\CompanionItem;
+use App\Entity\CompanionItemQueue;
+use App\Repository\CompanionItemRepository;
+use App\Repository\CompanionItemQueueRepository;
 use App\Service\Companion\CompanionConfiguration;
+use App\Service\Companion\CompanionTokenManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -14,27 +15,28 @@ class MarketQueue
 {
     /** @var EntityManagerInterface */
     private $em;
-    
-    /** @var CompanionMarketItemQueueRepository */
+    /** @var CompanionTokenManager */
+    private $ctm;
+    /** @var CompanionItemQueueRepository */
     private $repo;
-    
-    /** @var CompanionMarketItemEntryRepository */
+    /** @var CompanionItemRepository */
     private $repoEntries;
     
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, CompanionTokenManager $ctm)
     {
         $this->em           = $em;
-        $this->repo         = $em->getRepository(CompanionMarketItemQueue::class);
-        $this->repoEntries  = $em->getRepository(CompanionMarketItemEntry::class);
+        $this->ctm          = $ctm;
+        $this->repo         = $em->getRepository(CompanionItemQueue::class);
+        $this->repoEntries  = $em->getRepository(CompanionItem::class);
     }
     
     public function queue()
     {
         $console = new ConsoleOutput();
-        $console->writeln("Market Item Queue, waiting 20 seconds...");
+        $console->writeln("Market Item Queue");
 
         // run this 20 seconds in.
-        sleep(20);
+        sleep(1);
 
         $s = microtime(true);
     
@@ -46,13 +48,13 @@ class MarketQueue
         $stmt->execute();
         
         $insertedItems = [];
-    
+        
         /**
          * Insert new items
          */
         foreach (CompanionConfiguration::QUEUE_CONSUMERS as $priority) {
-            // 100 items = max of 5 consumers per queue
-            $updateItems = $this->repoEntries->findItemsToUpdate($priority, 100);
+            // grab items
+            $updateItems = $this->repoEntries->findItemsToUpdate($priority, 90, $this->ctm->getOnlineServers());
             
             // skip queue if no items for that priority
             if (empty($updateItems)) {
@@ -62,23 +64,16 @@ class MarketQueue
             
             foreach (array_chunk($updateItems, CompanionConfiguration::MAX_ITEMS_PER_CRONJOB) as $i => $items) {
                 $console->writeln("Adding items for {$priority}, consumer: {$i}");
-                
-                // end if we go above the max consumers, there is never more than 10.
-                if ($i > 10) {
-                    break;
-                }
-    
-                /** @var CompanionMarketItemEntry $item */
+   
+                /** @var CompanionItem $item */
                 foreach ($items as $item) {
-                    $queued = new CompanionMarketItemQueue(
-                        $item->getId(),
-                        $item->getItem(),
-                        $item->getServer(),
-                        $item->getPriority(),
-                        $item->getRegion(),
-                        $i
-                    );
-                    
+                    $queued = new CompanionItemQueue();
+                    $queued
+                        ->setId($item->getId())
+                        ->setItem($item->getItem())
+                        ->setServer($item->getServer())
+                        ->setQueue($item->getNormalQueue() * 100 + $i);
+
                     $this->em->persist($queued);
                     $insertedItems[] = $item->getId();
                 }
@@ -94,7 +89,11 @@ class MarketQueue
          */
         $console->writeln("Adding Patreon Queues");
         foreach (CompanionConfiguration::QUEUE_CONSUMERS_PATREON as $patreonQueue) {
-            $updateItems = $this->repoEntries->findBy([ 'patreonQueue' => $patreonQueue ], [ 'updated' => 'asc' ], 500);
+            $updateItems = $this->repoEntries->findBy(
+                [ 'patreonQueue' => $patreonQueue ],
+                [ 'updated' => 'asc' ],
+                count(CompanionConfiguration::QUEUE_CONSUMERS_PATREON) * 15
+            );
     
             // skip queue if no items for that priority
             if (empty($updateItems)) {
@@ -102,24 +101,20 @@ class MarketQueue
                 continue;
             }
     
-            /** @var CompanionMarketItemEntry $item */
+            /** @var CompanionItem $item */
             foreach ($updateItems as $item) {
                 // don't add items we already have queued.
                 if (in_array($item->getId(), $insertedItems)) {
                     continue;
                 }
                 
-                $queued = new CompanionMarketItemQueue(
-                    $item->getId(),
-                    $item->getItem(),
-                    $item->getServer(),
-                    $item->getPriority(),
-                    $item->getRegion(),
-                    $i
-                );
+                $queued = new CompanionItemQueue();
+                $queued
+                    ->setId($item->getId())
+                    ->setItem($item->getItem())
+                    ->setServer($item->getServer())
+                    ->setQueue($item->getPatreonQueue());
                 
-                $queued->setPatreonQueue($item->getPatreonQueue());
-        
                 $this->em->persist($queued);
             }
     
@@ -128,9 +123,7 @@ class MarketQueue
         }
         
         $this->em->clear();
-        
         $duration = round(microtime(true) - $s, 2);
-        
         $console->writeln("Done: {$duration} seconds.");
     }
 }

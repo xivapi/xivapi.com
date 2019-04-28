@@ -16,24 +16,19 @@ class Companion_AutoPopulateItemsCommand extends Command
     const COMMAND = [
         'name' => 'Companion_AutoPopulateItemsCommand',
         'desc' => 'Automatically populate the companion market tracking database with item ids',
-        'args' => [
-            [ 'server', InputArgument::OPTIONAL, 'Populate only a specific server' ],
-        ]
     ];
 
     /** @var CompanionItemManager */
-    private $companionItemManager;
+    private $cim;
 
-    public function __construct(CompanionItemManager $companionItemManager, $name = null)
+    public function __construct(CompanionItemManager $cim, $name = null)
     {
-        $this->companionItemManager = $companionItemManager;
+        $this->cim = $cim;
         parent::__construct($name);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->companionItemManager->populateMarketDatabaseWithItems(
-            $input->getArgument('server')
-        );
+        $this->cim->populateMarketDatabaseWithItems();
     }
 }

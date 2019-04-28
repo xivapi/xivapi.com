@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\CompanionMarketItemEntry;
+use App\Entity\CompanionItem;
 use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Companion\Updater\MarketUpdater;
@@ -38,7 +38,7 @@ class MarketPrivateController extends AbstractController
      */
     public function itemPrices(Request $request)
     {
-        if ($request->get('access') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
+        if ($request->get('access') !== getenv('MB_ACCESS')) {
             throw new UnauthorizedHttpException('Denied');
         }
 
@@ -59,7 +59,7 @@ class MarketPrivateController extends AbstractController
      */
     public function itemHistory(Request $request)
     {
-        if ($request->get('access') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
+        if ($request->get('access') !== getenv('MB_ACCESS')) {
             throw new UnauthorizedHttpException('Denied');
         }
 
@@ -83,14 +83,14 @@ class MarketPrivateController extends AbstractController
         // 10 minute timeout per item.
         $timeout = 10;
         
-        if ($request->get('access') !== getenv('SITE_CONFIG_COMPANION_TOKEN_PASS')) {
+        if ($request->get('access') !== getenv('MB_ACCESS')) {
             throw new UnauthorizedHttpException('Denied');
         }
 
         $itemId = (int)$request->get('item_id');
         $server = (int)$request->get('server');
 
-        /** @var CompanionMarketItemEntry $marketEntry */
+        /** @var CompanionItem $marketEntry */
         $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
 
         /**
