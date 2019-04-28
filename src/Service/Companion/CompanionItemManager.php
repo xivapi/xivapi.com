@@ -57,6 +57,8 @@ class CompanionItemManager
         $this->console->writeln("Building NPCs with shops");
         $this->buildNPCWithShops();
         
+        die;
+        
         // get all items and handle their states
         $this->console->writeln("Building Items");
         $this->buildItemList();
@@ -116,14 +118,18 @@ class CompanionItemManager
     
         /** @var MapPosition $mp */
         foreach ($mapPositions as $mp) {
+            $map = Redis::Cache()->get("xiv_Map_{$mp->getMapID()}");
+            
             $this->positions[$mp->getENpcResidentID()] = [
-                $mp->getMapID(),
-                $mp->getMapTerritoryID(),
-                $mp->getPlaceNameID(),
-                $mp->getPosX(),
-                $mp->getPosY(),
-                $mp->getPixelX(),
-                $mp->getPixelY(),
+                'Map' => $map,
+                'Position' => [
+                    'X' => $mp->getPosX(),
+                    'Y' => $mp->getPosY(),
+                ],
+                'Pixels' => [
+                    'X' => $mp->getPixelX(),
+                    'Y' => $mp->getPixelY(),
+                ]
             ];
         }
     
@@ -157,12 +163,23 @@ class CompanionItemManager
             }
             
             foreach ($npc->GilShop as $gs) {
-                $this->shops[$gs->ID] = [
-                    'Name_en' => $gs->Name_en,
-                    'Name_de' => $gs->Name_de,
-                    'Name_fr' => $gs->Name_fr,
-                    'Name_ja' => $gs->Name_ja,
+                /**
+                 * Save gil shop data
+                 */
+                $gilShopData = [
+                    'NPC_ID' => $npc->ID,
+                    'NPC_Name_en' => $npc->Name_en,
+                    'NPC_Name_de' => $npc->Name_de,
+                    'NPC_Name_fr' => $npc->Name_fr,
+                    'NPC_Name_ja' => $npc->Name_ja,
+                    'Shop_ID' => $gs->ID,
+                    'Shop_Name_en' => $gs->Name_en,
+                    'Shop_Name_de' => $gs->Name_de,
+                    'Shop_Name_fr' => $gs->Name_fr,
+                    'Shop_Name_ja' => $gs->Name_ja,
+                    'Map' => $this->positions[$npc->ID],
                 ];
+                Redis::Cache()->set("xiv_GilShopData_{$gs->ID}", $gilShopData, Redis::TIME_10_YEAR);
                 
                 // record all shops an item is in.
                 foreach ($gs->Items as $item) {
@@ -251,15 +268,16 @@ class CompanionItemManager
                 $state = CompanionItem::STATE_UPDATING;
                 
                 // check if it has a shop
-                $shop = $this->itemToShops[$itemId] ?? null;
-                $shop = $shop ? json_encode($shop) : '';
+                $shops = $this->itemToShops[$itemId] ?? null;
+                $shops = $shops ? array_unique($shops) : null;
+                $shops = $shops ? json_encode($shops) : '';
                 
                 // if the item can be bought from the store, update state
-                if ($shop) {
+                if ($shops) {
                     // insert source info
                     $stmt = $conn->prepare(
                         "REPLACE INTO companion_market_item_source (id, item, `data`) " .
-                        "VALUES ('{$id}', {$itemId}, '{$shop}')"
+                        "VALUES ('{$id}', {$itemId}, '{$shops}')"
                     );
                     $stmt->execute();
                     continue;
