@@ -18,6 +18,7 @@ use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
+use Companion\Config\CompanionSight;
 use Companion\Config\SightToken;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -107,6 +108,11 @@ class MarketUpdater
         // initialize companion api
         $api = new CompanionApi();
         
+        // settings
+        CompanionSight::set('CLIENT_TIMEOUT', 2.5);
+        CompanionSight::set('QUERY_LOOP_COUNT', 6);
+        CompanionSight::set('QUERY_DELAY_MS', 1000);
+        
         // begin
         // $this->tokens[$serverId]
         foreach ($this->items as $item) {
@@ -173,8 +179,6 @@ class MarketUpdater
         $this->console("-> Completed. Duration: <comment>{$duration}</comment>");
         $this->closeDatabaseConnection();
     }
-
-  
     
     /**
      * Checks for any problems in the response
