@@ -6,6 +6,7 @@ use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
 use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
+use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
 use Companion\Http\Cookies;
 use Doctrine\ORM\EntityManagerInterface;
@@ -236,6 +237,7 @@ class CompanionTokenManager
             // login
             $this->console->writeln("- Account Login: {$account} {$username} {$server}");
             $api->Account()->login($username, $password);
+            GoogleAnalytics::companionTrackItemAsUrl("/account/login");
             
             // find character for this server
             $this->console->writeln('- Finding active character ...');
@@ -246,6 +248,7 @@ class CompanionTokenManager
                     break;
                 }
             }
+            GoogleAnalytics::companionTrackItemAsUrl("/account/get-characters");
             
             // couldn't find a valid character
             if ($cid === null) {
@@ -256,14 +259,17 @@ class CompanionTokenManager
             // login with our chosen character!
             $this->console->writeln("- Logging into character: {$cid}");
             $api->Login()->loginCharacter($cid);
+            GoogleAnalytics::companionTrackItemAsUrl("/account/login-character");
             
             // confirm
             $character = $api->login()->getCharacter()->character;
             $this->console->writeln("- Character logged into: {$character->name} ({$character->world})");
+            GoogleAnalytics::companionTrackItemAsUrl("/account/login-character-confirm");
             
             // get character status
             $api->login()->getCharacterWorlds();
             $this->console->writeln('- Character world status confirmed');
+            GoogleAnalytics::companionTrackItemAsUrl("/account/worlds");
             
             // wait a bit
             $this->console->writeln('- Testing market in a moment...');
@@ -271,6 +277,7 @@ class CompanionTokenManager
             
             // perform a test
             $api->market()->getItemMarketListings(5);
+            GoogleAnalytics::companionTrackItemAsUrl("/account/market-5");
             $this->console->writeln('- Market fetch confirmed.');
             
             // confirm success
