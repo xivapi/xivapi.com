@@ -16,6 +16,7 @@ use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
+use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
@@ -173,6 +174,11 @@ class MarketUpdater
                 $duration = round(microtime(true) - $a, 1);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
             } catch (\Exception $ex) {
+                // if congested
+                if (stripos($ex->getMessage(), '210010') !== false) {
+                    $this->logoutCongestedCharacterTokens($serverName);
+                }
+                
                 $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
                 break;
             }
@@ -248,6 +254,27 @@ class MarketUpdater
         }
         
         return false;
+    }
+    
+    /**
+     * Logout a character is congestion is detected
+     */
+    private function logoutCongestedCharacterTokens(string $serverName)
+    {
+        $sql = "
+            UPDATE companion_tokens
+            SET online = 0, message = 'Auto-Logged Out', token = NULL
+            WHERE server = '{$serverName}'
+        ";
+    
+        $stmt = $this->em->getConnection()->prepare($sql);
+        $stmt->execute();
+    
+        $date = date('Y-m-d H:i:s');
+        Discord::mog()->sendMessage(
+            '571007332616503296',
+            "[{$date} UTC] **Companion Congestion Detected:** - Logged out server: {$serverName}"
+        );
     }
 
     /**
