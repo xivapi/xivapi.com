@@ -174,7 +174,7 @@ class MarketUpdater
                 $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
             } catch (\Exception $ex) {
                 $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
-                print_r($ex->getTraceAsString());
+                break;
             }
         }
     
