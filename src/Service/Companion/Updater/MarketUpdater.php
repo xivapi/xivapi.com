@@ -111,7 +111,7 @@ class MarketUpdater
         // settings
         CompanionSight::set('CLIENT_TIMEOUT', 2.5);
         CompanionSight::set('QUERY_LOOP_COUNT', 6);
-        CompanionSight::set('QUERY_DELAY_MS', 1000);
+        CompanionSight::set('QUERY_DELAY_MS', 900);
         
         // begin
         // $this->tokens[$serverId]
@@ -144,7 +144,6 @@ class MarketUpdater
              * GET PRICES
              */
             $prices = $api->Market()->getItemMarketListings($itemId);
-            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/Prices");
             if ($this->checkResponseForErrors($item, $prices)) {
                 break;
             }
@@ -153,7 +152,6 @@ class MarketUpdater
              * GET HISTORY
              */
             $history = $api->Market()->getTransactionHistory($itemId);
-            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}/History");
             if ($this->checkResponseForErrors($item, $history)) {
                 break;
             }
@@ -162,6 +160,11 @@ class MarketUpdater
              * Store in market
              */
             $this->storeMarketData($item, $prices, $history);
+    
+            /**
+             * Record item updates in analytics
+             */
+            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}");
     
             /**
              * Log
