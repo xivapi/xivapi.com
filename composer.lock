@@ -1434,16 +1434,16 @@
         },
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "v6.5.0",
+            "version": "v6.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/elastic/elasticsearch-php.git",
-                "reference": "3ff319bc725d6e53e90a3e3a8aa4d5538b9a3866"
+                "reference": "8bde3f3b821361ec75e08a3746231d87230a2d3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/3ff319bc725d6e53e90a3e3a8aa4d5538b9a3866",
-                "reference": "3ff319bc725d6e53e90a3e3a8aa4d5538b9a3866",
+                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/8bde3f3b821361ec75e08a3746231d87230a2d3a",
+                "reference": "8bde3f3b821361ec75e08a3746231d87230a2d3a",
                 "shasum": ""
             },
             "require": {
@@ -1453,7 +1453,7 @@
                 "psr/log": "~1.0"
             },
             "require-dev": {
-                "cpliakas/git-wrapper": "~1.0",
+                "cpliakas/git-wrapper": "^1.7 || ^2.1",
                 "doctrine/inflector": "^1.1",
                 "mockery/mockery": "^1.2",
                 "phpstan/phpstan-shim": "^0.9 || ^0.11",
@@ -1490,7 +1490,7 @@
                 "elasticsearch",
                 "search"
             ],
-            "time": "2019-04-24T08:57:42+00:00"
+            "time": "2019-04-29T15:14:22+00:00"
         },
         {
             "name": "facebook/webdriver",
@@ -5355,7 +5355,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
+                    "email": "backendtea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
@@ -6465,16 +6465,16 @@
         },
         {
             "name": "xivapi/xivapi-php",
-            "version": "1.6.7",
+            "version": "1.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/xivapi/xivapi-php.git",
-                "reference": "66bab0f968af57cb809382a8e039e4e244c2119d"
+                "reference": "d72eda64b7c930a4ffda0ee01268703c706bcefc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/xivapi/xivapi-php/zipball/66bab0f968af57cb809382a8e039e4e244c2119d",
-                "reference": "66bab0f968af57cb809382a8e039e4e244c2119d",
+                "url": "https://api.github.com/repos/xivapi/xivapi-php/zipball/d72eda64b7c930a4ffda0ee01268703c706bcefc",
+                "reference": "d72eda64b7c930a4ffda0ee01268703c706bcefc",
                 "shasum": ""
             },
             "require": {
@@ -6510,7 +6510,7 @@
                 "php",
                 "sdk"
             ],
-            "time": "2019-04-21T13:58:46+00:00"
+            "time": "2019-04-29T08:31:26+00:00"
         },
         {
             "name": "zendframework/zend-code",
