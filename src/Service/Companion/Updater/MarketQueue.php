@@ -54,7 +54,7 @@ class MarketQueue
          */
         foreach (CompanionConfiguration::QUEUE_CONSUMERS as $priority) {
             // grab items
-            $updateItems = $this->repoEntries->findItemsToUpdate($priority, 90, $this->ctm->getOnlineServers());
+            $updateItems = $this->repoEntries->findItemsToUpdate($priority, CompanionConfiguration::MAX_ITEMS_TOTAL, $this->ctm->getOnlineServers());
             
             // skip queue if no items for that priority
             if (empty($updateItems)) {
@@ -97,7 +97,7 @@ class MarketQueue
     
             // skip queue if no items for that priority
             if (empty($updateItems)) {
-                $console->writeln("(Patreon) No items for priority: {$priority}");
+                $console->writeln("(Patreon) No items for priority: {$patreonQueue}");
                 continue;
             }
     
