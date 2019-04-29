@@ -36,7 +36,7 @@ class MarketQueue
         $console->writeln("Market Item Queue");
 
         // run this 20 seconds in.
-        sleep(1);
+        sleep(10);
 
         $s = microtime(true);
     
