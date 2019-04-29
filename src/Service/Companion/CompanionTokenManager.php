@@ -105,13 +105,13 @@ class CompanionTokenManager
     /** @var CompanionTokenRepository */
     private $repository;
     /** @var CompanionErrorHandler */
-    private $companionErrorHandler;
+    private $errorHandler;
 
-    public function __construct(EntityManagerInterface $em, CompanionErrorHandler $companionErrorHandler)
+    public function __construct(EntityManagerInterface $em, CompanionErrorHandler $errorHandler)
     {
         $this->em                    = $em;
         $this->repository            = $em->getRepository(CompanionToken::class);
-        $this->companionErrorHandler = $companionErrorHandler;
+        $this->errorHandler = $errorHandler;
         $this->console               = new ConsoleOutput();
     }
 
@@ -192,6 +192,11 @@ class CompanionTokenManager
      */
     public function login(string $account, string $server)
     {
+        // check error count
+        if ($this->errorHandler->getCriticalExceptionCount() >= CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
+            return false;
+        }
+
         $failedRecently = Redis::Cache()->get("companion_server_login_issues_{$server}");
         if ($failedRecently) {
             return false;
@@ -284,7 +289,7 @@ class CompanionTokenManager
                 ->setExpiring(time() + (60 * 60 * mt_rand(2, 5))) // expires in 2 to 5 hours
                 ->setOnline(false);
             
-            $this->companionErrorHandler->exception(
+            $this->errorHandler->exception(
                 "SE_Login_Failure",
                 "Account: ({$account}) {$username} - Server: {$server} - Message: {$ex->getMessage()}"
             );
