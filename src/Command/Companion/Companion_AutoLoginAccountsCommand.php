@@ -50,10 +50,7 @@ class Companion_AutoLoginAccountsCommand extends Command
                 break;
                 
             case 'auto_login':
-                // add some randomness
-                if (mt_rand(0, 100) < 80) {
-                    $this->ctm->autoLoginToExpiringAccount();
-                }
+                $this->ctm->autoLoginToExpiringAccount();
                 break;
 
             case 'update_characters':
