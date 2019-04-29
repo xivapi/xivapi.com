@@ -90,7 +90,6 @@ class MarketController extends AbstractController
             $status[] = [
                 'Server'     => $token->getServer(),
                 'Message'    => $token->getMessage(),
-                'LastOnline' => $token->getLastOnline(),
                 'Online'     => $token->isOnline(),
             ];
         }
