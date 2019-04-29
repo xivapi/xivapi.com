@@ -180,7 +180,10 @@ class CompanionTokenManager
     {
         /** @var CompanionToken $token */
         $token = $this->repository->findExpiringAccount();
-        $this->login($token->getAccount(), $token->getServer());
+
+        if ($token) {
+            $this->login($token->getAccount(), $token->getServer());
+        }
     }
     
     /**
