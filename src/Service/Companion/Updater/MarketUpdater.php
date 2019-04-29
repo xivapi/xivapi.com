@@ -116,61 +116,66 @@ class MarketUpdater
         // begin
         // $this->tokens[$serverId]
         foreach ($this->items as $item) {
-            $a = microtime(true);
-            
-            // Break if any errors or we're at the cronjob deadline
-            if ($this->checkErrorCount() || $this->checkScriptDeadline()) {
-                break;
+            try {
+                $a = microtime(true);
+    
+                // Break if any errors or we're at the cronjob deadline
+                if ($this->checkErrorCount() || $this->checkScriptDeadline()) {
+                    break;
+                }
+    
+                // deeds
+                $itemId = $item['item'];
+                $serverId = $item['server'];
+                $serverName = GameServers::LIST[$serverId];
+                $serverDc = GameServers::getDataCenter($serverName);
+    
+                if (!isset($this->tokens[$serverId]) || empty($this->tokens[$serverId])) {
+                    $this->console("No tokens for: {$serverName} {$serverDc}");
+                    continue;
+                }
+    
+                // pick a random token
+                $token = $this->tokens[$serverId][array_rand($this->tokens[$serverId])];
+    
+                // set token
+                $api->Token()->set($token);
+    
+                /**
+                 * GET PRICES
+                 */
+                $prices = $api->Market()->getItemMarketListings($itemId);
+                if ($this->checkResponseForErrors($item, $prices)) {
+                    break;
+                }
+    
+                /**
+                 * GET HISTORY
+                 */
+                $history = $api->Market()->getTransactionHistory($itemId);
+                if ($this->checkResponseForErrors($item, $history)) {
+                    break;
+                }
+    
+                /**
+                 * Store in market
+                 */
+                $this->storeMarketData($item, $prices, $history);
+    
+                /**
+                 * Record item updates in analytics
+                 */
+                GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}");
+    
+                /**
+                 * Log
+                 */
+                $duration = round(microtime(true) - $a, 1);
+                $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
+            } catch (\Exception $ex) {
+                $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
+                print_r($ex->getTraceAsString());
             }
-    
-            // deeds
-            $itemId     = $item['item'];
-            $serverId   = $item['server'];
-            $serverName = GameServers::LIST[$serverId];
-            $serverDc   = GameServers::getDataCenter($serverName);
-    
-            if (!isset($this->tokens[$serverId]) || empty($this->tokens[$serverId])) {
-                $this->console("No tokens for: {$serverName} {$serverDc}");
-                continue;
-            }
-    
-            // pick a random token
-            $token = $this->tokens[$serverId][array_rand($this->tokens[$serverId])];
-            
-            // set token
-            $api->Token()->set($token);
-    
-            /**
-             * GET PRICES
-             */
-            $prices = $api->Market()->getItemMarketListings($itemId);
-            if ($this->checkResponseForErrors($item, $prices)) {
-                break;
-            }
-    
-            /**
-             * GET HISTORY
-             */
-            $history = $api->Market()->getTransactionHistory($itemId);
-            if ($this->checkResponseForErrors($item, $history)) {
-                break;
-            }
-    
-            /**
-             * Store in market
-             */
-            $this->storeMarketData($item, $prices, $history);
-    
-            /**
-             * Record item updates in analytics
-             */
-            GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}");
-    
-            /**
-             * Log
-             */
-            $duration = round(microtime(true) - $a, 1);
-            $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
         }
     
         // update the database market entries with the latest updated timestamps
