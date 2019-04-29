@@ -5,6 +5,7 @@ namespace App\Service\Companion;
 use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
 use App\Service\Content\GameServers;
+use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Companion\Http\Cookies;
 use Doctrine\ORM\EntityManagerInterface;
@@ -189,8 +190,13 @@ class CompanionTokenManager
     /**
      * Login to a specific server
      */
-    public function login(string $account, string $server): bool
+    public function login(string $account, string $server)
     {
+        $failedRecently = Redis::Cache()->get("companion_server_login_issues_{$server}");
+        if ($failedRecently) {
+            return false;
+        }
+
         $this->console->writeln("<comment>Login: {$account} - {$server}</comment>");
         
         // grab saved token in db
@@ -270,14 +276,17 @@ class CompanionTokenManager
                 ->setToken($api->Token()->get());
             
         } catch (\Exception $ex) {
+            // prevent logging into same server if it fails for a random amount of time
+            Redis::Cache()->set("companion_server_login_issues_{$server}", 1, mt_rand(2000, 6000));
+
             $token
                 ->setMessage('Offline - Failed to login to Companion.')
-                ->setExpiring(time() + (60 * mt_rand(15, 90))) // expires in 15 to 90 minutes
+                ->setExpiring(time() + (60 * 60 * mt_rand(2, 5))) // expires in 2 to 5 hours
                 ->setOnline(false);
             
             $this->companionErrorHandler->exception(
                 "SE_Login_Failure",
-                "Could not login to server: {$server}"
+                "Account: ({$account}) {$username} - Server: {$server} - Message: {$ex->getMessage()}"
             );
             
             $this->console->writeln('- Character failed to login: '. $ex->getMessage());
