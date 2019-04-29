@@ -53,8 +53,18 @@ class MarketQueue
          * Insert new items
          */
         foreach (CompanionConfiguration::QUEUE_CONSUMERS as $priority) {
-            // grab items
-            $updateItems = $this->repoEntries->findItemsToUpdate($priority, CompanionConfiguration::MAX_ITEMS_TOTAL, $this->ctm->getOnlineServers());
+            // grab 100 items
+            $updateItems = $this->repoEntries->findItemsToUpdate(
+                $priority,
+                1000,
+                $this->ctm->getOnlineServers()
+            );
+            
+            // shuffle them to avoid updating just 1 server
+            shuffle($updateItems);
+            
+            // splice down to top few
+            array_splice($updateItems, CompanionConfiguration::MAX_ITEMS_TOTAL);
             
             // skip queue if no items for that priority
             if (empty($updateItems)) {
