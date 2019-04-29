@@ -8,7 +8,7 @@ class CompanionConfiguration
     const ERROR_COUNT_THRESHOLD = 2;
 
     // the total number of items to process per cronjob
-    const MAX_ITEMS_PER_CRONJOB = 10;
+    const MAX_ITEMS_PER_CRONJOB = 20;
 
     // the delay between requests
     const DELAY_BETWEEN_REQUESTS_MS = [500,500];
