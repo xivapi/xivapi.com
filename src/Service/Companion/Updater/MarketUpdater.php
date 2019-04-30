@@ -133,7 +133,7 @@ class MarketUpdater
         // settings
         CompanionSight::set('CLIENT_TIMEOUT', 2);
         CompanionSight::set('QUERY_LOOP_COUNT', 10);
-        CompanionSight::set('QUERY_DELAY_MS', 950);
+        CompanionSight::set('QUERY_DELAY_MS', 1000);
         
         // begin
         // $this->tokens[$serverId]
