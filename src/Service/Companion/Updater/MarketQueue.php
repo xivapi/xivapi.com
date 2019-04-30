@@ -136,4 +136,24 @@ class MarketQueue
         $duration = round(microtime(true) - $s, 2);
         $console->writeln("Done: {$duration} seconds.");
     }
+    
+    /**
+     * This will randomly shuffle the items
+     */
+    public function rePrioritiseItems()
+    {
+        $items = $this->repoEntries->findBy([ 'state' => 1 ]);
+        
+        /** @var CompanionItem $item */
+        foreach ($items as $i => $item) {
+            $item->setPriority(mt_rand(1,999999));
+            $this->em->persist($items);
+            
+            if ($i % 50 == 0) {
+                $this->em->flush();
+            }
+        }
+        
+        $this->em->flush();
+    }
 }
