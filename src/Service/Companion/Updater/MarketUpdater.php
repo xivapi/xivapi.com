@@ -94,10 +94,19 @@ class MarketUpdater
         
         $japan = Carbon::now(new CarbonTimeZone('Asia/Tokyo'));
         $this->console->writeln("Hour: {$japan->hour}");
-    
-        $delay = false;
-        if ($japan->hour >= 9 && $japan->hour <= 17) {
-            $delay = mt_rand(2, 5);
+        switch($japan->hour) {
+            default: $pause = false; break;
+            case 8: $pause = mt_rand(0, 2); break;
+            case 9: $pause = mt_rand(1, 3); break;
+            case 10: $pause = mt_rand(2, 5); break;
+            case 11: $pause = mt_rand(2, 6); break;
+            case 12: $pause = mt_rand(2, 8); break;
+            case 13: $pause = mt_rand(2, 8); break;
+            case 14: $pause = mt_rand(2, 8); break;
+            case 15: $pause = mt_rand(2, 6); break;
+            case 16: $pause = mt_rand(1, 5); break;
+            case 17: $pause = mt_rand(1, 4); break;
+            case 18: $pause = mt_rand(0, 3); break;
         }
     
         // init
@@ -186,11 +195,8 @@ class MarketUpdater
                 $duration = round(microtime(true) - $a, 1);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
     
-                /**
-                 * If in peak delay
-                 */
-                if ($delay) {
-                    sleep($delay);
+                if ($pause) {
+                    sleep($pause);
                 }
             } catch (\Exception $ex) {
                 // log all errors
