@@ -190,6 +190,9 @@ class MarketUpdater
                     sleep($delay);
                 }
             } catch (\Exception $ex) {
+                // log all errors
+                file_put_contents(__DIR__.'/errors.log', "{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}", FILE_APPEND);
+                
                 // if congested
                 if (stripos($ex->getMessage(), '210010') !== false) {
                     $this->logoutCharacterTokens("Congested", $serverName);
