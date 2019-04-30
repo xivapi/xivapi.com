@@ -147,7 +147,7 @@ class MarketQueue
         /** @var CompanionItem $item */
         foreach ($items as $i => $item) {
             $item->setPriority(mt_rand(1,999999));
-            $this->em->persist($items);
+            $this->em->persist($item);
             
             if ($i % 50 == 0) {
                 $this->em->flush();

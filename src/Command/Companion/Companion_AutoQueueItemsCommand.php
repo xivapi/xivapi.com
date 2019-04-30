@@ -45,7 +45,6 @@ class Companion_AutoQueueItemsCommand extends Command
                 break;
                 
             case 'prioritise':
-                
                 $this->marketQueue->rePrioritiseItems();
                 break;
         }
