@@ -122,8 +122,9 @@ class MarketUpdater
         $api = new CompanionApi();
         
         // settings
-        CompanionSight::set('CLIENT_TIMEOUT', 2.5);
-        CompanionSight::set('QUERY_LOOP_COUNT', 6);
+        CompanionSight::set('CLIENT_TIMEOUT', 2);
+        CompanionSight::set('QUERY_LOOP_COUNT', 10);
+        CompanionSight::set('QUERY_DELAY_MS', 950);
         
         // begin
         // $this->tokens[$serverId]
@@ -194,20 +195,19 @@ class MarketUpdater
             } catch (\Exception $ex) {
                 // log all errors
                 file_put_contents(__DIR__.'/errors.log', "{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}", FILE_APPEND);
+                $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
                 
                 // if congested
                 if (stripos($ex->getMessage(), '210010') !== false) {
                     $this->logoutCharacterTokens("Congested", $serverName);
+                    break;
                 }
 
                 // if unauthorised
                 if (stripos($ex->getMessage(), '111001') !== false) {
                     $this->logoutCharacterTokens("Authorization failed", $serverName);
+                    break;
                 }
-
-                
-                $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
-                break;
             }
         }
     
