@@ -56,7 +56,7 @@ class MarketQueue
             // grab items
             $updateItems = $this->repoEntries->findItemsToUpdate(
                 $priority,
-                CompanionConfiguration::MAX_ITEMS_TOTAL,
+                CompanionConfiguration::MAX_ITEMS_TOTAL * 2,
                 $this->ctm->getOnlineServers()
             );
 
@@ -65,6 +65,8 @@ class MarketQueue
                 $console->writeln("No items for priority: {$priority}");
                 continue;
             }
+            
+            shuffle($updateItems);
             
             foreach (array_chunk($updateItems, CompanionConfiguration::MAX_ITEMS_PER_CRONJOB) as $i => $items) {
                 $console->writeln("Adding items for {$priority}, consumer: {$i}");
