@@ -332,6 +332,19 @@ class CompanionTokenManager
      */
     public function getCompanionTokens(): array
     {
+        $tokens = $this->em->getRepository(CompanionToken::class)->findAll();
+
+        // check they're all online, if any expired, ignore
+        /** @var CompanionToken $token */
+        foreach ($tokens as $token) {
+            if ($token->getExpiring() < time()) {
+                $token->setOnline(false);
+                $this->em->persist($token);
+            }
+        }
+
+        $this->em->flush();
+
         return $this->em->getRepository(CompanionToken::class)->findAll();
     }
     
