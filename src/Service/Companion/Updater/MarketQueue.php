@@ -53,10 +53,10 @@ class MarketQueue
          * Insert new items
          */
         foreach (CompanionConfiguration::QUEUE_CONSUMERS as $priority) {
-            // grab 100 items
+            // grab items
             $updateItems = $this->repoEntries->findItemsToUpdate(
                 $priority,
-                1000,
+                CompanionConfiguration::MAX_ITEMS_TOTAL * 5,
                 $this->ctm->getOnlineServers()
             );
             

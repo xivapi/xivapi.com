@@ -18,6 +18,8 @@ use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
 use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
+use Carbon\Carbon;
+use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
 use Companion\Config\SightToken;
@@ -87,6 +89,14 @@ class MarketUpdater
             $this->console("Skipping as minute: {$minute}");
             exit();
         }
+        
+        $japan = Carbon::now(new CarbonTimeZone('Asia/Tokyo'));
+        $this->console->writeln("Hour: {$japan->hour}");
+    
+        $delay = false;
+        if ($japan->hour >= 9 && $japan->hour <= 17) {
+            $delay = mt_rand(2, 5);
+        }
     
         // init
         $this->console("Queue: {$queue}");
@@ -112,7 +122,6 @@ class MarketUpdater
         // settings
         CompanionSight::set('CLIENT_TIMEOUT', 2.5);
         CompanionSight::set('QUERY_LOOP_COUNT', 6);
-        CompanionSight::set('QUERY_DELAY_MS', 900);
         
         // begin
         // $this->tokens[$serverId]
@@ -173,6 +182,13 @@ class MarketUpdater
                  */
                 $duration = round(microtime(true) - $a, 1);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
+    
+                /**
+                 * If in peak delay
+                 */
+                if ($delay) {
+                    sleep($delay);
+                }
             } catch (\Exception $ex) {
                 // if congested
                 if (stripos($ex->getMessage(), '210010') !== false) {
