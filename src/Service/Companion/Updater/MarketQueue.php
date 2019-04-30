@@ -154,7 +154,7 @@ class MarketQueue
             $rand = mt_rand(1,9999999);
             
             $console->overwrite($id);
-            $stmt = $conn->prepare("UPDATE companion_market_items SET priority = {$rand} WHERE id = {$id}");
+            $stmt = $conn->prepare("UPDATE companion_market_items SET priority = '{$rand}' WHERE id = '{$id}'");
             $stmt->execute();
         }
     }
