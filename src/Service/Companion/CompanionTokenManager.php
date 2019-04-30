@@ -18,7 +18,7 @@ class CompanionTokenManager
      * Current servers that are offline due to character restrictions
      */
     const SERVERS_OFFLINE = [
-        1,2,3,4,5,6,9,12,14,17,22,23,26,27,29,30,32,38,39,45,48,49,51,54,55,56,57,58,60,61,62,64
+        1,2,3,4,5,6,9,12,14,17,22,23,26,27,29,30,32,38,39,45,48,49,51,54,55,56,57,58,60,61,62,64,
     ];
     
     /**
@@ -187,6 +187,23 @@ class CompanionTokenManager
             $this->login($token->getAccount(), $token->getServer());
         }
     }
+
+    public function autoLoginToAllAccounts()
+    {
+        $tokens = $this->repository->findAll();
+
+        /** @var CompanionToken $token */
+        foreach ($tokens as $token) {
+            // clear cookies
+            Cookies::clear(); sleep(1);
+
+            $this->login($token->getAccount(), $token->getServer());
+
+            // clear cookies
+            Cookies::clear();
+            sleep(mt_rand(15,90));
+        }
+    }
     
     /**
      * Login to a specific server
@@ -209,7 +226,7 @@ class CompanionTokenManager
         /** @var CompanionToken $token */
         $token = $this->repository->findOneBy([
             'account' => $account,
-            'server' => $server
+            'server' => $server,
         ]);
 
         if ($token == null) {
@@ -284,7 +301,7 @@ class CompanionTokenManager
             $token
                 ->setMessage('Online')
                 ->setOnline(true)
-                ->setExpiring(time() + (60 * 60 * mt_rand(15, 22))) // expires in 15-22 hours
+                ->setExpiring(time() + (60 * 60 * mt_rand(10, 15))) // expires in 10-15 hours
                 ->setToken($api->Token()->get());
             
         } catch (\Exception $ex) {

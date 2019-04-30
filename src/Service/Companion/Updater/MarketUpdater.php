@@ -117,6 +117,12 @@ class MarketUpdater
         // begin
         // $this->tokens[$serverId]
         foreach ($this->items as $item) {
+            // deeds
+            $itemId = $item['item'];
+            $serverId = $item['server'];
+            $serverName = GameServers::LIST[$serverId];
+            $serverDc = GameServers::getDataCenter($serverName);
+
             try {
                 $a = microtime(true);
     
@@ -124,13 +130,7 @@ class MarketUpdater
                 if ($this->checkErrorCount() || $this->checkScriptDeadline()) {
                     break;
                 }
-    
-                // deeds
-                $itemId = $item['item'];
-                $serverId = $item['server'];
-                $serverName = GameServers::LIST[$serverId];
-                $serverDc = GameServers::getDataCenter($serverName);
-    
+
                 if (!isset($this->tokens[$serverId]) || empty($this->tokens[$serverId])) {
                     $this->console("No tokens for: {$serverName} {$serverDc}");
                     continue;
@@ -176,8 +176,14 @@ class MarketUpdater
             } catch (\Exception $ex) {
                 // if congested
                 if (stripos($ex->getMessage(), '210010') !== false) {
-                    $this->logoutCongestedCharacterTokens($serverName);
+                    $this->logoutCharacterTokens("Congested", $serverName);
                 }
+
+                // if unauthorised
+                if (stripos($ex->getMessage(), '111001') !== false) {
+                    $this->logoutCharacterTokens("Authorization failed", $serverName);
+                }
+
                 
                 $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
                 break;
@@ -259,11 +265,11 @@ class MarketUpdater
     /**
      * Logout a character is congestion is detected
      */
-    private function logoutCongestedCharacterTokens(string $serverName)
+    private function logoutCharacterTokens(string $message, string $serverName)
     {
         $sql = "
             UPDATE companion_tokens
-            SET online = 0, message = 'Auto-Logged Out', token = NULL
+            SET online = 0, message = 'Auto Logout: { message}', token = NULL
             WHERE server = '{$serverName}'
         ";
     
@@ -273,7 +279,7 @@ class MarketUpdater
         $date = date('Y-m-d H:i:s');
         Discord::mog()->sendMessage(
             '571007332616503296',
-            "[{$date} UTC] **Companion Congestion Detected:** - Logged out server: {$serverName}"
+            "[{$date} UTC] **Auto Logout: {$message}** - Logged out server: {$serverName}"
         );
     }
 

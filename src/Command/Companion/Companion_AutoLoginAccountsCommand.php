@@ -53,6 +53,10 @@ class Companion_AutoLoginAccountsCommand extends Command
                 $this->ctm->autoLoginToExpiringAccount();
                 break;
 
+            case 'auto_login_all':
+                $this->ctm->autoLoginToAllAccounts();
+                break;
+
             case 'update_characters':
                 $this->ctm->autoPopulateCharacters();
         }
