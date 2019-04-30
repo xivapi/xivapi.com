@@ -35,7 +35,7 @@ class CompanionItemRepository extends ServiceEntityRepository
         $sql = $this->createQueryBuilder('a');
         $sql->where("a.normalQueue = {$priority}")
             ->andWhere('a.server IN ('. implode(',', $servers) .')')
-            ->orderBy('a.updated', 'asc')
+            ->orderBy('a.priority', 'asc')
             ->setMaxResults($limit);
     
         return $sql->getQuery()->getResult();

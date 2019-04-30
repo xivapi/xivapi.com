@@ -56,16 +56,10 @@ class MarketQueue
             // grab items
             $updateItems = $this->repoEntries->findItemsToUpdate(
                 $priority,
-                CompanionConfiguration::MAX_ITEMS_TOTAL * 5,
+                CompanionConfiguration::MAX_ITEMS_TOTAL,
                 $this->ctm->getOnlineServers()
             );
-            
-            // shuffle them to avoid updating just 1 server
-            shuffle($updateItems);
-            
-            // splice down to top few
-            array_splice($updateItems, CompanionConfiguration::MAX_ITEMS_TOTAL);
-            
+
             // skip queue if no items for that priority
             if (empty($updateItems)) {
                 $console->writeln("No items for priority: {$priority}");
