@@ -301,7 +301,7 @@ class CompanionTokenManager
             $token
                 ->setMessage('Online')
                 ->setOnline(true)
-                ->setExpiring(time() + (60 * 60 * mt_rand(10, 15))) // expires in 10-15 hours
+                ->setExpiring(time() + mt_rand(28800, 57600)) // expires in 8-16 hours
                 ->setToken($api->Token()->get());
             
         } catch (\Exception $ex) {
