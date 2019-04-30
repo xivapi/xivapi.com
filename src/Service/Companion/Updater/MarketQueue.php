@@ -144,17 +144,18 @@ class MarketQueue
     {
         $console = new ConsoleOutput();
         $console = $console->section();
+    
+        $conn = $this->em->getConnection();
+        $stmt = $conn->prepare("SELECT id FROM companion_market_items");
+        $stmt->execute();
         
-        $items = $this->repoEntries->findBy([ 'state' => 1 ]);
-        $total = number_format(count($items));
-        
-        /** @var CompanionItem $item */
-        foreach ($items as $i => $item) {
-            $console->writeln("{$i} / {$total} - {$item->getItem()}");
+        foreach ($stmt->fetchAll() as $row) {
+            $id = $row['id'];
+            $rand = mt_rand(1,9999999);
             
-            $item->setPriority(mt_rand(1,999999));
-            $this->em->persist($item);
-            $this->em->flush();
+            $console->overwrite($id);
+            $stmt = $conn->prepare("UPDATE companion_market_items SET priority = {$rand} WHERE id = {$id}");
+            $stmt->execute();
         }
     }
 }
