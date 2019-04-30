@@ -142,18 +142,19 @@ class MarketQueue
      */
     public function rePrioritiseItems()
     {
+        $console = new ConsoleOutput();
+        $console = $console->section();
+        
         $items = $this->repoEntries->findBy([ 'state' => 1 ]);
+        $total = number_format(count($items));
         
         /** @var CompanionItem $item */
         foreach ($items as $i => $item) {
+            $console->writeln("{$i} / {$total} - {$item->getItem()}");
+            
             $item->setPriority(mt_rand(1,999999));
             $this->em->persist($item);
-            
-            if ($i % 50 == 0) {
-                $this->em->flush();
-            }
+            $this->em->flush();
         }
-        
-        $this->em->flush();
     }
 }
