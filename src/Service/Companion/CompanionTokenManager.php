@@ -183,7 +183,7 @@ class CompanionTokenManager
         /** @var CompanionToken $token */
         $token = $this->repository->findExpiringAccount();
 
-        if ($token) {
+        if ($token && $token->getExpiring() < time()) {
             $this->login($token->getAccount(), $token->getServer());
         }
     }
