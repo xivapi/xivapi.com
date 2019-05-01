@@ -44,14 +44,19 @@ class MarketPrivateController extends AbstractController
 
         $itemId = (int)$request->get('item_id');
         $server = ucwords($request->get('server'));
+        $key    = "companion_private_query_prices_{$itemId}_{$server}";
+        
+        if ($response = Redis::Cache()->get($key)) {
+            return $this->json($response);
+        }
+        
         $token  = $this->companionTokenManager->getCompanionTokenForServer($server);
-
-        $api = new CompanionApi();
-        $api->Token()->set($token->getToken());
-
-        return $this->json(
-            $api->Market()->getItemMarketListings($itemId)
-        );
+        $api    = new CompanionApi();
+        $api->Token()->set((Object)$token->getToken());
+        $response = $api->Market()->getItemMarketListings($itemId);
+        Redis::Cache()->set($key, $response, 600);
+        
+        return $this->json($response);
     }
 
     /**
@@ -65,14 +70,19 @@ class MarketPrivateController extends AbstractController
 
         $itemId = (int)$request->get('item_id');
         $server = ucwords($request->get('server'));
+        $key    = "companion_private_query_history_{$itemId}_{$server}";
+    
+        if ($response = Redis::Cache()->get($key)) {
+            return $this->json($response);
+        }
+        
         $token  = $this->companionTokenManager->getCompanionTokenForServer($server);
-
-        $api = new CompanionApi();
-        $api->Token()->set($token->getToken());
-
-        return $this->json(
-            $api->Market()->getTransactionHistory($itemId)
-        );
+        $api    = new CompanionApi();
+        $api->Token()->set((Object)$token->getToken());
+        $response = $api->Market()->getTransactionHistory($itemId);
+        Redis::Cache()->set($key, $response, 600);
+    
+        return $this->json($response);
     }
 
     /**
@@ -101,7 +111,7 @@ class MarketPrivateController extends AbstractController
             return $this->json([ false, $requestLastSent, 'Item already requested to be updated' ]);
         }
 
-        // Place the item on this server in a 8 minute cooldown
+        // Place the item on this server in a cooldown
         Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", time(), (60 * $timeout));
         
         // if the item is already in the patreon queue, skip it

@@ -12,10 +12,10 @@ class CompanionConfiguration
 
     // the total number of items to queue per minute
     // this would be max per cronjob * number of scripts
-    const MAX_ITEMS_TOTAL = (self::MAX_ITEMS_PER_CRONJOB * 5);
+    const MAX_ITEMS_TOTAL = (self::MAX_ITEMS_PER_CRONJOB * 10);
 
-    // the delay between requests
-    const DELAY_BETWEEN_REQUESTS_MS = [500,500];
+    // the total time a cronjob should stay active
+    const CRONJOB_TIMEOUT_SECONDS = 55;
     
     // Minimum sales
     const MINIMUM_SALES_TO_UPDATE = 10;
@@ -75,10 +75,10 @@ class CompanionConfiguration
     const MAX_ITEMS_PER_REQUEST = 2;
     
     // todo @deprecated
-    // the total time a cronjob should stay active
-    const CRONJOB_TIMEOUT_SECONDS  = 55;
-    
-    // todo @deprecated
     // Delay pass time
     const DELAY_BETWEEN_REQUEST_RESPONSE = [5, 5];
+    
+    // todo @deprecated
+    // the delay between requests
+    const DELAY_BETWEEN_REQUESTS_MS = [500,500];
 }

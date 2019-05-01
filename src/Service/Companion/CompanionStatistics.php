@@ -107,13 +107,13 @@ class CompanionStatistics
             return;
         }
         
-        // Get the expected update time, if one doesn't exist we'll set it as 3 days
-        $expectedUpdateSeconds = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 72);
+        // Get the expected update time
+        $expectedUpdateSeconds = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 48);
 
         // Get the actual update time, we skip some of the early ones incase there was a one off error.
         /** @var CompanionItem $recent */
         /** @var CompanionItem $oldest */
-        $oldest = $this->repositoryEntries->findBy([ 'priority' => $priority, ], [ 'updated' => 'asc' ], 1, 50)[0];
+        $oldest = $this->repositoryEntries->findBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ], 1, 50)[0];
         $realUpdateSeconds = (time() - $oldest->getUpdated());
 
         // work out the diff from real-fake
@@ -152,7 +152,7 @@ class CompanionStatistics
         $this->console->writeln('Setting queue sizes');
         
         foreach($this->getCompanionQueuesView() as $row) {
-            $this->updateQueueSizes[$row['priority']] = $row['total'];
+            $this->updateQueueSizes[$row['normal_queue']] = $row['total'];
         }
     }
     

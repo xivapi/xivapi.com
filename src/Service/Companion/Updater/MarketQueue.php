@@ -53,24 +53,20 @@ class MarketQueue
          * Insert new items
          */
         foreach (CompanionConfiguration::QUEUE_CONSUMERS as $priority) {
-            // grab 100 items
+            // grab items
             $updateItems = $this->repoEntries->findItemsToUpdate(
                 $priority,
-                1000,
+                CompanionConfiguration::MAX_ITEMS_TOTAL * 2,
                 $this->ctm->getOnlineServers()
             );
-            
-            // shuffle them to avoid updating just 1 server
-            shuffle($updateItems);
-            
-            // splice down to top few
-            array_splice($updateItems, CompanionConfiguration::MAX_ITEMS_TOTAL);
-            
+
             // skip queue if no items for that priority
             if (empty($updateItems)) {
                 $console->writeln("No items for priority: {$priority}");
                 continue;
             }
+            
+            shuffle($updateItems);
             
             foreach (array_chunk($updateItems, CompanionConfiguration::MAX_ITEMS_PER_CRONJOB) as $i => $items) {
                 $console->writeln("Adding items for {$priority}, consumer: {$i}");
@@ -135,5 +131,27 @@ class MarketQueue
         $this->em->clear();
         $duration = round(microtime(true) - $s, 2);
         $console->writeln("Done: {$duration} seconds.");
+    }
+    
+    /**
+     * This will randomly shuffle the items
+     */
+    public function rePrioritiseItems()
+    {
+        $console = new ConsoleOutput();
+        $console = $console->section();
+    
+        $conn = $this->em->getConnection();
+        $stmt = $conn->prepare("SELECT id FROM companion_market_items");
+        $stmt->execute();
+        
+        foreach ($stmt->fetchAll() as $row) {
+            $id = $row['id'];
+            $rand = mt_rand(1,9999999);
+            
+            $console->overwrite($id);
+            $stmt = $conn->prepare("UPDATE companion_market_items SET priority = '{$rand}' WHERE id = '{$id}'");
+            $stmt->execute();
+        }
     }
 }

@@ -18,6 +18,8 @@ use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
 use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
+use Carbon\Carbon;
+use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
 use Companion\Config\SightToken;
@@ -82,10 +84,29 @@ class MarketUpdater
         /**
          * It feels like SE restart their servers every hour????
          */
+        /*
         $minute = (int)date('i');
         if (in_array($minute, [7,8])) {
             $this->console("Skipping as minute: {$minute}");
             exit();
+        }
+        */
+        
+        $japan = Carbon::now(new CarbonTimeZone('Asia/Tokyo'));
+        $this->console->writeln("Hour: {$japan->hour}");
+        switch($japan->hour) {
+            default: $pause = false; break;
+            case 8: $pause = mt_rand(0, 2); break;
+            case 9: $pause = mt_rand(1, 3); break;
+            case 10: $pause = mt_rand(2, 5); break;
+            case 11: $pause = mt_rand(2, 6); break;
+            case 12: $pause = mt_rand(2, 8); break;
+            case 13: $pause = mt_rand(2, 8); break;
+            case 14: $pause = mt_rand(2, 8); break;
+            case 15: $pause = mt_rand(2, 6); break;
+            case 16: $pause = mt_rand(1, 5); break;
+            case 17: $pause = mt_rand(1, 4); break;
+            case 18: $pause = mt_rand(0, 3); break;
         }
     
         // init
@@ -110,9 +131,9 @@ class MarketUpdater
         $api = new CompanionApi();
         
         // settings
-        CompanionSight::set('CLIENT_TIMEOUT', 2.5);
-        CompanionSight::set('QUERY_LOOP_COUNT', 6);
-        CompanionSight::set('QUERY_DELAY_MS', 900);
+        CompanionSight::set('CLIENT_TIMEOUT', 2);
+        CompanionSight::set('QUERY_LOOP_COUNT', 10);
+        CompanionSight::set('QUERY_DELAY_MS', 1000);
         
         // begin
         // $this->tokens[$serverId]
@@ -173,20 +194,26 @@ class MarketUpdater
                  */
                 $duration = round(microtime(true) - $a, 1);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
+    
+                if ($pause) {
+                    sleep($pause);
+                }
             } catch (\Exception $ex) {
+                // log all errors
+                file_put_contents(__DIR__.'/errors.log', "{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}", FILE_APPEND);
+                $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
+                
                 // if congested
                 if (stripos($ex->getMessage(), '210010') !== false) {
                     $this->logoutCharacterTokens("Congested", $serverName);
+                    break;
                 }
 
                 // if unauthorised
                 if (stripos($ex->getMessage(), '111001') !== false) {
                     $this->logoutCharacterTokens("Authorization failed", $serverName);
+                    break;
                 }
-
-                
-                $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
-                break;
             }
         }
     
@@ -513,7 +540,7 @@ class MarketUpdater
         $conn = $this->em->getConnection();
 
         foreach ($this->marketItemEntryUpdated as $id) {
-            $sql = "UPDATE companion_market_items SET updated = ". time() .", patreon_queue = NULL WHERE id = '{$id}'";
+            $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". time() .", patreon_queue = NULL WHERE id = '{$id}'";
 
             $stmt = $conn->prepare($sql);
             $stmt->execute();
