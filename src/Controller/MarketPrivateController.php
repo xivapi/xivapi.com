@@ -55,7 +55,7 @@ class MarketPrivateController extends AbstractController
         $api    = new CompanionApi();
         $api->Token()->set((Object)$token->getToken());
         $response = $api->Market()->getItemMarketListings($itemId);
-        Redis::Cache()->set($key, $response, 600);
+        Redis::Cache()->set($key, $response, 300);
         
         return $this->json($response);
     }
@@ -81,7 +81,7 @@ class MarketPrivateController extends AbstractController
         $api    = new CompanionApi();
         $api->Token()->set((Object)$token->getToken());
         $response = $api->Market()->getTransactionHistory($itemId);
-        Redis::Cache()->set($key, $response, 600);
+        Redis::Cache()->set($key, $response, 300);
     
         return $this->json($response);
     }
