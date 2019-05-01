@@ -2,6 +2,8 @@
 
 namespace App\Service\Companion\Updater;
 
+use App\Service\ThirdParty\GoogleAnalytics;
+
 class MarketUpdaterOld
 {
     /**
@@ -70,8 +72,8 @@ class MarketUpdaterOld
         $this->console("--- Waiting ---");
         sleep(
             mt_rand(
-                CompanionConfiguration::DELAY_BETWEEN_REQUEST_RESPONSE[0],
-                CompanionConfiguration::DELAY_BETWEEN_REQUEST_RESPONSE[1]
+                5,
+                15
             )
         );
         
@@ -151,8 +153,8 @@ class MarketUpdaterOld
         // slow down req/sec
         usleep(
             mt_rand(
-                CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[0],
-                CompanionConfiguration::DELAY_BETWEEN_REQUESTS_MS[1]
+                230,
+                1000
             ) * 1000
         );
         

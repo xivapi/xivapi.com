@@ -58,7 +58,7 @@ class CompanionItemManager
         $this->buildNPCWithShops();
         
         die;
-        
+
         // get all items and handle their states
         $this->console->writeln("Building Items");
         $this->buildItemList();
