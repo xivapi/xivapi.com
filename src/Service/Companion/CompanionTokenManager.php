@@ -119,11 +119,11 @@ class CompanionTokenManager
     /**
      * Logs into each account and records all character prep tokens
      */
-    public function autoPopulateCharacters()
+    public function autoPopulateCharacters(string $accounts = null)
     {
-        $accounts = ['MB1','MB2','MB3','MB4','MB5','MB6'];
+        $accounts = $accounts ? explode(',', $accounts) : ['MB1','MB2','MB3','MB4','MB5','MB6'];
         $repo     = $this->em->getRepository(CompanionToken::class);
-    
+
         // clear cookies
         Cookies::clear(); sleep(1);
         
