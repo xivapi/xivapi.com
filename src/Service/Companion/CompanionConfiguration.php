@@ -18,7 +18,7 @@ class CompanionConfiguration
     const CRONJOB_TIMEOUT_SECONDS = 55;
     
     // Minimum sales
-    const MINIMUM_SALES_TO_UPDATE = 10;
+    const MINIMUM_SALES_TO_UPDATE = 5;
     
     // Item never sold, or rarely sells
     const STATE_NEVER_SOLD = 8;
@@ -28,20 +28,17 @@ class CompanionConfiguration
     
     // Item is new to the site
     const QUEUE_NEW_ITEM = 10;
-
-    // How long until exceptions are ignored.
-    const EXCEPTION_TIMEOUT_SECONDS = (60 * 60);
     
     const QUEUE_INFO = [
         // name, consumers
         0  => 'Not Updating',
         
-        1  => '< 2 hours',
-        2  => '< 6 hours',
-        3  => '< 24 hours',
-        4  => '< 48 hours',
+        1  => '< 1 hour',
+        2  => '< 3 hour',
+        3  => '< 12 hours',
+        4  => '< 30 hours',
+        5  => '< 48 hours',
         
-        5  => '(not used)',
         6  => '(not used)',
         7  => '(not used)',
         8  => '(not used)',
@@ -51,15 +48,19 @@ class CompanionConfiguration
     
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
-        (60 * 60 * 2)   => 1,
-        (60 * 60 * 6)   => 2,
-        (60 * 60 * 24)  => 3,
+        (60 * 60 * 1)   => 1,
+        (60 * 60 * 3)   => 2,
+        (60 * 60 * 12)  => 3,
+        (60 * 60 * 30)  => 4,
+        (60 * 60 * 48)  => 5,
     ];
     
     const QUEUE_CONSUMERS = [
         1,
         2,
         3,
+        4,
+        5,
         
         // 9
         self::QUEUE_DEFAULT,
@@ -69,16 +70,4 @@ class CompanionConfiguration
         10,
         11,
     ];
-    
-    // todo @deprecated
-    // the total number of items to process per request
-    const MAX_ITEMS_PER_REQUEST = 2;
-    
-    // todo @deprecated
-    // Delay pass time
-    const DELAY_BETWEEN_REQUEST_RESPONSE = [5, 5];
-    
-    // todo @deprecated
-    // the delay between requests
-    const DELAY_BETWEEN_REQUESTS_MS = [500,500];
 }

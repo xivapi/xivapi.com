@@ -6,6 +6,7 @@ use App\Entity\CompanionItem;
 use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Companion\Updater\MarketUpdater;
+use App\Service\GameData\GameServers;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,18 +44,18 @@ class MarketPrivateController extends AbstractController
         }
 
         $itemId = (int)$request->get('item_id');
-        $server = ucwords($request->get('server'));
+        $server = (int)$request->get('server');
         $key    = "companion_private_query_prices_{$itemId}_{$server}";
         
         if ($response = Redis::Cache()->get($key)) {
             return $this->json($response);
         }
-        
+
         $token  = $this->companionTokenManager->getCompanionTokenForServer($server);
         $api    = new CompanionApi();
         $api->Token()->set((Object)$token->getToken());
         $response = $api->Market()->getItemMarketListings($itemId);
-        Redis::Cache()->set($key, $response, 600);
+        Redis::Cache()->set($key, $response, 280);
         
         return $this->json($response);
     }
@@ -69,7 +70,7 @@ class MarketPrivateController extends AbstractController
         }
 
         $itemId = (int)$request->get('item_id');
-        $server = ucwords($request->get('server'));
+        $server = (int)GameServers::getServerId(ucwords($request->get('server')));
         $key    = "companion_private_query_history_{$itemId}_{$server}";
     
         if ($response = Redis::Cache()->get($key)) {
@@ -80,7 +81,7 @@ class MarketPrivateController extends AbstractController
         $api    = new CompanionApi();
         $api->Token()->set((Object)$token->getToken());
         $response = $api->Market()->getTransactionHistory($itemId);
-        Redis::Cache()->set($key, $response, 600);
+        Redis::Cache()->set($key, $response, 280);
     
         return $this->json($response);
     }

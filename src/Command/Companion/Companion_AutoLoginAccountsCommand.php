@@ -4,7 +4,6 @@ namespace App\Command\Companion;
 
 use App\Command\CommandConfigureTrait;
 use App\Service\Companion\CompanionTokenManager;
-use App\Service\Content\GameServers;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,7 +37,7 @@ class Companion_AutoLoginAccountsCommand extends Command
          * php bin/console Companion_AutoLoginAccountsCommand login MB1,Phoenix
          * php bin/console Companion_AutoLoginAccountsCommand auto_login
          * php bin/console Companion_AutoLoginAccountsCommand auto_login_all
-         * php bin/console Companion_AutoLoginAccountsCommand update_characters
+         * php bin/console Companion_AutoLoginAccountsCommand update_characters MB1
          */
         switch ($input->getArgument('action')) {
             default:
@@ -59,7 +58,9 @@ class Companion_AutoLoginAccountsCommand extends Command
                 break;
 
             case 'update_characters':
-                $this->ctm->autoPopulateCharacters();
+                $this->ctm->autoPopulateCharacters(
+                    $input->getArgument('login')
+                );
         }
     }
 }
