@@ -6,6 +6,7 @@ use App\Entity\CompanionItem;
 use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Companion\Updater\MarketUpdater;
+use App\Service\GameData\GameServers;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -69,7 +70,7 @@ class MarketPrivateController extends AbstractController
         }
 
         $itemId = (int)$request->get('item_id');
-        $server = (int)$request->get('server');
+        $server = (int)GameServers::getServerId(ucwords($request->get('server')));
         $key    = "companion_private_query_history_{$itemId}_{$server}";
     
         if ($response = Redis::Cache()->get($key)) {
