@@ -18,7 +18,7 @@ class CompanionConfiguration
     const CRONJOB_TIMEOUT_SECONDS = 55;
     
     // Minimum sales
-    const MINIMUM_SALES_TO_UPDATE = 10;
+    const MINIMUM_SALES_TO_UPDATE = 5;
     
     // Item never sold, or rarely sells
     const STATE_NEVER_SOLD = 8;
