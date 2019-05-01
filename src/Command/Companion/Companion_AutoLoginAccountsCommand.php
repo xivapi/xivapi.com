@@ -60,7 +60,7 @@ class Companion_AutoLoginAccountsCommand extends Command
 
             case 'update_characters':
                 $this->ctm->autoPopulateCharacters(
-                    $input->getArgument('login'))
+                    $input->getArgument('login')
                 );
         }
     }
