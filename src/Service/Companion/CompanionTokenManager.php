@@ -369,13 +369,13 @@ class CompanionTokenManager
      * @return CompanionToken
      * @throws \Exception
      */
-    public function getCompanionTokenForServer(string $server): CompanionToken
+    public function getCompanionTokenForServer(int $server): CompanionToken
     {
         $tokens = $this->getCompanionTokens();
         shuffle($tokens);
         
         foreach ($tokens as $entity) {
-            if ($entity->getServer() === $server) {
+            if ($entity->getServer() == $server) {
                 return $entity;
             }
         }

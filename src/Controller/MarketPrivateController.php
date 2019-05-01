@@ -43,13 +43,13 @@ class MarketPrivateController extends AbstractController
         }
 
         $itemId = (int)$request->get('item_id');
-        $server = ucwords($request->get('server'));
+        $server = (int)$request->get('server');
         $key    = "companion_private_query_prices_{$itemId}_{$server}";
         
         if ($response = Redis::Cache()->get($key)) {
             return $this->json($response);
         }
-        
+
         $token  = $this->companionTokenManager->getCompanionTokenForServer($server);
         $api    = new CompanionApi();
         $api->Token()->set((Object)$token->getToken());
@@ -69,7 +69,7 @@ class MarketPrivateController extends AbstractController
         }
 
         $itemId = (int)$request->get('item_id');
-        $server = ucwords($request->get('server'));
+        $server = (int)$request->get('server');
         $key    = "companion_private_query_history_{$itemId}_{$server}";
     
         if ($response = Redis::Cache()->get($key)) {
