@@ -44,7 +44,7 @@ class MarketPrivateController extends AbstractController
         }
 
         $itemId = (int)$request->get('item_id');
-        $server = (int)$request->get('server');
+        $server = (int)GameServers::getServerId(ucwords($request->get('server')));
         $key    = "companion_private_query_prices_{$itemId}_{$server}";
         
         if ($response = Redis::Cache()->get($key)) {
