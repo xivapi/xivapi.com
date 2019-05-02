@@ -375,7 +375,9 @@ class CompanionTokenManager
         shuffle($tokens);
         
         foreach ($tokens as $entity) {
-            if ($entity->getServer() == $server) {
+            $serverId = GameServers::getServerId($entity->getServer());
+            
+            if ($serverId == $server) {
                 return $entity;
             }
         }
