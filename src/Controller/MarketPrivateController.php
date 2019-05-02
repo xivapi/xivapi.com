@@ -6,7 +6,7 @@ use App\Entity\CompanionItem;
 use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Companion\Updater\MarketUpdater;
-use App\Service\GameData\GameServers;
+use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -81,7 +81,7 @@ class MarketPrivateController extends AbstractController
         $api    = new CompanionApi();
         $api->Token()->set((Object)$token->getToken());
         $response = $api->Market()->getTransactionHistory($itemId);
-        Redis::Cache()->set($key, $response, 280);
+        Redis::Cache()->set($key, $response, 60);
     
         return $this->json($response);
     }
