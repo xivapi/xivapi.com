@@ -2,11 +2,11 @@
 
 namespace App\Controller;
 
-use App\Entity\CompanionToken;
 use App\Service\API\ApiPermissions;
 use App\Service\API\ApiRequest;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
+use Companion\Config\SightToken;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -19,6 +19,10 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CompanionController extends AbstractController
 {
+    const REGION_EU = 'https://companion-eu.finalfantasyxiv.com';
+    const REGION_NA = 'https://companion-na.finalfantasyxiv.com';
+    const REGION_JP = 'https://companion-jp.finalfantasyxiv.com';
+
     const CACHE_DURATION = 300;
 
     /** @var CompanionApi */
@@ -38,8 +42,8 @@ class CompanionController extends AbstractController
         }
 
         // set token
-        $token = new CompanionToken();
-        $token->setToken($requestToken);
+        $token = new SightToken();
+        $token->token = $requestToken;
         $this->api->Token()->set($token);
     }
 
