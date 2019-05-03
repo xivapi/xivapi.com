@@ -448,4 +448,27 @@ class CompanionItemManager
     
         $section->overwrite('- Complete');
     }
+
+    /**
+     * Get a list of market item ids
+     */
+    public function getMarketItemIds(): array
+    {
+        // if cached, return that
+        if ($items = Redis::Cache()->get(self::MARKET_ITEMS_CACHE_KEY)) {
+            return $items;
+        }
+
+        // build new cache
+        $items = [];
+        foreach (Redis::Cache()->get('ids_Item') as $itemId) {
+            $item = Redis::Cache()->get("xiv_Item_{$itemId}");
+            if (isset($item->ItemSearchCategory->ID)) {
+                $items[] = $itemId;
+            }
+        }
+
+        Redis::Cache()->set(self::MARKET_ITEMS_CACHE_KEY, $items);
+        return $items;
+    }
 }
