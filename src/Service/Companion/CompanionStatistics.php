@@ -114,12 +114,16 @@ class CompanionStatistics
         $firstItem                = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ]);
         $lastItem                 = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'desc' ]);
 
+        $formatOneDay = '%H:%I';
+        $formatMultiDay = '%d days, %H:%I';
+        $formatOffset = (60 * 60 * 24);
+
         // work out the real cycle time
         $realCycleTime            = abs($lastItem->getUpdated() - $firstItem->getUpdated());
-        $estimatedCycleDifference = Carbon::now()->diff(Carbon::now()->addSeconds($estimatedCycleTime))->format('%d days, %H:%I');
-        $realCycleDifference      = Carbon::now()->diff(Carbon::now()->addSeconds($realCycleTime))->format('%d days, %H:%I');
+        $estimatedCycleDifference = Carbon::now()->diff(Carbon::now()->addSeconds($estimatedCycleTime))->format($estimatedCycleTime > $formatOffset ? $formatMultiDay : $formatOneDay);
+        $realCycleDifference      = Carbon::now()->diff(Carbon::now()->addSeconds($realCycleTime))->format($realCycleTime > $formatOffset ? $formatMultiDay : $formatOneDay);
         $estimationTimeDifference = $realCycleTime - $estimatedCycleTime;
-        $difference               = Carbon::now()->diff(Carbon::now()->addSeconds($estimationTimeDifference))->format('%d days, %H:%I');
+        $difference               = Carbon::now()->diff(Carbon::now()->addSeconds($estimationTimeDifference))->format($estimationTimeDifference > $formatOffset ? $formatMultiDay : $formatOneDay);
 
         $this->report[$priority] = [
             'Name'          => $name,
