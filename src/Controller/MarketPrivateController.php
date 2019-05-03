@@ -6,7 +6,7 @@ use App\Entity\CompanionItem;
 use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Companion\Updater\MarketUpdater;
-use App\Service\GameData\GameServers;
+use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Ramsey\Uuid\Uuid;
@@ -64,7 +64,7 @@ class MarketPrivateController extends AbstractController
         }
 
         $itemId = (int)$request->get('item_id');
-        $server = (int)$request->get('server');
+        $server = (int)GameServers::getServerId(ucwords($request->get('server')));
         $key    = "companion_private_query_prices_{$itemId}_{$server}";
         
         if ($response = Redis::Cache()->get($key)) {
@@ -75,7 +75,7 @@ class MarketPrivateController extends AbstractController
         $api    = new CompanionApi();
         $api->Token()->set((Object)$token->getToken());
         $response = $api->Market()->getItemMarketListings($itemId);
-        Redis::Cache()->set($key, $response, 280);
+        Redis::Cache()->set($key, $response, 60);
         
         return $this->json($response);
     }
@@ -101,7 +101,7 @@ class MarketPrivateController extends AbstractController
         $api    = new CompanionApi();
         $api->Token()->set((Object)$token->getToken());
         $response = $api->Market()->getTransactionHistory($itemId);
-        Redis::Cache()->set($key, $response, 280);
+        Redis::Cache()->set($key, $response, 60);
     
         return $this->json($response);
     }

@@ -96,45 +96,7 @@ class GameServers
     ];
     
     const LIST_DC = [
-        // jp
-        'Elemental' => [
-            'Aegis',
-            'Atomos',
-            'Carbuncle',
-            'Garuda',
-            'Gungnir',
-            'Kujata',
-            'Ramuh',
-            'Tonberry',
-            'Typhon',
-            'Unicorn'
-        ],
-        'Gaia' => [
-            'Alexander',
-            'Bahamut',
-            'Durandal',
-            'Fenrir',
-            'Ifrit',
-            'Ridill',
-            'Tiamat',
-            'Ultima',
-            'Valefor',
-            'Yojimbo',
-            'Zeromus',
-        ],
-        'Mana' => [
-            'Anima',
-            'Asura',
-            'Belias',
-            'Chocobo',
-            'Hades',
-            'Ixion',
-            'Mandragora',
-            'Masamune',
-            'Pandaemonium',
-            'Shinryu',
-            'Titan',
-        ],
+        
         
         // na
         'Aether' => [
@@ -176,15 +138,53 @@ class GameServers
             'Omega',
             'Ragnarok',
         ],
-        
-        // eu
         'Light' => [
             'Lich',
             'Odin',
             'Phoenix',
             'Shiva',
             'Zodiark'
-        ]
+        ],
+
+        // jp
+        'Elemental' => [
+            'Aegis',
+            'Atomos',
+            'Carbuncle',
+            'Garuda',
+            'Gungnir',
+            'Kujata',
+            'Ramuh',
+            'Tonberry',
+            'Typhon',
+            'Unicorn'
+        ],
+        'Gaia' => [
+            'Alexander',
+            'Bahamut',
+            'Durandal',
+            'Fenrir',
+            'Ifrit',
+            'Ridill',
+            'Tiamat',
+            'Ultima',
+            'Valefor',
+            'Yojimbo',
+            'Zeromus',
+        ],
+        'Mana' => [
+            'Anima',
+            'Asura',
+            'Belias',
+            'Chocobo',
+            'Hades',
+            'Ixion',
+            'Mandragora',
+            'Masamune',
+            'Pandaemonium',
+            'Shinryu',
+            'Titan',
+        ],
     ];
     
     /**
