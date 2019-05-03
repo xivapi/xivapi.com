@@ -24,7 +24,7 @@ class Schema extends ManualHelper
                 'data'   => null,
             ];
     
-            $ids = Redis::Cache()->get("ids_{$contentName}");
+            $ids = (array)Redis::Cache()->get("ids_{$contentName}");
             
             if (!$ids) {
                 continue;
