@@ -9,6 +9,7 @@ use App\Service\Companion\Updater\MarketUpdater;
 use App\Service\GameData\GameServers;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -32,6 +33,25 @@ class MarketPrivateController extends AbstractController
     ) {
         $this->companionTokenManager  = $companionTokenManager;
         $this->companionMarketUpdater = $companionMarketUpdater;
+    }
+
+    /**
+     * @Route("/private/companion/token")
+     */
+    public function token(Request $request)
+    {
+        if ($request->get('access') !== getenv('MB_ACCESS')) {
+            throw new UnauthorizedHttpException('Denied');
+        }
+
+        $api      = new CompanionApi();
+        $loginUrl = $api->Account()->getLoginUrl();
+        $token    = $api->Token()->get();
+
+        return $this->json([
+            'LoginUrl' => $loginUrl,
+            'Token'    => $token,
+        ]);
     }
 
     /**
