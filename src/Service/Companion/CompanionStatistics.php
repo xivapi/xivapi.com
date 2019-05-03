@@ -108,39 +108,29 @@ class CompanionStatistics
         }
         
         // Get the expected update time
-        $expectedUpdateSeconds = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 48);
+        $estimatedCycleTime = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 72);
 
-        // Get the actual update time, we skip some of the early ones incase there was a one off error.
-        /** @var CompanionItem $recent */
-        /** @var CompanionItem $oldest */
-        $oldest = $this->repositoryEntries->findBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ], 1, 50)[0];
-        $realUpdateSeconds = (time() - $oldest->getUpdated());
+        /** @var CompanionItem $firstItem */
+        /** @var CompanionItem $lastItem */
+        $firstItem                = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ]);
+        $lastItem                 = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'desc' ]);
 
-        // work out the diff from real-fake
-        $updateSecondsDiff = $realUpdateSeconds - $expectedUpdateSeconds;
-
-        // convert our estimation and our real into Carbons
-        $completionDateTimeEstimation  = Carbon::createFromTimestamp(time() + $expectedUpdateSeconds);
-        $completionDateTimeReal        = Carbon::createFromTimestamp(time() + $realUpdateSeconds);
-
-        // compare now against our estimation
-        $completionDateTimeEstimationFormatted = Carbon::now()->diff($completionDateTimeEstimation)->format('%d days, %H:%I');
-
-        // compare now against our real time
-        $completionDateTimeRealFormatted = Carbon::now()->diff($completionDateTimeReal)->format('%d days, %H:%I');
-
-        // Work out the time difference
-        $completionDateTimeDifference = Carbon::now()->diff(Carbon::now()->addSeconds(abs($updateSecondsDiff)))->format('%d days, %H:%I');
+        // work out the real cycle time
+        $realCycleTime            = abs($lastItem->getUpdated() - $firstItem->getUpdated());
+        $estimatedCycleDifference = Carbon::now()->diff(Carbon::now()->addSeconds($estimatedCycleTime))->format('%d days, %H:%I');
+        $realCycleDifference      = Carbon::now()->diff(Carbon::now()->addSeconds($realCycleTime))->format('%d days, %H:%I');
+        $estimationTimeDifference = $realCycleTime - $estimatedCycleTime;
+        $difference               =  Carbon::now()->diff(Carbon::now()->addSeconds($estimationTimeDifference))->format('%d days, %H:%I');
 
         $this->report[$priority] = [
             'Name'          => $name,
             'Priority'      => $priority,
             'Items'         => number_format($totalItems),
             'Requests'      => number_format($totalItems * 4),
-            'CycleTime'     => $completionDateTimeEstimationFormatted,
-            'CycleTimeReal' => $completionDateTimeRealFormatted,
-            'CycleDiff'     => $completionDateTimeDifference,
-            'CycleDiffSec'  => $updateSecondsDiff,
+            'CycleTime'     => $estimatedCycleDifference,
+            'CycleTimeReal' => $realCycleDifference,
+            'CycleDiff'     => $difference,
+            'CycleDiffSec'  => $estimationTimeDifference,
         ];
     }
 
