@@ -72,7 +72,6 @@ class MarketController extends AbstractController
 
         return $this->json([
             'Stats'         => $this->companionStatistics->getStatistics(),
-            'Errors'        => $this->companionErrorHandler->getExceptions(),
             'IsCritical'    => $criticalCount > CompanionConfiguration::ERROR_COUNT_THRESHOLD,
             'CriticalCount' => $criticalCount,
         ]);
