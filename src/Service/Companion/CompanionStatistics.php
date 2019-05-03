@@ -15,11 +15,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionStatistics
 {
-    const FILENAME = __DIR__ . '/CompanionStatistics.json';
-
-    // max time to keep updates
-    const UPDATE_TIME_LIMIT = (60 * 60);
-
     /** @var EntityManagerInterface */
     private $em;
     /** @var CompanionItemRepository */
@@ -48,8 +43,8 @@ class CompanionStatistics
         $this->setUpdateQueueSizes();
     
         // build priority stats
-        foreach (array_keys(CompanionConfiguration::QUEUE_INFO) as $priority) {
-            $this->buildQueueStatistics($priority);
+        foreach (array_keys(CompanionConfiguration::PRIORITY_TIMES) as $queue) {
+            $this->buildQueueStatistics($queue);
         }
     
         // save
@@ -124,7 +119,7 @@ class CompanionStatistics
         $estimatedCycleDifference = Carbon::now()->diff(Carbon::now()->addSeconds($estimatedCycleTime))->format('%d days, %H:%I');
         $realCycleDifference      = Carbon::now()->diff(Carbon::now()->addSeconds($realCycleTime))->format('%d days, %H:%I');
         $estimationTimeDifference = $realCycleTime - $estimatedCycleTime;
-        $difference               =  Carbon::now()->diff(Carbon::now()->addSeconds($estimationTimeDifference))->format('%d days, %H:%I');
+        $difference               = Carbon::now()->diff(Carbon::now()->addSeconds($estimationTimeDifference))->format('%d days, %H:%I');
 
         $this->report[$priority] = [
             'Name'          => $name,
