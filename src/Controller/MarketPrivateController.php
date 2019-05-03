@@ -36,35 +36,6 @@ class MarketPrivateController extends AbstractController
     }
 
     /**
-     * @Route("/private/companion/token")
-     */
-    public function token(Request $request)
-    {
-        if ($request->get('access') !== getenv('MB_ACCESS')) {
-            throw new UnauthorizedHttpException('Denied');
-        }
-
-        $hash = sha1($request->getClientIp());
-        $key  = "companion_private_companion_token_{$hash}";
-
-        if ($response = Redis::Cache()->get($key)) {
-            return $this->json($response);
-        }
-
-        $api = new CompanionApi(Uuid::uuid4()->toString());
-
-        $response = [
-            'LoginUrl'     => $api->Account()->getLoginUrl(),
-            'Token'        => $api->Token()->get(),
-            'Cached'       => time(),
-            'CacheExpires' => time() + 300,
-        ];
-
-        Redis::Cache()->set($key, $response, 300);
-        return $this->json($response);
-    }
-
-    /**
      * @Route("/private/market/item")
      */
     public function itemPrices(Request $request)

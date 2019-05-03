@@ -2,9 +2,12 @@
 
 namespace App\Service\API;
 
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+
 class ApiPermissions
 {
     // user permissions, statically held
+    const PERMISSION_COMPANION = 'companion';
     const PERMISSION_LODESTONE = 'lodestone';
     const PERMISSION_MAPPY     = 'mappy';
     const PERMISSION_KING      = 'king';
@@ -33,5 +36,12 @@ class ApiPermissions
     public static function has($permission)
     {
         return in_array($permission, self::$permissions);
+    }
+
+    public static function require($permission)
+    {
+        if (self::has($permission) === false) {
+            throw new UnauthorizedHttpException();
+        }
     }
 }
