@@ -44,7 +44,7 @@ class MarketPrivateController extends AbstractController
             throw new UnauthorizedHttpException('Denied');
         }
 
-        $api      = new CompanionApi();
+        $api      = new CompanionApi(Uuid::uuid4()->toString());
         $loginUrl = $api->Account()->getLoginUrl();
         $token    = $api->Token()->get();
 
