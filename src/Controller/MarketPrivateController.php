@@ -44,14 +44,23 @@ class MarketPrivateController extends AbstractController
             throw new UnauthorizedHttpException('Denied');
         }
 
-        $api      = new CompanionApi(Uuid::uuid4()->toString());
-        $loginUrl = $api->Account()->getLoginUrl();
-        $token    = $api->Token()->get();
+        $hash = sha1($request->getClientIp());
+        $key  = "companion_private_companion_token_{$hash}";
 
-        return $this->json([
-            'LoginUrl' => $loginUrl,
-            'Token'    => $token,
-        ]);
+        if ($response = Redis::Cache()->get($key)) {
+            return $this->json($response);
+        }
+
+        $api = new CompanionApi(Uuid::uuid4()->toString());
+
+        $response = [
+            'LoginUrl' => $api->Account()->getLoginUrl(),
+            'Token'    => $api->Token()->get(),
+            'Cached'   => time(),
+        ];
+
+        Redis::Cache()->set($key, $response, 300);
+        return $this->json($response);
     }
 
     /**
