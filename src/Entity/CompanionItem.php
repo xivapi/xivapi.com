@@ -144,7 +144,7 @@ class CompanionItem
     
     public function getNormalQueue(): int
     {
-        return $this->normalQueue;
+        return $this->normalQueue ?: 0;
     }
     
     public function setNormalQueue(int $normalQueue)
@@ -155,7 +155,7 @@ class CompanionItem
     
     public function getPatreonQueue(): int
     {
-        return $this->patreonQueue;
+        return $this->patreonQueue ?: 0;
     }
     
     public function setPatreonQueue(int $patreonQueue)
