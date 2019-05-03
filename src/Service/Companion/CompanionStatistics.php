@@ -110,6 +110,10 @@ class CompanionStatistics
         // Get the expected update time
         $estimatedCycleTime = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 72);
 
+        // work out how many queues required
+        $expectedQueues = $totalItems / CompanionConfiguration::MAX_ITEMS_PER_CRONJOB;
+        $expectedQueues = ceil($expectedQueues / ($estimatedCycleTime / 60));
+
         /** @var CompanionItem $firstItem */
         /** @var CompanionItem $lastItem */
         $firstItem                = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ]);
@@ -125,6 +129,7 @@ class CompanionStatistics
         $this->report[$priority] = [
             'Name'          => $name,
             'Priority'      => $priority,
+            'ReqQueues'     => $expectedQueues,
             'Items'         => number_format($totalItems),
             'Requests'      => number_format($totalItems * 4),
             'CycleTime'     => $estimatedCycleDifference,
