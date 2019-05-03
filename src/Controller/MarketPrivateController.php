@@ -54,9 +54,10 @@ class MarketPrivateController extends AbstractController
         $api = new CompanionApi(Uuid::uuid4()->toString());
 
         $response = [
-            'LoginUrl' => $api->Account()->getLoginUrl(),
-            'Token'    => $api->Token()->get(),
-            'Cached'   => time(),
+            'LoginUrl'     => $api->Account()->getLoginUrl(),
+            'Token'        => $api->Token()->get(),
+            'Cached'       => time(),
+            'CacheExpires' => time() + 300,
         ];
 
         Redis::Cache()->set($key, $response, 300);
