@@ -43,7 +43,7 @@ class CompanionStatistics
         $this->setUpdateQueueSizes();
     
         // build priority stats
-        foreach (array_keys(CompanionConfiguration::PRIORITY_TIMES) as $queue) {
+        foreach (CompanionConfiguration::PRIORITY_TIMES as $queue) {
             $this->buildQueueStatistics($queue);
         }
     
