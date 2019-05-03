@@ -41,7 +41,7 @@ class CompanionConfiguration
         
         6  => '(not used)',
         7  => '(not used)',
-        8  => '(not used)',
+        8  => 'Never Sold',
         9  => 'Default',
         10 => 'Item is new'
     ];
