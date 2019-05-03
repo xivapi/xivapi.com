@@ -2,7 +2,7 @@
 
 namespace App\Service\API;
 
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use App\Exception\ApiUnauthorizedAccessException;
 
 class ApiPermissions
 {
@@ -41,7 +41,7 @@ class ApiPermissions
     public static function require($permission)
     {
         if (self::has($permission) === false) {
-            throw new UnauthorizedHttpException();
+            throw new ApiUnauthorizedAccessException();
         }
     }
 }

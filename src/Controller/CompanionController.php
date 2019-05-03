@@ -7,7 +7,6 @@ use App\Service\API\ApiPermissions;
 use App\Service\API\ApiRequest;
 use App\Service\Redis\Redis;
 use Companion\CompanionApi;
-use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
