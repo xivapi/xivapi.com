@@ -57,6 +57,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
             'Message' => $message,
             'Hash'    => sha1($message),
             'Ex'      => get_class($ex),
+            'Url'     => $event->getRequest()->getUri(),
             'Debug'   => (Object)[
                 'File'    => "#{$ex->getLine()} {$file}",
                 'Method'  => $event->getRequest()->getMethod(),
