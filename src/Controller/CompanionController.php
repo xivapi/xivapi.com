@@ -84,7 +84,7 @@ class CompanionController extends AbstractController
      */
     public function token()
     {
-        ApiPermissions::require(ApiPermissions::PERMISSION_COMPANION);
+        ApiPermissions::must(ApiPermissions::PERMISSION_COMPANION);
 
         if ($response = $this->cache(__METHOD__)) {
             return $this->json($response);
@@ -103,7 +103,7 @@ class CompanionController extends AbstractController
      */
     public function characters(Request $request)
     {
-        ApiPermissions::require(ApiPermissions::PERMISSION_COMPANION);
+        ApiPermissions::must(ApiPermissions::PERMISSION_COMPANION);
 
         if ($response = $this->cache(__METHOD__)) {
             return $this->json($response);

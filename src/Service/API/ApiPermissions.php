@@ -38,7 +38,7 @@ class ApiPermissions
         return in_array($permission, self::$permissions);
     }
 
-    public static function require($permission)
+    public static function must($permission)
     {
         if (self::has($permission) === false) {
             throw new ApiUnauthorizedAccessException();
