@@ -115,7 +115,7 @@ class CompanionStatistics
         $lastItem                 = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'desc' ]);
 
         $formatOneDay = '%H:%I';
-        $formatMultiDay = '%d days, %H:%I';
+        $formatMultiDay = '%d days, %H:%I hours';
         $formatOffset = (60 * 60 * 24);
 
         // work out the real cycle time
