@@ -132,6 +132,7 @@ class CompanionStatistics
             'Items'         => number_format($totalItems),
             'Requests'      => number_format($totalItems * 4),
             'CycleTime'     => $estimatedCycleDifference,
+            'CycleTimeSec'  => $estimatedCycleTime,
             'CycleTimeReal' => $realCycleDifference,
             'CycleDiff'     => $difference,
             'CycleDiffSec'  => $estimationTimeDifference,
