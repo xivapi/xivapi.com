@@ -176,8 +176,7 @@ class MarketPrivateController extends AbstractController
             return $this->json([ false, 0, 'The server provided is currently not supported.' ]);
         }
         
-        $dc = GameServers::getDataCenterServers(GameServers::LIST[$server]);
-        $servers = GameServers::LIST_DC[$dc];
+        
     
         /** @var CompanionItem $marketEntry */
         $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
@@ -202,6 +201,9 @@ class MarketPrivateController extends AbstractController
         if ($marketEntry->getPatreonQueue() > 0) {
             return $this->json([ false, $requestLastSent, 'Item already in the queue' ]);
         }
+    
+        // get servers for this DC
+        $servers = GameServers::getDataCenterServers(GameServers::LIST[$server]);
         
         // mark all on the DC to update
         foreach ($servers as $server) {
