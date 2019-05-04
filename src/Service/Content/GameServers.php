@@ -96,8 +96,6 @@ class GameServers
     ];
     
     const LIST_DC = [
-        
-        
         // na
         'Aether' => [
             'Adamantoise',

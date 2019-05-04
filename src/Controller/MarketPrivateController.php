@@ -159,4 +159,61 @@ class MarketPrivateController extends AbstractController
             "Item will be updated by patreon queue: {$queue}"
         ]);
     }
+    
+    /**
+     * @Route("/private/market/item/update/requested")
+     */
+    public function manualUpdateItemRequested(Request $request)
+    {
+        if ($request->get('access') !== getenv('MB_ACCESS')) {
+            throw new UnauthorizedHttpException('Denied');
+        }
+    
+        $itemId = (int)$request->get('item_id');
+        $server = (int)$request->get('server');
+        
+        if (in_array($server, GameServers::MARKET_OFFLINE)) {
+            return $this->json([ false, 0, 'The server provided is currently not supported.' ]);
+        }
+        
+        $dc = GameServers::getDataCenterServers(GameServers::LIST[$server]);
+        $servers = GameServers::LIST_DC[$dc];
+    
+        /** @var CompanionItem $marketEntry */
+        $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
+        
+        // if the item was updated within the hour, ignore
+        if ($marketEntry->getUpdated() > time() - (60 * 60)) {
+            return $this->json([ false, $marketEntry->getUpdated(), 'Item already updated within the past 1 hour' ]);
+        }
+    
+        /**
+         * First, check if the item was passed here already
+         */
+        $requestLastSent = Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$server}");
+        if ($requestLastSent) {
+            return $this->json([ false, $requestLastSent, 'Item already requested to be updated' ]);
+        }
+    
+        // Place the item on this server in a cooldown
+        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", time(), (60 * 10));
+    
+        // if the item is already in the patreon queue, skip it
+        if ($marketEntry->getPatreonQueue() > 0) {
+            return $this->json([ false, $requestLastSent, 'Item already in the queue' ]);
+        }
+        
+        // mark all on the DC to update
+        foreach ($servers as $server) {
+            $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
+            $marketEntry->setPriority(0);
+            $this->companionMarketUpdater->saveMarketItemEntry($marketEntry);
+        }
+    
+        return $this->json([
+            true,
+            time(),
+            "Item has been bumped to the front of the queue."
+        ]);
+    }
 }

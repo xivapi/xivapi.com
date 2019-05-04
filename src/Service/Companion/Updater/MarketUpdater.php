@@ -419,6 +419,15 @@ class MarketUpdater
     }
     
     /**
+     * Save a companion market item
+     */
+    public function saveMarketItemEntry(CompanionItem $companionItem)
+    {
+        $this->em->persist($companionItem);
+        $this->em->flush();
+    }
+    
+    /**
      * Get the elastic search document
      */
     private function getMarketItemDocument($server, $itemId): MarketItem
