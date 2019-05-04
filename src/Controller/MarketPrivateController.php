@@ -88,13 +88,11 @@ class MarketPrivateController extends AbstractController
     }
 
     /**
+     * This is used by alerts for DPS users.
      * @Route("/private/market/item/update")
      */
     public function manualUpdateItem(Request $request)
     {
-        // 10 minute timeout per item.
-        $timeout = 10;
-        
         if ($request->get('access') !== getenv('MB_ACCESS')) {
             throw new UnauthorizedHttpException('Denied');
         }
@@ -110,23 +108,23 @@ class MarketPrivateController extends AbstractController
          */
         $requestLastSent = Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$server}");
         if ($requestLastSent) {
-            return $this->json([ false, $requestLastSent, 'Item already requested to be updated' ]);
+            return $this->json([ false, $requestLastSent, 'This item has already been requested very recently to be updated, it should update shortly.' ]);
         }
 
         // Place the item on this server in a cooldown
-        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", time(), (60 * $timeout));
+        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$server}", time(), (60 * 10));
         
         // if the item is already in the patreon queue, skip it
         if ($marketEntry->getPatreonQueue() > 0) {
-            return $this->json([ false, $requestLastSent, 'Item already in the queue' ]);
+            return $this->json([ false, $requestLastSent, 'This item is in a patron queue and will be updated shortly.' ]);
         }
 
         /**
          * Check when the item was last updated, maybe it updated within the last 5 minutes,
          * if so then we don't need to update it again.
          */
-        if ($marketEntry->getUpdated() > (time() - (60 * $timeout))) {
-            return $this->json([ false, $marketEntry->getUpdated(), 'Item already updated within the past 5 minutes' ]);
+        if ($marketEntry->getUpdated() > (time() - (60 * 10))) {
+            return $this->json([ false, $marketEntry->getUpdated(), 'Item was updated recently (within 10 minutes) and cannot be updated at this time.' ]);
         }
 
         /**
@@ -175,15 +173,13 @@ class MarketPrivateController extends AbstractController
         if (in_array($server, GameServers::MARKET_OFFLINE)) {
             return $this->json([ false, 0, 'The server provided is currently not supported.' ]);
         }
-        
-        
     
         /** @var CompanionItem $marketEntry */
         $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
         
         // if the item was updated within the hour, ignore
         if ($marketEntry->getUpdated() > time() - (60 * 60)) {
-            return $this->json([ false, $marketEntry->getUpdated(), 'Item already updated within the past 1 hour' ]);
+            return $this->json([ false, $marketEntry->getUpdated(), 'This item has already been updated within the past 60 minutes and cannot be bumped up the queue at this time.' ]);
         }
     
         /**
@@ -191,7 +187,7 @@ class MarketPrivateController extends AbstractController
          */
         $requestLastSent = Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$server}");
         if ($requestLastSent) {
-            return $this->json([ false, $requestLastSent, 'Item already requested to be updated' ]);
+            return $this->json([ false, $requestLastSent, 'This item has already been requested very recently to be updated, it should update shortly.' ]);
         }
     
         // Place the item on this server in a cooldown
@@ -199,7 +195,7 @@ class MarketPrivateController extends AbstractController
     
         // if the item is already in the patreon queue, skip it
         if ($marketEntry->getPatreonQueue() > 0) {
-            return $this->json([ false, $requestLastSent, 'Item already in the queue' ]);
+            return $this->json([ false, $requestLastSent, 'This item is in a patron queue and will be updated shortly.' ]);
         }
     
         // get servers for this DC
@@ -216,7 +212,7 @@ class MarketPrivateController extends AbstractController
         return $this->json([
             true,
             time(),
-            "Item has been bumped to the front of the queue."
+            "Item has been bumped to the front of the queue. Please allow a couple minutes for the system to process the request and for all servers on your Data-Center to be updated."
         ]);
     }
 }
