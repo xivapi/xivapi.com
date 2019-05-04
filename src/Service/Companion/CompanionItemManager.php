@@ -96,10 +96,6 @@ class CompanionItemManager
         // update priorities
         $this->console->writeln("Updating Item Queues");
         $this->insertMarketItemQueues();
-        
-        // update redis priority cache
-        $this->console->writeln("Updating redis priority cache");
-        $this->insertItemPrioritiesToRedis();
     
         // finished
         $duration = $start->diff(Carbon::now())->format('%h hr, %i min and %s sec');
@@ -408,44 +404,27 @@ class CompanionItemManager
     
         $section->overwrite('- Complete');
     }
-    
+
     /**
-     * Insert all priorities to redis
+     * Get a list of market item ids
      */
-    private function insertItemPrioritiesToRedis()
+    public function getMarketItemIds(): array
     {
-        $conn    = $this->em->getConnection();
-        $total   = number_format(count($this->items));
-        $section = $this->console->section();
-        
-        foreach ($this->items as $i => $itemId) {
-            $i = $i + 1;
-            $section->overwrite("{$i}/{$total} - {$itemId}");
-    
-            foreach (GameServers::LIST as $serverId => $serverName) {
-                // skip offline servers
-                if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
-                    continue;
-                }
-    
-                $section->overwrite("{$i}/{$total} - {$itemId} - {$serverName}");
-    
-                /**
-                 * Grab entry
-                 */
-                $stmt = $conn->prepare("SELECT * FROM companion_market_items WHERE item = {$itemId} AND server = {$serverId} LIMIT 0,1");
-                $stmt->execute();
-                $item = $stmt->fetch();
-    
-                if ($item === null) {
-                    Redis::Cache()->set("market_item_priority_{$serverId}_{$itemId}", 1, Redis::TIME_1_YEAR);
-                    continue;
-                }
-    
-                Redis::Cache()->set("market_item_priority_{$serverId}_{$itemId}", $item['normal_queue'], Redis::TIME_1_YEAR);
+        // if cached, return that
+        if ($items = Redis::Cache()->get(self::MARKET_ITEMS_CACHE_KEY)) {
+            return $items;
+        }
+
+        // build new cache
+        $items = [];
+        foreach (Redis::Cache()->get('ids_Item') as $itemId) {
+            $item = Redis::Cache()->get("xiv_Item_{$itemId}");
+            if (isset($item->ItemSearchCategory->ID)) {
+                $items[] = $itemId;
             }
         }
-    
-        $section->overwrite('- Complete');
+
+        Redis::Cache()->set(self::MARKET_ITEMS_CACHE_KEY, $items);
+        return $items;
     }
 }

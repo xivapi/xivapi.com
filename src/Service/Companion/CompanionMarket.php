@@ -25,7 +25,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class CompanionMarket
 {
     const INDEX = 'companion';
-    
+
+    /** @var EntityManagerInterface */
+    private $em;
     /** @var ElasticSearch */
     private $elastic;
     /** @var CompanionRetainerRepository */
@@ -35,6 +37,7 @@ class CompanionMarket
         EntityManagerInterface $em,
         GameData $gamedata
     ) {
+        $this->em = $em;
         $this->retainerRepository = $em->getRepository(CompanionRetainer::class);
         $this->elastic  = new ElasticSearch('ELASTIC_SERVER_COMPANION');
         $this->gamedata = $gamedata;
@@ -135,9 +138,21 @@ class CompanionMarket
         if ($internal === false) {
             // append item information
             $item->Item = GameItem::build($item->ItemID);
-        
-            // append priority information
-            $item->UpdatePriority = Redis::Cache()->get("market_item_priority_{$item->Server}_{$item->ItemID}");
+
+            $key = __METHOD__ . $item->ID;
+            if (!$itemQueue = Redis::Cache()->get($key)) {
+                $sql = "SELECT normal_queue FROM companion_market_items WHERE item = {$item->ItemID} AND server = {$item->Server} LIMIT 1";
+                $stmt = $this->em->getConnection()->prepare($sql);
+                $stmt->execute();
+                $itemQueue = $stmt->fetch()['normal_queue'] ?? null;
+
+                // cache for an hour
+                Redis::Cache()->set($key, $itemQueue);
+            }
+
+            $item->UpdatePriority = $itemQueue;
+
+
         }
     
         return $item;

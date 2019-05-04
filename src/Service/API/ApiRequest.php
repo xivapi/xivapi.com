@@ -2,8 +2,10 @@
 
 namespace App\Service\API;
 
+use App\Controller\CompanionController;
 use App\Controller\MappyController;
 use App\Controller\MarketController;
+use App\Controller\MarketPrivateController;
 use App\Controller\TooltipsController;
 use App\Controller\LodestoneCharacterController;
 use App\Controller\LodestoneController;
@@ -37,6 +39,8 @@ class ApiRequest
      */
     const API_CONTROLLERS = [
         MarketController::class,
+        MarketPrivateController::class,
+        CompanionController::class,
         MappyController::class,
         TooltipsController::class,
         LodestoneCharacterController::class,

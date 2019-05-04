@@ -27,7 +27,7 @@ class ContentList
 
         $this->ids = $this->request->get('ids')
             ? explode(',', $this->request->get('ids'))
-            : Redis::Cache()->get("ids_{$this->name}");
+            : (array)Redis::Cache()->get("ids_{$this->name}");
         
         if (!$this->ids) {
             throw new NotFoundHttpException('No content ids found for: '. $this->name);
