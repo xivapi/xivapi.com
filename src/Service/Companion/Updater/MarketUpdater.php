@@ -81,17 +81,9 @@ class MarketUpdater
     
     public function update(int $queue)
     {
-        /**
-         * It feels like SE restart their servers every hour????
-         */
-        /*
-        $minute = (int)date('i');
-        if (in_array($minute, [7,8])) {
-            $this->console("Skipping as minute: {$minute}");
-            exit();
-        }
-        */
-        
+        //
+        // todo - temp
+        //
         $japan = Carbon::now(new CarbonTimeZone('Asia/Tokyo'));
         $this->console->writeln("Hour: {$japan->hour}");
         switch($japan->hour) {
@@ -108,6 +100,11 @@ class MarketUpdater
             case 17: $pause = mt_rand(1, 4); break;
             case 18: $pause = mt_rand(0, 3); break;
         }
+        //
+        // todo - temp
+        //
+        
+        
     
         // init
         $this->console("Queue: {$queue}");
@@ -136,7 +133,6 @@ class MarketUpdater
         CompanionSight::set('QUERY_DELAY_MS', 1000);
         
         // begin
-        // $this->tokens[$serverId]
         foreach ($this->items as $item) {
             // deeds
             $itemId = $item['item'];

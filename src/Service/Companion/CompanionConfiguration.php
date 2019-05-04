@@ -69,5 +69,7 @@ class CompanionConfiguration
     const QUEUE_CONSUMERS_PATREON = [
         10,
         11,
+        12,
+        13
     ];
 }
