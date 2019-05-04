@@ -207,6 +207,7 @@ class MarketPrivateController extends AbstractController
         
         // mark all on the DC to update
         foreach ($servers as $server) {
+            $server = GameServers::getServerId($server);
             $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
             $marketEntry->setPriority(0);
             $this->companionMarketUpdater->saveMarketItemEntry($marketEntry);
