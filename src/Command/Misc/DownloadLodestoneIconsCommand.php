@@ -182,7 +182,8 @@ class DownloadLodestoneIconsCommand extends Command
             /**
              * Download the icon if we don't have it.
              */
-            $saveFilename = __DIR__."/../../../public/i2/ls/{$itemId}.png";
+            $saveFilename    = __DIR__."/../../../public/i2/ls/{$itemId}.png";
+            $saveFilenameNew = __DIR__."/../../../public/i2/ls_new/{$itemId}.png";
             if (file_exists($saveFilename) === false) {
                 $section->overwrite("[{$i}] {$itemId} - Download icon...");
                 copy($entity->getLodestoneIcon() . "?t=" . time(), $saveFilename);
@@ -202,6 +203,11 @@ class DownloadLodestoneIconsCommand extends Command
                  */
                 $img = imagecreatefrompng($saveFilename);
                 imagejpeg($img, $saveFilename, 95);
+                
+                /**
+                 * Copy the file to "new"
+                 */
+                copy($saveFilename, $saveFilenameNew);
             }
     
             $section->overwrite("[{$i}] {$itemId} - Complete");

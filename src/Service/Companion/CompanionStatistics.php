@@ -55,8 +55,8 @@ class CompanionStatistics
         $table->setHeaders(array_keys($this->report[1]))->setRows($this->report);
         $table->setStyle('box')->render();
 
-        // if it isn't 9/10 am UK time, don't send discord notice.
-        if (date('H') != 9) {
+        // send it late GMT
+        if (date('H') != 20) {
             return;
         }
         
