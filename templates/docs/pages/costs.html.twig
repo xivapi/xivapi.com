@@ -67,7 +67,7 @@
                     <br>
 
                     <p>Volumes</p>
-                    <ul>
+                    <ul style="margin-bottom: 0;">
                         {% for price in digitalocean.volumes %}
                             <li><strong>${{ price.cost }}</strong> - {{ price.name }}</li>
                         {% endfor %}
@@ -96,7 +96,7 @@
         <tbody>
         <tr>
             <td>
-                <ul>
+                <ul style="margin-bottom: 0;">
                     <li>~$100 / month</li>
                 </ul>
             </td>
