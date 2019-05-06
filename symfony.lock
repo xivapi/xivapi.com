@@ -404,6 +404,9 @@
     "wohali/oauth2-discord-new": {
         "version": "v1.0.0"
     },
+    "xivapi/common-php": {
+        "version": "dev-master"
+    },
     "xivapi/companion-php": {
         "version": "0.1"
     },

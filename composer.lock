@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5d5594570a9e5d4173bd2828a5f45bec",
+    "content-hash": "19b401b40a5d9b7524da675e40b7d20d",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -5355,7 +5355,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "backendtea@gmail.com"
+                    "email": "BackEndTea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
@@ -6375,6 +6375,46 @@
             "time": "2017-10-15T23:24:28+00:00"
         },
         {
+            "name": "xivapi/common-php",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/xivapi/common-php.git",
+                "reference": "5832032c928c27ae28783e708526141d873eaa72"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/xivapi/common-php/zipball/5832032c928c27ae28783e708526141d873eaa72",
+                "reference": "5832032c928c27ae28783e708526141d873eaa72",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2",
+                "ramsey/uuid": "^3.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "XIV\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Josh Freeman",
+                    "email": "josh@viion.co.uk",
+                    "homepage": "http://xivapi.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A library of shared common logic that both XIVAPI and MogBoard use.",
+            "homepage": "https://github.com/xivapi/common-php",
+            "time": "2019-05-06T19:39:37+00:00"
+        },
+        {
             "name": "xivapi/companion-php",
             "version": "1.2.2",
             "source": {
@@ -6740,7 +6780,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "xivapi/common-php": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
