@@ -36,7 +36,7 @@ class Entity
     /**
      * @ORM\Column(type="integer", length=16, options={"default": 0})
      */
-    public $priority = 0;
+    public $priority = self::PRIORITY_NORMAL;
     /**
      * @ORM\Column(type="integer", length=16, options={"default": 0})
      */
