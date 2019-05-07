@@ -103,9 +103,7 @@ class MarketUpdater
         //
         // todo - temp
         //
-        
-        
-    
+
         // init
         $this->console("Queue: {$queue}");
         $this->startTime = microtime(true);
@@ -198,7 +196,15 @@ class MarketUpdater
                 // log all errors
                 file_put_contents(__DIR__.'/errors.log', "{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}", FILE_APPEND);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
-                
+
+                // if emergency maintenance
+                if (stripos($ex->getMessage(), '319201') !== false) {
+                    // mark item as updated
+                    $this->marketItemEntryUpdated[] = $item['id'];
+                    $this->logoutCharacterTokens("Emergency Maintenance", $serverName);
+                    break;
+                }
+
                 // if congested
                 if (stripos($ex->getMessage(), '210010') !== false) {
                     $this->logoutCharacterTokens("Congested", $serverName);
@@ -290,9 +296,12 @@ class MarketUpdater
      */
     private function logoutCharacterTokens(string $message, string $serverName)
     {
+        // update expiring to 60-180 mins
+        $expiring = time() + (60 * mt_rand(60,180));
+
         $sql = "
             UPDATE companion_tokens
-            SET online = 0, message = 'Auto Logout: { message}', token = NULL
+            SET online = 0, message = 'Auto Logout: { message}', token = NULL, expiring = {$expiring}
             WHERE server = '{$serverName}'
         ";
     
