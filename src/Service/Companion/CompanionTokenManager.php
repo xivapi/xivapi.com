@@ -232,6 +232,11 @@ class CompanionTokenManager
         if ($token == null) {
             throw new \Exception("Token not found...");
         }
+
+        // check token is expired
+        if ($token->getExpiring() > time()) {
+            return false;
+        }
         
         // ensure its marked as offline
         $token->setOnline(false)->setMessage('Offline');
