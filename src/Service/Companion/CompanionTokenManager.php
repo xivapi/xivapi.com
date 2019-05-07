@@ -135,7 +135,13 @@ class CompanionTokenManager
          */
         $this->console->writeln("Logging into accounts");
         foreach ($accounts as $account) {
-            [$username, $password] = explode(',', getenv($account));
+            $creds = getenv($account);
+
+            if (empty($creds)) {
+                continue;
+            }
+
+            [$username, $password] = explode(',', $creds);
 
             try {
                 $this->console->writeln("- Account: {$account} {$username}");
