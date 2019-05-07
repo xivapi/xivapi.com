@@ -215,7 +215,8 @@ class CompanionTokenManager
             return false;
         }
 
-        if (Redis::Cache()->get("companion_server_login_issues_{$account}_{$server}")) {
+        // don't login to same account if it failed recently.
+        if (Redis::Cache()->get("companion_server_login_issues_{$account}")) {
             return false;
         }
 
@@ -309,10 +310,10 @@ class CompanionTokenManager
                 ->setToken($api->Token()->get());
             
         } catch (\Exception $ex) {
-            $timeout = mt_rand(1800, 10800);
+            $timeout = mt_rand(1800, 6400);
 
             // prevent logging into same server if it fails for a random amount of time
-            Redis::Cache()->set("companion_server_login_issues_{$account}_{$server}", true, $timeout);
+            Redis::Cache()->set("companion_server_login_issues_{$account}", true, $timeout);
 
             $token
                 ->setMessage('Offline - Failed to login to Companion.')
