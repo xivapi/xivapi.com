@@ -258,11 +258,17 @@ class CompanionTokenManager
         }
         
         [$username, $password] = explode(',', getenv($account));
+
+        $steps = [];
         
         try {
+            // settings
+            CompanionSight::set('CLIENT_TIMEOUT', 2);
+            CompanionSight::set('QUERY_LOOP_COUNT', 5);
+            CompanionSight::set('QUERY_DELAY_MS', mt_rand(1000,1500));
+
             // initialize API and create a new token
             $api = new CompanionApi("{$account}_{$username}_{$server}");
-
 
             // track account logins
             Redis::Cache()->increment("companion_count_logins_{$account}");
@@ -270,6 +276,7 @@ class CompanionTokenManager
             // login
             $this->console->writeln("- Account Login: {$account} {$username} {$server}");
             $api->Account()->login($username, $password);
+            $steps[] = 'Logged-In';
             GoogleAnalytics::companionTrackItemAsUrl("/account/login");
             
             // find character for this server
@@ -282,6 +289,7 @@ class CompanionTokenManager
                 }
             }
             GoogleAnalytics::companionTrackItemAsUrl("/account/get-characters");
+            $steps[] = "Characters Fetched";
             
             // couldn't find a valid character
             if ($cid === null) {
@@ -292,30 +300,29 @@ class CompanionTokenManager
             // login with our chosen character!
             $this->console->writeln("- Logging into character: {$cid}");
             $api->Login()->loginCharacter($cid);
+            $steps[] = "Character Logged-In";
             GoogleAnalytics::companionTrackItemAsUrl("/account/login-character");
             
             // confirm
             $character = $api->login()->getCharacter()->character;
             $this->console->writeln("- Character logged into: {$character->name} ({$character->world})");
+            $steps[] = "Character Confirmed";
             GoogleAnalytics::companionTrackItemAsUrl("/account/login-character-confirm");
             
             // get character status
             $api->login()->getCharacterWorlds();
             $this->console->writeln('- Character world status confirmed');
+            $steps[] = "Worlds Confirmed";
             GoogleAnalytics::companionTrackItemAsUrl("/account/worlds");
             
             // wait a bit
             $this->console->writeln('- Testing market in a moment...');
             sleep(mt_rand(15,50));
 
-            // settings
-            CompanionSight::set('CLIENT_TIMEOUT', 2);
-            CompanionSight::set('QUERY_LOOP_COUNT', 5);
-            CompanionSight::set('QUERY_DELAY_MS', mt_rand(1000,1500));
-
             // perform a test
             $api->market()->getItemMarketListings(mt_rand(2000,25000));
             $this->console->writeln('- Market fetch confirmed.');
+            $steps[] = "Price Checked";
             
             // confirm success
             $token
@@ -337,7 +344,7 @@ class CompanionTokenManager
             
             $this->errorHandler->exception(
                 "SE_Login_Failure",
-                "Account: ({$account}) {$username} - Server: {$server} - Message: {$ex->getMessage()}"
+                "Account: ({$account}) {$username} - Server: {$server} - Message: {$ex->getMessage()} - Stages: {$steps}"
             );
             
             $this->console->writeln('- Character failed to login: '. $ex->getMessage());
