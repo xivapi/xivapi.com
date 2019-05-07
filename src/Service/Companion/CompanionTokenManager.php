@@ -261,6 +261,10 @@ class CompanionTokenManager
         try {
             // initialize API and create a new token
             $api = new CompanionApi("{$account}_{$username}_{$server}");
+
+
+            // track account logins
+            Redis::Cache()->increment("companion_count_logins_{$account}");
             
             // login
             $this->console->writeln("- Account Login: {$account} {$username} {$server}");

@@ -16,6 +16,7 @@ use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
+use App\Service\Redis\Redis;
 use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Carbon\Carbon;
@@ -92,10 +93,10 @@ class MarketUpdater
             case 9: $pause = mt_rand(1, 3); break;
             case 10: $pause = mt_rand(2, 5); break;
             case 11: $pause = mt_rand(2, 6); break;
-            case 12: $pause = mt_rand(2, 8); break;
-            case 13: $pause = mt_rand(2, 8); break;
-            case 14: $pause = mt_rand(2, 8); break;
-            case 15: $pause = mt_rand(2, 6); break;
+            case 12: $pause = mt_rand(3, 10); break;
+            case 13: $pause = mt_rand(3, 12); break;
+            case 14: $pause = mt_rand(3, 10); break;
+            case 15: $pause = mt_rand(2, 8); break;
             case 16: $pause = mt_rand(1, 5); break;
             case 17: $pause = mt_rand(1, 4); break;
             case 18: $pause = mt_rand(0, 3); break;
@@ -110,7 +111,7 @@ class MarketUpdater
         $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
         $this->queue = $queue;
         $this->console('Starting!');
-    
+
         // fetch tokens and items
         $this->fetchCompanionTokens();
         $this->fetchItemIdsToUpdate($queue);
@@ -127,8 +128,8 @@ class MarketUpdater
         
         // settings
         CompanionSight::set('CLIENT_TIMEOUT', 2);
-        CompanionSight::set('QUERY_LOOP_COUNT', 10);
-        CompanionSight::set('QUERY_DELAY_MS', 1000);
+        CompanionSight::set('QUERY_LOOP_COUNT', 6);
+        CompanionSight::set('QUERY_DELAY_MS', 1500);
         
         // begin
         foreach ($this->items as $item) {
@@ -153,7 +154,10 @@ class MarketUpdater
     
                 // pick a random token
                 $token = $this->tokens[$serverId][array_rand($this->tokens[$serverId])];
-    
+
+                // record
+                Redis::Cache()->increment("companion_count_account_usage_{$token->account}");
+
                 // set token
                 $api->Token()->set($token);
     
@@ -525,7 +529,7 @@ class MarketUpdater
     private function fetchCompanionTokens()
     {
         $conn = $this->em->getConnection();
-        $sql  = "SELECT server, online, token FROM companion_tokens";
+        $sql  = "SELECT account, server, online, token FROM companion_tokens";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         
@@ -540,8 +544,10 @@ class MarketUpdater
             if (!isset($this->tokens[$serverId])) {
                 $this->tokens[$serverId] = [];
             }
-    
-            $this->tokens[$serverId][] = json_decode($arr['token']);
+
+            $token = json_decode($arr['token']);
+            $token->account = $arr['account'];
+            $this->tokens[$serverId][] = $token;
         }
     }
 
