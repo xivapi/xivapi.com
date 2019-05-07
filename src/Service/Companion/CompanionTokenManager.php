@@ -8,6 +8,7 @@ use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
+use Companion\Config\CompanionSight;
 use Companion\Http\Cookies;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -305,11 +306,15 @@ class CompanionTokenManager
             
             // wait a bit
             $this->console->writeln('- Testing market in a moment...');
-            sleep(mt_rand(3,8));
-            
+            sleep(mt_rand(15,50));
+
+            // settings
+            CompanionSight::set('CLIENT_TIMEOUT', 2);
+            CompanionSight::set('QUERY_LOOP_COUNT', 5);
+            CompanionSight::set('QUERY_DELAY_MS', mt_rand(1000,1500));
+
             // perform a test
-            $api->market()->getItemMarketListings(5);
-            GoogleAnalytics::companionTrackItemAsUrl("/account/market-5");
+            $api->market()->getItemMarketListings(mt_rand(2000,25000));
             $this->console->writeln('- Market fetch confirmed.');
             
             // confirm success
