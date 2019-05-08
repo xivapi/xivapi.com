@@ -151,9 +151,9 @@ class MarketPrivateController extends AbstractController
         // timeout based on queue
         $timeoutTimes = [
             1 => 15, // 1 hour queue
-            2 => 30, // 3 hour queue
-            3 => 60, // 12 hour queue
-            4 => 60, // 30 hour queue
+            2 => 15, // 3 hour queue
+            3 => 30, // 12 hour queue
+            4 => 30, // 30 hour queue
             5 => 60, // 48 hour queue
             6 => 60  // default
         ];
@@ -269,9 +269,9 @@ class MarketPrivateController extends AbstractController
         // timeout based on queue
         $timeoutTimes = [
             1 => 15, // 1 hour queue
-            2 => 30, // 3 hour queue
-            3 => 60, // 12 hour queue
-            4 => 60, // 30 hour queue
+            2 => 15, // 3 hour queue
+            3 => 30, // 12 hour queue
+            4 => 30, // 30 hour queue
             5 => 60, // 48 hour queue
             6 => 60  // default
         ];
