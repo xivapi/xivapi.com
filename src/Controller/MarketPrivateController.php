@@ -149,7 +149,7 @@ class MarketPrivateController extends AbstractController
             }
         }
     
-        RedisTracking::increment(RedisTracking::TOTAL_MANUAL_UPDATES);
+        RedisTracking::increment('TOTAL_DPS_ALERTS_UPDATES');
         
         /**
          * if we have a queue, use it, otherwise pick oen at random
@@ -218,7 +218,7 @@ class MarketPrivateController extends AbstractController
             $this->companionMarketUpdater->saveMarketItemEntry($marketEntry);
         }
     
-        RedisTracking::increment(RedisTracking::TOTAL_MANUAL_UPDATES);
+        RedisTracking::increment('TOTAL_MANUAL_UPDATES');
         
         return $this->json([
             true,
