@@ -197,7 +197,7 @@ class MarketUpdater
     
                 RedisTracking::increment('ITEM_UPDATED');
                 RedisTracking::increment('ITEM_UPDATED_DAILY_'. $queue .'_'. date('y-m-d'));
-                RedisTracking::increment('ITEM_UPDATED_DAILY_'. strlen($queue) == 3 ? $queue[0] : 'PATRON' .'_'. date('y-m-d'));
+                RedisTracking::increment('ITEM_UPDATED_DAILY_'. strlen($queue) == 3 ? substr($queue, 0, 1) : 'PATRON' .'_'. date('y-m-d'));
     
                 if ($pause) {
                     sleep($pause);
