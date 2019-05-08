@@ -263,7 +263,7 @@ class CompanionTokenManager
         
         try {
             // settings
-            CompanionSight::set('CLIENT_TIMEOUT', 2);
+            CompanionSight::set('CLIENT_TIMEOUT', 5);
             CompanionSight::set('QUERY_LOOP_COUNT', 5);
             CompanionSight::set('QUERY_DELAY_MS', mt_rand(1000,1500));
 
@@ -367,7 +367,7 @@ class CompanionTokenManager
         /** @var CompanionToken $token */
         foreach ($tokens as $token) {
             if ($token->getExpiring() < time()) {
-                $token->setOnline(false);
+                $token->setOnline(false)->setMessage("Detected offline when fetched")->setToken(null);
                 $this->em->persist($token);
             }
         }
