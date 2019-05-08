@@ -291,7 +291,7 @@ class CompanionTokenManager
             
             // wait a bit
             $this->console->writeln('- Testing market in a moment...');
-            sleep(mt_rand(15,50));
+            sleep(mt_rand(10,30));
 
             // perform a test
             $api->market()->getItemMarketListings(mt_rand(2000,25000));
