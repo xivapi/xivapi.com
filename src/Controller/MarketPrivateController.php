@@ -96,6 +96,8 @@ class MarketPrivateController extends AbstractController
         if ($request->get('access') !== getenv('MB_ACCESS')) {
             throw new UnauthorizedHttpException('Denied');
         }
+    
+        RedisTracking::increment('TOTAL_DPS_ALERTS_INITIALIZED');
         
         $itemId = (int)$request->get('item_id');
         $server = (int)$request->get('server');
@@ -184,6 +186,7 @@ class MarketPrivateController extends AbstractController
         }
     
         RedisTracking::increment('TOTAL_DPS_ALERTS_UPDATES');
+        RedisTracking::increment("TOTAL_DPS_ALERTS_UPDATES_QUEUE_{$queue}");
         RedisTracking::append('TOTAL_DPS_ALERTS_UPDATES', date('Y-m-d H:i:s'));
         
         /**
@@ -207,6 +210,9 @@ class MarketPrivateController extends AbstractController
         if ($request->get('access') !== getenv('MB_ACCESS')) {
             throw new UnauthorizedHttpException('Denied');
         }
+    
+        RedisTracking::increment('TOTAL_MANUAL_UPDATES_CLICKED');
+        RedisTracking::append('TOTAL_MANUAL_UPDATES_CLICKED', date('Y-m-D H:i:s'));
         
         $itemId = (int)$request->get('item_id');
         $server = (int)$request->get('server');
