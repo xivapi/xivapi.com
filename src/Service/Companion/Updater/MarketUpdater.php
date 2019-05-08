@@ -305,7 +305,7 @@ class MarketUpdater
 
         $sql = "
             UPDATE companion_tokens
-            SET online = 0, message = 'Auto Logout: { message}', token = NULL, expiring = {$expiring}
+            SET online = 0, message = 'Auto Logout: {$message}', token = NULL, expiring = {$expiring}
             WHERE server = '{$serverName}'
         ";
     

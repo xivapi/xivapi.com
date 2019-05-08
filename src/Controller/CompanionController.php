@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exception\ApiUnauthorizedAccessException;
 use App\Service\API\ApiPermissions;
 use App\Service\API\ApiRequest;
 use App\Service\Redis\Redis;
@@ -9,7 +10,6 @@ use Companion\CompanionApi;
 use Companion\Config\SightToken;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -38,7 +38,7 @@ class CompanionController extends AbstractController
         $requestToken = trim($request->get('token'));
 
         if (empty($requestToken)) {
-            throw new UnauthorizedHttpException();
+            throw new ApiUnauthorizedAccessException();
         }
 
         // set token
