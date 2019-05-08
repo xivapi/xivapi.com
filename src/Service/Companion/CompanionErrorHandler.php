@@ -134,7 +134,7 @@ class CompanionErrorHandler
      */
     public function isCriticalExceptionCount()
     {
-        return Redis::Cache()->get(self::CRITICAL_EXCEPTIONS_STOPPED) == null;
+        return Redis::Cache()->get(self::CRITICAL_EXCEPTIONS_STOPPED) != null;
     }
 
     /**
