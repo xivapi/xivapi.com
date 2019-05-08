@@ -19,6 +19,7 @@ use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
 use App\Service\Redis\RedisTracking;
 use App\Service\ThirdParty\Discord\Discord;
+use App\Service\ThirdParty\Discord\Mog;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
@@ -157,7 +158,7 @@ class MarketUpdater
                 $token = $this->tokens[$serverId][array_rand($this->tokens[$serverId])];
 
                 // record
-                Redis::Cache()->increment("companion_count_account_usage_{$token->account}");
+                RedisTracking::increment('COMPANION_ACCOUNT_USAGE_'. $token->account);
 
                 // set token
                 $api->Token()->set($token);
@@ -194,7 +195,8 @@ class MarketUpdater
                 $duration = round(microtime(true) - $a, 1);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
     
-                RedisTracking::increment(RedisTracking::ITEM_UPDATED);
+                RedisTracking::increment('ITEM_UPDATED');
+                RedisTracking::increment('ITEM_UPDATED_DAILY_'. $queue .'_'. date('y-m-d'));
     
                 if ($pause) {
                     sleep($pause);
@@ -222,6 +224,14 @@ class MarketUpdater
                 if (stripos($ex->getMessage(), '111001') !== false) {
                     $this->logoutCharacterTokens("Authorization failed", $serverName);
                     break;
+                }
+                
+                if (Redis::Cache()->get('companion_item_update_error_sent') == null) {
+                    Redis::Cache()->set('companion_item_update_error_sent', true, 60 * 15);
+                    $this->errorHandler->exception(
+                        $ex->getMessage(),
+                        "Item Update Failure for: ({$token->account}) {$itemId} on {$serverName} - {$serverDc}"
+                    );
                 }
             }
         }

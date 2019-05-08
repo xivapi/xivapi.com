@@ -6,6 +6,7 @@ use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
 use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
+use App\Service\Redis\RedisTracking;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
@@ -314,7 +315,8 @@ class CompanionTokenManager
                 ->setOnline(true)
                 ->setExpiring(time() + mt_rand(28800, 54000)) // expires in 8-16 hours
                 ->setToken($api->Token()->get());
-            
+    
+            RedisTracking::increment('ACCOUNT_LOGIN_SUCCESS');
         } catch (\Exception $ex) {
             $timeout = mt_rand(1800, 6400);
 
@@ -332,6 +334,7 @@ class CompanionTokenManager
             );
             
             $this->console->writeln('- Character failed to login: '. $ex->getMessage());
+            RedisTracking::increment('ACCOUNT_LOGIN_FAILURE');
         }
         
         $this->em->persist($token);

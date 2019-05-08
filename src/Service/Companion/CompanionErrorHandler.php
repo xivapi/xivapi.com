@@ -5,6 +5,7 @@ namespace App\Service\Companion;
 use App\Entity\CompanionError;
 use App\Repository\CompanionErrorRepository;
 use App\Service\Redis\Redis;
+use App\Service\Redis\RedisTracking;
 use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\Exceptions\CompanionException;
@@ -81,6 +82,8 @@ class CompanionErrorHandler
      */
     public function exception(string $companionError, string $customMessage)
     {
+        RedisTracking::increment('ITEM_UPDATE_ERROR');
+        
         // Analytics
         GoogleAnalytics::companionTrackItemAsUrl('companion_error');
 
