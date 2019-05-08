@@ -89,6 +89,9 @@ class CompanionErrorHandler
 
         // Get the error exception type
         [$errorCode, $errorException] = $this->getExceptionCodeAndType($companionError);
+        
+        // track each code
+        RedisTracking::increment('ITEM_UPDATE_ERROR_'. $errorCode);
 
         // Increase critical exception count
         $this->incrementCriticalExceptionCount();
@@ -102,10 +105,15 @@ class CompanionErrorHandler
         $this->em->persist($error);
         $this->em->flush();
         
+        // ignore 500 errors and cURL errors.
+        if ($errorCode == '340000' || $errorCode == 'cURL error 28') {
+            return;
+        }
+        
         $date = date('Y-m-d H:i:s', $error->getAdded());
         Discord::mog()->sendMessage(
             '571007332616503296',
-            "[{$date} UTC] **Companion Error:** {$error->getCode()} {$error->getMessage()} {$error->getException()}"
+            "[{$date} UTC] **Companion Error:** Code: {$error->getCode()} Ex: {$error->getException()} -- {$error->getMessage()}"
         );
     }
 
