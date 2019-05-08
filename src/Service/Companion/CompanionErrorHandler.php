@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class CompanionErrorHandler
 {
     const CRITICAL_EXCEPTIONS = 'companion_critical_exception_count_v2';
-    const CRITICAL_EXCEPTIONS_TIMEOUT = (60 * 10);
+    const CRITICAL_EXCEPTIONS_STOPPED = 'companion_critical_exception_count_v2_STOPPED';
 
     const ERRORS = [
         'cURL error 28'     => 'Sight Timed-out (CURL 28)',
@@ -132,10 +132,9 @@ class CompanionErrorHandler
     /**
      * Get the critical exception count
      */
-    public function getCriticalExceptionCount()
+    public function isCriticalExceptionCount()
     {
-        $count = Redis::Cache()->get(self::CRITICAL_EXCEPTIONS) ?: 0;
-        return (int)$count;
+        return Redis::Cache()->get(self::CRITICAL_EXCEPTIONS_STOPPED) == null;
     }
 
     /**
@@ -143,16 +142,24 @@ class CompanionErrorHandler
      */
     private function incrementCriticalExceptionCount()
     {
+        if (Redis::Cache()->get(self::CRITICAL_EXCEPTIONS_STOPPED)) {
+            return;
+        }
+        
+        // increment critical exceptions
         $count = Redis::Cache()->get(self::CRITICAL_EXCEPTIONS) ?: 0;
         $count = (int)$count;
         $count++;
 
-        Redis::Cache()->set(self::CRITICAL_EXCEPTIONS, $count, (60 * 120));
+        // only record exceptions for the next 10 minutes before resetting
+        Redis::Cache()->set(self::CRITICAL_EXCEPTIONS, $count, 600);
         
+        // if we exceed error threshold, stop for a bit
         if ($count > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
-            // pause for a random amount of time between 10 and 50 minutes
-            $time = mt_rand(10, 50);
-            Redis::Cache()->set(self::CRITICAL_EXCEPTIONS, $count, (60 * $time));
+            // pause for a random amount of time between 10-20 minutes
+            $time = mt_rand(5, 20);
+            Redis::Cache()->set(self::CRITICAL_EXCEPTIONS_STOPPED, $count, (60 * $time));
+            Redis::Cache()->delete(self::CRITICAL_EXCEPTIONS);
             
             // alert mogboard
             Discord::mog()->sendMessage(

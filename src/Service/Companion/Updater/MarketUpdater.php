@@ -203,9 +203,14 @@ class MarketUpdater
                 }
             } catch (\Exception $ex) {
                 // log all errors
-                file_put_contents(__DIR__.'/errors.log', "{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}", FILE_APPEND);
+                file_put_contents(__DIR__.'/../../../../CompanionErrors.log', "{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}", FILE_APPEND);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
-
+    
+                $this->errorHandler->exception(
+                    $ex->getMessage(),
+                    "Item Update Failure for: ({$token->account}) {$itemId} on {$serverName} - {$serverDc}"
+                );
+                
                 // if emergency maintenance
                 if (stripos($ex->getMessage(), '319201') !== false) {
                     // mark item as updated
@@ -225,14 +230,7 @@ class MarketUpdater
                     $this->logoutCharacterTokens("Authorization failed", $serverName);
                     break;
                 }
-                
-                if (Redis::Cache()->get('companion_item_update_error_sent') == null) {
-                    Redis::Cache()->set('companion_item_update_error_sent', true, 60 * 15);
-                    $this->errorHandler->exception(
-                        $ex->getMessage(),
-                        "Item Update Failure for: ({$token->account}) {$itemId} on {$serverName} - {$serverDc}"
-                    );
-                }
+
             }
         }
     
@@ -286,7 +284,7 @@ class MarketUpdater
      */
     private function checkErrorCount()
     {
-        if ($this->errorHandler->getCriticalExceptionCount() >= CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
+        if ($this->errorHandler->isCriticalExceptionCount()) {
             $this->console('Exceptions are above the ERROR_COUNT_THRESHOLD.');
             return true;
         }
