@@ -227,7 +227,7 @@ class CompanionTokenManager
     public function login(string $account, string $server, string $characterId)
     {
         // check error count
-        if ($this->errorHandler->getCriticalExceptionCount() >= CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
+        if ($this->errorHandler->isCriticalExceptionCount()) {
             return false;
         }
 
