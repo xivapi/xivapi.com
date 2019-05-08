@@ -9,8 +9,8 @@ class RedisTracking
      */
     public static function track(string $constant, $value)
     {
-        $tracking = Redis::Cache()->get('mb_tracking') ?: [];
-        $tracking[$constant] = $value;
+        $tracking = Redis::Cache()->get('mb_tracking') ?: (Object)[];
+        $tracking->{$constant} = $value;
         
         Redis::Cache()->set("mb_tracking", $tracking, 3600 * 24);
     }
@@ -18,10 +18,10 @@ class RedisTracking
     /**
      * Increment a stat
      */
-    public static function increment(string $constant, $value = 1)
+    public static function increment(string $constant)
     {
-        $tracking = Redis::Cache()->get('mb_tracking') ?: [];
-        $tracking[$constant] = isset($tracking[$constant]) ? $tracking[$constant] + 1 : 1;
+        $tracking = Redis::Cache()->get('mb_tracking') ?: (Object)[];
+        $tracking->{$constant} = isset($tracking->{$constant}) ? $tracking->{$constant} + 1 : 1;
         
         Redis::Cache()->set("mb_tracking", $tracking, 3600 * 24);
     }
@@ -31,7 +31,7 @@ class RedisTracking
      */
     public static function get()
     {
-        return  Redis::Cache()->get('mb_tracking_');
+        return Redis::Cache()->get('mb_tracking');
     }
     
     /**
