@@ -189,10 +189,7 @@ class CompanionTokenManager
     {
         /** @var CompanionToken $token */
         $token = $this->repository->findExpiringAccount();
-
-        if ($token && $token->getExpiring() < time()) {
-            $this->login($token->getAccount(), $token->getServer());
-        }
+        $this->login($token->getAccount(), $token->getServer());
     }
 
     public function autoLoginToAllAccounts()
@@ -236,11 +233,12 @@ class CompanionTokenManager
             'server' => $server,
         ]);
 
+        // token not found
         if ($token == null) {
             throw new \Exception("Token not found...");
         }
 
-        // check token is expired
+        // token has not expired
         if ($token->getExpiring() > time()) {
             return false;
         }
@@ -328,7 +326,7 @@ class CompanionTokenManager
             $token
                 ->setMessage('Online')
                 ->setOnline(true)
-                ->setExpiring(time() + mt_rand(28800, 57600)) // expires in 8-16 hours
+                ->setExpiring(time() + mt_rand(28800, 54000)) // expires in 8-16 hours
                 ->setToken($api->Token()->get());
             
         } catch (\Exception $ex) {
