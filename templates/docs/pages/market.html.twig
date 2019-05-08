@@ -171,7 +171,13 @@
         {% for token in server_tokens %}
             <tr>
                 <td>{{ token.server }}</td>
-                <td>{{ token.online ? 'Market Online' : '‼️ OFFLINE' }}</td>
+                <td>
+                    {% if token.online %}
+                        <span style="color: #1d9b02;">Online</span>
+                    {% else %}
+                        <span style="color: #f00;">Offline</span>
+                    {% endif %}
+                </td>
                 <td>{{ token.lastOnline|date }}</td>
             </tr>
         {% endfor %}
