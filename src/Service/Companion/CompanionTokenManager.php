@@ -201,7 +201,7 @@ class CompanionTokenManager
             // clear cookies
             Cookies::clear(); sleep(1);
 
-            $this->login($token->getAccount(), $token->getServer());
+            $this->login($token->getAccount(), $token->getServer(), $token->getCharacterId());
 
             // clear cookies
             Cookies::clear();
@@ -212,7 +212,7 @@ class CompanionTokenManager
     /**
      * Login to a specific server
      */
-    public function login(string $account, string $server)
+    public function login(string $account, string $server, string $characterId)
     {
         // check error count
         if ($this->errorHandler->getCriticalExceptionCount() >= CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
@@ -277,35 +277,11 @@ class CompanionTokenManager
             $steps[] = 'Logged-In';
             GoogleAnalytics::companionTrackItemAsUrl("/account/login");
             
-            // find character for this server
-            $this->console->writeln('- Finding active character ...');
-            $cid = null;
-            foreach ($api->Login()->getCharacters()->accounts[0]->characters as $character) {
-                if ($character->world == $server) {
-                    $cid = $character->cid;
-                    break;
-                }
-            }
-            GoogleAnalytics::companionTrackItemAsUrl("/account/get-characters");
-            $steps[] = "Characters Fetched";
-            
-            // couldn't find a valid character
-            if ($cid === null) {
-                $this->console->writeln('- Error: No character on this server...');
-                return false;
-            }
-            
-            // login with our chosen character!
-            $this->console->writeln("- Logging into character: {$cid}");
-            $api->Login()->loginCharacter($cid);
+            // login with our character!
+            $this->console->writeln("- Logging into character: {$characterId}");
+            $api->Login()->loginCharacter($characterId);
             $steps[] = "Character Logged-In";
             GoogleAnalytics::companionTrackItemAsUrl("/account/login-character");
-            
-            // confirm
-            $character = $api->login()->getCharacter()->character;
-            $this->console->writeln("- Character logged into: {$character->name} ({$character->world})");
-            $steps[] = "Character Confirmed";
-            GoogleAnalytics::companionTrackItemAsUrl("/account/login-character-confirm");
             
             // get character status
             $api->login()->getCharacterWorlds();
