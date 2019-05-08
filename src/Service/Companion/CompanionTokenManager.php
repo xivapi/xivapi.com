@@ -191,8 +191,7 @@ class CompanionTokenManager
             /** @var CompanionToken $token */
             $token = $this->repository->findExpiringAccount();
         } catch (\Exception $ex) {
-            $this->console->writeln("No accounts expired.");
-            return;
+            $token = null;
         }
 
         if ($token == null) {
