@@ -302,7 +302,7 @@ class MarketPrivateController extends AbstractController
         return $this->json([
             true,
             time(),
-            "Item has been bumped to the front of the queue. Please allow a couple minutes for the system to process the request and for all servers on your Data-Center to be updated."
+            "Item has been bumped to the front of the queue. Please allow up to 5 minutes for the system to process the request and for Prices + History on ALL servers within your Data-Center to be updated."
         ]);
     }
 }
