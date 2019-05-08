@@ -189,7 +189,7 @@ class CompanionTokenManager
     {
         /** @var CompanionToken $token */
         $token = $this->repository->findExpiringAccount();
-        $this->login($token->getAccount(), $token->getServer());
+        $this->login($token->getAccount(), $token->getServer(), $token->getCharacterId()));
     }
 
     public function autoLoginToAllAccounts()
