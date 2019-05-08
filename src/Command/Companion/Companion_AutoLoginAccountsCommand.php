@@ -34,7 +34,6 @@ class Companion_AutoLoginAccountsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /**
-         * php bin/console Companion_AutoLoginAccountsCommand login MB1,Phoenix
          * php bin/console Companion_AutoLoginAccountsCommand auto_login
          * php bin/console Companion_AutoLoginAccountsCommand auto_login_all
          * php bin/console Companion_AutoLoginAccountsCommand update_characters MB1
@@ -42,11 +41,6 @@ class Companion_AutoLoginAccountsCommand extends Command
         switch ($input->getArgument('action')) {
             default:
                 $output->writeln('Unknown, must be: login, auto_login, update_characters');
-                break;
-    
-            case 'login':
-                [$account, $server] = explode(',', $input->getArgument('login'));
-                $this->ctm->login($account, $server);
                 break;
                 
             case 'auto_login':

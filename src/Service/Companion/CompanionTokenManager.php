@@ -114,7 +114,7 @@ class CompanionTokenManager
     {
         $this->em                    = $em;
         $this->repository            = $em->getRepository(CompanionToken::class);
-        $this->errorHandler = $errorHandler;
+        $this->errorHandler          = $errorHandler;
         $this->console               = new ConsoleOutput();
     }
 
@@ -123,7 +123,7 @@ class CompanionTokenManager
      */
     public function autoPopulateCharacters(string $accounts = null)
     {
-        $accounts = $accounts ? explode(',', $accounts) : ['MB1','MB2','MB3','MB4','MB5','MB6'];
+        $accounts = $accounts ? explode(',', $accounts) : range(1,50);
         $repo     = $this->em->getRepository(CompanionToken::class);
 
         // clear cookies
@@ -137,7 +137,8 @@ class CompanionTokenManager
          */
         $this->console->writeln("Logging into accounts");
         foreach ($accounts as $account) {
-            $creds = getenv($account);
+            $account = "MB" . $account;
+            $creds   = getenv($account);
 
             if (empty($creds)) {
                 continue;
