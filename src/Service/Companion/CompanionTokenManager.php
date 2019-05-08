@@ -187,8 +187,13 @@ class CompanionTokenManager
      */
     public function autoLoginToExpiringAccount()
     {
-        /** @var CompanionToken $token */
-        $token = $this->repository->findExpiringAccount();
+        try {
+            /** @var CompanionToken $token */
+            $token = $this->repository->findExpiringAccount();
+        } catch (\Exception $ex) {
+            $this->console->writeln("No accounts expired.");
+            return;
+        }
 
         if ($token == null) {
             $this->console->writeln("No accounts expired.");
