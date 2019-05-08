@@ -224,13 +224,22 @@ class MarketPrivateController extends AbstractController
     
         /** @var CompanionItem $marketEntry */
         $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
+    
+        // if the item was manually updated within the hour, ignore
+        if (Redis::Cache()->get("companion_item_dc_update_preupdate_{$itemId}_{$dc}")) {
+            return $this->json([
+                false,
+                $marketEntry->getUpdated(),
+                'This item has already been requested to be updated, it should update shortly.'
+            ]);
+        }
         
         // if the item was manually updated within the hour, ignore
         if (Redis::Cache()->get("companion_item_dc_update_custom_{$itemId}_{$dc}")) {
             return $this->json([
                 false,
                 $marketEntry->getUpdated(),
-                'This item has already been updated recently and cannot be bumped up the queue at this time.'
+                'This item was recently placed in the update queue and should be up to date or will be very shortly. Check back in a few minutes for up to date prices.'
             ]);
         }
         
@@ -241,7 +250,7 @@ class MarketPrivateController extends AbstractController
             return $this->json([
                 false,
                 $marketEntry->getUpdated(),
-                'This item has already been requested very recently to be updated, it should update shortly.'
+                'This item was updated very recently and cannot be queued to update at this time.'
             ]);
         }
     
@@ -273,6 +282,9 @@ class MarketPrivateController extends AbstractController
         
         // Place the item on a "manual update" cooldown as well
         Redis::Cache()->set("companion_item_dc_update_custom_{$itemId}_{$dc}", time(), $timeout);
+    
+        // Place the item on a very short cooldown prior to "updating"
+        Redis::Cache()->set("companion_item_dc_update_preupdate_{$itemId}_{$dc}", time(), (60 * 5));
         
         // get servers for this DC
         $servers = GameServers::getDataCenterServers(GameServers::LIST[$server]);
