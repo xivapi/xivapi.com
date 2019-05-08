@@ -17,6 +17,7 @@ use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
+use App\Service\Redis\RedisTracking;
 use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Carbon\Carbon;
@@ -192,6 +193,8 @@ class MarketUpdater
                  */
                 $duration = round(microtime(true) - $a, 1);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
+    
+                RedisTracking::increment(RedisTracking::ITEM_UPDATED);
     
                 if ($pause) {
                     sleep($pause);

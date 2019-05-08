@@ -8,6 +8,7 @@ use App\Service\Companion\CompanionTokenManager;
 use App\Service\Companion\Updater\MarketUpdater;
 use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
+use App\Service\Redis\RedisTracking;
 use Companion\CompanionApi;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -137,6 +138,7 @@ class MarketPrivateController extends AbstractController
             max(CompanionConfiguration::QUEUE_CONSUMERS_PATREON)
         );
         
+        // try look for an empty queue, if one isn't found it'll pick one at random
         foreach ($queues as $i => $num) {
             $size = Redis::Cache()->get("companion_market_manual_queue_{$num}");
             
@@ -146,6 +148,8 @@ class MarketPrivateController extends AbstractController
                 break;
             }
         }
+    
+        RedisTracking::increment(RedisTracking::TOTAL_MANUAL_UPDATES);
         
         /**
          * if we have a queue, use it, otherwise pick oen at random
@@ -213,6 +217,8 @@ class MarketPrivateController extends AbstractController
             $marketEntry->setPriority(0);
             $this->companionMarketUpdater->saveMarketItemEntry($marketEntry);
         }
+    
+        RedisTracking::increment(RedisTracking::TOTAL_MANUAL_UPDATES);
         
         return $this->json([
             true,
