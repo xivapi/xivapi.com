@@ -184,7 +184,7 @@ class MarketPrivateController extends AbstractController
         }
     
         RedisTracking::increment('TOTAL_DPS_ALERTS_UPDATES');
-        RedisTracking::append('TOTAL_DPS_ALERTS_UPDATES', date('Y-m-D H:i:s'));
+        RedisTracking::append('TOTAL_DPS_ALERTS_UPDATES', date('Y-m-d H:i:s'));
         
         /**
          * if we have a queue, use it, otherwise pick oen at random
