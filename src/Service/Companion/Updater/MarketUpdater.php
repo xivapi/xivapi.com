@@ -211,26 +211,20 @@ class MarketUpdater
                     "Item Update Failure for: ({$token->account}) {$itemId} on {$serverName} - {$serverDc}"
                 );
                 
-                // if emergency maintenance
-                if (stripos($ex->getMessage(), '319201') !== false) {
+                // if emergency maintenance or "congestion" logout that server
+                if (stripos($ex->getMessage(), '319201') !== false ||
+                    stripos($ex->getMessage(), '210010') !== false) {
                     // mark item as updated
                     $this->marketItemEntryUpdated[] = $item['id'];
-                    $this->logoutCharacterTokens("Emergency Maintenance", $serverName);
+                    $this->logoutCharacterServers("Maintenance/Congestion", $serverName);
                     break;
                 }
 
-                // if congested
-                if (stripos($ex->getMessage(), '210010') !== false) {
-                    $this->logoutCharacterTokens("Congested", $serverName);
-                    break;
-                }
-
-                // if unauthorised
+                // if unauthorised, logout that specific account
                 if (stripos($ex->getMessage(), '111001') !== false) {
-                    $this->logoutCharacterTokens("Authorization failed", $serverName);
+                    $this->logoutAccount("Authorization failed", $token->account);
                     break;
                 }
-
             }
         }
     
@@ -309,7 +303,7 @@ class MarketUpdater
     /**
      * Logout a character is congestion is detected
      */
-    private function logoutCharacterTokens(string $message, string $serverName)
+    private function logoutCharacterServers(string $message, string $serverName)
     {
         // update expiring to 60-180 mins
         $expiring = time() + (60 * mt_rand(60,180));
@@ -326,7 +320,31 @@ class MarketUpdater
         $date = date('Y-m-d H:i:s');
         Discord::mog()->sendMessage(
             '571007332616503296',
-            "[{$date} UTC] **Auto Logout: {$message}** - Logged out server: {$serverName}"
+            "[{$date} UTC] **Server-Wide Account Logout: {$message}** - Logged out server: {$serverName}"
+        );
+    }
+    
+    /**
+     * Logout a character is congestion is detected
+     */
+    private function logoutAccount(string $message, string $account)
+    {
+        // update expiring to 60-180 mins
+        $expiring = time() + (60 * mt_rand(60,180));
+        
+        $sql = "
+            UPDATE companion_tokens
+            SET online = 0, message = 'Auto Logout: {$message}', token = NULL, expiring = {$expiring}
+            WHERE account = '{$account}'
+        ";
+        
+        $stmt = $this->em->getConnection()->prepare($sql);
+        $stmt->execute();
+        
+        $date = date('Y-m-d H:i:s');
+        Discord::mog()->sendMessage(
+            '571007332616503296',
+            "[{$date} UTC] **Account: {$account} has been automatically logged out: {$message}**"
         );
     }
 
