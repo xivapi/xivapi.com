@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Exception\ContentGoneException;
-use App\Service\Api\Response;
 use App\Service\Lodestone\FreeCompanyService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\FreeCompanyQueue;
@@ -12,6 +11,7 @@ use Lodestone\Api;
 use App\Service\Redis\Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
