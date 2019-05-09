@@ -159,29 +159,9 @@
         At this time ALL JP Servers are offline.
     </p>
 
-    <table class="param-table">
-        <thead>
-        <tr>
-            <th width="40%">Server</th>
-            <th>Status</th>
-            <th>Last Checked</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for token in server_tokens %}
-            <tr>
-                <td>{{ token.server }}</td>
-                <td>
-                    {% if token.online %}
-                        <span style="color: #1d9b02;">Online</span>
-                    {% else %}
-                        <span style="color: #f00;">Offline</span>
-                    {% endif %}
-                </td>
-                <td>{{ token.lastOnline|date }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <p>
+        To view which servers are live,
+        please <a href="https://mogboard.com/server-status">check the MogBoard Server Status</a> page.
+    </p>
 
 {% endblock %}
