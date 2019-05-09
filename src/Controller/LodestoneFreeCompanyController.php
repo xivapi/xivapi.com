@@ -137,11 +137,14 @@ class LodestoneFreeCompanyController extends AbstractController
         $img = $manager->make(file_get_contents($freecompany->Crest[0]));
 
         /**
-         * Merge the 3 crests
+         * Insert the other 2 layers
          */
         $img->insert(
-            $manager->make(file_get_contents($freecompany->Crest[1])),
-            $manager->make(file_get_contents($freecompany->Crest[2]))
+            $manager->make($freecompany->Crest[1])
+        );
+
+        $img->insert(
+            $manager->make($freecompany->Crest[2])
         );
 
         /**
