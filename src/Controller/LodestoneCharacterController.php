@@ -55,8 +55,8 @@ class LodestoneCharacterController extends AbstractController
     {
         $ids = explode(',', $request->get('ids'));
 
-        if (count($ids) > 100) {
-            throw new \Exception("Woah their calm down, 100+ characters wtf?");
+        if (count($ids) > 512) {
+            throw new \Exception("Woah their calm down, 512+ characters wtf?");
         }
 
         $response = [];
