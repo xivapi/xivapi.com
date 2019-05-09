@@ -118,6 +118,8 @@ class LodestoneFreeCompanyController extends AbstractController
             throw new \Exception('FC not found');
         }
 
+        $freecompany = $freecompany->data;
+
         /**
          * Filename for FC icon
          */
@@ -132,15 +134,14 @@ class LodestoneFreeCompanyController extends AbstractController
 
         /** @var ImageManager $manager */
         $manager = new ImageManager(['driver' => 'gd']);
-        $img = $manager->make($filename);
+        $img = $manager->make(file_get_contents($freecompany->Crest[0]));
 
         /**
          * Merge the 3 crests
          */
         $img->insert(
-            $manager->make($freecompany->Crest[0]),
-            $manager->make($freecompany->Crest[1]),
-            $manager->make($freecompany->Crest[2])
+            $manager->make(file_get_contents($freecompany->Crest[1])),
+            $manager->make(file_get_contents($freecompany->Crest[2]))
         );
 
         /**
