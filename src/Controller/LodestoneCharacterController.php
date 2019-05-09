@@ -146,7 +146,7 @@ class LodestoneCharacterController extends AbstractController
         }
 
         if ($internal) {
-            return $character;
+            return $response;
         }
     
         return $this->json($response);
