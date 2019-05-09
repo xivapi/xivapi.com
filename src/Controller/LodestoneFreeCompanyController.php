@@ -131,7 +131,7 @@ class LodestoneFreeCompanyController extends AbstractController
         }
 
         /** @var ImageManager $manager */
-        $manager = new ImageManager(['driver' => 'imagick']);
+        $manager = new ImageManager(['driver' => 'gd']);
         $img = $manager->make($filename);
 
         /**
