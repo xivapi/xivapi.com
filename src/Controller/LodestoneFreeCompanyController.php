@@ -155,6 +155,8 @@ class LodestoneFreeCompanyController extends AbstractController
         $img = imagecreatefrompng($filename);
         imagejpeg($img, $filename, 95);
 
+        sleep(1);
+
         return new BinaryFileResponse($filename, 200);
     }
 }
