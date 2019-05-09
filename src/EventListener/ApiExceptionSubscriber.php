@@ -78,8 +78,9 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
         }
 
         $response = new JsonResponse($json, $json->Debug->Code);
-        $response->headers->set('Content-Type','application/json');
-        $response->headers->set('Access-Control-Allow-Origin','*');
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Headers', '*');
         $event->setResponse($response);
     }
 }
