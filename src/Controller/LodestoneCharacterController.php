@@ -53,16 +53,20 @@ class LodestoneCharacterController extends AbstractController
      */
     public function characters(Request $request)
     {
-        $ids = explode(',', $request->get('ids'));
+        $ids = explode(',', $request->get('ids')) ?: [];
 
         if (count($ids) > 100) {
             throw new \Exception("Woah their calm down, 100+ characters wtf?");
+        }
+    
+        if (empty($ids)) {
+            throw new \Exception("No IDs passed");
         }
 
         $response = [];
 
         foreach ($ids as $id) {
-            $response[] = $this->index($request, $id, true);
+            $response[] = $this->getCharacter($request, $id, true);
         }
 
         return $this->json($response);
@@ -74,8 +78,15 @@ class LodestoneCharacterController extends AbstractController
      */
     public function index(Request $request, $lodestoneId, bool $internal = false)
     {
+        return $this->json(
+            $this->getCharacter($request, $lodestoneId, false)
+        );
+    }
+    
+    private function getCharacter(Request $request, $lodestoneId, bool $internal = false)
+    {
         $lodestoneId = strtolower(trim($lodestoneId));
-
+    
         // choose which content you want
         $data = $request->get('data') ? explode(',', strtoupper($request->get('data'))) : [];
         $content = (object)[
@@ -85,7 +96,7 @@ class LodestoneCharacterController extends AbstractController
             'FCM' => in_array('FCM', $data),
             'PVP' => in_array('PVP', $data),
         ];
-        
+    
         $response = (Object)[
             'Character'              => null,
             'Achievements'           => null,
@@ -102,25 +113,25 @@ class LodestoneCharacterController extends AbstractController
                 'PvPTeam'            => null,
             ],
         ];
-
+    
         $character = $this->service->get($lodestoneId, $request->get('extended'), !$internal);
         $response->Character = $character->data;
         $response->Info->Character = $character->ent->getInfo();
-
+    
         // achievements
         if ($content->AC) {
             $achievements = $this->service->getAchievements($lodestoneId, $request->get('extended'));
             $response->Achievements = $achievements->data;
             $response->Info->Achievements = $achievements->ent->getInfo();
         }
-        
+    
         // friends
         if ($content->FR) {
             $friends = $this->service->getFriends($lodestoneId);
             $response->Friends = $friends->data;
             $response->Info->Friends = $friends->ent->getInfo();
         }
-        
+    
         // free company
         if (isset($character->data->FreeCompanyId)) {
             if ($content->FC) {
@@ -128,14 +139,14 @@ class LodestoneCharacterController extends AbstractController
                 $response->FreeCompany = $freecompany->data;
                 $response->Info->FreeCompany = $freecompany->ent->getInfo();
             }
-            
+        
             if ($content->FCM) {
                 $members = $this->fcService->getMembers($character->data->FreeCompanyId);
                 $response->FreeCompanyMembers = $members->data;
                 $response->Info->FreeCompanyMembers = $members->ent->getInfo();
             }
         }
-
+    
         // if character is in a PvP Team
         if (isset($character->data->PvPTeamId)) {
             if ($content->PVP) {
@@ -144,12 +155,8 @@ class LodestoneCharacterController extends AbstractController
                 $response->Info->PvPTeam = $pvp->ent->getInfo();
             }
         }
-
-        if ($internal) {
-            return $response;
-        }
     
-        return $this->json($response);
+        $response;
     }
 
     /**

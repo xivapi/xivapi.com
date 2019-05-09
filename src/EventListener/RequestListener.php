@@ -31,7 +31,7 @@ class RequestListener
 
         /** @var Request $request */
         $request = $event->getRequest();
-
+        
         // look for multiple ?'s
         if (substr_count(urldecode($request->getQueryString()), '?') > 0) {
             Redis::Cache()->increment('query_params_errors');
@@ -48,7 +48,7 @@ class RequestListener
         }
 
         // Quick hack to allow json body requests
-        if (strtolower($request->getMethod()) == 'get' && $json = $request->getContent()) {
+        if ($json = $request->getContent()) {
             if (trim($json[0]) === '{') {
                 $json = \GuzzleHttp\json_decode($json);
 
