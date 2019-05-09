@@ -13,7 +13,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class CompanionErrorHandler
 {
-    const CRITICAL_EXCEPTIONS = 'companion_critical_exception_count_v2';
+    const CRITICAL_EXCEPTIONS         = 'companion_critical_exception_count_v2';
+    const CRITICAL_EXCEPTIONS_COUNT   = 'companion_critical_exception_count_v2_COUNT';
     const CRITICAL_EXCEPTIONS_STOPPED = 'companion_critical_exception_count_v2_STOPPED';
 
     const ERRORS = [
@@ -164,16 +165,33 @@ class CompanionErrorHandler
         
         // if we exceed error threshold, stop for a bit
         if ($count > CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
-            // pause for a random amount of time between 10-20 minutes
-            $time = mt_rand(5, 20);
+            // increment stop count
+            $count2 = Redis::Cache()->get(self::CRITICAL_EXCEPTIONS_COUNT) ?: 0;
+            $count2 = (int)$count2;
+            $count2++;
+            Redis::Cache()->set(self::CRITICAL_EXCEPTIONS, $count, 1800);
+
+            // pause for a random amount of time.
+            $time = mt_rand(
+                $count2 > 3 ? 15 : 5,
+                $count2 > 3 ? 45 : 10
+            );
             Redis::Cache()->set(self::CRITICAL_EXCEPTIONS_STOPPED, $count, (60 * $time));
             Redis::Cache()->delete(self::CRITICAL_EXCEPTIONS);
-            
+
             // alert mogboard
             Discord::mog()->sendMessage(
                 '571007332616503296',
                 "**Companion Auto-Update has stopped for {$time} minutes to errors exceeding maximum allowed value.**"
             );
+
+            if ($count2 > 3) {
+                // alert mogboard
+                Discord::mog()->sendMessage(
+                    '571007332616503296',
+                    "**Companion has auto stopped at least 3 times in the past hour... extended stop time.**"
+                );
+            }
         }
     }
 
