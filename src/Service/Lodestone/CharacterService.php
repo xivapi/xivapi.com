@@ -22,7 +22,7 @@ class CharacterService extends AbstractService
     /**
      * Get a character; this will add the character if they do not exist
      */
-    public function get($lodestoneId, bool $extended = null): \stdClass
+    public function get($lodestoneId, bool $extended = null, bool $add = true): \stdClass
     {
         if (!is_numeric($lodestoneId) || $lodestoneId < 0 || preg_match("/[a-z]/i", $lodestoneId) || strlen($lodestoneId) > 16) {
             throw new NotAcceptableHttpException("Invalid character id: {$lodestoneId}");
@@ -53,9 +53,11 @@ class CharacterService extends AbstractService
             ];
         }
 
-        CharacterQueue::request($lodestoneId, 'character_add', true);
-        CharacterFriendQueue::request($lodestoneId, 'character_friends_add', true);
-        CharacterAchievementQueue::request($lodestoneId, 'character_achievements_add', true);
+        if ($add) {
+            CharacterQueue::request($lodestoneId, 'character_add', true);
+            CharacterFriendQueue::request($lodestoneId, 'character_friends_add', true);
+            CharacterAchievementQueue::request($lodestoneId, 'character_achievements_add', true);
+        }
 
         return (Object)[
             'ent'  => new Character($lodestoneId),
