@@ -303,7 +303,7 @@ class CompanionTokenManager
             
             // wait a bit
             $this->console->writeln('- Testing market in a moment...');
-            sleep(mt_rand(10,30));
+            sleep(mt_rand(5,15));
 
             // perform a test
             $api->market()->getItemMarketListings(mt_rand(2000,25000));
@@ -314,12 +314,12 @@ class CompanionTokenManager
             $token
                 ->setMessage('Online')
                 ->setOnline(true)
-                ->setExpiring(time() + mt_rand(28800, 54000)) // expires in 8-16 hours
+                ->setExpiring(time() + mt_rand(28800, 43200)) // expires in 8-12 hours
                 ->setToken($api->Token()->get());
     
             RedisTracking::increment('ACCOUNT_LOGIN_SUCCESS');
         } catch (\Exception $ex) {
-            $timeout = mt_rand(1800, 6400);
+            $timeout = mt_rand(900, 5400);
 
             // prevent logging into same server if it fails for a random amount of time
             Redis::Cache()->set("companion_server_login_issues_{$account}", true, $timeout);
