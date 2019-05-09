@@ -152,6 +152,9 @@ class LodestoneFreeCompanyController extends AbstractController
          * Save and compress
          */
         $img->save($filename);
+
+        sleep(1);
+
         $img = imagecreatefrompng($filename);
         imagejpeg($img, $filename, 95);
 
