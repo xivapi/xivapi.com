@@ -10,6 +10,7 @@ use Intervention\Image\ImageManager;
 use Lodestone\Api;
 use App\Service\Redis\Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -129,7 +130,7 @@ class LodestoneFreeCompanyController extends AbstractController
          * Check if it exists, if so, spit it out
          */
         if (file_exists($filename)) {
-            return new Response($filename, 200);
+            return new BinaryFileResponse($filename, 200);
         }
 
         /** @var ImageManager $manager */
@@ -154,6 +155,6 @@ class LodestoneFreeCompanyController extends AbstractController
         $img = imagecreatefrompng($filename);
         imagejpeg($img, $filename, 95);
 
-        return new Response($filename, 200);
+        return new BinaryFileResponse($filename, 200);
     }
 }
