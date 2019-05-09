@@ -27,6 +27,15 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
     {
         $ex   = $event->getException();
         
+        if ($ex->getCode() == 10000) {
+            $response = new JsonResponse(true, 200);
+            $response->headers->set('Content-Type', 'application/json');
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            $response->headers->set('Access-Control-Allow-Headers', '*');
+            $event->setResponse($response);
+            return;
+        }
+        
         if (getenv('SITE_CONFIG_SHOW_ERRORS') == '1' && getenv('APP_ENV') == 'prod') {
             print_r([
                 "#{$ex->getLine()} {$ex->getFile()}",

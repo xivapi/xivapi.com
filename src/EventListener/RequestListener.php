@@ -32,6 +32,11 @@ class RequestListener
         /** @var Request $request */
         $request = $event->getRequest();
         
+        // if options, skip
+        if ($request->getMethod() == 'OPTIONS') {
+            throw new \Exception('OPTIONS', 10000);
+        }
+        
         // look for multiple ?'s
         if (substr_count(urldecode($request->getQueryString()), '?') > 0) {
             Redis::Cache()->increment('query_params_errors');
