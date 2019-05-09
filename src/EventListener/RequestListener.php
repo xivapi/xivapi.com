@@ -34,7 +34,10 @@ class RequestListener
         
         // if options, skip
         if ($request->getMethod() == 'OPTIONS') {
-            throw new \Exception('OPTIONS', 10000);
+            header("Access-Control-Allow-Origin: *");
+            header("Access-Control-Allow-Headers: *");
+            header("HTTP/1.1 200 OK");
+            die(200);
         }
         
         // look for multiple ?'s
