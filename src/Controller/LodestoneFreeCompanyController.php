@@ -114,12 +114,11 @@ class LodestoneFreeCompanyController extends AbstractController
         $lodestoneId = strtolower(trim($lodestoneId));
 
         $freecompany = $this->service->get($lodestoneId);
+        $freecompany = $freecompany->data;
 
         if ($freecompany == null) {
-            throw new \Exception('FC not found');
+            throw new \Exception('FC not found, maybe it needs adding? (it will be now)');
         }
-
-        $freecompany = $freecompany->data;
 
         /**
          * Filename for FC icon
@@ -140,25 +139,30 @@ class LodestoneFreeCompanyController extends AbstractController
         /**
          * Insert the other 2 layers
          */
-        $img->insert(
-            $manager->make($freecompany->Crest[1])
-        );
+        if (isset($freecompany->Crest[1])) {
+            $img->insert(
+                $manager->make($freecompany->Crest[1])
+            );
+        }
 
-        $img->insert(
-            $manager->make($freecompany->Crest[2])
-        );
+        if (isset($freecompany->Crest[2])) {
+            $img->insert(
+                $manager->make($freecompany->Crest[2])
+            );
+        }
+
 
         /**
          * Save and compress
          */
         $img->save($filename);
 
-        sleep(1);
+        usleep(500 * 1000);
 
         $img = imagecreatefrompng($filename);
         imagejpeg($img, $filename, 95);
 
-        sleep(1);
+        usleep(500 * 1000);
 
         return new BinaryFileResponse($filename, 200);
     }
