@@ -328,7 +328,8 @@ class CompanionTokenManager
                 ->setMessage('Offline - Failed to login to Companion.')
                 ->setExpiring(time() + $timeout)
                 ->setOnline(false);
-            
+
+            $steps = implode(', ', $steps);
             $this->errorHandler->exception(
                 "SE_Login_Failure",
                 "Account: ({$account}) {$username} - Server: {$server} - Message: {$ex->getMessage()} - Stages: {$steps}"
