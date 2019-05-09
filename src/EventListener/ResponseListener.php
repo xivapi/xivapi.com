@@ -64,11 +64,11 @@ class ResponseListener
                             $columns = Arrays::extractMultiLanguageColumns($columns);
                             $json['Results'][$r] = Arrays::extractColumns($result, $columns);
                         }
-                    } else if ($controller == 'App\Controller\MarketController::item') {
-                        foreach ($json as $server => $result) {
+                    } else if ($controller == 'App\Controller\MarketController::item' || $controller == 'App\Controller\LodestoneCharacterController::characters') {
+                        foreach ($json as $a => $result) {
                             $columns = Arrays::extractColumnsCount($result, $columns);
                             $columns = Arrays::extractMultiLanguageColumns($columns);
-                            $json[$server] = Arrays::extractColumns($result, $columns);
+                            $json[$a] = Arrays::extractColumns($result, $columns);
                         }
                     } else if ($controller == 'App\Controller\MarketController::itemMulti') {
                         foreach ($json as $i => $serverResults) {
