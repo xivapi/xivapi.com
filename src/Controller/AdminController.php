@@ -31,7 +31,7 @@ class AdminController extends AbstractController
     {
         $user = $this->users->getUser(true);
         ApiPermissions::set($user->getApiPermissions());
-        ApiPermissions::must('admin');
+        ApiPermissions::must(ApiPermissions::PERMISSION_ADMIN);
 
         $errors     = $this->ceh->getExceptions(500);
         $errorGraph = [];
@@ -41,7 +41,7 @@ class AdminController extends AbstractController
             $errorGraph[$hour] = isset($errorGraph[$hour]) ? $errorGraph[$hour] + 1 : 1;
         }
 
-        return $this->render('Admin/index.html.twig', [
+        return $this->render('admin/index.html.twig', [
             'errorGraph' => $errorGraph
         ]);
     }

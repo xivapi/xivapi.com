@@ -11,6 +11,7 @@ class ApiPermissions
     const PERMISSION_LODESTONE = 'lodestone';
     const PERMISSION_MAPPY     = 'mappy';
     const PERMISSION_KING      = 'king';
+    const PERMISSION_ADMIN     = 'admin';
 
     private static $permissions = [];
 
