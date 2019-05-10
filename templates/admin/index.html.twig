@@ -19,10 +19,9 @@
                     datasets: [{
                         label: 'Errors over the hours',
                         data: {{ errorGraph.values|json_encode|raw }},
-                        fill: false,
                         borderColor: 'rgb(244, 209, 66)',
-                        backgroundColor: 'rgba(244, 209, 66, 0.2)',
-                        borderWidth: 1,
+                        backgroundColor: 'rgba(244, 209, 66, 0.3)',
+                        borderWidth: 2,
                         pointRadius: 0,
                         lineTension: 0
                     }]
@@ -30,10 +29,11 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    showTooltips: true,
-                    multiTooltipTemplate: "<%= value %>",
                     legend: {
                         display: false
+                    },
+                    tooltips: {
+                        enabled: true,
                     },
                     scales: {
                         yAxes: [{

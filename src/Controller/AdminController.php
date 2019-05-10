@@ -37,7 +37,7 @@ class AdminController extends AbstractController
         $errorGraph = [];
 
         foreach (range(0,100) as $hour) {
-            $seconds = time() - (60 * $hour);
+            $seconds = time() - (3600 * $hour);
             $hour    = date('Y-m-d H', $seconds);
             $errorGraph[$hour] = 0;
         }
