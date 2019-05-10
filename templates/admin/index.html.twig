@@ -5,33 +5,37 @@
 {% block body %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
 
-    <div style="width: 500px; height: 200px;">
-        <canvas id="myChart" width="400" height="200"></canvas>
-    </div>
-    <script>
-        let ctx = document.getElementById('myChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {{ errorGraph.keys|json_encode|raw }},
-                datasets: [{
-                    label: 'Errors over the hours',
-                    data: {{ errorGraph.values|json_encode|raw }},
-                    fill: false,
-                    borderColor: 'rgb(244, 209, 66)',
-                    lineTension: 0
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
+    <div class="account">
+        <h1>Companion Error Rate</h1>
+        <div style="width: 100%; height: 250px;">
+            <canvas id="myChart" width="400" height="250"></canvas>
+        </div>
+        <script>
+            let ctx = document.getElementById('myChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: {{ errorGraph.keys|json_encode|raw }},
+                    datasets: [{
+                        label: 'Errors over the hours',
+                        data: {{ errorGraph.values|json_encode|raw }},
+                        fill: false,
+                        borderColor: 'rgb(244, 209, 66)',
+                        pointRadius: 0,
+                        lineTension: 0
                     }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
                 }
-            }
-        });
-    </script>
+            });
+        </script>
+    </div>
 
 {% endblock %}

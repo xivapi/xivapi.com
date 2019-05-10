@@ -37,9 +37,17 @@ class AdminController extends AbstractController
         $errorGraph = [];
 
         foreach ($errors as $error) {
-            $hour = date('z-H', $error['Added']);
+            $hour = date('Y-m-d H', $error['Added']);
             $errorGraph[$hour] = isset($errorGraph[$hour]) ? $errorGraph[$hour] + 1 : 1;
         }
+
+        foreach (range(0,50) as $hour) {
+            $seconds = time() - (60 * $hour);
+            $hour = date('Y-m-d H', $seconds;
+            $errorGraph[$hour] = isset($errorGraph[$hour]) ? $errorGraph[$hour] : 0;
+        }
+
+        krsort($errorGraph);
 
         return $this->render('admin/index.html.twig', [
             'errorGraph' => [
