@@ -34,10 +34,11 @@ class AdminController extends AbstractController
         ApiPermissions::must(ApiPermissions::PERMISSION_ADMIN);
 
         $errors     = $this->ceh->getExceptions(500);
+        $lastError  = $errors[0];
         $errorGraph = [];
         $exception  = [];
 
-        foreach (range(0,100) as $hour) {
+        foreach (range(-1,99) as $hour) {
             $seconds = time() - (3600 * $hour);
             $hour    = date('Y-m-d H', $seconds);
             $errorGraph[$hour] = 0;
@@ -61,7 +62,8 @@ class AdminController extends AbstractController
         return $this->render('admin/index.html.twig', [
             'status' => [
                 'at_critical' => $this->ceh->isCriticalExceptionCount(),
-                'state'       => $this->ceh->getCriticalExceptionCount()
+                'state'       => $this->ceh->getCriticalExceptionCount(),
+                'last_error'  => $lastError,
             ],
             'errors' => [
                 'list'       => $errors,

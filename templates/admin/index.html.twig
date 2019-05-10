@@ -8,11 +8,11 @@
     <div class="account">
         <h1>Critical Status</h1>
         <p>
-            {{ status.state.now }} / {{ status.state.max }} -
+            {{ status.state.now ?: '0' }} / {{ status.state.max }} -
             {{ status.at_critical ? 'Currently at critical state, system may pause' : 'System running under expected levels.' }}
         </p>
 
-        <br><br>
+        <br><hr><br>
 
         <h1>Companion Error Rate</h1>
         <div style="width: 100%; height: 250px;">
