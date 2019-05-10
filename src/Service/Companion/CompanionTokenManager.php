@@ -356,7 +356,7 @@ class CompanionTokenManager
         /** @var CompanionToken $token */
         foreach ($tokens as $token) {
             if ($token->getExpiring() < time()) {
-                $token->setOnline(false)->setMessage("Detected offline when fetched")->setToken(null);
+                $token->setOnline(false)->setExpiring(0)->setMessage("Detected offline when fetched")->setToken(null);
                 $this->em->persist($token);
             }
         }
