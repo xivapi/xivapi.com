@@ -22,6 +22,6 @@ class CompanionTokenRepository extends ServiceEntityRepository
         $sql->where('a.online = :online')->setParameter('online', false)
             ->orderBy('a.expiring', 'asc');
     
-        return $sql->getQuery()->getResult();
+        return $sql->getQuery()->getArrayResult();
     }
 }
