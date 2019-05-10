@@ -72,7 +72,7 @@ class LodestoneFreeCompanyController extends AbstractController
     
         if ($content->FCM) {
             $members = $this->service->getMembers($lodestoneId);
-            $response->FreeCompanyMembers = $members;
+            $response->FreeCompanyMembers = $members->data;
             $response->Info->FreeCompanyMembers = $members->ent->getInfo();
         }
     
