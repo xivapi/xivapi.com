@@ -199,7 +199,8 @@ class CompanionTokenManager
             // grab the 1st one
             $token = $token[0];
         } catch (\Exception $ex) {
-            $token = null;
+            $this->console->writeln('<error>Error!!</error>');
+            throw new $ex;
         }
 
         if ($token == null) {
