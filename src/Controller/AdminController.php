@@ -37,10 +37,12 @@ class AdminController extends AbstractController
 
         $errors     = $this->ceh->getExceptions(500);
         $lastError  = $errors[0];
-        $errorGraph = [];
+        $errorGraph = [
+            date('Y-m-d H', time()) => 0
+        ];
         $exception  = [];
 
-        foreach (range(-1,99) as $hour) {
+        foreach (range(0,99) as $hour) {
             $seconds = time() - (3600 * $hour);
             $hour    = date('Y-m-d H', $seconds);
             $errorGraph[$hour] = 0;
