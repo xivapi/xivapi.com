@@ -38,8 +38,6 @@ class Manager
      */
     public function processRequests(string $queue): void
     {
-        $this->io->title("processRequests: {$queue} - Time: {$this->now}");
-
         try {
             $requestRabbit  = new RabbitMQ();
             $responseRabbit = new RabbitMQ();

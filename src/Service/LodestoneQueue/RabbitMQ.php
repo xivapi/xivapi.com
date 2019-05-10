@@ -51,11 +51,11 @@ class RabbitMQ
             'AMQPLAIN',
             null,
             'en_US',
-            60.00,
-            90.0,
+            60.0,
+            60.0,
             null,
             true,
-            30
+            60
         );
 
         return $this;
