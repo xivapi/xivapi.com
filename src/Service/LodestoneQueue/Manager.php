@@ -59,6 +59,8 @@ class Manager
                 foreach ($request->ids as $id) {
                     $this->now = date('Y-m-d H:i:s');
                     $count++;
+
+                    $responseRabbit->pingConnection();
     
                     // call the API class dynamically and record any exceptions
                     try {
@@ -79,6 +81,7 @@ class Manager
                 }
                 
                 // send the request back with the response
+                $responseRabbit->pingConnection();
                 $responseRabbit->sendMessage($request);
                 
                 // report duration

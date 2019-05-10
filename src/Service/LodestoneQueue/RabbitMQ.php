@@ -51,11 +51,11 @@ class RabbitMQ
             'AMQPLAIN',
             null,
             'en_US',
-            60.0,
-            60.0,
+            120.0,
+            120.0,
             null,
             true,
-            10
+            60
         );
 
         return $this;
@@ -185,5 +185,12 @@ class RabbitMQ
         );
         
         return $this;
+    }
+
+    public function pingConnection()
+    {
+        if ($this->connection->isConnected() == false) {
+            $this->connection->reconnect();
+        }
     }
 }
