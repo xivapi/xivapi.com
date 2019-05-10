@@ -65,7 +65,7 @@ class Manager
                     // call the API class dynamically and record any exceptions
                     try {
                         $request->responses[$id] = call_user_func_array([new Api(), $request->method], [ $id ]);
-                        #$this->io->text("> ". time() ." {$request->method}  ". str_pad($id, 15) ."  (OK)");
+                        $this->io->text("> ". time() ." {$request->method}  ". str_pad($id, 15) ."  (OK)");
                     } catch (\Exception $ex) {
                         $request->responses[$id] = get_class($ex);
                         #$this->io->text("> ". time() ." {$request->method}  ". str_pad($id, 15) ."  (". get_class($ex) .")");
