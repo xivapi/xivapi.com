@@ -56,7 +56,7 @@ class MarketQueue
             // grab items
             $updateItems = $this->repoEntries->findItemsToUpdate(
                 $priority,
-                CompanionConfiguration::MAX_ITEMS_TOTAL,
+                CompanionConfiguration::MAX_ITEMS_PER_QUEUE[$priority],
                 $this->ctm->getOnlineServers()
             );
 
