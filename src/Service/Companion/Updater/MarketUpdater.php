@@ -379,7 +379,7 @@ class MarketUpdater
         $marketItem->LodestoneID = $prices->eorzeadbItemId;
 
         // CURRENT PRICES
-        if ($prices && isset($prices->error) === false && $prices->entries) {
+        if (isset($prices->error) === false && isset($prices->entries)) {
             // reset prices
             $marketItem->Prices = [];
 
