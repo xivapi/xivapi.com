@@ -167,8 +167,9 @@ class ResponseListener
 
             $response->setMaxAge($expires)->setExpires((new Carbon())->addSeconds($expires))->setPublic();
 
-            $response->headers->set('Content-Type','application/json');
-            $response->headers->set('Access-Control-Allow-Origin','*');
+            $response->headers->set('Content-Type', 'application/json');
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            $response->headers->set('Access-Control-Allow-Headers', '*');
             $event->setResponse($response);
         }
     }
