@@ -24,6 +24,6 @@ class CompanionTokenRepository extends ServiceEntityRepository
             ->setMaxResults(50)
             ->setFirstResult(0);
     
-        return $sql->getQuery()->getSingleResult();
+        return $sql->getQuery()->getResult();
     }
 }
