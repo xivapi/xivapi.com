@@ -45,6 +45,53 @@
                 }
             });
         </script>
+
+        <br><br>
+
+        <h1>Exception Counts</h1>
+        <table class="table">
+            <thead>
+            <tr>
+                <th width="30%">Exception</th>
+                <th>Count</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for ex, count in errors.exceptions %}
+                <tr>
+                    <td><strong>{{ ex }}</strong></td>
+                    <td>{{ count|number_format }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <br><Br>
+
+        <h1>Error log</h1>
+        <table class="table">
+            <thead>
+            <tr>
+                <th width="30%">Time</th>
+                <th>Code</th>
+                <th>Exception</th>
+                <th>Message</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for error in errors.list %}
+                <tr>
+                    <td>{{ error.Added|date('Y-m-d H:i:s') }}</td>
+                    <td>{{ error.Code }}</td>
+                    <td>{{ error.Exception }}</td>
+                    <td>{{ error.Message }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
     </div>
+
+
 
 {% endblock %}

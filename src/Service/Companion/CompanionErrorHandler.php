@@ -130,7 +130,7 @@ class CompanionErrorHandler
                 'Added'     => $ex->getAdded(),
                 'Exception' => $ex->getException(),
                 'Message'   => $ex->getMessage(),
-                'Type'      => $ex->getCode(),
+                'Code'      => $ex->getCode(),
             ];
         }
 
