@@ -85,6 +85,14 @@ class MarketUpdater
     public function update(int $queue)
     {
         //
+        // todo - tempz?
+        //
+        if (in_array(date('i'), [7,8])) {
+            $this->console("Not doing any queries as it's 7/8 minutes past");
+            return;
+        }
+
+        //
         // todo - temp
         //
         $japan = Carbon::now(new CarbonTimeZone('Asia/Tokyo'));
