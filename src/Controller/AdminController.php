@@ -29,6 +29,8 @@ class AdminController extends AbstractController
      */
     public function home()
     {
+        date_default_timezone_set("Europe/London");
+
         $user = $this->users->getUser(true);
         ApiPermissions::set($user->getApiPermissions());
         ApiPermissions::must(ApiPermissions::PERMISSION_ADMIN);

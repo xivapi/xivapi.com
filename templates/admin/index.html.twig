@@ -12,7 +12,7 @@
             {{ status.at_critical ? 'Currently at critical state, system may pause' : 'System running under expected levels.' }}
         </p>
         <p>
-            Last error: {{ status.last_error.added|date('H:i:s Y-m-d') }}
+            Last error: {{ status.last_error.Added|date('H:i:s Y-m-d', "Europe/London") }}
         </p>
 
         <br><hr><br>
@@ -92,7 +92,7 @@
             <tbody>
             {% for error in errors.list|slice(0, 100) %}
                 <tr>
-                    <td>{{ error.Added|date('Y-m-d H:i:s') }}</td>
+                    <td>{{ error.Added|date('Y-m-d H:i:s', "Europe/London") }}</td>
                     <td>{{ error.Code }}</td>
                     <td>{{ error.Exception }}</td>
                     <td>{{ error.Message }}</td>
