@@ -11,6 +11,7 @@
             {{ status.state.now ?: '0' }} / {{ status.state.max }} -
             {{ status.at_critical ? 'Currently at critical state, system may pause' : 'System running under expected levels.' }}
         </p>
+        <br><br>
         <p>
             Last error: {{ status.last_error.Added|date('H:i:s Y-m-d', "Europe/London") }}
         </p>
@@ -28,7 +29,7 @@
                 data: {
                     labels: {{ errorGraph.keys|json_encode|raw }},
                     datasets: [{
-                        label: 'Errors over the hours',
+                        label: 'Errors',
                         data: {{ errorGraph.values|json_encode|raw }},
                         borderColor: 'rgb(244, 209, 66)',
                         backgroundColor: 'rgba(244, 209, 66, 0.3)',
@@ -96,7 +97,7 @@
         <table class="table">
             <thead>
             <tr>
-                <th width="30%">Time</th>
+                <th>Time</th>
                 <th>Code</th>
                 <th>Exception</th>
                 <th>Message</th>
