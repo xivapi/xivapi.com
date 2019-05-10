@@ -42,42 +42,6 @@ class CompanionErrorHandler
     }
 
     /**
-     * Report to discord the error status
-     */
-    public function report()
-    {
-        $errors = [];
-        $timeout = time() - (60 * 60 * 12);
-        
-        foreach ($this->getExceptions(999) as $ex) {
-            if ($ex['Added'] < $timeout) {
-                continue;
-            }
-            
-            $errors[] = sprintf(
-                "[%s][%s] %s: %s",
-                date('Y-m-d H:i:s', $ex['Added']),
-                $ex['Type'],
-                $ex['Exception'],
-                $ex['Message']
-            );
-        }
-
-        if (empty($errors)) {
-            $message = "No companion errors to report in the past 12 hours.";
-            Discord::mog()->sendMessage('571007332616503296', $message);
-            return;
-        }
-
-        $errors  = implode("\n", $errors);
-        $message = "Companion error report (12 hours):\n```{$errors}```";
-        Discord::mog()->sendMessage('571007332616503296', $message);
-
-        // delete Redis record
-        Redis::Cache()->delete(self::CRITICAL_EXCEPTIONS);
-    }
-
-    /**
      * Record an exception
      */
     public function exception(string $companionError, string $customMessage)
@@ -143,6 +107,14 @@ class CompanionErrorHandler
     public function isCriticalExceptionCount()
     {
         return Redis::Cache()->get(self::CRITICAL_EXCEPTIONS_STOPPED) != null;
+    }
+
+    public function getCriticalExceptionCount()
+    {
+        return [
+            'now' => Redis::Cache()->get(self::CRITICAL_EXCEPTIONS),
+            'max' => CompanionConfiguration::ERROR_COUNT_THRESHOLD
+        ];
     }
 
     /**
