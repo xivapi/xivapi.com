@@ -192,12 +192,8 @@ class CompanionTokenManager
         try {
             /** @var CompanionToken $token */
             $tokens = $this->repository->findExpiringAccounts();
+            $token  =  $tokens[array_rand($tokens)];
 
-            // shuffle the tokens
-            shuffle($tokens);
-
-            // grab the 1st one
-            $token = $token[0];
         } catch (\Exception $ex) {
             $this->console->writeln('<error>Error!!</error>');
             throw new $ex;
