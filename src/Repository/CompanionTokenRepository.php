@@ -19,10 +19,8 @@ class CompanionTokenRepository extends ServiceEntityRepository
     public function findExpiringAccounts()
     {
         $sql = $this->createQueryBuilder('a');
-        $sql->orderBy('a.expiring', 'asc')
-            ->where('a.online = 0')
-            ->setMaxResults(50)
-            ->setFirstResult(0);
+        $sql->where('a.online = :online')->setParameter('online', false)
+            ->orderBy('a.expiring', 'asc');
     
         return $sql->getQuery()->getResult();
     }

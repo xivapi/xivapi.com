@@ -204,7 +204,7 @@ class CompanionTokenManager
         }
 
         if ($token == null) {
-            $this->console->writeln("No accounts expired.");
+            $this->console->writeln("Could not fetch token from db.");
             return;
         }
 
