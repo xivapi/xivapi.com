@@ -44,7 +44,20 @@
                         display: false
                     },
                     tooltips: {
-                        enabled: true,
+                        displayColors: false,
+                        intersect: false,
+                        tooltips: {
+                            mode: 'nearest',
+                            intersect: true
+                        },
+                        titleFontSize: 12,
+                        titleMarginBottom: 5,
+                        titleFontColor: "rgba(80, 80, 80, 1)",
+                        bodyFontSize: 15,
+                        bodyFontStyle: "bold",
+                        bodyFontColor: "rgba(255, 255, 255, 1)",
+                        footerFontSize: 13,
+                        footerFontColor: "rgba(160, 160, 160, 1)",
                     },
                     scales: {
                         yAxes: [{
