@@ -36,8 +36,6 @@ class Manager
      */
     public function processRequests(string $queue): void
     {
-        $this->io->title("processRequests: {$queue} - Time: {$this->now}");
-
         try {
             $requestRabbit  = new RabbitMQ();
             $responseRabbit = new RabbitMQ();
@@ -59,11 +57,13 @@ class Manager
                 foreach ($request->ids as $id) {
                     $this->now = date('Y-m-d H:i:s');
                     $count++;
+
+                    $responseRabbit->pingConnection();
     
                     // call the API class dynamically and record any exceptions
                     try {
                         $request->responses[$id] = call_user_func_array([new Api(), $request->method], [ $id ]);
-                        #$this->io->text("> ". time() ." {$request->method}  ". str_pad($id, 15) ."  (OK)");
+                        $this->io->text("> ". time() ." {$request->method}  ". str_pad($id, 15) ."  (OK)");
                     } catch (\Exception $ex) {
                         $request->responses[$id] = get_class($ex);
                         #$this->io->text("> ". time() ." {$request->method}  ". str_pad($id, 15) ."  (". get_class($ex) .")");
@@ -79,6 +79,7 @@ class Manager
                 }
                 
                 // send the request back with the response
+                $responseRabbit->pingConnection();
                 $responseRabbit->sendMessage($request);
                 
                 // report duration

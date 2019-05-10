@@ -12,7 +12,16 @@ class CompanionConfiguration
 
     // the total number of items to queue per minute
     // this would be max per cronjob * number of scripts
-    const MAX_ITEMS_TOTAL = (self::MAX_ITEMS_PER_CRONJOB * 10);
+    const MAX_ITEMS_TOTAL = (self::MAX_ITEMS_PER_CRONJOB * 5);
+
+    const MAX_ITEMS_PER_QUEUE = [
+        1 => (self::MAX_ITEMS_PER_CRONJOB * 4),
+        2 => (self::MAX_ITEMS_PER_CRONJOB * 4),
+        3 => (self::MAX_ITEMS_PER_CRONJOB * 2),
+        4 => (self::MAX_ITEMS_PER_CRONJOB * 1),
+        5 => (self::MAX_ITEMS_PER_CRONJOB * 1),
+        9 => (self::MAX_ITEMS_PER_CRONJOB * 1)
+    ];
 
     // the total time a cronjob should stay active
     const CRONJOB_TIMEOUT_SECONDS = 55;

@@ -191,13 +191,16 @@ class CompanionTokenManager
     {
         try {
             /** @var CompanionToken $token */
-            $token = $this->repository->findExpiringAccount();
+            $tokens = $this->repository->findExpiringAccounts();
+            $token  = $tokens[array_rand($tokens)];
+
         } catch (\Exception $ex) {
-            $token = null;
+            $this->console->writeln('<error>Error!!</error>');
+            throw new $ex;
         }
 
         if ($token == null) {
-            $this->console->writeln("No accounts expired.");
+            $this->console->writeln("Could not fetch token from db.");
             return;
         }
 
@@ -228,11 +231,13 @@ class CompanionTokenManager
     {
         // check error count
         if ($this->errorHandler->isCriticalExceptionCount()) {
+            $this->console->writeln("Currently at critical error rate");
             return false;
         }
 
         // don't login to same account if it failed recently.
-        if (Redis::Cache()->get("companion_server_login_issues_{$account}")) {
+        if (Redis::Cache()->get("companion_server_login_issues_{$account}_{$server}")) {
+            $this->console->writeln("Recently tried: {$account} on {$server} and failed");
             return false;
         }
 
@@ -245,18 +250,14 @@ class CompanionTokenManager
             'server' => $server,
         ]);
 
-        // token not found
-        if ($token == null) {
-            throw new \Exception("Token not found...");
-        }
-
         // token has not expired
-        if ($token->getExpiring() > time()) {
+        if ($token->hasExpired() == false) {
+            $this->console->writeln("Token has not expired?");
             return false;
         }
         
         // ensure its marked as offline
-        $token->setOnline(false)->setMessage('Offline');
+        $token->setOnline(false)->setMessage('Offline')->setToken(null)->setExpiring(0);
         $this->em->persist($token);
         $this->em->flush();
         
@@ -266,11 +267,10 @@ class CompanionTokenManager
             $this->console->writeln('No characters available on this server at this time.');
             return false;
         }
-        
-        [$username, $password] = explode(',', getenv($account));
 
         $steps = [];
-        
+        [$username, $password] = explode(',', getenv($account));
+
         try {
             // settings
             CompanionSight::set('CLIENT_TIMEOUT', 5);
@@ -322,7 +322,7 @@ class CompanionTokenManager
             $timeout = mt_rand(900, 5400);
 
             // prevent logging into same server if it fails for a random amount of time
-            Redis::Cache()->set("companion_server_login_issues_{$account}", true, $timeout);
+            Redis::Cache()->set("companion_server_login_issues_{$account}_{$server}", true, $timeout);
 
             $token
                 ->setMessage('Offline - Failed to login to Companion.')
@@ -355,8 +355,8 @@ class CompanionTokenManager
         // check they're all online, if any expired, ignore
         /** @var CompanionToken $token */
         foreach ($tokens as $token) {
-            if ($token->getExpiring() < time()) {
-                $token->setOnline(false)->setMessage("Detected offline when fetched")->setToken(null);
+            if ($token->hasExpired()) {
+                $token->setOnline(false)->setExpiring(0)->setMessage("Detected offline when fetched")->setToken(null);
                 $this->em->persist($token);
             }
         }

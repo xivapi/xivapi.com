@@ -80,6 +80,14 @@ class MarketUpdater
     public function update(int $queue)
     {
         //
+        // todo - tempz?
+        //
+        if (in_array(date('i'), [7,8])) {
+            $this->console("Not doing any queries as it's 7/8 minutes past");
+            return;
+        }
+
+        //
         // todo - temp
         //
         $japan = Carbon::now(new CarbonTimeZone('Asia/Tokyo'));
@@ -365,11 +373,11 @@ class MarketUpdater
         // record lodestone info
         $marketItem->LodestoneID = $prices->eorzeadbItemId;
 
-        // CURRENT PRICES
-        if ($prices && isset($prices->error) === false && $prices->entries) {
-            // reset prices
-            $marketItem->Prices = [];
+        // reset prices (always do this)
+        $marketItem->Prices = [];
 
+        // CURRENT PRICES
+        if (isset($prices->error) === false && isset($prices->entries) && $prices->entries) {
             // append current prices
             foreach ($prices->entries as $row) {
                 // try build a semi unique id
