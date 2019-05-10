@@ -3,7 +3,6 @@
 namespace App\Command\GameData;
 
 use App\Command\CommandHelperTrait;
-use App\Service\Common\Arrays;
 use App\Service\Common\System;
 use App\Service\Redis\Redis;
 use Symfony\Component\Console\Command\Command;

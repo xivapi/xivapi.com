@@ -3,7 +3,6 @@
 namespace App\Command\GameData;
 
 use App\Command\CommandConfigureTrait;
-use App\Command\CommandHelperTrait;
 use App\Service\Redis\Redis;
 use App\Service\SaintCoinach\SaintCoinach;
 use Symfony\Component\Console\Command\Command;

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Service\Data;
+
 use App\Service\SaintCoinach\SaintCoinach;
 
 /**

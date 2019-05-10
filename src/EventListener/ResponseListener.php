@@ -3,7 +3,6 @@
 namespace App\EventListener;
 
 use App\Service\Common\Arrays;
-use App\Service\Common\DataType;
 use App\Service\Common\Language;
 use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\JsonResponse;

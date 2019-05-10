@@ -35,7 +35,7 @@ class CompanionItemManager
     {
         $this->em               = $em;
         $this->companionMarket  = $companionMarket;
-        $this->console           = new ConsoleOutput();
+        $this->console          = new ConsoleOutput();
     }
 
     /**

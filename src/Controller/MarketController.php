@@ -6,7 +6,6 @@ use App\Entity\CompanionToken;
 use App\Exception\InvalidCompanionMarketRequestException;
 use App\Exception\InvalidCompanionMarketRequestServerSizeException;
 use App\Service\Companion\Companion;
-use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionErrorHandler;
 use App\Service\Companion\CompanionItemManager;
 use App\Service\Companion\CompanionMarket;

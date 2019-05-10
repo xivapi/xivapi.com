@@ -5,7 +5,6 @@ namespace App\Service\Companion\Updater;
 use App\Entity\CompanionCharacter;
 use App\Entity\CompanionItem;
 use App\Entity\CompanionRetainer;
-use App\Entity\CompanionToken;
 use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionItemRepository;
 use App\Repository\CompanionRetainerRepository;
@@ -16,19 +15,15 @@ use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
-use App\Service\Redis\Redis;
 use App\Service\Redis\RedisTracking;
 use App\Service\ThirdParty\Discord\Discord;
-use App\Service\ThirdParty\Discord\Mog;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
-use Companion\Config\SightToken;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**

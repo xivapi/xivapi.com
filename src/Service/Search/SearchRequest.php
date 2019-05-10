@@ -2,7 +2,6 @@
 
 namespace App\Service\Search;
 
-use App\Exception\InvalidSearchRequestException;
 use App\Service\Common\Language;
 use Symfony\Component\HttpFoundation\Request;
 

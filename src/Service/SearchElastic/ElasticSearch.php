@@ -14,14 +14,25 @@ class ElasticSearch
 
     /** @var \Elasticsearch\Client */
     private $client;
-
+    /** @var string */
+    private $environment;
+    
     public function __construct(string $environment)
     {
+        $this->environment = $environment;
+    }
+    
+    public function initialize()
+    {
+        if ($this->client !== null) {
+            return;
+        }
+        
         if (getenv('ELASTIC_ENABLED') == 0) {
             return;
         }
 
-        [$ip, $port] = explode(',', getenv($environment));
+        [$ip, $port] = explode(',', getenv($this->environment));
         
         if (!$ip || !$port) {
             throw new \Exception('No ElasticSearch IP or PORT configured in env file');
@@ -40,6 +51,8 @@ class ElasticSearch
      */
     public function addIndexGameData(string $index): void
     {
+        $this->initialize();
+        
         $this->client->indices()->create([
             'index' => $index,
             'body' => [
@@ -88,6 +101,8 @@ class ElasticSearch
      */
     public function addIndexCompanion(string $index)
     {
+        $this->initialize();
+        
         $this->client->indices()->create([
             'index' => $index,
             'body' => [
@@ -148,6 +163,8 @@ class ElasticSearch
 
     public function deleteIndex(string $index): void
     {
+        $this->initialize();
+        
         if ($this->isIndex($index)) {
             $this->client->indices()->delete([
                 'index' => $index
@@ -157,6 +174,8 @@ class ElasticSearch
 
     public function isIndex(string $index): bool
     {
+        $this->initialize();
+        
         return $this->client->indices()->exists([
             'index' => $index
         ]);
@@ -164,6 +183,8 @@ class ElasticSearch
 
     public function addDocument(string $index, string $type, string $id, $document): void
     {
+        $this->initialize();
+        
         $this->client->index([
             'index' => $index,
             'type'  => $type,
@@ -174,6 +195,8 @@ class ElasticSearch
 
     public function bulkDocuments(string $index, string $type, array $documents)
     {
+        $this->initialize();
+        
         $params = [
             'body' => []
         ];
@@ -196,6 +219,8 @@ class ElasticSearch
 
     public function getDocument(string $index, string $type, string $id)
     {
+        $this->initialize();
+        
         return $this->client->get([
             'index' => $index,
             'type'  => $type,
@@ -205,6 +230,8 @@ class ElasticSearch
 
     public function deleteDocument(string $index, string $type, string $id): void
     {
+        $this->initialize();
+        
         $this->client->indices()->delete([
             'index' => $index,
             'type' => $type,
@@ -214,6 +241,8 @@ class ElasticSearch
 
     public function getDocumentMapping(string $index)
     {
+        $this->initialize();
+        
         return $this->client->indices()->getMapping([
             'index' => $index
         ]);
@@ -221,6 +250,8 @@ class ElasticSearch
 
     public function search(string $index, string $type, array $query)
     {
+        $this->initialize();
+        
         return $this->client->search([
             'index' => $index,
             'type'  => $type,
@@ -230,6 +261,8 @@ class ElasticSearch
 
     public function count(string $index, string $type, array $query)
     {
+        $this->initialize();
+        
         return $this->client->count([
             'index' => $index,
             'type'  => $type,

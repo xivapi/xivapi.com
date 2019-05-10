@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use Companion\Config\Token;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

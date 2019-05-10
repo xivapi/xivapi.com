@@ -3,7 +3,6 @@
 namespace App\Service\LodestoneQueue;
 
 use App\Entity\CharacterFriends;
-use App\Entity\Entity;
 use App\Service\Content\LodestoneData;
 use Doctrine\ORM\EntityManagerInterface;
 

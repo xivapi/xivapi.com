@@ -2,7 +2,6 @@
 
 namespace App\Service\ThirdParty;
 
-use App\Entity\User;
 use App\Service\API\ApiRequest;
 use App\Service\Common\Language;
 use GuzzleHttp\Client;

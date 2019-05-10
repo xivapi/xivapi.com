@@ -3,10 +3,8 @@
 namespace App\Service\LodestoneQueue;
 
 use App\Entity\LodestoneStatistic;
-use App\Service\Common\Mog;
 use App\Service\Redis\Redis;
 use App\Service\ThirdParty\Discord\Discord;
-use App\Service\ThirdParty\GoogleAnalytics;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Api;
 use PhpAmqpLib\Exception\AMQPConnectionClosedException;
