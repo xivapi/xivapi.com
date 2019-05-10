@@ -109,6 +109,11 @@ class CompanionToken
         $this->expiring = $expiring;
         return $this;
     }
+
+    public function hasExpired(): bool
+    {
+        return time() > $this->expiring;
+    }
     
     public function isOnline()
     {

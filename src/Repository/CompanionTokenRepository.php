@@ -20,7 +20,6 @@ class CompanionTokenRepository extends ServiceEntityRepository
     {
         $sql = $this->createQueryBuilder('a');
         $sql->orderBy('a.expiring', 'asc')
-            ->where('a.expiring < '. time())
             ->setMaxResults(1)
             ->setFirstResult(0);
     

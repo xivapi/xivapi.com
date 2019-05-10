@@ -245,18 +245,13 @@ class CompanionTokenManager
             'server' => $server,
         ]);
 
-        // token not found
-        if ($token == null) {
-            throw new \Exception("Token not found...");
-        }
-
         // token has not expired
-        if ($token->getExpiring() > time()) {
+        if ($token->hasExpired() == false) {
             return false;
         }
         
         // ensure its marked as offline
-        $token->setOnline(false)->setMessage('Offline');
+        $token->setOnline(false)->setMessage('Offline')->setToken(null)->setExpiring(0);
         $this->em->persist($token);
         $this->em->flush();
         
@@ -355,7 +350,7 @@ class CompanionTokenManager
         // check they're all online, if any expired, ignore
         /** @var CompanionToken $token */
         foreach ($tokens as $token) {
-            if ($token->getExpiring() < time()) {
+            if ($token->hasExpired()) {
                 $token->setOnline(false)->setExpiring(0)->setMessage("Detected offline when fetched")->setToken(null);
                 $this->em->persist($token);
             }
