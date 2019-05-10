@@ -255,6 +255,7 @@ class CompanionTokenManager
 
         // token has not expired
         if ($token->hasExpired() == false) {
+            $this->console->writeln("Token has not expired?");
             return false;
         }
         
