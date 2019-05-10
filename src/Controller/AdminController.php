@@ -36,18 +36,25 @@ class AdminController extends AbstractController
         $errors     = $this->ceh->getExceptions(500);
         $errorGraph = [];
 
-        foreach ($errors as $error) {
-            $hour = date('Y-m-d H', $error['Added']);
-            $errorGraph[$hour] = isset($errorGraph[$hour]) ? $errorGraph[$hour] + 1 : 1;
+        foreach (range(0,100) as $hour) {
+            $seconds = time() - (60 * $hour);
+            $hour    = date('Y-m-d H', $seconds);
+            $errorGraph[$hour] = 0;
         }
 
-        foreach (range(0,50) as $hour) {
-            $seconds = time() - (60 * $hour);
-            $hour = date('Y-m-d H', $seconds);
-            $errorGraph[$hour] = isset($errorGraph[$hour]) ? $errorGraph[$hour] : 0;
+        foreach ($errors as $error) {
+            $hour = date('Y-m-d H', $error['Added']);
+
+            if (!isset($errorGraph[$hour])) {
+                continue;
+            }
+
+            $errorGraph[$hour] = $errorGraph[$hour] + 1;
         }
 
         krsort($errorGraph);
+
+        $errorGraph = array_reverse($errorGraph);
 
         return $this->render('admin/index.html.twig', [
             'errorGraph' => [
