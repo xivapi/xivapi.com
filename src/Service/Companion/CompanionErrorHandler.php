@@ -8,7 +8,6 @@ use App\Service\Redis\Redis;
 use App\Service\Redis\RedisTracking;
 use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
-use Companion\Exceptions\CompanionException;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CompanionErrorHandler
