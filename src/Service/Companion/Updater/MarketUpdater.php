@@ -378,11 +378,11 @@ class MarketUpdater
         // record lodestone info
         $marketItem->LodestoneID = $prices->eorzeadbItemId;
 
-        // CURRENT PRICES
-        if (isset($prices->error) === false && isset($prices->entries)) {
-            // reset prices
-            $marketItem->Prices = [];
+        // reset prices (always do this)
+        $marketItem->Prices = [];
 
+        // CURRENT PRICES
+        if (isset($prices->error) === false && isset($prices->entries) && $prices->entries) {
             // append current prices
             foreach ($prices->entries as $row) {
                 // try build a semi unique id
