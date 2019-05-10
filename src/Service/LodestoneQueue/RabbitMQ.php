@@ -55,7 +55,7 @@ class RabbitMQ
             60.0,
             null,
             true,
-            60
+            10
         );
 
         return $this;
