@@ -191,7 +191,13 @@ class CompanionTokenManager
     {
         try {
             /** @var CompanionToken $token */
-            $token = $this->repository->findExpiringAccount();
+            $tokens = $this->repository->findExpiringAccounts();
+
+            // shuffle the tokens
+            shuffle($tokens);
+
+            // grab the 1st one
+            $token = $token[0];
         } catch (\Exception $ex) {
             $token = null;
         }
@@ -228,11 +234,13 @@ class CompanionTokenManager
     {
         // check error count
         if ($this->errorHandler->isCriticalExceptionCount()) {
+            $this->console->writeln("Currently at critical error rate");
             return false;
         }
 
         // don't login to same account if it failed recently.
-        if (Redis::Cache()->get("companion_server_login_issues_{$account}")) {
+        if (Redis::Cache()->get("companion_server_login_issues_{$account}_{$server}")) {
+            $this->console->writeln("Recently tried: {$account} on {$server} and failed");
             return false;
         }
 
@@ -261,11 +269,10 @@ class CompanionTokenManager
             $this->console->writeln('No characters available on this server at this time.');
             return false;
         }
-        
-        [$username, $password] = explode(',', getenv($account));
 
         $steps = [];
-        
+        [$username, $password] = explode(',', getenv($account));
+
         try {
             // settings
             CompanionSight::set('CLIENT_TIMEOUT', 5);
@@ -317,7 +324,7 @@ class CompanionTokenManager
             $timeout = mt_rand(900, 5400);
 
             // prevent logging into same server if it fails for a random amount of time
-            Redis::Cache()->set("companion_server_login_issues_{$account}", true, $timeout);
+            Redis::Cache()->set("companion_server_login_issues_{$account}_{$server}", true, $timeout);
 
             $token
                 ->setMessage('Offline - Failed to login to Companion.')
