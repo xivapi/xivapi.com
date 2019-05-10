@@ -11,6 +11,9 @@
             {{ status.state.now ?: '0' }} / {{ status.state.max }} -
             {{ status.at_critical ? 'Currently at critical state, system may pause' : 'System running under expected levels.' }}
         </p>
+        <p>
+            Last error: {{ status.last_error.added|date('H:i:s Y-m-d') }}
+        </p>
 
         <br><hr><br>
 
