@@ -11,10 +11,10 @@
         var myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: {{ errorGraph|keys|json_encode|raw }},
+                labels: {{ errorGraph.keys|json_encode|raw }},
                 datasets: [{
                     label: 'Errors over the hours',
-                    data: {{ errorGraph|json_encode|raw }},
+                    data: {{ errorGraph.values|json_encode|raw }},
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
                         'rgba(54, 162, 235, 0.2)',
