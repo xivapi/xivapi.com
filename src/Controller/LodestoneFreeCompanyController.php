@@ -6,9 +6,11 @@ use App\Exception\ContentGoneException;
 use App\Service\Lodestone\FreeCompanyService;
 use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\FreeCompanyQueue;
+use Intervention\Image\ImageManager;
 use Lodestone\Api;
 use App\Service\Redis\Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -69,7 +71,7 @@ class LodestoneFreeCompanyController extends AbstractController
     
         if ($content->FCM) {
             $members = $this->service->getMembers($lodestoneId);
-            $response->FreeCompanyMembers = $members;
+            $response->FreeCompanyMembers = $members->data;
             $response->Info->FreeCompanyMembers = $members->ent->getInfo();
         }
     
@@ -100,5 +102,67 @@ class LodestoneFreeCompanyController extends AbstractController
         
         Redis::Cache()->set(__METHOD__.$lodestoneId, 1, ServiceQueues::UPDATE_TIMEOUT);
         return $this->json(1);
+    }
+
+    /**
+     * @Route("/FreeCompany/{lodestoneId}/Icon")
+     * @Route("/freecompany/{lodestoneId}/icon")
+     */
+    public function icon($lodestoneId)
+    {
+        $lodestoneId = strtolower(trim($lodestoneId));
+
+        $freecompany = $this->service->get($lodestoneId);
+        $freecompany = $freecompany->data;
+
+        if ($freecompany == null) {
+            throw new \Exception('FC not found, maybe it needs adding? (it will be now)');
+        }
+
+        /**
+         * Filename for FC icon
+         */
+        $filename = __DIR__.'/../../public/fc/'. $freecompany->ID .'.png';
+
+        /**
+         * Check if it exists, if so, spit it out
+         */
+        if (file_exists($filename)) {
+            return new BinaryFileResponse($filename, 200);
+        }
+
+        /** @var ImageManager $manager */
+        $manager = new ImageManager(['driver' => 'gd']);
+        $img = $manager->make(file_get_contents($freecompany->Crest[0]));
+
+        /**
+         * Insert the other 2 layers
+         */
+        if (isset($freecompany->Crest[1])) {
+            $img->insert(
+                $manager->make($freecompany->Crest[1])
+            );
+        }
+
+        if (isset($freecompany->Crest[2])) {
+            $img->insert(
+                $manager->make($freecompany->Crest[2])
+            );
+        }
+
+
+        /**
+         * Save and compress
+         */
+        $img->save($filename);
+
+        usleep(500 * 1000);
+
+        $img = imagecreatefrompng($filename);
+        imagejpeg($img, $filename, 95);
+
+        usleep(500 * 1000);
+
+        return new BinaryFileResponse($filename, 200);
     }
 }

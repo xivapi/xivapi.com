@@ -2,7 +2,6 @@
 
 namespace App\Service\LodestoneQueue;
 
-use App\Entity\Entity;
 use App\Entity\FreeCompany;
 use App\Service\Content\LodestoneData;
 use Doctrine\ORM\EntityManagerInterface;

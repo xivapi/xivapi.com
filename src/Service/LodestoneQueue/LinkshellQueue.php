@@ -2,7 +2,6 @@
 
 namespace App\Service\LodestoneQueue;
 
-use App\Entity\Entity;
 use App\Entity\Linkshell;
 use App\Service\Content\LodestoneData;
 use Doctrine\ORM\EntityManagerInterface;

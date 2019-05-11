@@ -6,8 +6,10 @@ use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
 use App\Service\Content\GameServers;
 use App\Service\Redis\Redis;
+use App\Service\Redis\RedisTracking;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Companion\CompanionApi;
+use Companion\Config\CompanionSight;
 use Companion\Http\Cookies;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -112,7 +114,7 @@ class CompanionTokenManager
     {
         $this->em                    = $em;
         $this->repository            = $em->getRepository(CompanionToken::class);
-        $this->errorHandler = $errorHandler;
+        $this->errorHandler          = $errorHandler;
         $this->console               = new ConsoleOutput();
     }
 
@@ -121,7 +123,7 @@ class CompanionTokenManager
      */
     public function autoPopulateCharacters(string $accounts = null)
     {
-        $accounts = $accounts ? explode(',', $accounts) : ['MB1','MB2','MB3','MB4','MB5','MB6'];
+        $accounts = $accounts ? explode(',', $accounts) : range(1,50);
         $repo     = $this->em->getRepository(CompanionToken::class);
 
         // clear cookies
@@ -135,7 +137,14 @@ class CompanionTokenManager
          */
         $this->console->writeln("Logging into accounts");
         foreach ($accounts as $account) {
-            [$username, $password] = explode(',', getenv($account));
+            $account = "MB" . $account;
+            $creds   = getenv($account);
+
+            if (empty($creds)) {
+                continue;
+            }
+
+            [$username, $password] = explode(',', $creds);
 
             try {
                 $this->console->writeln("- Account: {$account} {$username}");
@@ -180,12 +189,22 @@ class CompanionTokenManager
      */
     public function autoLoginToExpiringAccount()
     {
-        /** @var CompanionToken $token */
-        $token = $this->repository->findExpiringAccount();
+        try {
+            /** @var CompanionToken $token */
+            $tokens = $this->repository->findExpiringAccounts();
+            $token  = $tokens[array_rand($tokens)];
 
-        if ($token && $token->getExpiring() < time()) {
-            $this->login($token->getAccount(), $token->getServer());
+        } catch (\Exception $ex) {
+            $this->console->writeln('<error>Error!!</error>');
+            throw new $ex;
         }
+
+        if ($token == null) {
+            $this->console->writeln("Could not fetch token from db.");
+            return;
+        }
+
+        $this->login($token->getAccount(), $token->getServer(), $token->getCharacterId());
     }
 
     public function autoLoginToAllAccounts()
@@ -197,7 +216,7 @@ class CompanionTokenManager
             // clear cookies
             Cookies::clear(); sleep(1);
 
-            $this->login($token->getAccount(), $token->getServer());
+            $this->login($token->getAccount(), $token->getServer(), $token->getCharacterId());
 
             // clear cookies
             Cookies::clear();
@@ -208,15 +227,17 @@ class CompanionTokenManager
     /**
      * Login to a specific server
      */
-    public function login(string $account, string $server)
+    public function login(string $account, string $server, string $characterId)
     {
         // check error count
-        if ($this->errorHandler->getCriticalExceptionCount() >= CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
+        if ($this->errorHandler->isCriticalExceptionCount()) {
+            $this->console->writeln("Currently at critical error rate");
             return false;
         }
 
-        $failedRecently = Redis::Cache()->get("companion_server_login_issues_{$server}");
-        if ($failedRecently) {
+        // don't login to same account if it failed recently.
+        if (Redis::Cache()->get("companion_server_login_issues_{$account}_{$server}")) {
+            $this->console->writeln("Recently tried: {$account} on {$server} and failed");
             return false;
         }
 
@@ -229,12 +250,14 @@ class CompanionTokenManager
             'server' => $server,
         ]);
 
-        if ($token == null) {
-            throw new \Exception("Token not found...");
+        // token has not expired
+        if ($token->hasExpired() == false) {
+            $this->console->writeln("Token has not expired?");
+            return false;
         }
         
         // ensure its marked as offline
-        $token->setOnline(false)->setMessage('Offline');
+        $token->setOnline(false)->setMessage('Offline')->setToken(null)->setExpiring(0);
         $this->em->persist($token);
         $this->em->flush();
         
@@ -244,81 +267,76 @@ class CompanionTokenManager
             $this->console->writeln('No characters available on this server at this time.');
             return false;
         }
-        
+
+        $steps = [];
         [$username, $password] = explode(',', getenv($account));
-        
+
         try {
+            // settings
+            CompanionSight::set('CLIENT_TIMEOUT', 5);
+            CompanionSight::set('QUERY_LOOP_COUNT', 5);
+            CompanionSight::set('QUERY_DELAY_MS', mt_rand(1000,1500));
+
             // initialize API and create a new token
             $api = new CompanionApi("{$account}_{$username}_{$server}");
+
+            // track account logins
+            Redis::Cache()->increment("companion_count_logins_{$account}");
             
             // login
             $this->console->writeln("- Account Login: {$account} {$username} {$server}");
             $api->Account()->login($username, $password);
+            $steps[] = 'Logged-In';
             GoogleAnalytics::companionTrackItemAsUrl("/account/login");
             
-            // find character for this server
-            $this->console->writeln('- Finding active character ...');
-            $cid = null;
-            foreach ($api->Login()->getCharacters()->accounts[0]->characters as $character) {
-                if ($character->world == $server) {
-                    $cid = $character->cid;
-                    break;
-                }
-            }
-            GoogleAnalytics::companionTrackItemAsUrl("/account/get-characters");
-            
-            // couldn't find a valid character
-            if ($cid === null) {
-                $this->console->writeln('- Error: No character on this server...');
-                return false;
-            }
-            
-            // login with our chosen character!
-            $this->console->writeln("- Logging into character: {$cid}");
-            $api->Login()->loginCharacter($cid);
+            // login with our character!
+            $this->console->writeln("- Logging into character: {$characterId}");
+            $api->Login()->loginCharacter($characterId);
+            $steps[] = "Character Logged-In";
             GoogleAnalytics::companionTrackItemAsUrl("/account/login-character");
-            
-            // confirm
-            $character = $api->login()->getCharacter()->character;
-            $this->console->writeln("- Character logged into: {$character->name} ({$character->world})");
-            GoogleAnalytics::companionTrackItemAsUrl("/account/login-character-confirm");
             
             // get character status
             $api->login()->getCharacterWorlds();
             $this->console->writeln('- Character world status confirmed');
+            $steps[] = "Worlds Confirmed";
             GoogleAnalytics::companionTrackItemAsUrl("/account/worlds");
             
             // wait a bit
             $this->console->writeln('- Testing market in a moment...');
-            sleep(mt_rand(3,8));
-            
+            sleep(mt_rand(5,15));
+
             // perform a test
-            $api->market()->getItemMarketListings(5);
-            GoogleAnalytics::companionTrackItemAsUrl("/account/market-5");
+            $api->market()->getItemMarketListings(mt_rand(2000,25000));
             $this->console->writeln('- Market fetch confirmed.');
+            $steps[] = "Price Checked";
             
             // confirm success
             $token
                 ->setMessage('Online')
                 ->setOnline(true)
-                ->setExpiring(time() + mt_rand(28800, 57600)) // expires in 8-16 hours
+                ->setExpiring(time() + mt_rand(28800, 43200)) // expires in 8-12 hours
                 ->setToken($api->Token()->get());
-            
+    
+            RedisTracking::increment('ACCOUNT_LOGIN_SUCCESS');
         } catch (\Exception $ex) {
+            $timeout = mt_rand(900, 5400);
+
             // prevent logging into same server if it fails for a random amount of time
-            Redis::Cache()->set("companion_server_login_issues_{$server}", 1, mt_rand(2000, 6000));
+            Redis::Cache()->set("companion_server_login_issues_{$account}_{$server}", true, $timeout);
 
             $token
                 ->setMessage('Offline - Failed to login to Companion.')
-                ->setExpiring(time() + (60 * 60 * mt_rand(2, 5))) // expires in 2 to 5 hours
+                ->setExpiring(time() + $timeout)
                 ->setOnline(false);
-            
+
+            $steps = implode(', ', $steps);
             $this->errorHandler->exception(
                 "SE_Login_Failure",
-                "Account: ({$account}) {$username} - Server: {$server} - Message: {$ex->getMessage()}"
+                "Account: ({$account}) {$username} - Server: {$server} - Message: {$ex->getMessage()} - Stages: {$steps}"
             );
             
             $this->console->writeln('- Character failed to login: '. $ex->getMessage());
+            RedisTracking::increment('ACCOUNT_LOGIN_FAILURE');
         }
         
         $this->em->persist($token);
@@ -337,8 +355,8 @@ class CompanionTokenManager
         // check they're all online, if any expired, ignore
         /** @var CompanionToken $token */
         foreach ($tokens as $token) {
-            if ($token->getExpiring() < time()) {
-                $token->setOnline(false);
+            if ($token->hasExpired()) {
+                $token->setOnline(false)->setExpiring(0)->setMessage("Detected offline when fetched")->setToken(null);
                 $this->em->persist($token);
             }
         }

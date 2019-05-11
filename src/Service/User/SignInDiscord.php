@@ -23,10 +23,18 @@ class SignInDiscord implements SignInInterface
     public function __construct(Request $request)
     {
         $this->request = $request;
+    }
+    
+    public function connect()
+    {
+        if ($this->provider !== null) {
+            return;
+        }
+        
         $this->provider = new Discord([
             'clientId'      => getenv('DISCORD_CLIENT_ID'),
             'clientSecret'  => getenv('DISCORD_CLIENT_SECRET'),
-            'redirectUri'   => $request->getScheme() .'://'. $request->getHost() . self::CLIENT_RETURN,
+            'redirectUri'   => $this->request->getScheme() .'://'. $this->request->getHost() . self::CLIENT_RETURN,
         ]);
     }
     
@@ -35,6 +43,8 @@ class SignInDiscord implements SignInInterface
      */
     public function getSsoAccess(AccessTokenInterface $token, $user): \stdClass
     {
+        $this->connect();
+        
         $obj                  = (Object)[];
         $obj->name            = self::NAME;
         $obj->id              = $user->getId();
@@ -52,6 +62,8 @@ class SignInDiscord implements SignInInterface
      */
     public function getLoginAuthorizationUrl(): string
     {
+        $this->connect();
+        
         // generate an authorization url (this also generates the state)
         $url = $this->provider->getAuthorizationUrl([
             'scope' => self::CLIENT_SCOPE,
@@ -67,6 +79,8 @@ class SignInDiscord implements SignInInterface
      */
     public function setLoginAuthorizationState(): \stdClass
     {
+        $this->connect();
+        
         // check CSRF
         if ($this->request->get('state') !== $this->request->getSession()->get('state')) {
             throw new CSRFInvalidationException();
@@ -88,6 +102,8 @@ class SignInDiscord implements SignInInterface
      */
     public function getAuthorizationToken(): \stdClass
     {
+        $this->connect();
+        
         $token = $this->request->getSession()->get(self::NAME);
         
         // if expired, refresh the token
@@ -105,6 +121,8 @@ class SignInDiscord implements SignInInterface
      */
     public function refreshAuthorizationToken(): \stdClass
     {
+        $this->connect();
+        
         $token = $this->request->getSession()->get(self::NAME);
         $token = $this->provider->getAccessToken('refresh_token', [
             'refresh_token' => $token->refresh_token

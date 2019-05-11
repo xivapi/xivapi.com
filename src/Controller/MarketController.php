@@ -6,7 +6,6 @@ use App\Entity\CompanionToken;
 use App\Exception\InvalidCompanionMarketRequestException;
 use App\Exception\InvalidCompanionMarketRequestServerSizeException;
 use App\Service\Companion\Companion;
-use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionErrorHandler;
 use App\Service\Companion\CompanionItemManager;
 use App\Service\Companion\CompanionMarket;
@@ -68,10 +67,8 @@ class MarketController extends AbstractController
      */
     public function statistics()
     {
-        $criticalCount = $this->companionErrorHandler->getCriticalExceptionCount();
-
         $report = $this->companionStatistics->getStatistics();
-        $report->IsCritical = $criticalCount > CompanionConfiguration::ERROR_COUNT_THRESHOLD;
+        $report->IsCritical = $this->companionErrorHandler->isCriticalExceptionCount();
 
         return $this->json($report);
     }

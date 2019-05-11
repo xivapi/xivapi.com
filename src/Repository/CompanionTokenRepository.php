@@ -16,14 +16,12 @@ class CompanionTokenRepository extends ServiceEntityRepository
     /**
      * Find the next expiring time
      */
-    public function findExpiringAccount()
+    public function findExpiringAccounts()
     {
         $sql = $this->createQueryBuilder('a');
-        $sql->orderBy('a.expiring', 'asc')
-            ->where('a.expiring < '. time())
-            ->setMaxResults(1)
-            ->setFirstResult(0);
+        $sql->where('a.online = :online')->setParameter('online', false)
+            ->orderBy('a.expiring', 'asc');
     
-        return $sql->getQuery()->getSingleResult();
+        return $sql->getQuery()->getResult();
     }
 }

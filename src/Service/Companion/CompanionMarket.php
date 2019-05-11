@@ -4,7 +4,6 @@ namespace App\Service\Companion;
 
 use App\Entity\CompanionRetainer;
 use App\Repository\CompanionRetainerRepository;
-use App\Service\Common\Arrays;
 use App\Service\Companion\Models\GameItem;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
@@ -39,8 +38,14 @@ class CompanionMarket
     ) {
         $this->em = $em;
         $this->retainerRepository = $em->getRepository(CompanionRetainer::class);
-        $this->elastic  = new ElasticSearch('ELASTIC_SERVER_COMPANION');
         $this->gamedata = $gamedata;
+    }
+    
+    public function connect()
+    {
+        if ($this->elastic === null) {
+            $this->elastic  = new ElasticSearch('ELASTIC_SERVER_COMPANION');
+        }
     }
     
     /**
@@ -49,6 +54,7 @@ class CompanionMarket
      */
     public function rebuildIndex()
     {
+        $this->connect();
         $this->elastic->deleteIndex(self::INDEX);
         $this->elastic->addIndexCompanion(self::INDEX);
     }
@@ -58,6 +64,7 @@ class CompanionMarket
      */
     public function set(MarketItem $marketItem)
     {
+        $this->connect();
         $marketItem->Updated = time();
     
         $data = json_decode(json_encode($marketItem), true);
@@ -71,6 +78,7 @@ class CompanionMarket
      */
     public function setBulk($marketItems)
     {
+        $this->connect();
         $documents = [];
         foreach ($marketItems as $i => $marketItem) {
             $marketItem->Updated = time();
@@ -85,6 +93,7 @@ class CompanionMarket
      */
     public function get(int $server, int $itemId, int $maxHistory = null, bool $internal = false): ?MarketItem
     {
+        $this->connect();
         $item = new MarketItem($server, $itemId);
         
         try {
@@ -163,6 +172,7 @@ class CompanionMarket
      */
     public function retainerItems(string $retainerId)
     {
+        $this->connect();
         // if the retainer is not in the database, it doesn't exist.
         /** @var CompanionRetainer $companionRetainer */
         $companionRetainer = $this->retainerRepository->find($retainerId);
@@ -210,6 +220,7 @@ class CompanionMarket
      */
     public function search()
     {
+        $this->connect();
         $query1 = new ElasticQuery();
         $query1->queryMatch('Prices.RetainerID', 'f935eac3-6560-4a4e-b07b-84ba4b37d60a');
         #$query1->filterRange('Prices.PricePerUnit', 50000, 'gte');

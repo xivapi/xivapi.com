@@ -12,10 +12,12 @@ class Search
     /** @var ElasticQuery $query */
     public $query;
 
-    function __construct()
+    function connect()
     {
-        $this->search = new ElasticSearch('ELASTIC_SERVER_LOCAL');
-        $this->query  = new ElasticQuery();
+        if ($this->search === null) {
+            $this->search = new ElasticSearch('ELASTIC_SERVER_LOCAL');
+            $this->query  = new ElasticQuery();
+        }
     }
     
     /**
@@ -23,6 +25,8 @@ class Search
      */
     public function handleRequest(SearchRequest $req, SearchResponse $res)
     {
+        $this->connect();
+        
         // if a payload exists
         if ($req->body) {
             $this->handleBodyRequest($req, $res);
@@ -37,6 +41,8 @@ class Search
      */
     private function handleBodyRequest(SearchRequest $req, SearchResponse $res)
     {
+        $this->connect();
+        
         $res->setResults(
             $this->search->search($req->indexes, 'search', $req->body) ?: []
         );
@@ -47,6 +53,8 @@ class Search
      */
     private function handleGetRequest(SearchRequest $req, SearchResponse $res)
     {
+        $this->connect();
+        
         //
         // Sorting
         //
@@ -91,6 +99,8 @@ class Search
      */
     private function performStringSearch(SearchRequest $req)
     {
+        $this->connect();
+        
         // do nothing if no string
         if (strlen($req->string) < 1) {
             return;
@@ -154,6 +164,8 @@ class Search
      */
     private function performFilterSearch(SearchRequest $searchRequest)
     {
+        $this->connect();
+        
         if (!$searchRequest->filters) {
             return;
         }

@@ -5,7 +5,6 @@ namespace App\Service\Companion\Updater;
 use App\Entity\CompanionCharacter;
 use App\Entity\CompanionItem;
 use App\Entity\CompanionRetainer;
-use App\Entity\CompanionToken;
 use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionItemRepository;
 use App\Repository\CompanionRetainerRepository;
@@ -16,16 +15,15 @@ use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Content\GameServers;
+use App\Service\Redis\RedisTracking;
 use App\Service\ThirdParty\Discord\Discord;
 use App\Service\ThirdParty\GoogleAnalytics;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
-use Companion\Config\SightToken;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
@@ -82,6 +80,14 @@ class MarketUpdater
     public function update(int $queue)
     {
         //
+        // todo - tempz?
+        //
+        if (in_array(date('i'), [7,8])) {
+            $this->console("Not doing any queries as it's 7/8 minutes past");
+            return;
+        }
+
+        //
         // todo - temp
         //
         $japan = Carbon::now(new CarbonTimeZone('Asia/Tokyo'));
@@ -92,10 +98,10 @@ class MarketUpdater
             case 9: $pause = mt_rand(1, 3); break;
             case 10: $pause = mt_rand(2, 5); break;
             case 11: $pause = mt_rand(2, 6); break;
-            case 12: $pause = mt_rand(2, 8); break;
-            case 13: $pause = mt_rand(2, 8); break;
-            case 14: $pause = mt_rand(2, 8); break;
-            case 15: $pause = mt_rand(2, 6); break;
+            case 12: $pause = mt_rand(3, 10); break;
+            case 13: $pause = mt_rand(3, 12); break;
+            case 14: $pause = mt_rand(3, 10); break;
+            case 15: $pause = mt_rand(2, 8); break;
             case 16: $pause = mt_rand(1, 5); break;
             case 17: $pause = mt_rand(1, 4); break;
             case 18: $pause = mt_rand(0, 3); break;
@@ -103,16 +109,14 @@ class MarketUpdater
         //
         // todo - temp
         //
-        
-        
-    
+
         // init
         $this->console("Queue: {$queue}");
         $this->startTime = microtime(true);
         $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
         $this->queue = $queue;
         $this->console('Starting!');
-    
+
         // fetch tokens and items
         $this->fetchCompanionTokens();
         $this->fetchItemIdsToUpdate($queue);
@@ -128,9 +132,9 @@ class MarketUpdater
         $api = new CompanionApi();
         
         // settings
-        CompanionSight::set('CLIENT_TIMEOUT', 2);
-        CompanionSight::set('QUERY_LOOP_COUNT', 10);
-        CompanionSight::set('QUERY_DELAY_MS', 1000);
+        CompanionSight::set('CLIENT_TIMEOUT', 2.5);
+        CompanionSight::set('QUERY_LOOP_COUNT', 5);
+        CompanionSight::set('QUERY_DELAY_MS', mt_rand(950,1250));
         
         // begin
         foreach ($this->items as $item) {
@@ -155,7 +159,10 @@ class MarketUpdater
     
                 // pick a random token
                 $token = $this->tokens[$serverId][array_rand($this->tokens[$serverId])];
-    
+
+                // record
+                RedisTracking::increment('COMPANION_ACCOUNT_USAGE_'. $token->account);
+
                 // set token
                 $api->Token()->set($token);
     
@@ -191,23 +198,35 @@ class MarketUpdater
                 $duration = round(microtime(true) - $a, 1);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
     
+                RedisTracking::increment('ITEM_UPDATED');
+                RedisTracking::increment('ITEM_UPDATED_DAILY_'. $queue .'_'. date('y-m-d'));
+                RedisTracking::increment('ITEM_UPDATED_DAILY_'. (strlen($queue) == 3 ? substr($queue, 0, 1) : 'PATRON') .'_'. date('y-m-d'));
+    
                 if ($pause) {
                     sleep($pause);
                 }
             } catch (\Exception $ex) {
                 // log all errors
-                file_put_contents(__DIR__.'/errors.log', "{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}", FILE_APPEND);
+                file_put_contents(__DIR__.'/../../../../CompanionErrors.log', "{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}", FILE_APPEND);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
+    
+                $this->errorHandler->exception(
+                    $ex->getMessage(),
+                    "Item Update Failure for: ({$token->account}) {$itemId} on {$serverName} - {$serverDc}"
+                );
                 
-                // if congested
-                if (stripos($ex->getMessage(), '210010') !== false) {
-                    $this->logoutCharacterTokens("Congested", $serverName);
+                // if emergency maintenance or "congestion" logout that server
+                if (stripos($ex->getMessage(), '319201') !== false ||
+                    stripos($ex->getMessage(), '210010') !== false) {
+                    // mark item as updated
+                    $this->marketItemEntryUpdated[] = $item['id'];
+                    $this->logoutCharacterServers("Maintenance/Congestion", $serverName);
                     break;
                 }
 
-                // if unauthorised
+                // if unauthorised, logout that specific account
                 if (stripos($ex->getMessage(), '111001') !== false) {
-                    $this->logoutCharacterTokens("Authorization failed", $serverName);
+                    $this->logoutAccount("Authorization failed", $token->account);
                     break;
                 }
             }
@@ -263,7 +282,7 @@ class MarketUpdater
      */
     private function checkErrorCount()
     {
-        if ($this->errorHandler->getCriticalExceptionCount() >= CompanionConfiguration::ERROR_COUNT_THRESHOLD) {
+        if ($this->errorHandler->isCriticalExceptionCount()) {
             $this->console('Exceptions are above the ERROR_COUNT_THRESHOLD.');
             return true;
         }
@@ -288,11 +307,14 @@ class MarketUpdater
     /**
      * Logout a character is congestion is detected
      */
-    private function logoutCharacterTokens(string $message, string $serverName)
+    private function logoutCharacterServers(string $message, string $serverName)
     {
+        // update expiring to 60-180 mins
+        $expiring = time() + (60 * mt_rand(60,180));
+
         $sql = "
             UPDATE companion_tokens
-            SET online = 0, message = 'Auto Logout: { message}', token = NULL
+            SET online = 0, message = 'Auto Logout: {$message}', token = NULL, expiring = {$expiring}
             WHERE server = '{$serverName}'
         ";
     
@@ -302,7 +324,31 @@ class MarketUpdater
         $date = date('Y-m-d H:i:s');
         Discord::mog()->sendMessage(
             '571007332616503296',
-            "[{$date} UTC] **Auto Logout: {$message}** - Logged out server: {$serverName}"
+            "[{$date} UTC] **Server-Wide Account Logout: {$message}** - Logged out server: {$serverName}"
+        );
+    }
+    
+    /**
+     * Logout a character is congestion is detected
+     */
+    private function logoutAccount(string $message, string $account)
+    {
+        // update expiring to 60-180 mins
+        $expiring = time() + (60 * mt_rand(60,180));
+        
+        $sql = "
+            UPDATE companion_tokens
+            SET online = 0, message = 'Auto Logout: {$message}', token = NULL, expiring = {$expiring}
+            WHERE account = '{$account}'
+        ";
+        
+        $stmt = $this->em->getConnection()->prepare($sql);
+        $stmt->execute();
+        
+        $date = date('Y-m-d H:i:s');
+        Discord::mog()->sendMessage(
+            '571007332616503296',
+            "[{$date} UTC] **Account: {$account} has been automatically logged out: {$message}**"
         );
     }
 
@@ -327,11 +373,11 @@ class MarketUpdater
         // record lodestone info
         $marketItem->LodestoneID = $prices->eorzeadbItemId;
 
-        // CURRENT PRICES
-        if ($prices && isset($prices->error) === false && $prices->entries) {
-            // reset prices
-            $marketItem->Prices = [];
+        // reset prices (always do this)
+        $marketItem->Prices = [];
 
+        // CURRENT PRICES
+        if (isset($prices->error) === false && isset($prices->entries) && $prices->entries) {
             // append current prices
             foreach ($prices->entries as $row) {
                 // try build a semi unique id
@@ -516,7 +562,7 @@ class MarketUpdater
     private function fetchCompanionTokens()
     {
         $conn = $this->em->getConnection();
-        $sql  = "SELECT server, online, token FROM companion_tokens";
+        $sql  = "SELECT account, server, online, token FROM companion_tokens";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         
@@ -531,8 +577,10 @@ class MarketUpdater
             if (!isset($this->tokens[$serverId])) {
                 $this->tokens[$serverId] = [];
             }
-    
-            $this->tokens[$serverId][] = json_decode($arr['token']);
+
+            $token = json_decode($arr['token']);
+            $token->account = $arr['account'];
+            $this->tokens[$serverId][] = $token;
         }
     }
 

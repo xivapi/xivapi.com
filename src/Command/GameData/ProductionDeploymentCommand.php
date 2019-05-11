@@ -14,11 +14,6 @@ class ProductionDeploymentCommand extends Command
 {
     use CommandHelperTrait;
     
-    public function __construct()
-    {
-        parent::__construct();
-    }
-    
     protected function configure()
     {
         $this

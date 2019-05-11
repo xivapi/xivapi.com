@@ -94,6 +94,7 @@ class ContentList
 
         $data = [];
         foreach ($this->ids as $id) {
+            $id = (string)$id ?: '0';
             $content = Redis::Cache()->get("xiv_{$this->name}_{$id}");
             
             if ($content) {

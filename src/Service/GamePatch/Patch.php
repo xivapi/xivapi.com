@@ -14,10 +14,12 @@ class Patch
     /** @var array */
     private $data;
 
-    public function __construct()
+    public function initialize()
     {
-        $this->data = file_get_contents(self::FILENAME);
-        $this->data = json_decode($this->data);
+        if ($this->data === null) {
+            $this->data = file_get_contents(self::FILENAME);
+            $this->data = json_decode($this->data);
+        }
     }
 
     /**
@@ -25,6 +27,8 @@ class Patch
      */
     public function save()
     {
+        $this->initialize();
+        
         // backup old data
         copy(self::FILENAME, self::FILENAME_BACKUP);
 
@@ -40,6 +44,8 @@ class Patch
      */
     public function get()
     {
+        $this->initialize();
+        
         return $this->data;
     }
 
@@ -48,6 +54,8 @@ class Patch
      */
     public function getPatchAtID($id)
     {
+        $this->initialize();
+        
         $list = [];
         foreach ($this->data as $patch) {
             $list[$patch->ID] = $patch;
@@ -65,6 +73,8 @@ class Patch
      */
     public function getLatest()
     {
+        $this->initialize();
+        
         $latest = end($this->data);
         reset($this->data);
         return $latest;
@@ -75,6 +85,8 @@ class Patch
      */
     public function create($version, $name, $banner, $expansion, $isExpansion)
     {
+        $this->initialize();
+        
         $patch = [
             'Banner'        => $banner,
             'ID'            => $this->getLatest()->ID + 1,
@@ -100,6 +112,8 @@ class Patch
      */
     public function update($newPatch)
     {
+        $this->initialize();
+        
         foreach ($this->data as $i => $oldPatch) {
             if ($oldPatch->ID === $newPatch->ID) {
                 $this->data[$i] = $newPatch;
@@ -115,6 +129,8 @@ class Patch
      */
     public function delete($patch)
     {
+        $this->initialize();
+        
         foreach ($this->data as $i => $oldPatch) {
             if ($oldPatch->ID === $patch->ID) {
                 unset($this->data[$i]);
