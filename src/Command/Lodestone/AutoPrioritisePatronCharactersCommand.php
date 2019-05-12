@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command\Companion;
+namespace App\Command\Lodestone;
 
 use App\Common\Command\CommandConfigureTrait;
 use App\Common\Entity\User;
