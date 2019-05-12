@@ -50,7 +50,7 @@ class GameData
         $content = Redis::Cache()->get("xiv_{$contentName}_{$contentId}");
         
         if (!$content) {
-            throw new \Exception("Game Data does not exist: {$contentName} {$contentId}");
+            throw new \Exception("Game Data does not exist: {$contentName} {$contentId}", 404);
         }
 
         // add additional data
