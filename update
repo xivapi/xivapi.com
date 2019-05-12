@@ -4,7 +4,7 @@ cd src/Common
 
 git pull
 
-cd ./
+cd ..
 
 git pull
 
