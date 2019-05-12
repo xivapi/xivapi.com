@@ -3,7 +3,7 @@
 namespace App\Service\Content;
 
 use App\Entity\ItemIcon;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

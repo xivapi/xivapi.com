@@ -3,11 +3,10 @@
 namespace App\Command\Search;
 
 use App\Command\CommandHelperTrait;
-use App\Service\Common\Arrays;
-use App\Service\Common\Language;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
+use App\Common\Utils\Arrays;
 use App\Service\Search\SearchContent;
-use App\Service\SearchElastic\ElasticSearch;
+use App\Common\Service\ElasticSearch\ElasticSearch;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

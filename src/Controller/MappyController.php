@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Common\Entity\User;
 use App\Service\API\ApiPermissions;
 use App\Service\API\ApiRequest;
-use App\Service\Common\Arrays;
+use App\Common\Utils\Arrays;
 use App\Service\Maps\Mappy;
-use App\Service\User\Users;
+use App\Common\User\Users;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;

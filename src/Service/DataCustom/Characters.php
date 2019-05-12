@@ -2,9 +2,9 @@
 
 namespace App\Service\DataCustom;
 
+use App\Common\Game\ContentHash;
 use App\Service\Content\ManualHelper;
-use App\Service\Content\Converter;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 
 class Characters extends ManualHelper
 {
@@ -51,11 +51,11 @@ class Characters extends ManualHelper
         foreach (Redis::Cache()->get("ids_{$contentName}") as $id) {
             $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
        
-            $hash = Converter::hash($content->{$column});
+            $hash = ContentHash::hash($content->{$column});
             $data[$hash] = $content->ID;
             
             if ($femaleColumn) {
-                $hash = Converter::hash($content->{$femaleColumn});
+                $hash = ContentHash::hash($content->{$femaleColumn});
     
                 // set hash if no hash already set. If the female name is the same
                 // as the male name then the hash would be the same and the content id would be as well.
@@ -105,7 +105,7 @@ class Characters extends ManualHelper
             
             // if it's a material item
             if (isset($content->ItemUICategory->ID) && $content->ItemUICategory->ID == 58) {
-                $hash = Converter::hash($content->Name_en);
+                $hash = ContentHash::hash($content->Name_en);
                 $data[$hash] = $content->ID;
             }
         }
@@ -127,7 +127,7 @@ class Characters extends ManualHelper
     
             // only stuff that has a class/job category
             if (isset($content->ClassJobCategory->ID)) {
-                $hash = Converter::hash($content->Name_en);
+                $hash = ContentHash::hash($content->Name_en);
                 $data[$hash] = $content->ID;
             }
         }
@@ -149,7 +149,7 @@ class Characters extends ManualHelper
             
             // if it's a material item
             if (isset($content->ItemUICategory->ID) && $content->ItemUICategory->ID == 55) {
-                $hash = Converter::hash($content->Name_en);
+                $hash = ContentHash::hash($content->Name_en);
                 $data[$hash] = $content->ID;
             }
         }

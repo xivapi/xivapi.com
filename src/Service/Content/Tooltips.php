@@ -2,11 +2,11 @@
 
 namespace App\Service\Content;
 
+use App\Common\Utils\Language;
 use App\Exception\InvalidTooltipsColumnCountException;
 use App\Exception\InvalidTooltipsContentCountException;
 use App\Exception\InvalidTooltipsIdCountException;
-use App\Service\Common\Arrays;
-use App\Service\Common\Language;
+use App\Common\Utils\Arrays;
 
 class Tooltips
 {

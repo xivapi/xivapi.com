@@ -8,7 +8,7 @@ use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\FreeCompanyQueue;
 use Intervention\Image\ImageManager;
 use Lodestone\Api;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;

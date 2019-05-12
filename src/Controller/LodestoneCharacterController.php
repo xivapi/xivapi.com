@@ -10,7 +10,7 @@ use App\Service\Lodestone\ServiceQueues;
 use App\Service\LodestoneQueue\CharacterAchievementQueue;
 use App\Service\LodestoneQueue\CharacterFriendQueue;
 use App\Service\LodestoneQueue\CharacterQueue;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Lodestone\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

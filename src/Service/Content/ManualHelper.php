@@ -4,7 +4,7 @@ namespace App\Service\Content;
 
 use App\Command\GameData\SaintCoinachRedisCommand;
 use App\Service\SaintCoinach\SaintCoinach;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use App\Service\Data\CsvReader;
 
@@ -45,21 +45,5 @@ class ManualHelper
         $csv = CsvReader::Get($file);
         $csv = array_splice($csv, 2);
         return $csv;
-    }
-    
-    public function pipeToRedis($data, $count = 100)
-    {
-        if (count($data) !== $count) {
-            return $data;
-        }
-        
-        Redis::Cache()->startPipeline();
-        foreach ($data as $key => $content) {
-            Redis::Cache()->set($key, $content, self::REDIS_DURATION);
-        }
-        Redis::Cache()->executePipeline();
-        
-        unset($data);
-        return [];
     }
 }

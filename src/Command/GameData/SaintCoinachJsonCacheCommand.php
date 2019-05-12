@@ -2,8 +2,8 @@
 
 namespace App\Command\GameData;
 
-use App\Command\CommandConfigureTrait;
-use App\Service\Redis\Redis;
+use App\Common\Command\CommandConfigureTrait;
+use App\Common\Service\Redis\Redis;
 use App\Service\SaintCoinach\SaintCoinach;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

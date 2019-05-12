@@ -3,7 +3,7 @@
 namespace App\Command\Feeds;
 
 use App\Command\CommandHelperTrait;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Lodestone\Api;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

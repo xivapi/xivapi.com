@@ -2,10 +2,10 @@
 
 namespace App\Service\DataCustom;
 
-use App\Service\Common\Arrays;
+use App\Common\Utils\Language;
+use App\Common\Utils\Arrays;
 use App\Service\Content\ManualHelper;
-use App\Service\Common\Language;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 
 class Quest extends ManualHelper
 {

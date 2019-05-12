@@ -2,7 +2,7 @@
 
 namespace App\Service\Companion;
 
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Companion\CompanionApi;
 
 class Companion

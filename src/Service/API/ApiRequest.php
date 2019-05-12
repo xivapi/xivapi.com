@@ -2,6 +2,9 @@
 
 namespace App\Service\API;
 
+use App\Common\ServicesThirdParty\Discord\Discord;
+use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
+use App\Common\Utils\Language;
 use App\Controller\CompanionController;
 use App\Controller\MappyController;
 use App\Controller\MarketController;
@@ -13,15 +16,11 @@ use App\Controller\LodestoneFreeCompanyController;
 use App\Controller\LodestonePvPTeamController;
 use App\Controller\SearchController;
 use App\Controller\XivGameContentController;
-use App\Entity\User;
+use App\Common\Entity\User;
 use App\Exception\ApiAppBannedException;
 use App\Exception\ApiRateLimitException;
-use App\Exception\ApiUnauthorizedAccessException;
-use App\Service\Common\Language;
-use App\Service\Redis\Redis;
-use App\Service\ThirdParty\Discord\Discord;
-use App\Service\ThirdParty\GoogleAnalytics;
-use App\Service\User\Users;
+use App\Common\Service\Redis\Redis;
+use App\Common\User\Users;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -118,7 +117,6 @@ class ApiRequest
 
         // checks
         $this->checkUserIsNotBanned();
-        $this->checkApiAccessNotSuspended();
 
         // rate limit
         $this->checkDeveloperRateLimit();
@@ -174,7 +172,7 @@ class ApiRequest
     private function setApiPermissions()
     {
         if ($this->user) {
-            ApiPermissions::set($this->user->getApiPermissions());
+            ApiPermissions::set($this->user->getPermissions());
         }
     }
 
@@ -229,16 +227,6 @@ class ApiRequest
             throw new ApiAppBannedException();
         }
     }
-    
-    /**
-     * Check that the API key has not been suspended
-     */
-    private function checkApiAccessNotSuspended()
-    {
-        if ($this->user->isApiEndpointAccessSuspended()) {
-            throw new ApiUnauthorizedAccessException();
-        }
-    }
 
     /**
      * Returns the controller of the current request
@@ -264,7 +252,7 @@ class ApiRequest
         // XIVAPI Google Analytics
         GoogleAnalytics::trackHits($this->request->getPathInfo());
         GoogleAnalytics::trackBaseEndpoint($this->getRequestEndpoint());
-        GoogleAnalytics::trackApiKey($this->apikey ?: 'no_api_key');
+        GoogleAnalytics::trackApiKey($this->apikey ?: 'no_api_key', $this->request->getPathInfo());
         GoogleAnalytics::trackLanguage();
     }
     
@@ -311,12 +299,22 @@ class ApiRequest
 
         if ($count > $cap) {
             GoogleAnalytics::trackApiKeyHardCapped($this->apikey);
-            //throw new \Exception("You have reached the request hard-cap. Please re-think your API usage...");
 
             if (Redis::Cache()->get($key . "_alert") == null) {
                 Redis::Cache()->set($key . "_alert", true, 3600);
-                Discord::mog()->sendMessage(null, "The API Key: {$this->apikey} ({$this->user->getUsername()}) has performed over 1500 requests in the past 60 seconds.");
+                Discord::mog()->sendMessage(null, "The API Key: {$this->apikey} ({$this->user->getUsername()}) has performed over 1500 requests in the past 60 seconds. The rate limit for this key will be dramatically reduced.");
+                
+                $this->user->setApiRateLimit(2);
+                $this->users->save($this->user);
             }
+
+            throw new \Exception("You have reached the request hard-cap. Please re-think your API usage...");
+        }
+    
+        // restore rate limit if it was below the max
+        if (Redis::Cache()->get($key . "_alert") == null && $this->user->getApiRateLimit() < ApiRequest::MAX_RATE_LIMIT_KEY) {
+            $this->user->setApiRateLimit(ApiRequest::MAX_RATE_LIMIT_KEY);
+            $this->users->save($this->user);
         }
 
         Redis::Cache()->set($key, $count, 60);

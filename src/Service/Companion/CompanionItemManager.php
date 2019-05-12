@@ -2,11 +2,12 @@
 
 namespace App\Service\Companion;
 
+use App\Common\Constants\RedisConstants;
+use App\Common\Game\GameServers;
 use App\Entity\CompanionItem;
 use App\Entity\MapPosition;
 use App\Service\Companion\Models\MarketItem;
-use App\Service\Content\GameServers;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
@@ -175,7 +176,7 @@ class CompanionItemManager
                     'Shop_Name_ja' => $gs->Name_ja,
                     'Map' => $this->positions[$npc->ID],
                 ];
-                Redis::Cache()->set("xiv_GilShopData_{$gs->ID}", $gilShopData, Redis::TIME_10_YEAR);
+                Redis::Cache()->set("xiv_GilShopData_{$gs->ID}", $gilShopData, RedisConstants::TIME_10_YEAR);
                 
                 // record all shops an item is in.
                 foreach ($gs->Items as $item) {

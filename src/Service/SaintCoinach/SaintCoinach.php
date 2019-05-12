@@ -2,7 +2,7 @@
 
 namespace App\Service\SaintCoinach;
 
-use App\Service\Common\Downloader;
+use App\Common\Utils\Downloader;
 use App\Service\Data\FileSystem;
 use Github\Client;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -10,9 +10,9 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 class SaintCoinach
 {
     const REDIS_DURATION = (60 * 60 * 24 * 365 * 10); // 10 years
-    const SCHEMA_FILENAME  = __DIR__ . '/data/SaintCoinach.Cmd/ex.json';
-    const SCHEMA_DIRECTORY = __DIR__ . '/data/SaintCoinach.Cmd';
-    const DOCUMENTS_FOLDER = __DIR__.'/documents/';
+    const SCHEMA_FILENAME  = ROOT . '/data/SaintCoinach.Cmd/ex.json';
+    const SCHEMA_DIRECTORY = ROOT . '/data/SaintCoinach.Cmd';
+    const DOCUMENTS_FOLDER = ROOT .'/documents/';
     const SAVE_PATH = __DIR__.'/data/';
     
     /** @var ConsoleOutput */

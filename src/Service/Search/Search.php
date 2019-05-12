@@ -2,8 +2,8 @@
 
 namespace App\Service\Search;
 
-use App\Service\SearchElastic\ElasticSearch;
-use App\Service\SearchElastic\ElasticQuery;
+use App\Common\Service\ElasticSearch\ElasticSearch;
+use App\Common\Service\ElasticSearch\ElasticQuery;
 
 class Search
 {

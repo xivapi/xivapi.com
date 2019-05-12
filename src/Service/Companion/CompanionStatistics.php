@@ -6,7 +6,7 @@ use App\Entity\CompanionItem;
 use App\Entity\CompanionError;
 use App\Repository\CompanionItemRepository;
 use App\Repository\CompanionErrorRepository;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use App\Service\ThirdParty\Discord\Discord;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;

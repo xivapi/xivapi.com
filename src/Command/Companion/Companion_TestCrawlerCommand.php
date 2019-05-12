@@ -2,7 +2,7 @@
 
 namespace App\Command\Companion;
 
-use App\Command\CommandConfigureTrait;
+use App\Common\Command\CommandConfigureTrait;
 use App\Service\Companion\CompanionMarket;
 use App\Service\Companion\CompanionTokenManager;
 use Symfony\Component\Console\Command\Command;

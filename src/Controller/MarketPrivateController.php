@@ -2,13 +2,13 @@
 
 namespace App\Controller;
 
+use App\Common\Game\GameServers;
 use App\Entity\CompanionItem;
 use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Companion\Updater\MarketUpdater;
-use App\Service\Content\GameServers;
-use App\Service\Redis\Redis;
-use App\Service\Redis\RedisTracking;
+use App\Common\Service\Redis\Redis;
+use App\Common\Service\Redis\RedisTracking;
 use Companion\CompanionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

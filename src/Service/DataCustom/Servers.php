@@ -2,9 +2,9 @@
 
 namespace App\Service\DataCustom;
 
-use App\Service\Content\GameServers;
+use App\Common\Game\GameServers;
 use App\Service\Content\ManualHelper;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 
 class Servers extends ManualHelper
 {

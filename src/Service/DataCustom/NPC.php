@@ -2,9 +2,10 @@
 
 namespace App\Service\DataCustom;
 
-use App\Service\Common\Arrays;
+use App\Common\Constants\RedisConstants;
+use App\Common\Utils\Arrays;
 use App\Service\Content\ManualHelper;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 
 class NPC extends ManualHelper
 {
@@ -19,7 +20,6 @@ class NPC extends ManualHelper
     {
         $this->io->text(__METHOD__);
         
-        $newdata = [];
         foreach (Redis::Cache()->get('ids_GilShop') as $id) {
             $content = Redis::Cache()->get("xiv_GilShop_{$id}");
             
@@ -37,16 +37,14 @@ class NPC extends ManualHelper
                     );
                 }
             }
-            
-            $newdata["xiv_GilShop_{$id}"] = $content;
-            $newdata = $this->pipeToRedis($newdata, 50);
+    
+            Redis::Cache()->set("xiv_GilShop_{$id}", $content, RedisConstants::TIME_10_YEAR);
         }
     }
     
     private function connectShopsToNpcs()
     {
         $this->io->text(__METHOD__);
-        $newdata = [];
         
         // grab NPCs
         $ids = Redis::Cache()->get('ids_ENpcResident');
@@ -188,11 +186,8 @@ class NPC extends ManualHelper
                 
             }
             
-            #file_put_contents(__DIR__.'/lol.json', json_encode($npc, JSON_PRETTY_PRINT));die;
-            
             // save
-            $newdata[$key] = $npc;
-            $newdata = $this->pipeToRedis($newdata, 100);
+            Redis::Cache()->set($key, $npc, RedisConstants::TIME_10_YEAR);
         }
     }
     

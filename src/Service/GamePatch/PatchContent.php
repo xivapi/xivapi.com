@@ -3,7 +3,7 @@
 namespace App\Service\GamePatch;
 
 use App\Service\Content\ManualHelper;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 
 /**
  * Tracks patch info for each piece of content

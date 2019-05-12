@@ -2,8 +2,9 @@
 
 namespace App\Service\LodestoneQueue;
 
+use App\Common\Service\RabbitMQ\RabbitMQ;
 use App\Entity\LodestoneStatistic;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use App\Service\ThirdParty\Discord\Discord;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Api;
