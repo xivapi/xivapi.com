@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
+echo "Updating Common ..."
 cd src/Common
+git pull
+cd -
 
+echo "Updating main repo ..."
 git pull
 
-cd ..
-
-git pull
-
+echo "Clearing cache"
 php bin/console cache:clear
 
+echo "Generating Version"
 bash bin/version
+
+echo "Done"
