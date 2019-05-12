@@ -3,11 +3,10 @@
 namespace App\Command\Search;
 
 use App\Command\CommandHelperTrait;
-use App\Service\Common\Language;
 use App\Service\Data\CsvReader;
+use App\Common\Service\Redis\Redis;
 use App\Service\SaintCoinach\SaintCoinach;
-use App\Service\Redis\Redis;
-use App\Service\SearchElastic\ElasticSearch;
+use App\Common\Service\ElasticSearch\ElasticSearch;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

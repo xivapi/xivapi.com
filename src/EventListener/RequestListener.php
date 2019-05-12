@@ -2,10 +2,10 @@
 
 namespace App\EventListener;
 
+use App\Common\Utils\Environment;
+use App\Common\Utils\Language;
 use App\Service\API\ApiRequest;
-use App\Service\Common\Environment;
-use App\Service\Common\Language;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 

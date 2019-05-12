@@ -2,7 +2,7 @@
 
 namespace App\Command\Companion;
 
-use App\Command\CommandConfigureTrait;
+use App\Common\Command\CommandConfigureTrait;
 use App\Service\Companion\Updater\MarketQueue;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

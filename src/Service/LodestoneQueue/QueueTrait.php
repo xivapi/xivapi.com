@@ -2,11 +2,12 @@
 
 namespace App\Service\LodestoneQueue;
 
+use App\Common\Service\RabbitMQ\RabbitMQ;
 use App\Entity\Character;
 use App\Service\API\ApiPermissions;
 use App\Service\API\ApiRequest;
 use App\Service\Lodestone\CharacterService;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Exceptions\AchievementsPrivateException;
 use Lodestone\Exceptions\ForbiddenException;

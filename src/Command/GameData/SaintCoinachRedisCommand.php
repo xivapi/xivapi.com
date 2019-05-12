@@ -3,8 +3,8 @@
 namespace App\Command\GameData;
 
 use App\Command\CommandHelperTrait;
-use App\Service\Common\System;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
+use App\Common\Utils\System;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

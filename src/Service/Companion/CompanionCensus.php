@@ -2,9 +2,9 @@
 
 namespace App\Service\Companion;
 
+use App\Common\Game\GameServers;
 use App\Entity\CompanionItem;
 use App\Repository\CompanionItemRepository;
-use App\Service\Content\GameServers;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 

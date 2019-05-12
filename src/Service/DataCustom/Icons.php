@@ -4,7 +4,7 @@ namespace App\Service\DataCustom;
 
 use App\Service\Data\DataHelper;
 use App\Service\Content\ManualHelper;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 
 class Icons extends ManualHelper
 {

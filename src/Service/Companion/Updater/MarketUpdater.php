@@ -2,6 +2,8 @@
 
 namespace App\Service\Companion\Updater;
 
+use App\Common\Game\GameServers;
+use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
 use App\Entity\CompanionCharacter;
 use App\Entity\CompanionItem;
 use App\Entity\CompanionRetainer;
@@ -14,10 +16,8 @@ use App\Service\Companion\CompanionMarket;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
-use App\Service\Content\GameServers;
-use App\Service\Redis\RedisTracking;
+use App\Common\Service\Redis\RedisTracking;
 use App\Service\ThirdParty\Discord\Discord;
-use App\Service\ThirdParty\GoogleAnalytics;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;

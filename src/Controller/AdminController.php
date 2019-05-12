@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
+use App\Common\User\Users;
 use App\Service\API\ApiPermissions;
 use App\Service\Companion\CompanionErrorHandler;
-use App\Service\User\Users;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -32,7 +32,7 @@ class AdminController extends AbstractController
         date_default_timezone_set("Europe/London");
 
         $user = $this->users->getUser(true);
-        ApiPermissions::set($user->getApiPermissions());
+        ApiPermissions::set($user->getPermissions());
         ApiPermissions::must(ApiPermissions::PERMISSION_ADMIN);
 
         $errors     = $this->ceh->getExceptions(500);

@@ -3,8 +3,8 @@
 namespace App\Command\GameData;
 
 use App\Command\CommandHelperTrait;
-use App\Service\Redis\Redis;
-use App\Service\Redis\RedisCache;
+use App\Common\Constants\RedisConstants;
+use App\Common\Service\Redis\Redis;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -69,7 +69,7 @@ class ProductionDeploymentCommand extends Command
         
         foreach (array_chunk($redisKeys, 1000) as $keys) {
             // start a new pipeline
-            Redis::Cache(RedisCache::PROD)->startPipeline();
+            Redis::Cache(RedisConstants::PROD)->startPipeline();
             foreach ($keys as $key) {
                 // ignore specific prefixes
                 $prefix = explode('_', $key)[0];
@@ -78,14 +78,14 @@ class ProductionDeploymentCommand extends Command
                 }
             
                 // set keys
-                Redis::Cache(RedisCache::PROD)->set(
+                Redis::Cache(RedisConstants::PROD)->set(
                     $key,
                     Redis::Cache()->get($key),
                     SaintCoinachRedisCommand::REDIS_DURATION
                 );
             }
     
-            Redis::Cache(RedisCache::PROD)->executePipeline();
+            Redis::Cache(RedisConstants::PROD)->executePipeline();
             $this->io->progressAdvance(count($keys));
         }
         $this->io->progressFinish();

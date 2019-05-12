@@ -2,19 +2,21 @@
 
 namespace App\Controller;
 
+use App\Common\Controller\UserTraitController;
+use App\Common\User\Users;
+use App\Common\Utils\Random;
 use App\Service\API\ApiRequest;
-use App\Service\User\SignInDiscord;
-use App\Utils\Random;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\User\Users;
 
 class AccountController extends AbstractController
 {
+    use UserTraitController;
+    
     /** @var EntityManagerInterface $em */
     private $em;
     /** @var Users */
@@ -39,7 +41,7 @@ class AccountController extends AbstractController
     {
         return $this->render('account/index.html.twig', [
             'api_key_limits' => [
-                'MAX_RATE_LIMIT_KEY' => ApiRequest::MAX_RATE_LIMIT_KEY,
+                'MAX_RATE_LIMIT_KEY'    => ApiRequest::MAX_RATE_LIMIT_KEY,
                 'MAX_RATE_LIMIT_GLOBAL' => ApiRequest::MAX_RATE_LIMIT_GLOBAL,
             ]
         ]);
@@ -57,7 +59,6 @@ class AccountController extends AbstractController
         );
 
         $this->users->save($user);
-
         return $this->redirectToRoute('account');
     }
     
@@ -69,39 +70,6 @@ class AccountController extends AbstractController
         $user = $this->users->getUser(true);
         $user->setApiAnalyticsKey($request->get('google_analytics_key'));
         $this->users->save($user);
-        
         return $this->redirectToRoute('account');
-    }
-
-    /**
-     * @Route("/account/login/discord", name="account_login_discord")
-     */
-    public function loginDiscord(Request $request)
-    {
-        return $this->redirect(
-            $this->users->setSsoProvider(new SignInDiscord($request))->login()
-        );
-    }
-    
-    /**
-     * @Route("/account/login/discord/success", name="account_login_discord_success")
-     */
-    public function loginDiscordResponse(Request $request)
-    {
-        if ($request->get('error') == 'access_denied') {
-            return $this->redirectToRoute('home');
-        }
-
-        $this->users->setSsoProvider(new SignInDiscord($request))->authenticate();
-        return $this->redirectToRoute('home');
-    }
-
-    /**
-     * @Route("/account/logout", name="account_logout")
-     */
-    public function logout()
-    {
-        $this->users->logout();
-        return $this->redirectToRoute('home');
     }
 }

@@ -2,16 +2,16 @@
 
 namespace App\Controller;
 
+use App\Common\Game\GameServers;
+use App\Common\ServicesThirdParty\DigitalOcean\DigitalOcean;
+use App\Common\ServicesThirdParty\Github\GitHub;
+use App\Common\ServicesThirdParty\Vultr\Vultr;
 use App\Service\API\ApiRequest;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Content\ContentList;
-use App\Service\Content\GameServers;
 use App\Service\Docs\Icons;
 use App\Service\Search\SearchContent;
 use App\Service\Search\SearchRequest;
-use App\Service\ThirdParty\GitHub;
-use App\Service\ThirdParty\DigitalOcean;
-use App\Service\ThirdParty\Vultr;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;

@@ -10,38 +10,21 @@
             <div class="account-banned">
                 <h2>Account Banned</h2>
                 <p>
-                    Sorry to say your account has been banned from XIVAPI. Your API Key will no longer work,
-                    if you wish to use the API you can do so without a key which will be subject
-                    to IP Rate-Limit. For information on your ban, please view the notes below
-                    or get in contact with staff on the XIVAPI Discord.
+                    Sorry to say your account has been banned.
                 </p>
                 <p>
-                    Please understand that a ban is not permanent, nore is it personal. It could be
-                    warranted by the system automatically based on API behaviour or a decision
-                    based on Analytics showing crawling or unusual activity.
+                    Your API Key will no longer work, if you wish to use the API you can do so without a
+                    key which will be subject to IP Rate-Limit. For information on your ban, please contact either an
+                    Admin or Moderator of the XIVAPI Discord. Please understand that a ban is not permanent,
+                    nore is it personal. The ban could have been issued by the system automatically based on
+                    API behaviour or it could be a decision based on analytics showing crawling or unusual activity.
                 </p>
                 <p>
-                    Regards, -PV
+                    This ban will also affect all user functionality on Mogboard.com including alerts, lists
+                    and the ability to login.
                 </p>
+                Regards, -PV
             </div>
-            {% endif %}
-
-            {# Key Suspended #}
-            {% if auth.user.apiEndpointAccessSuspended %}
-                <div class="account-banned">
-                    <h2>API Access Suspended</h2>
-                    <p>
-                        Your API Access has been automatically suspended due to violating the agreement of
-                        API Usage. Please check the documentation for further information. This restriction
-                        will automatically lift tomorrow.
-                    </p>
-                    <p>
-                        Please understand that suspended access is not permanent, nore is it personal.
-                    </p>
-                    <p>
-                        Regards, -PV
-                    </p>
-                </div>
             {% endif %}
 
             {# Account information #}

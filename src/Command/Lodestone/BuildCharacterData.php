@@ -3,7 +3,7 @@
 namespace App\Command\Lodestone;
 
 use App\Service\LodestoneQueue\CharacterConverter;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

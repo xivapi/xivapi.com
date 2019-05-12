@@ -2,12 +2,12 @@
 
 namespace App\Service\Companion;
 
+use App\Common\Game\GameServers;
+use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
 use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
-use App\Service\Content\GameServers;
-use App\Service\Redis\Redis;
-use App\Service\Redis\RedisTracking;
-use App\Service\ThirdParty\GoogleAnalytics;
+use App\Common\Service\Redis\Redis;
+use App\Common\Service\Redis\RedisTracking;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
 use Companion\Http\Cookies;

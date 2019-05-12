@@ -2,7 +2,7 @@
 
 namespace App\Service\Companion\Models;
 
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 
 /**
  * This is a JSON Model

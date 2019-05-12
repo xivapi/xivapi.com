@@ -4,7 +4,7 @@ namespace App\Command\Misc;
 
 use App\Entity\ItemIcon;
 use App\Repository\ItemIconRepository;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
 use Intervention\Image\ImageManager;
 use Lodestone\Api;

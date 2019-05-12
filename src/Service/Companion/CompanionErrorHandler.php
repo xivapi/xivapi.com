@@ -2,12 +2,12 @@
 
 namespace App\Service\Companion;
 
+use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
+use App\Common\Service\Redis\Redis;
+use App\Common\Service\Redis\RedisTracking;
 use App\Entity\CompanionError;
 use App\Repository\CompanionErrorRepository;
-use App\Service\Redis\Redis;
-use App\Service\Redis\RedisTracking;
 use App\Service\ThirdParty\Discord\Discord;
-use App\Service\ThirdParty\GoogleAnalytics;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CompanionErrorHandler

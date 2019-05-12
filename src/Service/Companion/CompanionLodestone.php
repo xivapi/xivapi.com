@@ -2,9 +2,9 @@
 
 namespace App\Service\Companion;
 
+use App\Common\Game\GameServers;
 use App\Entity\CompanionCharacter;
 use App\Repository\CompanionCharacterRepository;
-use App\Service\Content\GameServers;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Api;
 use Symfony\Component\Console\Output\ConsoleOutput;

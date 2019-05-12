@@ -34,6 +34,5 @@ class UpdatePatchCommand extends Command
         if ($input->getArgument('force') || $this->io->confirm('Is the current patch: '. $patch->Name_en, false)) {
             (new PatchContent())->init($this->io)->handle($input->getArgument('single'));
         }
-
     }
 }

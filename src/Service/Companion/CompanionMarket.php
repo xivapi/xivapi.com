@@ -2,6 +2,9 @@
 
 namespace App\Service\Companion;
 
+use App\Common\Game\GameServers;
+use App\Common\Service\ElasticSearch\ElasticQuery;
+use App\Common\Service\ElasticSearch\ElasticSearch;
 use App\Entity\CompanionRetainer;
 use App\Repository\CompanionRetainerRepository;
 use App\Service\Companion\Models\GameItem;
@@ -11,10 +14,7 @@ use App\Service\Companion\Models\MarketListing;
 use App\Service\Companion\Models\Retainer;
 use App\Service\Companion\Models\RetainerListing;
 use App\Service\Content\GameData;
-use App\Service\Content\GameServers;
-use App\Service\Redis\Redis;
-use App\Service\SearchElastic\ElasticQuery;
-use App\Service\SearchElastic\ElasticSearch;
+use App\Common\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

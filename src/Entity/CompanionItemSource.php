@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use Ramsey\Uuid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

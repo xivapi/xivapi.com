@@ -7,6 +7,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 require __DIR__.'/../vendor/autoload.php';
 
+// Maintenance Check
+$maintenance = new \App\Common\Maintenance\Maintenance();
+$maintenance->check();
+
 // The check is to ensure we don't use .env in production
 if (!isset($_SERVER['APP_ENV'])) {
     if (!class_exists(Dotenv::class)) {

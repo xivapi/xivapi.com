@@ -2,8 +2,8 @@
 
 namespace App\EventListener;
 
-use App\Service\Common\Arrays;
-use App\Service\Common\Language;
+use App\Common\Utils\Language;
+use App\Common\Utils\Arrays;
 use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

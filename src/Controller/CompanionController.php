@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Exception\ApiUnauthorizedAccessException;
 use App\Service\API\ApiPermissions;
 use App\Service\API\ApiRequest;
-use App\Service\Redis\Redis;
+use App\Common\Service\Redis\Redis;
 use Companion\CompanionApi;
 use Companion\Config\SightToken;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

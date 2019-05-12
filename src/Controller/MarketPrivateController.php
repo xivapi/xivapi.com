@@ -2,13 +2,13 @@
 
 namespace App\Controller;
 
+use App\Common\Game\GameServers;
 use App\Entity\CompanionItem;
 use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionTokenManager;
 use App\Service\Companion\Updater\MarketUpdater;
-use App\Service\Content\GameServers;
-use App\Service\Redis\Redis;
-use App\Service\Redis\RedisTracking;
+use App\Common\Service\Redis\Redis;
+use App\Common\Service\Redis\RedisTracking;
 use Companion\CompanionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,6 +47,13 @@ class MarketPrivateController extends AbstractController
         $itemId = (int)$request->get('item_id');
         $server = (int)GameServers::getServerId(ucwords($request->get('server')));
         $key    = "companion_private_query_prices_{$itemId}_{$server}";
+    
+        /**
+         * Check the server isn't an offline one
+         */
+        if (in_array($server, GameServers::MARKET_OFFLINE)) {
+            return $this->json([ 'error', 'The server provided is currently not supported.' ]);
+        }
         
         if ($response = Redis::Cache()->get($key)) {
             return $this->json($response);
@@ -73,6 +80,13 @@ class MarketPrivateController extends AbstractController
         $itemId = (int)$request->get('item_id');
         $server = (int)GameServers::getServerId(ucwords($request->get('server')));
         $key    = "companion_private_query_history_{$itemId}_{$server}";
+    
+        /**
+         * Check the server isn't an offline one
+         */
+        if (in_array($server, GameServers::MARKET_OFFLINE)) {
+            return $this->json([ 'error', 'The server provided is currently not supported.' ]);
+        }
         
         if ($response = Redis::Cache()->get($key)) {
             return $this->json($response);

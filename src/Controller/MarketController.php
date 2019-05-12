@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Common\Game\GameServers;
 use App\Entity\CompanionToken;
 use App\Exception\InvalidCompanionMarketRequestException;
 use App\Exception\InvalidCompanionMarketRequestServerSizeException;
@@ -11,7 +12,6 @@ use App\Service\Companion\CompanionItemManager;
 use App\Service\Companion\CompanionMarket;
 use App\Service\Companion\CompanionStatistics;
 use App\Service\Companion\CompanionTokenManager;
-use App\Service\Content\GameServers;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;

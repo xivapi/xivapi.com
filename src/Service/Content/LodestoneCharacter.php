@@ -2,9 +2,9 @@
 
 namespace App\Service\Content;
 
-use App\Service\Common\Arrays;
-use App\Service\Common\Language;
-use App\Service\Redis\Redis;
+use App\Common\Utils\Arrays;
+use App\Common\Service\Redis\Redis;
+use App\Common\Utils\Language;
 
 class LodestoneCharacter
 {

@@ -2,10 +2,9 @@
 
 namespace App\Service\DataCustom;
 
-use App\Service\Content\DescriptionFormatter;
+use App\Common\Game\DescriptionFormatter;
+use App\Common\Service\Redis\Redis;
 use App\Service\Content\ManualHelper;
-use App\Service\Common\Language;
-use App\Service\Redis\Redis;
 
 class SkillDescriptions extends ManualHelper
 {
