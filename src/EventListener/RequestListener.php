@@ -54,9 +54,11 @@ class RequestListener
                 $request->request->set(strtolower($key), $value);
             }
         }
-
+        
+        $controller = explode('::', $event->getRequest()->attributes->get('_controller'))[0];
+        
         // Quick hack to allow json body requests
-        if ($json = $request->getContent()) {
+        if ($controller != 'App\Controller\MappyController' && $json = $request->getContent()) {
             if (trim($json[0]) === '{') {
                 $json = \GuzzleHttp\json_decode($json);
 
