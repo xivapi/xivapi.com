@@ -47,6 +47,13 @@ class MarketPrivateController extends AbstractController
         $itemId = (int)$request->get('item_id');
         $server = (int)GameServers::getServerId(ucwords($request->get('server')));
         $key    = "companion_private_query_prices_{$itemId}_{$server}";
+    
+        /**
+         * Check the server isn't an offline one
+         */
+        if (in_array($server, GameServers::MARKET_OFFLINE)) {
+            return $this->json([ 'error', 'The server provided is currently not supported.' ]);
+        }
         
         if ($response = Redis::Cache()->get($key)) {
             return $this->json($response);
@@ -73,6 +80,13 @@ class MarketPrivateController extends AbstractController
         $itemId = (int)$request->get('item_id');
         $server = (int)GameServers::getServerId(ucwords($request->get('server')));
         $key    = "companion_private_query_history_{$itemId}_{$server}";
+    
+        /**
+         * Check the server isn't an offline one
+         */
+        if (in_array($server, GameServers::MARKET_OFFLINE)) {
+            return $this->json([ 'error', 'The server provided is currently not supported.' ]);
+        }
         
         if ($response = Redis::Cache()->get($key)) {
             return $this->json($response);
