@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+cd src/Common
+
+git pull
+
+cd ./
+
+git pull
+
+php bin/console cache:clear
+
+bash bin/version
