@@ -110,7 +110,6 @@ class AutoPrioritisePatronCharactersCommand extends Command
                 continue;
             }
             
-            
             /** @var User $user */
             foreach ($users as $user) {
                 $characters = $userCharRepo->findBy(['user' => $user]);
@@ -146,7 +145,7 @@ class AutoPrioritisePatronCharactersCommand extends Command
                         $apiFriend = $apiCharRepo->findOneBy([ 'id' => $friend->ID ]);
 
                         if ($apiFriend) {
-                            $output->writeln("- ADD Friend: {$apiFriend->getId()}");
+                            $output->writeln("- ADD (Tier: {$tier}) Friend: {$apiFriend->getId()}");
                             $apiFriend->setPriority(Entity::PRIORITY_PATRON);
                             $this->em->persist($apiFriend);
                         }
@@ -165,7 +164,7 @@ class AutoPrioritisePatronCharactersCommand extends Command
                             $apiFriend = $apiCharRepo->findOneBy([ 'id' => $friendId ]);
 
                             if ($apiFriend) {
-                                $output->writeln("- REMOVE Friend: {$apiFriend->getId()}");
+                                $output->writeln("- REMOVE (Tier: {$tier}) Friend: {$apiFriend->getId()}");
                                 $apiFriend->setPriority(Entity::PRIORITY_NORMAL);
                                 $this->em->persist($apiFriend);
                             }
