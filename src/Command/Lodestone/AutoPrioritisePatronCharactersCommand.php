@@ -103,9 +103,14 @@ class AutoPrioritisePatronCharactersCommand extends Command
         }
 
         //
-        // Set friends
+        // Set friends (for tier 3 or higher
         //
         foreach ($patrons as $tier => $users) {
+            if ($tier < 2) {
+                continue;
+            }
+            
+            
             /** @var User $user */
             foreach ($users as $user) {
                 $characters = $userCharRepo->findBy(['user' => $user]);
