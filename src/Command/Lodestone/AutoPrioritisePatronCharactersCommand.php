@@ -43,6 +43,7 @@ class AutoPrioritisePatronCharactersCommand extends Command
 
         $this->em = $em;
         $this->users = $users;
+        $this->characterService = $characterService;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
