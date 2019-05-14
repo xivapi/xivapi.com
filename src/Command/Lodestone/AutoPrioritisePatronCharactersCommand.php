@@ -9,6 +9,8 @@ use App\Common\Entity\UserCharacter;
 use App\Common\Service\Redis\Redis;
 use App\Common\User\Users;
 use App\Entity\Character;
+use App\Entity\CharacterAchievements;
+use App\Entity\CharacterFriends;
 use App\Entity\Entity;
 use App\Service\Lodestone\CharacterService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -51,6 +53,8 @@ class AutoPrioritisePatronCharactersCommand extends Command
         $api          = new XIVAPI();
         $userCharRepo = $this->em->getRepository(UserCharacter::class);
         $apiCharRepo  = $this->em->getRepository(Character::class);
+        $apiCharFriendRepo = $this->em->getRepository(CharacterFriends::class);
+        $apiCharAchievements = $this->em->getRepository(CharacterAchievements::class);
         
         // User
         $patrons = $this->users->getPatrons();
@@ -75,10 +79,12 @@ class AutoPrioritisePatronCharactersCommand extends Command
                 /** @var UserCharacter $character */
                 foreach ($characters as $character) {
                     /** @var Character $apiCharacter */
-                    $apiCharacter = $apiCharRepo->findOneBy([
-                        'id' => $character->getLodestoneId()
-                    ]);
-
+                    $apiCharacter = $apiCharRepo->findOneBy([ 'id' => $character->getLodestoneId() ]);
+                    /** @var CharacterFriends $apiCharacterFriend */
+                    $apiCharacterFriend = $apiCharFriendRepo->findOneBy([ 'id' => $character->getLodestoneId() ]);
+                    /** @var CharacterAchievements $apiCharacterAchievements */
+                    $apiCharacterAchievements = $apiCharAchievements->findOneBy([ 'id' => $character->getLodestoneId() ]);
+                    
                     // populate list to ignore (this is so friends don't alter current patron users)
                     $patronsIgnored[] = $character->getLodestoneId();
 
@@ -94,9 +100,14 @@ class AutoPrioritisePatronCharactersCommand extends Command
                         continue;
                     }
 
+                    // set patron status
                     $output->writeln("- {$apiCharacter->getId()}");
                     $apiCharacter->setPriority(Entity::PRIORITY_PATRON);
+                    $apiCharacterFriend->setPriority(Entity::PRIORITY_PATRON);
+                    $apiCharacterAchievements->setPriority(Entity::PRIORITY_PATRON);
                     $this->em->persist($apiCharacter);
+                    $this->em->persist($apiCharacterFriend);
+                    $this->em->persist($apiCharacterAchievements);
                     $this->em->flush();
                 }
             }
@@ -140,14 +151,24 @@ class AutoPrioritisePatronCharactersCommand extends Command
                     // Mark all current friends as patron benefit
                     foreach ($friends as $friend) {
                         $friendIds[] = $friend->ID;
-
-                        /** @var Character $apiFriend */
-                        $apiFriend = $apiCharRepo->findOneBy([ 'id' => $friend->ID ]);
-
-                        if ($apiFriend) {
-                            $output->writeln("- ADD (Tier: {$tier}) Friend: {$apiFriend->getId()}");
-                            $apiFriend->setPriority(Entity::PRIORITY_PATRON);
-                            $this->em->persist($apiFriend);
+    
+                        /** @var Character $apiCharacter */
+                        $apiCharacter = $apiCharRepo->findOneBy([ 'id' => $friend->ID ]);
+                        /** @var CharacterFriends $apiCharacterFriend */
+                        $apiCharacterFriend = $apiCharFriendRepo->findOneBy([ 'id' => $friend->ID ]);
+                        /** @var CharacterAchievements $apiCharacterAchievements */
+                        $apiCharacterAchievements = $apiCharAchievements->findOneBy([ 'id' => $friend->ID ]);
+                        
+                        // if they exist, add patron status
+                        if ($apiCharacter) {
+                            $output->writeln("- ADD (Tier: {$tier}) Friend: {$apiCharacter->getId()}");
+                            $apiCharacter->setPriority(Entity::PRIORITY_PATRON);
+                            $apiCharacterFriend->setPriority(Entity::PRIORITY_PATRON);
+                            $apiCharacterAchievements->setPriority(Entity::PRIORITY_PATRON);
+                            $this->em->persist($apiCharacter);
+                            $this->em->persist($apiCharacterFriend);
+                            $this->em->persist($apiCharacterAchievements);
+                            $this->em->flush();
                         }
                     }
 
@@ -160,13 +181,22 @@ class AutoPrioritisePatronCharactersCommand extends Command
                     if ($diff) {
                         // remove patron status from deleted friends
                         foreach ($diff as $friendId) {
-                            /** @var Character $apiFriend */
-                            $apiFriend = $apiCharRepo->findOneBy([ 'id' => $friendId ]);
+                            /** @var Character $apiCharacter */
+                            $apiCharacter = $apiCharRepo->findOneBy([ 'id' => $friendId ]);
+                            /** @var CharacterFriends $apiCharacterFriend */
+                            $apiCharacterFriend = $apiCharFriendRepo->findOneBy([ 'id' => $friendId ]);
+                            /** @var CharacterAchievements $apiCharacterAchievements */
+                            $apiCharacterAchievements = $apiCharAchievements->findOneBy([ 'id' => $friendId ]);
 
-                            if ($apiFriend) {
-                                $output->writeln("- REMOVE (Tier: {$tier}) Friend: {$apiFriend->getId()}");
-                                $apiFriend->setPriority(Entity::PRIORITY_NORMAL);
-                                $this->em->persist($apiFriend);
+                            // if they exist, remove patron status
+                            if ($apiCharacter) {
+                                $output->writeln("- REMOVE (Tier: {$tier}) Friend: {$apiCharacter->getId()}");
+                                $apiCharacter->setPriority(Entity::PRIORITY_NORMAL);
+                                $apiCharacterFriend->setPriority(Entity::PRIORITY_NORMAL);
+                                $apiCharacterAchievements->setPriority(Entity::PRIORITY_NORMAL);
+                                $this->em->persist($apiCharacter);
+                                $this->em->persist($apiCharacterFriend);
+                                $this->em->persist($apiCharacterAchievements);
                             }
                         }
                     }
