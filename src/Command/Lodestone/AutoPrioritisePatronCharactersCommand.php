@@ -121,7 +121,6 @@ class AutoPrioritisePatronCharactersCommand extends Command
                     //
                     $key       = "lodestone_patron_updater_friends_{$character->getLodestoneId()}";
                     $existing  = Redis::cache()->get($key) ?: [];
-                    $existing  = [];
                     $friends   = $this->characterService->getFriends($character->getLodestoneId())->data;
                     $friendIds = [];
 
