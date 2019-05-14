@@ -116,11 +116,6 @@ class AutoPrioritisePatronCharactersCommand extends Command
 
                 /** @var UserCharacter $character */
                 foreach ($characters as $character) {
-                    /** @var Character $apiCharacter */
-                    $apiCharacter = $apiCharRepo->findOneBy([
-                        'id' => $character->getLodestoneId()
-                    ]);
-
                     //
                     // Process patron friends
                     //
