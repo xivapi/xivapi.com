@@ -59,7 +59,8 @@ class MarketPrivateController extends AbstractController
             return $this->json($response);
         }
         
-        $token  = $this->companionTokenManager->getCompanionTokenForServer($server);
+        $servername = GameServers::LIST[$server];
+        $token  = $this->companionTokenManager->getCompanionTokenForServer($server, $servername);
         $api    = new CompanionApi();
         $api->Token()->set((Object)$token->getToken());
         $response = $api->Market()->getItemMarketListings($itemId);
