@@ -50,11 +50,11 @@ class AutoPrioritisePatronCharactersCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $api          = new XIVAPI();
-        $userCharRepo = $this->em->getRepository(UserCharacter::class);
-        $apiCharRepo  = $this->em->getRepository(Character::class);
-        $apiCharFriendRepo = $this->em->getRepository(CharacterFriends::class);
-        $apiCharAchievements = $this->em->getRepository(CharacterAchievements::class);
+        $api                        = new XIVAPI();
+        $userCharRepo               = $this->em->getRepository(UserCharacter::class);
+        $apiCharRepo                = $this->em->getRepository(Character::class);
+        $apiCharFriendRepo          = $this->em->getRepository(CharacterFriends::class);
+        $apiCharAchievementsRepo    = $this->em->getRepository(CharacterAchievements::class);
         
         // User
         $patrons = $this->users->getPatrons();
@@ -83,20 +83,20 @@ class AutoPrioritisePatronCharactersCommand extends Command
                     /** @var CharacterFriends $apiCharacterFriend */
                     $apiCharacterFriend = $apiCharFriendRepo->findOneBy([ 'id' => $character->getLodestoneId() ]);
                     /** @var CharacterAchievements $apiCharacterAchievements */
-                    $apiCharacterAchievements = $apiCharAchievements->findOneBy([ 'id' => $character->getLodestoneId() ]);
+                    $apiCharacterAchievements = $apiCharAchievementsRepo->findOneBy([ 'id' => $character->getLodestoneId() ]);
                     
                     // populate list to ignore (this is so friends don't alter current patron users)
                     $patronsIgnored[] = $character->getLodestoneId();
-
-                    // if already set, skip
-                    if ($apiCharacter->getPriority() == Entity::PRIORITY_PATRON) {
-                        continue;
-                    }
-
+    
                     // if it does not exist, it needs adding, then next iteration it should exist
                     // and get added to patron queue
                     if ($apiCharacter === null) {
                         $api->character->get($character->getLodestoneId());
+                        continue;
+                    }
+
+                    // if already set, skip
+                    if ($apiCharacter->getPriority() == Entity::PRIORITY_PATRON) {
                         continue;
                     }
 
@@ -157,7 +157,12 @@ class AutoPrioritisePatronCharactersCommand extends Command
                         /** @var CharacterFriends $apiCharacterFriend */
                         $apiCharacterFriend = $apiCharFriendRepo->findOneBy([ 'id' => $friend->ID ]);
                         /** @var CharacterAchievements $apiCharacterAchievements */
-                        $apiCharacterAchievements = $apiCharAchievements->findOneBy([ 'id' => $friend->ID ]);
+                        $apiCharacterAchievements = $apiCharAchievementsRepo->findOneBy([ 'id' => $friend->ID ]);
+    
+                        // if already set, skip
+                        if ($apiCharacter->getPriority() == Entity::PRIORITY_PATRON) {
+                            continue;
+                        }
                         
                         // if they exist, add patron status
                         if ($apiCharacter) {
@@ -186,7 +191,12 @@ class AutoPrioritisePatronCharactersCommand extends Command
                             /** @var CharacterFriends $apiCharacterFriend */
                             $apiCharacterFriend = $apiCharFriendRepo->findOneBy([ 'id' => $friendId ]);
                             /** @var CharacterAchievements $apiCharacterAchievements */
-                            $apiCharacterAchievements = $apiCharAchievements->findOneBy([ 'id' => $friendId ]);
+                            $apiCharacterAchievements = $apiCharAchievementsRepo->findOneBy([ 'id' => $friendId ]);
+    
+                            // if already set, skip
+                            if ($apiCharacter->getPriority() == Entity::PRIORITY_NORMAL) {
+                                continue;
+                            }
 
                             // if they exist, remove patron status
                             if ($apiCharacter) {
