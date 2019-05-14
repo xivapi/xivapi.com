@@ -29,7 +29,7 @@
         "toin0u/digitalocean-v2": "^2.2",
         "wildbit/postmark-php": "^2.6",
         "wohali/oauth2-discord-new": "^1.0",
-        "xivapi/companion-php": "^1.2.2",
+        "xivapi/companion-php": "^1.2.4",
         "xivapi/lodestone-parser": "^1.8.22",
         "xivapi/xivapi-php": "^1.6"
     },
