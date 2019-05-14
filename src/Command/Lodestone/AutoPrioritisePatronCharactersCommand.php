@@ -126,6 +126,7 @@ class AutoPrioritisePatronCharactersCommand extends Command
                     //
                     $key       = "lodestone_patron_updater_friends_{$character->getLodestoneId()}";
                     $existing  = Redis::cache()->get($key) ?: [];
+                    $existing  = [];
                     $friends   = $this->characterService->getFriends($character->getLodestoneId())->data;
                     $friendIds = [];
 
@@ -146,9 +147,9 @@ class AutoPrioritisePatronCharactersCommand extends Command
                         $apiFriend = $apiCharRepo->findOneBy([ 'id' => $friend->ID ]);
 
                         if ($apiFriend) {
-                            $output->writeln("- ADD Friend: {$apiCharacter->getId()}");
-                            $apiCharacter->setPriority(Entity::PRIORITY_PATRON);
-                            $this->em->persist($apiCharacter);
+                            $output->writeln("- ADD Friend: {$apiFriend->getId()}");
+                            $apiFriend->setPriority(Entity::PRIORITY_PATRON);
+                            $this->em->persist($apiFriend);
                         }
                     }
 
@@ -165,9 +166,9 @@ class AutoPrioritisePatronCharactersCommand extends Command
                             $apiFriend = $apiCharRepo->findOneBy([ 'id' => $friendId ]);
 
                             if ($apiFriend) {
-                                $output->writeln("- REMOVE Friend: {$apiCharacter->getId()}");
-                                $apiCharacter->setPriority(Entity::PRIORITY_NORMAL);
-                                $this->em->persist($apiCharacter);
+                                $output->writeln("- REMOVE Friend: {$apiFriend->getId()}");
+                                $apiFriend->setPriority(Entity::PRIORITY_NORMAL);
+                                $this->em->persist($apiFriend);
                             }
                         }
                     }
