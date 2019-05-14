@@ -160,7 +160,7 @@
 
     <code class="box">filters=LevelItem>35,LevelItem<=40,ClassJobCategory.ID=38</code>
     <p>
-        eg: <a href="{{ app.request.getSchemeAndHttpHost() }}/search?filters=35,LevelItem<=40,ClassJobCategory.ID=38">{{ app.request.getSchemeAndHttpHost() }}/search?filters=35,LevelItem<=40,ClassJobCategory.ID=38</a>
+        eg: <a href="{{ app.request.getSchemeAndHttpHost() }}/search?filters=LevelItem>35,LevelItem<=40,ClassJobCategory.ID=38">{{ app.request.getSchemeAndHttpHost() }}/search?filters=LevelItem>35,LevelItem<=40,ClassJobCategory.ID=38</a>
     </p>
 
     <p><strong>Accepted Operators:</strong></p>
@@ -213,6 +213,15 @@
             </p>
         </div>
     </div>
+
+    <p>
+        The "Data" column provides more information about the source of the lore entry such as the content name and icon. You can access
+        this using the "columns" query parameter, for example:
+    </p>
+    <code class="box">columns=Data</code>
+    <p>
+        eg: <a href="{{ app.request.getSchemeAndHttpHost() }}/lore?string=legendary&columns=Text,Data">{{ app.request.getSchemeAndHttpHost() }}/lore?string=legendary&columns=Text,Data</a>
+    </p>
 
     <p>
         The current content included in lore are:
