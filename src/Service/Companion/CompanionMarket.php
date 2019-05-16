@@ -224,19 +224,19 @@ class CompanionMarket
     /**
      * Get items bought by a player
      */
-    public function buyerItems(string $buyerId)
+    public function buyerItems(string $lodestoneId)
     {
         $this->connect();
 
         // if the retainer is not in the database, it doesn't exist.
         /** @var CompanionCharacter $character */
-        $character = $this->characterRepository->find($buyerId);
+        $character = $this->characterRepository->findBy([ 'lodestoneId' => $lodestoneId ]);
         if ($character === null) {
             throw new NotFoundHttpException();
         }
 
         // check cache
-        if ($data = Redis::Cache()->get(__METHOD__ . $buyerId)) {
+        if ($data = Redis::Cache()->get(__METHOD__ . $lodestoneId)) {
             //return $data;
         }
 
@@ -249,7 +249,7 @@ class CompanionMarket
          * Build retainer query, limit to 30 results.
          */
         $query1 = new ElasticQuery();
-        $query1->queryMatchPhrase('History.CharacterID', $buyerId);
+        $query1->queryMatchPhrase('History.CharacterID', $lodestoneId);
         $query2 = new ElasticQuery();
         $query2->nested('History', $query1->getQuery());
         $query2->limit(0, 500);
@@ -263,7 +263,7 @@ class CompanionMarket
         }
 
         // cache for 5 minutes.
-        Redis::Cache()->set(__METHOD__ . $buyerId, $buyer, 300);
+        Redis::Cache()->set(__METHOD__ . $lodestoneId, $buyer, 300);
         return $buyer;
     }
     
