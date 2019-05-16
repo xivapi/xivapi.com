@@ -230,7 +230,7 @@ class CompanionMarket
 
         // if the retainer is not in the database, it doesn't exist.
         /** @var CompanionCharacter $character */
-        $character = $this->characterRepository->findBy([ 'lodestoneId' => $lodestoneId ]);
+        $character = $this->characterRepository->findOneBy([ 'lodestoneId' => $lodestoneId ]);
         if ($character === null) {
             throw new NotFoundHttpException();
         }
