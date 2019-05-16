@@ -5,8 +5,11 @@ namespace App\Service\Companion;
 use App\Common\Game\GameServers;
 use App\Common\Service\ElasticSearch\ElasticQuery;
 use App\Common\Service\ElasticSearch\ElasticSearch;
+use App\Entity\CompanionCharacter;
 use App\Entity\CompanionRetainer;
+use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionRetainerRepository;
+use App\Service\Companion\Models\Buyer;
 use App\Service\Companion\Models\GameItem;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
@@ -31,6 +34,8 @@ class CompanionMarket
     private $elastic;
     /** @var CompanionRetainerRepository */
     private $retainerRepository;
+    /** @var CompanionCharacterRepository */
+    private $characterRepository;
     
     public function __construct(
         EntityManagerInterface $em,
@@ -38,6 +43,7 @@ class CompanionMarket
     ) {
         $this->em = $em;
         $this->retainerRepository = $em->getRepository(CompanionRetainer::class);
+        $this->characterRepository = $em->getRepository(CompanionCharacter::class);
         $this->gamedata = $gamedata;
     }
     
@@ -213,6 +219,52 @@ class CompanionMarket
         // cache for 5 minutes.
         Redis::Cache()->set(__METHOD__ . $retainerId, $retainer, 300);
         return $retainer;
+    }
+
+    /**
+     * Get items bought by a player
+     */
+    public function buyerItems(string $buyerId)
+    {
+        $this->connect();
+
+        // if the retainer is not in the database, it doesn't exist.
+        /** @var CompanionCharacter $character */
+        $character = $this->characterRepository->find($buyerId);
+        if ($character === null) {
+            throw new NotFoundHttpException();
+        }
+
+        // check cache
+        if ($data = Redis::Cache()->get(__METHOD__ . $buyerId)) {
+            //return $data;
+        }
+
+        /**
+         * Setup a new retainer
+         */
+        $buyer = Buyer::build($character);
+
+        /**
+         * Build retainer query, limit to 30 results.
+         */
+        $query1 = new ElasticQuery();
+        $query1->queryMatchPhrase('History.CharacterID', $buyerId);
+        $query2 = new ElasticQuery();
+        $query2->nested('History', $query1->getQuery());
+        $query2->limit(0, 500);
+        $results = $this->elastic->search(self::INDEX, self::INDEX, $query2->getQuery());
+
+        /**
+         * Build retainer store
+         */
+        foreach ($results['hits']['hits'] as $hit) {
+            $buyer->addHistory($hit['_source']);
+        }
+
+        // cache for 5 minutes.
+        Redis::Cache()->set(__METHOD__ . $buyerId, $buyer, 300);
+        return $buyer;
     }
     
     /**

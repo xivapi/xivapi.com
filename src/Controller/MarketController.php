@@ -211,4 +211,16 @@ class MarketController extends AbstractController
             $this->companionMarket->retainerItems($retainerId)
         );
     }
+
+    /**
+     * Obtain all the items a player has bought
+     *
+     * @Route("/market/buyer/{lodestoneId}")
+     */
+    public function buyerItems(string $lodestoneId)
+    {
+        return $this->json(
+            $this->companionMarket->buyerItems($lodestoneId)
+        );
+    }
 }
