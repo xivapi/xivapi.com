@@ -31,6 +31,8 @@ class Buyer
 
     public function addHistory($source)
     {
+        $item = GameItem::build($source['ItemID']);
+
         // grab the prices
         foreach ($source['History'] as $price) {
             if ($price['CharacterID'] == $this->ID) {
@@ -41,6 +43,7 @@ class Buyer
                     $marketListing->{$key} = $value;
                 }
 
+                $marketListing->Item = $item;
                 $this->History[] = $marketListing;
             }
         }
