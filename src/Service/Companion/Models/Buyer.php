@@ -44,7 +44,7 @@ class Buyer
                 }
 
                 $marketListing->Item = $item;
-                $this->History[] = $marketListing;
+                $this->History[] = (array)$marketListing;
             }
         }
     }
