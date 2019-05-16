@@ -249,7 +249,7 @@ class CompanionMarket
          * Build retainer query, limit to 30 results.
          */
         $query1 = new ElasticQuery();
-        $query1->queryMatchPhrase('History.CharacterID', $lodestoneId);
+        $query1->queryMatchPhrase('History.CharacterID', $character->getId());
         $query2 = new ElasticQuery();
         $query2->nested('History', $query1->getQuery());
         $query2->limit(0, 500);
