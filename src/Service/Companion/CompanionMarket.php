@@ -5,6 +5,7 @@ namespace App\Service\Companion;
 use App\Common\Game\GameServers;
 use App\Common\Service\ElasticSearch\ElasticQuery;
 use App\Common\Service\ElasticSearch\ElasticSearch;
+use App\Common\Utils\Arrays;
 use App\Entity\CompanionCharacter;
 use App\Entity\CompanionRetainer;
 use App\Repository\CompanionCharacterRepository;
@@ -166,8 +167,6 @@ class CompanionMarket
             }
 
             $item->UpdatePriority = $itemQueue;
-
-
         }
     
         return $item;
@@ -261,6 +260,9 @@ class CompanionMarket
         foreach ($results['hits']['hits'] as $hit) {
             $buyer->addHistory($hit['_source']);
         }
+
+        // order
+        Arrays::sortBySubKey($buyer->History, 'PurchaseDate');
 
         // cache for 5 minutes.
         Redis::Cache()->set(__METHOD__ . $lodestoneId, $buyer, 300);
