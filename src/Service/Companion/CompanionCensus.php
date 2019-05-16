@@ -94,7 +94,7 @@ class CompanionCensus
         $section = $this->console->section();
         
         foreach ($this->itemsSellable as $item) {
-            $market = $this->market->get($server, $item, null, true);
+            $market = $this->market->get($server, $item, null, null, true);
     
             $date = date('Y-m-d H:i:s');
             $section->overwrite("{$date} - Item: {$item}");

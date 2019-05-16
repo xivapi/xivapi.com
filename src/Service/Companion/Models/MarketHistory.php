@@ -21,7 +21,7 @@ class MarketHistory
     /**
      * Build a MarketHistory object from SE API response
      */
-    public static function build(string $id, \stdClass $data): MarketHistory
+    public static function build(string $id, \stdClass $data): self
     {
         $obj                 = new MarketHistory();
         $obj->ID             = $id;

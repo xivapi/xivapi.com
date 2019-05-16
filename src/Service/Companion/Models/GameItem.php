@@ -18,7 +18,7 @@ class GameItem
     public $LevelItem;
     public $Rarity;
 
-    public static function build(int $itemId): GameItem
+    public static function build(int $itemId): self
     {
         $item = Redis::Cache()->get("xiv_Item_{$itemId}");
 

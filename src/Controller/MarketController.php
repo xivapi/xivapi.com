@@ -14,7 +14,6 @@ use App\Service\Companion\CompanionStatistics;
 use App\Service\Companion\CompanionTokenManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -23,6 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class MarketController extends AbstractController
 {
     const DEFAULT_MAX_HISTORY = 100;
+    const DEFAULT_MAX_PRICES  = 50;
     
     /** @var CompanionStatistics */
     private $companionStatistics;
@@ -168,12 +168,13 @@ class MarketController extends AbstractController
         
         // options
         $maxHistory = $request->get('max_history') ?: self::DEFAULT_MAX_HISTORY;
+        $maxPrices  = $request->get('max_prices')  ?: self::DEFAULT_MAX_PRICES;
         
         // build response
         $response = [];
         foreach ($servers as $server) {
             $serverId = is_string($server) ? GameServers::getServerId($server) : $server;
-            $response[$server] = $this->companionMarket->get($serverId, $itemId, $maxHistory);
+            $response[$server] = $this->companionMarket->get($serverId, $itemId, $maxHistory, $maxPrices);
         }
         
         if ($isInternal) {
@@ -193,37 +194,12 @@ class MarketController extends AbstractController
     {
         // options
         $maxHistory = $request->get('max_history') ?: self::DEFAULT_MAX_HISTORY;
+        $maxPrices  = $request->get('max_prices')  ?: self::DEFAULT_MAX_PRICES;
         
         // build response
         $serverId = GameServers::getServerId($server);
-        $response = $this->companionMarket->get($serverId, $itemId, $maxHistory);
+        $response = $this->companionMarket->get($serverId, $itemId, $maxHistory, $maxPrices);
         
         return $this->json($response);
-    }
-    
-    /**
-     * Obtain all the items a retainer is selling
-     *
-     * @Route("/market/retainer/{retainerId}")
-     */
-    public function retainerItems(string $retainerId)
-    {
-        return $this->json(
-            $this->companionMarket->retainerItems($retainerId)
-        );
-    }
-
-    /**
-     * Obtain all the items a player has bought
-     *
-     * @Route("/market/buyer/{lodestoneId}")
-     */
-    public function buyerItems(string $lodestoneId)
-    {
-        throw new NotFoundHttpException();
-
-        return $this->json(
-            $this->companionMarket->buyerItems($lodestoneId)
-        );
     }
 }

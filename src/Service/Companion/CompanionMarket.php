@@ -11,12 +11,13 @@ use App\Entity\CompanionRetainer;
 use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionRetainerRepository;
 use App\Service\Companion\Models\Buyer;
+use App\Service\Companion\Models\Crafter;
 use App\Service\Companion\Models\GameItem;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Service\Companion\Models\Retainer;
-use App\Service\Companion\Models\RetainerListing;
+use App\Service\Companion\Models\PriceListing;
 use App\Service\Content\GameData;
 use App\Common\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
@@ -98,7 +99,7 @@ class CompanionMarket
     /**
      * Get the current prices for an item
      */
-    public function get(int $server, int $itemId, int $maxHistory = null, bool $internal = false): ?MarketItem
+    public function get(int $server, int $itemId, int $maxHistory = null, int $maxPrices = null, bool $internal = false): ?MarketItem
     {
         $this->connect();
         $item = new MarketItem($server, $itemId);
@@ -122,7 +123,12 @@ class CompanionMarket
         $item->LodestoneID = $source['LodestoneID'];
     
         // map out current prices
-        foreach ($source['Prices'] as $price) {
+        foreach ($source['Prices'] as $i => $price) {
+            // limit history
+            if ($maxPrices && $i >= $maxPrices) {
+                break;
+            }
+            
             $obj = new MarketListing();
         
             // these fields map 1:1
@@ -175,98 +181,112 @@ class CompanionMarket
     /**
      * Get items being sold by a retainer
      */
-    public function retainerItems(string $retainerId)
+    public function getRetainerItems(string $retainerId)
     {
-        $this->connect();
-        // if the retainer is not in the database, it doesn't exist.
-        /** @var CompanionRetainer $companionRetainer */
-        $companionRetainer = $this->retainerRepository->find($retainerId);
-        if ($companionRetainer === null) {
-            throw new NotFoundHttpException();
-        }
-        
         // check cache
         if ($data = Redis::Cache()->get(__METHOD__ . $retainerId)) {
             return $data;
         }
-    
-        /**
-         * Setup a new retainer
-         */
-        $retainer = new Retainer();
-        $retainer->ID     = $retainerId;
-        $retainer->Name   = $companionRetainer->getName();
-        $retainer->Server = GameServers::LIST[$companionRetainer->getServer()];
         
-        /**
-         * Build retainer query, limit to 30 results.
-         */
-        $query1 = new ElasticQuery();
-        $query1->queryMatchPhrase('Prices.RetainerID', $retainerId);
-        $query2 = new ElasticQuery();
-        $query2->nested('Prices', $query1->getQuery());
-        $query2->limit(0, 30);
-        $results = $this->elastic->search(self::INDEX, self::INDEX, $query2->getQuery());
-    
-        /**
-         * Build retainer store
-         */
+        /** @var CompanionRetainer $entity */
+        $entity = $this->retainerRepository->find($retainerId);
+        if ($entity === null) {
+            throw new NotFoundHttpException();
+        }
+        
+        
+        $obj     = Retainer::build($entity);
+        $results = $this->genericSearchEntry('Prices', 'RetainerID', $obj->ID);
+        
+        // add listings
         foreach ($results['hits']['hits'] as $hit) {
-            $retainer->Items[] = RetainerListing::build($hit['_source'], $retainerId);
+            $obj->Items[] = PriceListing::build($hit['_source'], $retainerId);
         }
         
         // cache for 5 minutes.
-        Redis::Cache()->set(__METHOD__ . $retainerId, $retainer, 300);
-        return $retainer;
+        Redis::Cache()->set(__METHOD__ . $retainerId, $obj, 300);
+        return $obj;
+    }
+    
+    /**
+     * Get items being sold by a retainer
+     */
+    public function getCharacterSignatureItems(string $lodestoneId)
+    {
+        // check cache
+        if ($data = Redis::Cache()->get(__METHOD__ . $lodestoneId)) {
+            return $data;
+        }
+        
+        /** @var CompanionCharacter $entity */
+        $entity = $this->characterRepository->find($lodestoneId);
+        if ($entity === null) {
+            throw new NotFoundHttpException();
+        }
+        
+        $obj     = Crafter::build($entity);
+        $results = $this->genericSearchEntry('Prices', 'RetainerID', $obj->ID);
+        
+        // add listings
+        foreach ($results['hits']['hits'] as $hit) {
+            $obj->Items[] = PriceListing::build($hit['_source'], $lodestoneId);
+        }
+        
+        // cache for 5 minutes.
+        Redis::Cache()->set(__METHOD__ . $lodestoneId, $obj, 300);
+        return $obj;
     }
 
     /**
      * Get items bought by a player
      */
-    public function buyerItems(string $lodestoneId)
+    public function getCharacterHistory(string $lodestoneId)
     {
-        $this->connect();
-
-        // if the retainer is not in the database, it doesn't exist.
-        /** @var CompanionCharacter $character */
-        $character = $this->characterRepository->findOneBy([ 'lodestoneId' => $lodestoneId ]);
-        if ($character === null) {
-            throw new NotFoundHttpException();
-        }
-
         // check cache
         if ($data = Redis::Cache()->get(__METHOD__ . $lodestoneId)) {
             //return $data;
         }
-
-        /**
-         * Setup a new retainer
-         */
-        $buyer = Buyer::build($character);
-
+        
+        /** @var CompanionCharacter $entity */
+        $entity = $this->characterRepository->findOneBy([ 'lodestoneId' => $lodestoneId ]);
+        if ($entity === null) {
+            throw new NotFoundHttpException();
+        }
+    
+        $obj     = Buyer::build($entity);
+        $results = $this->genericSearchEntry('History', 'CharacterID', $obj->ID);
+    
+        // add history
+        foreach ($results['hits']['hits'] as $hit) {
+            $obj->addHistory($hit['_source']);
+        }
+    
+        // order
+        Arrays::sortBySubKey($obj->History, 'PurchaseDate');
+    
+        // cache for 5 minutes.
+        Redis::Cache()->set(__METHOD__ . $lodestoneId, $obj, 300);
+        return $obj;
+    }
+    
+    /**
+     * Generic search handler
+     */
+    private function genericSearchEntry(string $nest, string $field, $value, $limit = 500)
+    {
+        $this->connect();
+    
         /**
          * Build retainer query, limit to 30 results.
          */
         $query1 = new ElasticQuery();
-        $query1->queryMatchPhrase('History.CharacterID', $character->getId());
+        $query1->queryMatchPhrase("{$nest}.{$field}", $value);
+        
         $query2 = new ElasticQuery();
-        $query2->nested('History', $query1->getQuery());
-        $query2->limit(0, 500);
-        $results = $this->elastic->search(self::INDEX, self::INDEX, $query2->getQuery());
-
-        /**
-         * Build retainer store
-         */
-        foreach ($results['hits']['hits'] as $hit) {
-            $buyer->addHistory($hit['_source']);
-        }
-
-        // order
-        Arrays::sortBySubKey($buyer->History, 'PurchaseDate');
-
-        // cache for 5 minutes.
-        Redis::Cache()->set(__METHOD__ . $lodestoneId, $buyer, 300);
-        return $buyer;
+        $query2->nested($nest, $query1->getQuery());
+        $query2->limit(0, $limit);
+        
+        return $this->elastic->search(self::INDEX, self::INDEX, $query2->getQuery());
     }
     
     /**

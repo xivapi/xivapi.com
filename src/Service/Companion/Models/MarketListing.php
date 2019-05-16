@@ -27,7 +27,7 @@ class MarketListing
     /**
      * Build a MarketListing object from SE API response
      */
-    public static function build(string $id, \stdClass $data): MarketListing
+    public static function build(string $id, \stdClass $data): self
     {
         $obj                        = new MarketListing();
         $obj->ID                    = $id;

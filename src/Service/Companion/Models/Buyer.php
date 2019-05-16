@@ -17,7 +17,7 @@ class Buyer
     public $Added;
     public $History = [];
 
-    public static function build(CompanionCharacter $character): Buyer
+    public static function build(CompanionCharacter $character): self
     {
         $buyer              = new Buyer();
         $buyer->ID          = $character->getId();

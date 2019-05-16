@@ -479,7 +479,7 @@ class MarketUpdater
     private function getMarketItemDocument($server, $itemId): MarketItem
     {
         // return an existing one, otherwise return a new one
-        return $this->market->get($server, $itemId, null, true);
+        return $this->market->get($server, $itemId, null, null, true);
     }
     
     /**
