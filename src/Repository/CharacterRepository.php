@@ -17,6 +17,10 @@ class CharacterRepository extends ServiceEntityRepository
 
     public function getUpdateIds(int $priority = 0, int $page = 0)
     {
+        $total = ServiceQueues::TOTAL_CHARACTER_UPDATES;
+        $total = $priority == Entity::PRIORITY_PATRON ? ceil($total / 2) : $total;
+        
+        
         $sql = $this->createQueryBuilder('a');
         $sql->select('a.id')
             ->where("a.priority = :a")

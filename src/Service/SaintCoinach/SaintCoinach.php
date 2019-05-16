@@ -12,8 +12,8 @@ class SaintCoinach
     const REDIS_DURATION = (60 * 60 * 24 * 365 * 10); // 10 years
     const SCHEMA_FILENAME  = ROOT . '/data/SaintCoinach.Cmd/ex.json';
     const SCHEMA_DIRECTORY = ROOT . '/data/SaintCoinach.Cmd';
-    const DOCUMENTS_FOLDER = ROOT .'/documents/';
-    const SAVE_PATH = __DIR__.'/data/';
+    const DOCUMENTS_FOLDER = ROOT . '/documents/';
+    const SAVE_PATH = ROOT .'/data/';
     
     /** @var ConsoleOutput */
     private $console;

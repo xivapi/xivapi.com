@@ -2,12 +2,13 @@
 
 namespace App\Service\Companion;
 
+use App\Common\Constants\DiscordConstants;
+use App\Common\ServicesThirdParty\Discord\Discord;
 use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
 use App\Common\Service\Redis\Redis;
 use App\Common\Service\Redis\RedisTracking;
 use App\Entity\CompanionError;
 use App\Repository\CompanionErrorRepository;
-use App\Service\ThirdParty\Discord\Discord;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CompanionErrorHandler
@@ -76,7 +77,7 @@ class CompanionErrorHandler
         
         $date = date('Y-m-d H:i:s', $error->getAdded());
         Discord::mog()->sendMessage(
-            '571007332616503296',
+            DiscordConstants::ROOM_COMPANION_ERRORS,
             "[{$date} UTC] **Companion Error:** Code: {$error->getCode()} Ex: {$error->getException()} -- {$error->getMessage()}"
         );
     }
