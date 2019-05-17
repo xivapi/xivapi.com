@@ -3,6 +3,7 @@
 namespace App\Service\Companion\Updater;
 
 use App\Common\Game\GameServers;
+use App\Common\ServicesThirdParty\Discord\Discord;
 use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
 use App\Entity\CompanionCharacter;
 use App\Entity\CompanionItem;
@@ -17,7 +18,6 @@ use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Common\Service\Redis\RedisTracking;
-use App\Service\ThirdParty\Discord\Discord;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;
