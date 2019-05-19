@@ -2,6 +2,7 @@
 
 namespace App\Service\Companion\Models;
 
+use App\Common\Game\GameServers;
 use App\Entity\CompanionCharacter;
 
 /**
@@ -44,6 +45,7 @@ class Buyer
                 }
 
                 $marketListing->Item = $item;
+                $marketListing->_Server = GameServers::LIST[$source['Server']];
                 $this->History[] = (array)$marketListing;
             }
         }

@@ -244,7 +244,7 @@ class CompanionMarket
     {
         // check cache
         if ($data = Redis::Cache()->get(__METHOD__ . $lodestoneId)) {
-            //return $data;
+            return $data;
         }
         
         /** @var CompanionCharacter $entity */
@@ -255,7 +255,7 @@ class CompanionMarket
     
         $obj     = Buyer::build($entity);
         $results = $this->genericSearchEntry('History', 'CharacterID', $obj->ID);
-    
+        
         // add history
         foreach ($results['hits']['hits'] as $hit) {
             $obj->addHistory($hit['_source']);

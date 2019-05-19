@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Common\Game\GameServers;
 use App\Common\User\Users;
+use App\Entity\CompanionToken;
 use App\Service\API\ApiPermissions;
 use App\Service\Companion\CompanionErrorHandler;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -12,16 +15,54 @@ class AdminController extends AbstractController
 {
     /** @var Users */
     private $users;
-
     /** @var CompanionErrorHandler */
     private $ceh;
+    /** @var CompanionErrorHandler */
+    private $em;
 
     public function __construct(
+        EntityManagerInterface $em,
         CompanionErrorHandler $ceh,
         Users $users
     ) {
-        $this->ceh = $ceh;
+        $this->em    = $em;
+        $this->ceh   = $ceh;
         $this->users = $users;
+    }
+    
+    /**
+     * @Route("/admin")
+     */
+    public function index()
+    {
+        $tokens = $this->em->getRepository(CompanionToken::class)->findAll();
+    
+        $tokenServers = [];
+        $validServers = array_merge(
+            GameServers::LIST_DC['Aether'],
+            GameServers::LIST_DC['Primal'],
+            GameServers::LIST_DC['Crystal'],
+            GameServers::LIST_DC['Chaos'],
+            GameServers::LIST_DC['Light']
+        );
+        
+        /** @var CompanionToken $token */
+        foreach ($tokens as $token) {
+            [$user, $pass] = explode(',', getenv($token->getAccount()));
+            $index = "{$token->getAccount()} - {$user}";
+            
+            if (!isset($tokenServers[$index])) {
+                $tokenServers[$index] = [];
+            }
+    
+            $tokenServers[$index][] = $token->getServer();
+        }
+        
+        return $this->render('admin/home.html.twig', [
+            'token_servers' => $tokenServers,
+            'valid_servers' => $validServers,
+            'datacenter'  => GameServers::LIST_DC
+        ]);
     }
 
     /**
@@ -35,10 +76,10 @@ class AdminController extends AbstractController
         ApiPermissions::set($user->getPermissions());
         ApiPermissions::must(ApiPermissions::PERMISSION_ADMIN);
 
-        $errors     = $this->ceh->getExceptions(500);
+        $errors     = $this->ceh->getExceptions(2000);
         $lastError  = $errors[0];
         $errorGraph = [
-            date('dS H', time()) => 0
+            date('dS H', time()) => 0,
         ];
         $exception  = [];
 
@@ -75,8 +116,8 @@ class AdminController extends AbstractController
             ],
             'errorGraph' => [
                 'keys'   => array_keys($errorGraph),
-                'values' => array_values($errorGraph)
-            ]
+                'values' => array_values($errorGraph),
+            ],
         ]);
     }
 }
