@@ -37,8 +37,22 @@ class Mappy
     /**
      * Save some positions
      */
-    public function save(array $positions): bool
+    public function save(array $positions)
     {
+        // remove some entries
+        foreach ($positions as $i => $pos) {
+            if ($pos->MapID == 0) {
+                unset($positions[$i]);
+            }
+        }
+
+        $positions = array_values($positions);
+
+        if (empty($positions)) {
+            return;
+        }
+
+
         // Step 1
         // - Delete duplicate gathering entities, they will be added in step 2
         foreach ($positions as $i => $pos) {
@@ -123,8 +137,6 @@ class Mappy
             $this->em->persist($mem);
             $this->em->flush();
         }
-        
-        return true;
     }
     
     private function getPositionHash($pos)
