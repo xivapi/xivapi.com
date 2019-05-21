@@ -104,7 +104,7 @@ class AdminController extends AbstractController
 
         $errorGraph = array_reverse($errorGraph);
 
-        return $this->render('admin/index.html.twig', [
+        return $this->render('admin/companion.html.twig', [
             'status' => [
                 'at_critical' => $this->ceh->isCriticalExceptionCount(),
                 'state'       => $this->ceh->getCriticalExceptionCount(),
