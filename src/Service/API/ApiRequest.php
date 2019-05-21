@@ -53,6 +53,10 @@ class ApiRequest
     /**
      * Static ID for requests, will either be a hashed ip or
      * a developer key (whatever is used to rate limit)
+     *
+     * static   = never changes for same client
+     * dynamic  = static + timestamp
+     * unique   = random uuid each time
      */
     public static $idStatic;
     public static $idDynamic;
@@ -214,7 +218,9 @@ class ApiRequest
         
         // throw exception if hit count too high
         if ($count > $limit) {
-            throw new ApiRateLimitException();
+            throw new ApiRateLimitException(
+                ApiRateLimitException::MESSAGE . " -- " . self::$idStatic
+            );
         }
     }
     
