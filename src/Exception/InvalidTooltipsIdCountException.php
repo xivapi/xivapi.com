@@ -2,10 +2,10 @@
 
 namespace App\Exception;
 
+use App\Common\Exceptions\ExceptionTrait;
 use App\Service\Content\Tooltips;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class InvalidTooltipsIdCountException extends HttpException
+class InvalidTooltipsIdCountException extends \Exception
 {
     use ExceptionTrait;
     

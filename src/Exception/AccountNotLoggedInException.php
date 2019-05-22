@@ -2,9 +2,9 @@
 
 namespace App\Exception;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Common\Exceptions\ExceptionTrait;
 
-class AccountNotLoggedInException extends HttpException
+class AccountNotLoggedInException extends \Exception
 {
     use ExceptionTrait;
     
