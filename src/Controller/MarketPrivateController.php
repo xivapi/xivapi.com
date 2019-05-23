@@ -38,7 +38,7 @@ class MarketPrivateController extends AbstractController
     public function itemHistory(Request $request)
     {
         return $this->json(
-            $this->cmp->setRequest($request)->getItemPrices()
+            $this->cmp->setRequest($request)->getItemHistory()
         );
     }
     
