@@ -55,30 +55,30 @@ class ResponseListener
                 //
                 if ($columns = $request->get('columns')) {
                     // get columns param
-                    $columns = array_unique(explode(',', $columns));
+                    $existingColumns = array_unique(explode(',', $columns));
                     
                     if (isset($json['Pagination']) && !empty($json['Results'])) {
                         foreach ($json['Results'] as $r => $result) {
-                            $columns = Arrays::extractColumnsCount($result, $columns);
+                            $columns = Arrays::extractColumnsCount($result, $existingColumns);
                             $columns = Arrays::extractMultiLanguageColumns($columns);
                             $json['Results'][$r] = Arrays::extractColumns($result, $columns);
                         }
                     } else if ($controller == 'App\Controller\MarketController::item' || $controller == 'App\Controller\LodestoneCharacterController::characters') {
                         foreach ($json as $a => $result) {
-                            $columns = Arrays::extractColumnsCount($result, $columns);
+                            $columns = Arrays::extractColumnsCount($result, $existingColumns);
                             $columns = Arrays::extractMultiLanguageColumns($columns);
                             $json[$a] = Arrays::extractColumns($result, $columns);
                         }
                     } else if ($controller == 'App\Controller\MarketController::itemMulti') {
                         foreach ($json as $i => $serverResults) {
                             foreach ($serverResults as $server => $result) {
-                                $columns = Arrays::extractColumnsCount($result, $columns);
+                                $columns = Arrays::extractColumnsCount($result, $existingColumns);
                                 $columns = Arrays::extractMultiLanguageColumns($columns);
                                 $json[$i][$server] = Arrays::extractColumns($result, $columns);
                             }
                         }
                     } else if (!isset($json['Pagination'])) {
-                        $columns = Arrays::extractColumnsCount($json, $columns);
+                        $columns = Arrays::extractColumnsCount($json, $existingColumns);
                         $columns = Arrays::extractMultiLanguageColumns($columns);
                         $json    = Arrays::extractColumns($json, $columns);
                     }
