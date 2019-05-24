@@ -2,6 +2,7 @@
     "type": "project",
     "license": "proprietary",
     "require": {
+        "cboden/ratchet": "^0.4.1",
         "delight-im/cookie": "^3.1",
         "deployer/deployer": "^6.2",
         "elasticsearch/elasticsearch": "^6.0",
