@@ -2,9 +2,9 @@
 
 namespace App\Exception;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Common\Exceptions\ExceptionTrait;
 
-class CompanionMarketItemException extends HttpException
+class CompanionMarketItemException extends \Exception
 {
     use ExceptionTrait;
     

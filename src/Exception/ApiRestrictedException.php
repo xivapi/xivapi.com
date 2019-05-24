@@ -2,9 +2,9 @@
 
 namespace App\Exception;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Common\Exceptions\ExceptionTrait;
 
-class ApiRestrictedException extends HttpException
+class ApiRestrictedException extends \Exception
 {
     use ExceptionTrait;
     

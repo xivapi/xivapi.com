@@ -2,9 +2,9 @@
 
 namespace App\Exception;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Common\Exceptions\ExceptionTrait;
 
-class InvalidSearchRequestException extends HttpException
+class InvalidSearchRequestException extends \Exception
 {
     use ExceptionTrait;
     

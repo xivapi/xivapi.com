@@ -2,9 +2,9 @@
 
 namespace App\Exception;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Common\Exceptions\ExceptionTrait;
 
-class InvalidTooltipsRequestException extends HttpException
+class InvalidTooltipsRequestException extends \Exception
 {
     use ExceptionTrait;
     

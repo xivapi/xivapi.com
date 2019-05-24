@@ -15,11 +15,12 @@ class CompanionConfiguration
     const MAX_ITEMS_TOTAL = (self::MAX_ITEMS_PER_CRONJOB * 5);
 
     const MAX_ITEMS_PER_QUEUE = [
-        1 => (self::MAX_ITEMS_PER_CRONJOB * 4),
+        1 => (self::MAX_ITEMS_PER_CRONJOB * 5),
         2 => (self::MAX_ITEMS_PER_CRONJOB * 4),
         3 => (self::MAX_ITEMS_PER_CRONJOB * 2),
         4 => (self::MAX_ITEMS_PER_CRONJOB * 1),
         5 => (self::MAX_ITEMS_PER_CRONJOB * 1),
+        8 => (self::MAX_ITEMS_PER_CRONJOB * 1),
         9 => (self::MAX_ITEMS_PER_CRONJOB * 1)
     ];
 
@@ -62,6 +63,7 @@ class CompanionConfiguration
         (60 * 60 * 12)        => 3,
         (60 * 60 * 30)        => 4,
         (60 * 60 * 48)        => 5,
+        (60 * 60 * 24 * 365)  => 8,
         (60 * 60 * 24 * 365)  => 9,
     ];
     
@@ -71,7 +73,10 @@ class CompanionConfiguration
         3,
         4,
         5,
-        
+
+        // 8
+        self::STATE_NEVER_SOLD,
+
         // 9
         self::QUEUE_DEFAULT,
     ];

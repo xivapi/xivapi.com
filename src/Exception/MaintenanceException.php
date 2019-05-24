@@ -2,9 +2,9 @@
 
 namespace App\Exception;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Common\Exceptions\ExceptionTrait;
 
-class MaintenanceException extends HttpException
+class MaintenanceException extends \Exception
 {
     use ExceptionTrait;
     
