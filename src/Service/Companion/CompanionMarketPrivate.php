@@ -241,9 +241,10 @@ class CompanionMarketPrivate
         RedisTracking::increment('TOTAL_MANUAL_UPDATES_CLICKED');
         RedisTracking::append('TOTAL_MANUAL_UPDATES_CLICKED', date('Y-m-D H:i:s'));
     
-        $itemId = (int)$this->request->get('item_id');
-        $server = (int)$this->request->get('server');
-        $dc     = GameServers::getDataCenter(GameServers::LIST[$server]);
+        $itemId  = (int)$this->request->get('item_id');
+        $server  = (int)$this->request->get('server');
+        $dc      = GameServers::getDataCenter(GameServers::LIST[$server]);
+        $servers = GameServers::LIST_DC[$dc];
     
         /**
          * Check the server isn't an offline one
@@ -319,9 +320,6 @@ class CompanionMarketPrivate
     
         // Place the item on a very short cooldown prior to "updating"
         Redis::Cache()->set("companion_item_dc_update_preupdate_{$itemId}_{$dc}", time(), (60 * 5));
-    
-        // get servers for this DC
-        $servers = GameServers::getDataCenterServers(GameServers::LIST[$server]);
     
         // mark all on the DC to update
         foreach ($servers as $server) {
