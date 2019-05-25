@@ -35,6 +35,9 @@ class AdminController extends AbstractController
      */
     public function index()
     {
+        $user = $this->users->getUser(true);
+        $user->mustBeAdmin();
+        
         $tokens = $this->em->getRepository(CompanionToken::class)->findAll();
     
         $tokenServers = [];
@@ -70,6 +73,9 @@ class AdminController extends AbstractController
      */
     public function home()
     {
+        $user = $this->users->getUser(true);
+        $user->mustBeAdmin();
+        
         date_default_timezone_set("Europe/London");
 
         $user = $this->users->getUser(true);
