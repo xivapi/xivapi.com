@@ -15,6 +15,7 @@ use App\Common\Service\Redis\Redis;
 use Lodestone\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class LodestoneCharacterController extends AbstractController
@@ -39,6 +40,10 @@ class LodestoneCharacterController extends AbstractController
      */
     public function search(Request $request)
     {
+        if (empty(trim($request->get('name')))) {
+            throw new NotAcceptableHttpException('You must provide a name to search.');
+        }
+        
         return $this->json(
             (new Api())->searchCharacter(
                 $request->get('name'),
