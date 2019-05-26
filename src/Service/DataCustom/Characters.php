@@ -2,7 +2,7 @@
 
 namespace App\Service\DataCustom;
 
-use App\Common\Game\ContentHash;
+use App\Service\Content\ContentHash;
 use App\Service\Content\ManualHelper;
 use App\Common\Service\Redis\Redis;
 
