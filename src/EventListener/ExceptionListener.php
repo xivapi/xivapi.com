@@ -3,8 +3,8 @@
 namespace App\EventListener;
 
 use App\Common\Exceptions\BasicException;
+use App\Common\Exceptions\CompanionMarketServerException;
 use App\Exception\ContentGoneException;
-use App\Exceptions\CompanionMarketServerException;
 use Lodestone\Exceptions\NotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
