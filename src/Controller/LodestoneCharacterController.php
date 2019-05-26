@@ -54,8 +54,6 @@ class LodestoneCharacterController extends AbstractController
      */
     public function characters(Request $request)
     {
-        throw new \Exception('Endpoint Temp Disabled');
-        
         $ids = explode(',', $request->get('ids'));
 
         if (count($ids) > 512) {
@@ -77,8 +75,6 @@ class LodestoneCharacterController extends AbstractController
      */
     public function index(Request $request, $lodestoneId, bool $internal = false)
     {
-        throw new \Exception('Endpoint Temp Disabled');
-        
         $lodestoneId = strtolower(trim($lodestoneId));
 
         // choose which content you want
@@ -163,8 +159,6 @@ class LodestoneCharacterController extends AbstractController
      */
     public function verification(Request $request, $lodestoneId)
     {
-        throw new \Exception('Endpoint Temp Disabled');
-        
         $character = $this->service->get($lodestoneId);
     
         if ($character->ent->isBlackListed()) {
@@ -200,8 +194,6 @@ class LodestoneCharacterController extends AbstractController
      */
     public function update($lodestoneId)
     {
-        throw new \Exception('Endpoint Temp Disabled');
-        
         $character = $this->service->get($lodestoneId);
     
         if ($character->ent->isBlackListed()) {
