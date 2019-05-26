@@ -13,7 +13,7 @@ class ServiceQueues
     const CACHE_PVPTEAM_QUEUE               = 'lodestone_pvpteam';
     
     // timeout for manual update
-    const UPDATE_TIMEOUT = 86400;
+    const UPDATE_TIMEOUT = (60 * 15); // (60 * 60 * 6);
     
     // maximum characters to process per minute
     const TOTAL_CHARACTER_UPDATES    = 70;  // Max 1 page
