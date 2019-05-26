@@ -71,11 +71,11 @@ class LodestoneLinkshellController extends AbstractController
         $linkshell = $this->service->get($lodestoneId);
     
         if ($linkshell->ent->isBlackListed()) {
-            throw new ContentGoneException(ContentGoneException::CODE, 'Blacklisted');
+            throw new ContentGoneException('Blacklisted');
         }
     
         if ($linkshell->ent->isAdding()) {
-            throw new ContentGoneException(ContentGoneException::CODE, 'Not Added');
+            throw new ContentGoneException('Not Added');
         }
     
         if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {

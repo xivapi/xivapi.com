@@ -162,11 +162,11 @@ class LodestoneCharacterController extends AbstractController
         $character = $this->service->get($lodestoneId);
     
         if ($character->ent->isBlackListed()) {
-            throw new ContentGoneException(ContentGoneException::CODE, LodestoneConstants::API_BLACKLISTED);
+            throw new ContentGoneException(LodestoneConstants::API_BLACKLISTED);
         }
     
         if ($character->ent->isAdding()) {
-            throw new ContentGoneException(ContentGoneException::CODE, LodestoneConstants::API_NOT_ADDED);
+            throw new ContentGoneException(LodestoneConstants::API_NOT_ADDED);
         }
         
         // check if cached, this is to reduce spam
@@ -197,11 +197,11 @@ class LodestoneCharacterController extends AbstractController
         $character = $this->service->get($lodestoneId);
     
         if ($character->ent->isBlackListed()) {
-            throw new ContentGoneException(ContentGoneException::CODE, LodestoneConstants::API_BLACKLISTED);
+            throw new ContentGoneException(LodestoneConstants::API_BLACKLISTED);
         }
     
         if ($character->ent->isAdding()) {
-            throw new ContentGoneException(ContentGoneException::CODE, LodestoneConstants::API_NOT_ADDED);
+            throw new ContentGoneException(LodestoneConstants::API_NOT_ADDED);
         }
 
         if ($lodestoneId != 730968 && Redis::Cache()->get(__METHOD__.$lodestoneId)) {

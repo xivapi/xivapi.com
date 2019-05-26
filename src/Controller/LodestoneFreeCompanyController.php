@@ -87,11 +87,11 @@ class LodestoneFreeCompanyController extends AbstractController
         $freecompany = $this->service->get($lodestoneId);
     
         if ($freecompany->ent->isBlackListed()) {
-            throw new ContentGoneException(ContentGoneException::CODE, 'Blacklisted');
+            throw new ContentGoneException('Blacklisted');
         }
     
         if ($freecompany->ent->isAdding()) {
-            throw new ContentGoneException(ContentGoneException::CODE, 'Not Added');
+            throw new ContentGoneException('Not Added');
         }
         
         if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {

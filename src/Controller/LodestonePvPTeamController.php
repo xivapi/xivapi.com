@@ -70,11 +70,11 @@ class LodestonePvPTeamController extends AbstractController
         $pvp = $this->service->get($lodestoneId);
     
         if ($pvp->ent->isBlackListed()) {
-            throw new ContentGoneException(ContentGoneException::CODE, 'Blacklisted');
+            throw new ContentGoneException('Blacklisted');
         }
     
         if ($pvp->ent->isAdding()) {
-            throw new ContentGoneException(ContentGoneException::CODE, 'Not Added');
+            throw new ContentGoneException('Not Added');
         }
     
         if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {
