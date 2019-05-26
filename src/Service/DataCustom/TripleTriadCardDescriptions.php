@@ -2,10 +2,10 @@
 
 namespace App\Service\DataCustom;
 
-use App\Common\Game\DescriptionFormatter;
 use App\Common\Utils\Language;
-use App\Service\Content\ManualHelper;
 use App\Common\Service\Redis\Redis;
+use App\Service\Content\DescriptionFormatter;
+use App\Service\Content\ManualHelper;
 
 class TripleTriadCardDescriptions extends ManualHelper
 {

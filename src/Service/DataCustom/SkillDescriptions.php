@@ -2,10 +2,10 @@
 
 namespace App\Service\DataCustom;
 
-use App\Common\Game\DescriptionFormatter;
 use App\Common\Service\Redis\Redis;
 use App\Common\Utils\Language;
 use App\Service\Content\ManualHelper;
+use App\Service\Content\DescriptionFormatter;
 
 class SkillDescriptions extends ManualHelper
 {
@@ -18,6 +18,9 @@ class SkillDescriptions extends ManualHelper
      * php bin/console SaintCoinachRedisCommand 0 1000 1 Trait
      * php bin/console SaintCoinachRedisCommand 0 1000 1 CraftAction
      * php bin/console SaintCoinachRedisCommand 0 1000 1 Item
+     *
+     * php bin/console SaintCoinachRedisCustomCommand Transient
+     * php bin/console SaintCoinachRedisCustomCommand SkillDescriptions
      */
     
     public function handle()
