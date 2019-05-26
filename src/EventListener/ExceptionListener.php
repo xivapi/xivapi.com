@@ -94,7 +94,7 @@ class ExceptionListener implements EventSubscriberInterface
             NotFoundException::class
         ];
         
-        if (Redis::Cache()->get(__METHOD__ . $json->hash) == null && !in_array($json->Ex, $validExceptions)) {
+        if (Redis::Cache()->get(__METHOD__ . $json->hash) == null && !in_array($json->Ex, $validExceptions) && $json->Debug->Env != 'local') {
             Redis::Cache()->set(__METHOD__ . $json->hash, true);
             Discord::mog()->sendMessage(
                 DiscordConstants::ROOM_ERRORS,
