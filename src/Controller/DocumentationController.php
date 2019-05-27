@@ -76,7 +76,13 @@ class DocumentationController extends AbstractController
             $response['images'] = (new Icons())->get($request->get('set'));
         }
 
-        return $this->render('docs/pages/'. $file .'.html.twig', $response);
+        $template = 'docs/pages/'. $file .'.html.twig';
+        
+        if (file_exists(__DIR__.'/../../templates/' . $template) == false) {
+            return $this->redirectToRoute('404');
+        }
+        
+        return $this->render($template, $response);
     }
 
     /**
