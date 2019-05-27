@@ -23,6 +23,22 @@ class HomeController extends AbstractController
     {
         return $this->redirect('https://discord.gg/MFFVHWC', 301);
     }
+    
+    /**
+     * @Route("/404", name="404")
+     */
+    public function four0four()
+    {
+        return $this->render('404.html.twig');
+    }
+    
+    /**
+     * @Route("/ws", name="ws")
+     */
+    public function ws()
+    {
+        return $this->render('ws.html.twig');
+    }
 
     /**
      * @Route("/version")
