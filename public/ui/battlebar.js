@@ -61,24 +61,24 @@ var Dalamud =
 /******/ 	__webpack_require__.p = "/ui/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./assets/js/App.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./assets/js/BattleBar/App.js");
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./assets/js/App.js":
-/*!**************************!*\
-  !*** ./assets/js/App.js ***!
-  \**************************/
+/***/ "./assets/js/BattleBar/App.js":
+/*!************************************!*\
+  !*** ./assets/js/BattleBar/App.js ***!
+  \************************************/
 /*! no exports provided */
 /*! all exports used */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__BattleBar_BattleBar__ = __webpack_require__(/*! ./BattleBar/BattleBar */ "./assets/js/BattleBar/BattleBar.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__BattleBar__ = __webpack_require__(/*! ./BattleBar */ "./assets/js/BattleBar/BattleBar.js");
 
-__WEBPACK_IMPORTED_MODULE_0__BattleBar_BattleBar__["a" /* default */].start();
+__WEBPACK_IMPORTED_MODULE_0__BattleBar__["a" /* default */].start();
 
 /***/ }),
 
@@ -92,9 +92,11 @@ __WEBPACK_IMPORTED_MODULE_0__BattleBar_BattleBar__["a" /* default */].start();
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__CommandHandler__ = __webpack_require__(/*! ./CommandHandler */ "./assets/js/BattleBar/CommandHandler.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Logger__ = __webpack_require__(/*! ./Logger */ "./assets/js/BattleBar/Logger.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 
 
 
@@ -108,24 +110,24 @@ var BattleBar = function () {
     _createClass(BattleBar, [{
         key: 'start',
         value: function start() {
-            // todo - write start logic, it should check for a local var so it only
-            // todo - starts on pages it needs to.
+            __WEBPACK_IMPORTED_MODULE_1__Logger__["a" /* default */].write('Connecting to XIVAPI WebSocket');
 
-            BattleBar.websocket = new WebSocket('wss://xivapi.local/socket');
-            BattleBar.websocket.onopen = this.webSocketOnOpen;
-            BattleBar.websocket.onmessage = this.webSocketOnMessage;
-            BattleBar.websocket.onclose = this.webSocketOnDisconnect;
-            BattleBar.websocket.onerror = this.webSocketOnDisconnect;
+            this.websocket = new WebSocket('wss://xivapi.local/socket');
+            this.websocket.onopen = this.webSocketOnOpen;
+            this.websocket.onmessage = this.webSocketOnMessage;
+            this.websocket.onclose = this.webSocketOnDisconnect;
+            this.websocket.onerror = this.webSocketOnDisconnect;
         }
 
         /**
          * Connected to the server
          */
 
-    }], [{
+    }, {
         key: 'webSocketOnOpen',
         value: function webSocketOnOpen(event) {
-            console.log("Connection established!");
+            console.log('connection established');
+            __WEBPACK_IMPORTED_MODULE_1__Logger__["a" /* default */].write("Connection established!");
         }
 
         /**
@@ -192,18 +194,65 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /**
  * This class handles any incoming actions and decides what to do, it's
  * effectively a websocket router
+ *
+ * todo - this file is going to get quite lengthy, each case logic should be its own class.
  */
 var CommandHandler = function () {
     function CommandHandler() {
         _classCallCheck(this, CommandHandler);
     }
 
-    _createClass(CommandHandler, null, [{
-        key: "handle",
+    _createClass(CommandHandler, [{
+        key: 'handle',
         value: function handle(action, data) {
             switch (action) {
                 default:
                     console.log("Unknown action: " + action);
+                    break;
+
+                case 'PLAYER_NAME':
+                    $('#character_name').html(data);
+                    break;
+
+                case 'PLAYER_DATA':
+                    data = data.split(',');
+                    var player = {
+                        id: data[0],
+                        hp: data[1],
+                        hpMax: data[2],
+                        mp: data[3],
+                        mpMax: data[4],
+                        level: data[5],
+                        classjob: data[6]
+                    };
+
+                    $('#player_hp').text(player.hp + '/' + player.hpMax);
+                    $('#player_mp').text(player.mp + '/' + player.mpMax);
+                    break;
+
+                case 'TARGET_DATA':
+                    data = data.split(',');
+                    var target = {
+                        id: data[0],
+                        hp: data[1],
+                        hpMax: data[2],
+                        mp: data[3],
+                        mpMax: data[4],
+                        level: data[5],
+                        name: data[6],
+                        bNpcNameId: data[7],
+                        bNpcBaseId: data[8],
+                        memoryId1: data[9]
+                    };
+
+                    // console.log(target);
+
+                    var hpPercent = target.hp / target.hpMax * 100;
+                    $('#target_hp_bar').css('width', hpPercent + '%');
+
+                    $('#target_name').html('[bNpcName ' + target.bNpcNameId + '] [bNpcBase ' + target.bNpcBaseId + '] ' + target.name);
+                    $('#target_level').html(target.level);
+                    $('#target_hp').html(target.hp + '/' + target.hpMax);
                     break;
             }
         }
@@ -212,7 +261,39 @@ var CommandHandler = function () {
     return CommandHandler;
 }();
 
-/* harmony default export */ __webpack_exports__["a"] = (new BattleBar());
+/* harmony default export */ __webpack_exports__["a"] = (new CommandHandler());
+
+/***/ }),
+
+/***/ "./assets/js/BattleBar/Logger.js":
+/*!***************************************!*\
+  !*** ./assets/js/BattleBar/Logger.js ***!
+  \***************************************/
+/*! exports provided: default */
+/*! exports used: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Logger = function () {
+    function Logger() {
+        _classCallCheck(this, Logger);
+    }
+
+    _createClass(Logger, [{
+        key: 'write',
+        value: function write(message) {
+            $('.log').prepend('<div>' + message + '</div>');
+        }
+    }]);
+
+    return Logger;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (new Logger());
 
 /***/ })
 

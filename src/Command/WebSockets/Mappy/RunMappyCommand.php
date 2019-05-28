@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command\WebSockets;
+namespace App\Command\WebSockets\Mappy;
 
 use App\Service\Maps\MappyWebsocket;
 use Symfony\Component\Console\Command\Command;

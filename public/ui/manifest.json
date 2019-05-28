@@ -1,4 +1,4 @@
 {
-  "ui/app.js": "/ui/app.js",
+  "ui/battlebar.js": "/ui/battlebar.js",
   "ui/vis.css": "/ui/vis.css"
 }

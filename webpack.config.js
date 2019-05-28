@@ -3,7 +3,7 @@ let Encore = require('@symfony/webpack-encore');
 Encore
     .setOutputPath('public/ui/')
     .setPublicPath('/ui')
-    .addEntry('app', './assets/js/App.js')
+    .addEntry('battlebar', './assets/js/BattleBar/App.js')
     .addStyleEntry('vis', './assets/css/App.scss')
     .enableSassLoader(function(options) {}, {
         resolveUrlLoader: false

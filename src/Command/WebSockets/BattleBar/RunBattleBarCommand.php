@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command\WebSockets;
+namespace App\Command\WebSockets\BattleBar;
 
 use App\WebSockets\BattleBar\BattleBarRunner;
 use Symfony\Component\Console\Command\Command;
@@ -13,7 +13,7 @@ class RunBattleBarCommand extends Command
     {
         $this
             ->setName('RunBattleBarCommand')
-            ->setDescription('')
+            ->setDescription('Run the Battle Bar WebSocket Server')
         ;
     }
     

@@ -1,4 +1,5 @@
 import CommandHandler from './CommandHandler';
+import Logger from './Logger';
 
 class BattleBar
 {
@@ -9,28 +10,28 @@ class BattleBar
 
     start()
     {
-        // todo - write start logic, it should check for a local var so it only
-        // todo - starts on pages it needs to.
+        Logger.write('Connecting to XIVAPI WebSocket');
 
-        BattleBar.websocket           = new WebSocket('wss://xivapi.local/socket');
-        BattleBar.websocket.onopen    = this.webSocketOnOpen;
-        BattleBar.websocket.onmessage = this.webSocketOnMessage;
-        BattleBar.websocket.onclose   = this.webSocketOnDisconnect;
-        BattleBar.websocket.onerror   = this.webSocketOnDisconnect;
+        this.websocket           = new WebSocket('wss://xivapi.local/socket');
+        this.websocket.onopen    = this.webSocketOnOpen;
+        this.websocket.onmessage = this.webSocketOnMessage;
+        this.websocket.onclose   = this.webSocketOnDisconnect;
+        this.websocket.onerror   = this.webSocketOnDisconnect;
     }
 
     /**
      * Connected to the server
      */
-    static webSocketOnOpen(event)
+    webSocketOnOpen(event)
     {
-        console.log("Connection established!");
+        console.log('connection established');
+        Logger.write("Connection established!");
     }
 
     /**
      * Receive a message FROM the server
      */
-    static webSocketOnMessage(event)
+    webSocketOnMessage(event)
     {
         let command = event.data.split('::');
         let action  = command[0];
@@ -48,7 +49,7 @@ class BattleBar
     /**
      * Whenever the socket errors or closes.
      */
-    static webSocketOnDisconnect(event)
+    webSocketOnDisconnect(event)
     {
         console.log('disconnected');
     }
@@ -56,7 +57,7 @@ class BattleBar
     /**
      * Send a message TO the server
      */
-    static webSocketSendMessage(message)
+    webSocketSendMessage(message)
     {
         this.websocket.send(message);
     }

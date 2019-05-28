@@ -39,6 +39,14 @@ class HomeController extends AbstractController
     {
         return $this->render('ws.html.twig');
     }
+    
+    /**
+     * @Route("/battlebar", name="battlebar")
+     */
+    public function battlebar()
+    {
+        return $this->render('battle_bar/index.html.twig');
+    }
 
     /**
      * @Route("/version")

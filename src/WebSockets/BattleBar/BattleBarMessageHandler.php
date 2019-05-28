@@ -14,6 +14,8 @@ class BattleBarMessageHandler implements MessageComponentInterface
     public function __construct()
     {
         $this->console = new ConsoleOutput();
+    
+        Clients::init();
     }
 
     /**

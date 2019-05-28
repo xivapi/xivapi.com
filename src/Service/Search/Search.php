@@ -77,7 +77,7 @@ class Search
         $this->performFilterSearch($req);
 
         $query = $this->query->getQuery($req->bool);
-
+        
         try {
             $res->setQuery($query)->setResults(
                 $this->search->search($req->indexes, $req->type, $query) ?: []

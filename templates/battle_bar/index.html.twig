@@ -1,0 +1,86 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            padding: 10px;
+        }
+        .sidebar {
+            max-width: 280px;
+        }
+        .log {
+            width: 100%;
+            background-color: #222;
+            color: #ccc;
+            border-radius: 5px;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    {% if auth.user %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <p>
+                        Hello <strong>{{ auth.user.username }}</strong>! |
+                        Character: <strong id="character_name">-</strong> |
+                        HP: <span id="player_hp"></span> - MP: <span id="player_mp"></span>
+                    </p>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="row flex-nowrap">
+                <div class="col-md-4 col-12 sidebar">
+                    Menu
+                </div>
+                <div class="col-md col-12 main pa-1">
+                    {# Main page stuff #}
+                    <p>
+                        Currently Fighting: <strong id="target_name">-</strong>
+                    </p>
+                    <p>
+                        Level: <span id="target_level">-</span>
+                    </p>
+                    <p>
+                        Health: <span id="target_hp">-</span>
+
+                        <div class="progress">
+                            <div id="target_hp_bar" class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </p>
+                </div>
+            </div>
+
+            <hr>
+
+            <h6>Log</h6>
+            <div class="row">
+                <div class="col">
+                    <pre class="log"></pre>
+                </div>
+            </div>
+
+        </div>
+
+        <script>let API_KEY = '{{ auth.user.apiPublicKey }}';</script>
+        <script src="/ui/battlebar.js"></script>
+    {% else %}
+        <h2>Login required</h2>
+        <p>You must be online to access this page.</p>
+        <p>
+            <a href="{{ path('account_login_discord') }}" class="btn-login">
+                Login via <strong>Discord</strong>
+            </a>
+        </p>
+    {% endif %}
+
+</body>
+</html>
