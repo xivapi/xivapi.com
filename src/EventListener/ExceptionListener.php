@@ -5,6 +5,7 @@ namespace App\EventListener;
 use App\Common\Exceptions\BasicException;
 use App\Common\Exceptions\CompanionMarketServerException;
 use App\Exception\ContentGoneException;
+use Lodestone\Exceptions\MaintenanceException;
 use Lodestone\Exceptions\NotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -95,7 +96,8 @@ class ExceptionListener implements EventSubscriberInterface
             NotFoundHttpException::class,
             NotFoundException::class,
             ContentGoneException::class,
-            CompanionMarketServerException::class
+            CompanionMarketServerException::class,
+            MaintenanceException::class
         ];
         
         if (Redis::Cache()->get(__METHOD__ . $json->hash) == null && !in_array($json->Ex, $validExceptions) && $json->Debug->Env != 'local') {
