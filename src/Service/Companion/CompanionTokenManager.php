@@ -2,6 +2,7 @@
 
 namespace App\Service\Companion;
 
+use App\Common\Entity\Maintenance;
 use App\Common\Game\GameServers;
 use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
 use App\Entity\CompanionToken;
@@ -109,6 +110,8 @@ class CompanionTokenManager
     private $repository;
     /** @var CompanionErrorHandler */
     private $errorHandler;
+    /** @var Maintenance */
+    private $maintenance;
 
     public function __construct(EntityManagerInterface $em, CompanionErrorHandler $errorHandler)
     {
@@ -116,6 +119,8 @@ class CompanionTokenManager
         $this->repository            = $em->getRepository(CompanionToken::class);
         $this->errorHandler          = $errorHandler;
         $this->console               = new ConsoleOutput();
+
+        $this->maintenance = $this->em->getRepository(Maintenance::class)->findOneBy(['id' => 1 ]) ?: new Maintenance();
     }
 
     /**
@@ -229,6 +234,11 @@ class CompanionTokenManager
      */
     public function login(string $account, string $server, string $characterId)
     {
+        if ($this->maintenance->isCompanionMaintenance() || $this->maintenance->isGameMaintenance()) {
+            $this->console->writeln("Maintenance is active, stopping...");
+            return false;
+        }
+
         // check error count
         if ($this->errorHandler->isCriticalExceptionCount()) {
             $this->console->writeln("Currently at critical error rate");

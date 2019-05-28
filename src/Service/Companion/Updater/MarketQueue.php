@@ -2,6 +2,7 @@
 
 namespace App\Service\Companion\Updater;
 
+use App\Common\Entity\Maintenance;
 use App\Entity\CompanionItem;
 use App\Entity\CompanionItemQueue;
 use App\Repository\CompanionItemRepository;
@@ -21,6 +22,8 @@ class MarketQueue
     private $repo;
     /** @var CompanionItemRepository */
     private $repoEntries;
+    /** @var Maintenance */
+    private $maintenance;
     
     public function __construct(EntityManagerInterface $em, CompanionTokenManager $ctm)
     {
@@ -28,12 +31,19 @@ class MarketQueue
         $this->ctm          = $ctm;
         $this->repo         = $em->getRepository(CompanionItemQueue::class);
         $this->repoEntries  = $em->getRepository(CompanionItem::class);
+
+        $this->maintenance = $this->em->getRepository(Maintenance::class)->findOneBy(['id' => 1 ]) ?: new Maintenance();
     }
     
     public function queue()
     {
         $console = new ConsoleOutput();
         $console->writeln("Market Item Queue");
+
+        if ($this->maintenance->isCompanionMaintenance() || $this->maintenance->isGameMaintenance()) {
+            $console->writeln("Maintenance is active, stopping...");
+            return false;
+        }
 
         // run this 20 seconds in.
         sleep(10);
