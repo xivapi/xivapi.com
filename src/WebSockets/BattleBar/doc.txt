@@ -1,0 +1,6 @@
+A room can be created
+- Enemies can be added to it
+- need the modal id (bnpcBase or bnpcName, one of them links, look at mappy)
+
+Client enters their API key AND room number on app, which connects and then they're good to go.
+
