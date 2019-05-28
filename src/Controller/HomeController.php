@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\Common\SiteVersion;
+use App\Common\Utils\SiteVersion;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
