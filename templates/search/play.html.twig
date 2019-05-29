@@ -12,38 +12,55 @@
     <div>
         <h1>Search Play Testing</h1>
         <p>
-            Test the Elastic Search Query DSL.
+            Test the Elastic Search Query DSL. XIVAPI is on ElasticSearch version 6.8
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html">ElasticSearch Documentation</a>.
+            <a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.8/query-dsl.html">ElasticSearch Documentation</a>.
+        </p>
+        <p>
+            A good starting point may be to see how XIVAPI does it's ElasticSearch query build when you use the
+            <code>filters</code> param. To find this out, you can add: <code>print_query</code> to the end
+            of any XIVAPI search query and it will print out the ElasticSearch DSL which you can put in the box below.
+            <a target="_blank" href="https://xivapi.com/search?indexes=item&filters=ItemSearchCategory.ID%3E1,LevelEquip%3E20,LevelItem%3E40&string=ifrit&limit=32&key=testing&tags=mogboardv2&language=en&print_query=1">
+                Here is an example.
+            </a> If you need any help building queries, jump into Discord.
         </p>
     </div>
 
-    <div>
-        <div>
-            <div class="form-row">
-                <label for="endpoint">Endpoint</label>
-                <input name="search_endpoint" id="search_endpoint" placeholder="URL of API Endpoint" class="form-control" value="{{ app.request.getSchemeAndHttpHost() }}">
-            </div>
-            <br>
-            <div class="form-row">
-                <label for="search_indexes">Indexes</label>
-                <textarea name="search_indexes" id="search_indexes" placeholder="Search Indexes" class="form-control">item,achievement,instantcontent</textarea>
-            </div>
-            <br>
-            <div class="form-row">
-                <label for="search_body">Body</label>
-                <textarea name="search_body" id="search_body" placeholder="Elastic Search Query" class="form-control"></textarea>
-            </div>
-            <br><br>
-            <button class="btn-search-test" type="button">Search</button>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            <input type="checkbox" id="auto_run_query"> Run query automatically on change.
-        </div>
-        <div>
-            <label>Response</label>
-            <div class="playground-response" id="playground-response"><pre></pre></div>
-        </div>
+    <hr>
+
+    <div class="form-row">
+        <label for="endpoint">Endpoint</label>
+        <input name="search_endpoint" id="search_endpoint" placeholder="URL of API Endpoint" class="form-control" value="https://xivapi.com/search">
     </div>
+    <div class="form-row">
+        <label for="search_indexes">Indexes</label>
+        <textarea name="search_indexes" id="search_indexes" placeholder="Search Indexes" class="form-control">item,achievement,instantcontent</textarea>
+    </div>
+    <div class="form-row">
+        <label for="search_indexes">Columns</label>
+        <textarea name="search_columns" id="search_columns" placeholder="Search Columns" class="form-control">ID,Name,Icon,LevelItem,LevelEquip,ItemSearchCategory.Name</textarea>
+    </div>
+    <div class="form-row">
+        <label for="search_body">Body</label>
+        <textarea name="search_body" id="search_body" placeholder="Elastic Search Query" class="form-control"></textarea>
+    </div>
+    <button class="btn-search-test" type="button">Run Query</button>
+
+    <hr>
+
+    <div>
+        <label>POST REQUEST</label>
+        <div class="playground-request" id="playground-request"><pre></pre></div>
+    </div>
+
+    <br><br>
+
+    <div>
+        <label>SEARCH RESPONSE</label>
+        <div class="playground-response" id="playground-response"><pre></pre></div>
+    </div>
+
+    <br><br><br>
 
 </div>
 {% endblock %}
@@ -95,6 +112,7 @@ let query = {
 };
 
 let $searchTestButton = $('.btn-search-test');
+let $searchRequestBox = $('#playground-request').find('pre');
 let $searchResponseBox = $('#playground-response').find('pre');
 let $searchJsonBody = $('#search_body');
 let runSearchDslTimeout = null;
@@ -105,7 +123,8 @@ query = localStorage.getItem('xivapi_playground_search_dsl')
     : query;
 
 $searchJsonBody.html(query);
-$searchResponseBox.text('// Response will show here');
+$searchRequestBox.text('<-- Request will show here -->');
+$searchResponseBox.text('<-- Response will show here -->');
 
 $searchTestButton.on('click', function() {
     runSearchDsl();
@@ -115,13 +134,18 @@ function runSearchDsl()
 {
     let data = {
         indexes: $('#search_indexes').val().trim(),
+        columns: $('#search_columns').val().trim(),
         body: JSON.parse($('#search_body').val().trim()),
     };
 
     $searchTestButton.text('Searching ...').attr("disabled", true);
 
+    $searchRequestBox.text(
+        JSON.stringify(data, null, 2)
+    );
+
     $.ajax({
-        url: $('#search_endpoint').val().trim() + '/search',
+        url: $('#search_endpoint').val().trim(),
         type: "POST",
         data: JSON.stringify(data),
         dataType: "json",
@@ -164,13 +188,6 @@ cm.on('change', function () {
     // save new json
     localStorage.setItem('xivapi_playground_search_dsl', json);
     $('#search_body').val(json);
-
-    clearTimeout(runSearchDslTimeout);
-    if ($('#auto_run_query').prop('checked')) {
-        runSearchDslTimeout = setTimeout(function() {
-            runSearchDsl();
-        }, 1000);
-    }
 });
 
 </script>

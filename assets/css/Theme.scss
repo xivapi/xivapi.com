@@ -933,3 +933,73 @@ main .account {
         }
     }
 }
+
+main .playground {
+    max-width: 1000px;
+    padding: 50px 10px;
+    margin: 0 auto;
+
+    h1 {
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+
+    p {
+        margin-bottom: 10px;
+        line-height: 22px;
+        font-size: 15px;
+    }
+
+    hr {
+        background-color: #555;
+        height: 3px;
+        margin: 20px 0;
+        border: none;
+    }
+
+    pre {
+        line-height: 20px;
+    }
+
+    .form-row {
+        display: block;
+        margin-bottom: 25px;
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #888;
+        }
+
+        input, textarea {
+            width: 100%;
+            border-radius: 3px;
+            background-color: #fff;
+            border: none;
+            padding: 10px;
+        }
+    }
+
+    .CodeMirror {
+        font-size: 13px;
+    }
+
+    .btn-search-test {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: none;
+        background-color: #16a23d;
+        color: #fff;
+    }
+
+    .playground-request,
+    .playground-response {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #000;
+        border-radius: 5px;
+    }
+}

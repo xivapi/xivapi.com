@@ -707,3 +707,52 @@ main .account {
         color: var(--light-green); }
       main .account .account-panel .rate-limits > div {
         flex: 0 1 25%; }
+
+main .playground {
+  max-width: 1000px;
+  padding: 50px 10px;
+  margin: 0 auto; }
+  main .playground h1 {
+    font-size: 32px;
+    margin-bottom: 20px; }
+  main .playground p {
+    margin-bottom: 10px;
+    line-height: 22px;
+    font-size: 15px; }
+  main .playground hr {
+    background-color: #555;
+    height: 3px;
+    margin: 20px 0;
+    border: none; }
+  main .playground pre {
+    line-height: 20px; }
+  main .playground .form-row {
+    display: block;
+    margin-bottom: 25px; }
+    main .playground .form-row label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 5px;
+      color: #888; }
+    main .playground .form-row input, main .playground .form-row textarea {
+      width: 100%;
+      border-radius: 3px;
+      background-color: #fff;
+      border: none;
+      padding: 10px; }
+  main .playground .CodeMirror {
+    font-size: 13px; }
+  main .playground .btn-search-test {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: none;
+    background-color: #16a23d;
+    color: #fff; }
+  main .playground .playground-request,
+  main .playground .playground-response {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #000;
+    border-radius: 5px; }
