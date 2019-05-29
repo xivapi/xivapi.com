@@ -1,3 +1,5 @@
+import BattleRooms from './BattleRooms';
+
 /**
  * This class handles any incoming actions and decides what to do, it's
  * effectively a websocket router
@@ -6,13 +8,33 @@
  */
 class CommandHandler
 {
-    handle(action, data)
+    handle(response)
     {
-        switch(action) {
+        switch(response.ACTION) {
             default:
-                console.log("Unknown action: " + action);
+                console.log("Unknown action: " + response.ACTION);
                 break;
 
+            case 'LIST_ROOMS':
+                BattleRooms.renderList(response.DATA);
+                break;
+
+            case 'LOAD_ROOM':
+                BattleRooms.load(response.DATA);
+                break;
+
+            case 'JOIN_ROOM':
+                BattleRooms.join(response.DATA);
+                break;
+
+
+
+
+
+
+            // -- test logic --
+
+            /*
             case 'PLAYER_NAME':
                 $('#character_name').html(data);
                 break;
@@ -57,6 +79,7 @@ class CommandHandler
                 $('#target_level').html(target.level);
                 $('#target_hp').html(`${target.hp}/${target.hpMax}`);
                 break;
+            */
         }
     }
 }

@@ -1,77 +1,61 @@
 <html>
 <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.css">
+    <link rel="stylesheet" href="/ui/battlebar_css.css?t={{ "now"|date }}">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <style>
-        body {
-            padding: 10px;
-        }
-        .sidebar {
-            max-width: 280px;
-        }
-        .log {
-            width: 100%;
-            background-color: #222;
-            color: #ccc;
-            border-radius: 5px;
-            padding: 6px 10px;
-            font-size: 12px;
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.js"></script>
 </head>
 <body>
 
     {% if auth.user %}
         <div class="container-fluid">
-            <div class="row">
-                <div class="col">
-                    <p>
-                        Hello <strong>{{ auth.user.username }}</strong>! |
-                        Character: <strong id="character_name">-</strong> |
-                        HP: <span id="player_hp"></span> - MP: <span id="player_mp"></span>
-                    </p>
+
+            {# Top #}
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            Hello <strong>{{ auth.user.username }}</strong>!
+                        </div>
+                        <div class="col-md-6">
+
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <hr>
+            <br><br>
 
             <div class="row flex-nowrap">
                 <div class="col-md-4 col-12 sidebar">
-                    Menu
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <strong>ROOMS</strong>
+                        </li>
+                        <li class="list-group-item">
+                            <button type="button" class="btn btn-success btn_create_room">Create Room</button>
+                        </li>
+                        <div class="battle_rooms"></div>
+                    </ul>
                 </div>
                 <div class="col-md col-12 main pa-1">
-                    {# Main page stuff #}
-                    <p>
-                        Currently Fighting: <strong id="target_name">-</strong>
-                    </p>
-                    <p>
-                        Level: <span id="target_level">-</span>
-                    </p>
-                    <p>
-                        Health: <span id="target_hp">-</span>
+                    <div class="room_create open" id="room_create">
+                        {% include 'battle_bar/create_room.html.twig' %}
+                    </div>
 
-                        <div class="progress">
-                            <div id="target_hp_bar" class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                    </p>
-                </div>
-            </div>
-
-            <hr>
-
-            <h6>Log</h6>
-            <div class="row">
-                <div class="col">
-                    <pre class="log"></pre>
+                    <div class="room_view" id="room_view">
+                        {# clicked on a room #}
+                    </div>
                 </div>
             </div>
 
         </div>
 
-        <script>let API_KEY = '{{ auth.user.apiPublicKey }}';</script>
-        <script src="/ui/battlebar.js"></script>
+        <script>let APIKEY = '{{ auth.user.apiPublicKey }}';</script>
+        <script src="/ui/battlebar_js.js"></script>
     {% else %}
         <h2>Login required</h2>
         <p>You must be online to access this page.</p>

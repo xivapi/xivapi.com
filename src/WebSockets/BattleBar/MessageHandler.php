@@ -6,7 +6,7 @@ use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class BattleBarMessageHandler implements MessageComponentInterface
+class MessageHandler implements MessageComponentInterface
 {
     /** @var ConsoleOutput */
     protected $console;
@@ -14,7 +14,6 @@ class BattleBarMessageHandler implements MessageComponentInterface
     public function __construct()
     {
         $this->console = new ConsoleOutput();
-    
         Clients::init();
     }
 
@@ -34,7 +33,7 @@ class BattleBarMessageHandler implements MessageComponentInterface
     public function onMessage(ConnectionInterface $clientFrom, $message)
     {
         try {
-            CommandHandler::handle($clientFrom, $message);
+            CommandHandler::handle($clientFrom, Json::parse($message));
         } catch (\Exception $ex) {
             $this->console->writeln("Custom Error: {$ex->getMessage()}");
         }

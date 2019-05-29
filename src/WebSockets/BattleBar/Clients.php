@@ -11,6 +11,10 @@ class Clients
 {
     /** @var \SplObjectStorage */
     private static $clients;
+    /** @var array */
+    private static $webClientToApiKey = [];
+    /** @var array */
+    private static $appClientToApiKey = [];
 
     public static function init()
     {
@@ -42,12 +46,51 @@ class Clients
         return self::$clients->count();
     }
     
-    public static function sendMessageToClient(ConnectionInterface $client, string $message)
+    public static function registerWebClient(ConnectionInterface $client, $apiKey)
     {
-        $client->send($message);
+        self::$webClientToApiKey[$apiKey] = self::hash($client);
     }
     
-    public static function sendMessageToEveryoneButClient(ConnectionInterface $client, string $message)
+    public static function registerAppClient(ConnectionInterface $client, $apiKey)
+    {
+        self::$appClientToApiKey[$apiKey] = self::hash($client);
+    }
+    
+    /**
+     * This will return both the web and app client for an API key, this
+     * provides a bridge between the browser and the app.
+     */
+    public static function getClientsViaApiKey($apiKey): \stdClass
+    {
+        $web = self::$webClientToApiKey[$apiKey];
+        $app = self::$appClientToApiKey[$apiKey];
+        
+        $web = self::$clients[$web] ?? null;
+        $app = self::$clients[$app] ?? null;
+        
+        return (Object)[
+            'web' => $web,
+            'app' => $app
+        ];
+    }
+    
+    /**
+     * Send any type of data to the client
+     */
+    public static function sendMessageToClient(ConnectionInterface $client, string $action, $data)
+    {
+        $client->send(
+            Json::stringify([
+                'ACTION' => $action,
+                'DATA'   => $data
+            ])
+        );
+    }
+    
+    /**
+     * Send any type of data to anyone but the client
+     */
+    public static function sendMessageToEveryoneButClient(ConnectionInterface $client, string $action, $data)
     {
         /** @var ConnectionInterface $cli */
         foreach (self::$clients as $cli) {
@@ -56,15 +99,28 @@ class Clients
                 continue;
             }
             
-            $cli->send($message);
+            $cli->send(
+                Json::stringify([
+                    'ACTION' => $action,
+                    'DATA'   => $data
+                ])
+            );
         }
     }
     
-    public static function sendMessageToEveryone(string $message)
+    /**
+     * Send any type of data to everyone
+     */
+    public static function sendMessageToEveryone(string $action, $data)
     {
         /** @var ConnectionInterface $cli */
         foreach (self::$clients as $cli) {
-            $cli->send($message);
+            $cli->send(
+                Json::stringify([
+                    'ACTION' => $action,
+                    'DATA'   => $data
+                ])
+            );
         }
     }
 }

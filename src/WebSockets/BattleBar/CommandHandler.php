@@ -10,73 +10,48 @@ use Ratchet\ConnectionInterface;
  */
 class CommandHandler
 {
-    public static function handle(ConnectionInterface $clientFrom, string $message)
+    public static function handle(ConnectionInterface $from, $request)
     {
-        [$source, $action, $data] = self::getActionFromMessage($message);
-
-        if ($source == 'APP') {
-            self::handleAppMessages($clientFrom, $action, $data);
-            return;
-        }
-        
-        self::handleWebMessages($clientFrom, $action, $data);
-    }
-    
-    /**
-     * Handle messages from the app
-     */
-    private static function handleAppMessages(ConnectionInterface $clientFrom, string $action, string $data)
-    {
-        switch ($action) {
+        switch ($request->ACTION) {
             default:
-                throw new \Exception("Unknown Action: {$action}");
-        
-            case 'PLAYER_NAME':
-                Clients::sendMessageToEveryoneButClient($clientFrom, "PLAYER_NAME::{$data}");
-                break;
+                throw new \Exception("Unknown Action: {$request->ACTION}");
                 
+            case 'REGISTER_WEB_CLIENT':
+                Clients::registerWebClient($from, $request->APIKEY);
+                break;
+    
+            case 'REGISTER_APP_CLIENT':
+                Clients::registerAppClient($from, $request->APIKEY);
+                break;
+        
+            case 'CREATE_ROOM':
+                // create the room and tell the client to join it
+                Clients::sendMessageToClient($from, 'JOIN_ROOM', BattleRooms::create($request->DATA));
+            
+                // send the list of rooms back to the client
+                Clients::sendMessageToClient($from, 'LIST_ROOMS', BattleRooms::all());
+                break;
+        
+            case 'LIST_ROOMS':
+                Clients::sendMessageToClient($from, 'LIST_ROOMS', BattleRooms::all());
+                break;
+        
+            case 'JOIN_ROOM':
+                Clients::sendMessageToClient($from, 'LOAD_ROOM', BattleRooms::fetch($request->DATA));
+                break;
+    
+            case 'PLAYER_NAME':
+                // todo - get the correct web client
+                Clients::sendMessageToEveryoneButClient($from, "PLAYER_NAME", $request->DATA);
+                break;
+    
             case 'PLAYER_DATA':
-                Clients::sendMessageToEveryoneButClient($clientFrom, "PLAYER_DATA::{$data}");
+                Clients::sendMessageToEveryoneButClient($from, "PLAYER_DATA", $request->DATA);
                 break;
     
             case 'TARGET_DATA':
-                Clients::sendMessageToEveryoneButClient($clientFrom, "TARGET_DATA::{$data}");
+                Clients::sendMessageToEveryoneButClient($from, "TARGET_DATA", $request->DATA);
                 break;
         }
-    }
-    
-    /**
-     * Handle messages from the web
-     */
-    private static function handleWebMessages(ConnectionInterface $clientFrom, string $action, string $data)
-    {
-        switch ($action) {
-            default:
-                throw new \Exception("Unknown Action: {$action}");
-            
-            // todo - write cases for handling the action
-        }
-    }
-
-    /**
-     * Extract the source, action and data from a message
-     */
-    private static function getActionFromMessage(string $message)
-    {
-        $command = explode('::', $message, 3);
-
-        $source  = $command[0] ?? null;
-        $action  = $command[1] ?? null;
-        $data    = $command[2] ?? null;
-
-        if ($source == null || $action == null || $data == null) {
-            throw new \Exception("Invalid action or data");
-        }
-
-        return [
-            $source,
-            $action,
-            $data
-        ];
     }
 }

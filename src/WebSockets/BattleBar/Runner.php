@@ -7,7 +7,7 @@ use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class BattleBarRunner
+class Runner
 {
     const PORT = 8080;
 
@@ -20,7 +20,7 @@ class BattleBarRunner
          $console->writeln("[Battle Bar] Initializing");
 
          // setup everything to run the websocket server
-         $handler    = new BattleBarMessageHandler();
+         $handler    = new MessageHandler();
          $wsServer   = new WsServer($handler);
          $httpServer = new HttpServer($wsServer);
          $server     = IoServer::factory($httpServer, self::PORT);
