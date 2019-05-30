@@ -58,7 +58,7 @@ class SearchController extends AbstractController
     public function searchMapping($index)
     {
         return $this->json(
-            $this->search->search->getDocumentMapping($index)
+            $this->search->handleMappingRequest($index)
         );
     }
     

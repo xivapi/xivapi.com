@@ -35,6 +35,13 @@ class Search
 
         $this->handleGetRequest($req, $res);
     }
+
+    public function handleMappingRequest(string $index)
+    {
+        $this->connect();
+
+        return $this->search->getDocumentMapping($index);
+    }
     
     /**
      * Perform a body query by using the query provided in the body payload
