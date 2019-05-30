@@ -3,6 +3,7 @@
 namespace App\Command\Search;
 
 use App\Command\CommandHelperTrait;
+use App\Common\Utils\Language;
 use App\Service\Data\CsvReader;
 use App\Common\Service\Redis\Redis;
 use App\Service\SaintCoinach\SaintCoinach;

@@ -5,6 +5,7 @@ namespace App\Command\Search;
 use App\Command\CommandHelperTrait;
 use App\Common\Service\Redis\Redis;
 use App\Common\Utils\Arrays;
+use App\Common\Utils\Language;
 use App\Service\Search\SearchContent;
 use App\Common\Service\ElasticSearch\ElasticSearch;
 use Symfony\Component\Console\Command\Command;
