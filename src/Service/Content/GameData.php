@@ -86,7 +86,7 @@ class GameData
      */
     public function validate(string $contentName): string
     {
-        $contentName = in_array(strtolower($contentName), $this->content);
+        $contentName = in_array(strtolower($contentName), $this->content) ? $contentName : false;
 
         if (!$contentName) {
             throw new NotFoundHttpException("No content data found for: {$contentName}");
