@@ -21,7 +21,9 @@ class RequestListener
 
     public function onKernelRequest(GetResponseEvent $event)
     {
-        define('REQUEST_TIME', time());
+        if (!defined('REQUEST_TIME')) {
+            define('REQUEST_TIME', time());
+        }
         
         if (!$event->isMasterRequest()) {
             return;
