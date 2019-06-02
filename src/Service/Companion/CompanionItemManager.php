@@ -354,7 +354,7 @@ class CompanionItemManager
                 // work out the history
                 $lastDate        = $document->History[0]->PurchaseDate;
                 $historyCount    = 0;
-                $historyCountMax = 100;
+                $historyCountMax = 500;
                 $average         = [];
                 
                 // 1st one manually assigned
