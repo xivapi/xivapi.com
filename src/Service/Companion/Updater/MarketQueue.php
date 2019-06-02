@@ -42,7 +42,7 @@ class MarketQueue
 
         if ($this->maintenance->isCompanionMaintenance() || $this->maintenance->isGameMaintenance()) {
             $console->writeln("Maintenance is active, stopping...");
-            return false;
+            return;
         }
 
         // run this 20 seconds in.
@@ -108,7 +108,7 @@ class MarketQueue
             $updateItems = $this->repoEntries->findBy(
                 [ 'patreonQueue' => $patreonQueue ],
                 [ 'updated' => 'asc' ],
-                count(CompanionConfiguration::QUEUE_CONSUMERS_PATREON) * 15
+                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
             );
     
             // skip queue if no items for that priority

@@ -5,21 +5,20 @@ namespace App\Service\Companion;
 class CompanionConfiguration
 {
     // If we hit this number of errors, the system will stop.
-    const ERROR_COUNT_THRESHOLD = 20;
+    const ERROR_COUNT_THRESHOLD = 40;
 
     // the total number of items to process per cronjob
     const MAX_ITEMS_PER_CRONJOB = 15;
 
-    // the total number of items to queue per minute
-    // this would be max per cronjob * number of scripts
-    const MAX_ITEMS_TOTAL = (self::MAX_ITEMS_PER_CRONJOB * 5);
-
     const MAX_ITEMS_PER_QUEUE = [
         1 => (self::MAX_ITEMS_PER_CRONJOB * 5),
-        2 => (self::MAX_ITEMS_PER_CRONJOB * 4),
+        2 => (self::MAX_ITEMS_PER_CRONJOB * 5),
         3 => (self::MAX_ITEMS_PER_CRONJOB * 2),
         4 => (self::MAX_ITEMS_PER_CRONJOB * 1),
         5 => (self::MAX_ITEMS_PER_CRONJOB * 1),
+        6 => (self::MAX_ITEMS_PER_CRONJOB * 1),
+        7 => (self::MAX_ITEMS_PER_CRONJOB * 1),
+        
         8 => (self::MAX_ITEMS_PER_CRONJOB * 1),
         9 => (self::MAX_ITEMS_PER_CRONJOB * 1)
     ];
@@ -47,10 +46,10 @@ class CompanionConfiguration
         2  => '< 3 hour',
         3  => '< 12 hours',
         4  => '< 30 hours',
-        5  => '< 48 hours',
+        5  => '< 2 days',
+        6  => '< 7 days',
+        7  => '< 14 days',
         
-        6  => '(not used)',
-        7  => '(not used)',
         8  => 'Never Sold',
         9  => 'Default',
         10 => 'Item is new'
@@ -63,8 +62,11 @@ class CompanionConfiguration
         (60 * 60 * 12)        => 3,
         (60 * 60 * 30)        => 4,
         (60 * 60 * 48)        => 5,
-        (60 * 60 * 24 * 365)  => 8,
-        (60 * 60 * 24 * 365)  => 9,
+        (60 * 60 * 168)       => 6,
+        (60 * 60 * 336)       => 7,
+        
+        (60 * 60 * 24 * 30)   => 8,
+        (60 * 60 * 24 * 30)   => 9,
     ];
     
     const QUEUE_CONSUMERS = [
@@ -73,6 +75,8 @@ class CompanionConfiguration
         3,
         4,
         5,
+        6,
+        7,
 
         // 8
         self::STATE_NEVER_SOLD,
