@@ -223,7 +223,7 @@ class CompanionMarketPrivate
     
         RedisTracking::increment('TOTAL_DPS_ALERTS_UPDATES');
         RedisTracking::increment("TOTAL_DPS_ALERTS_UPDATES_QUEUE_{$queue}");
-        RedisTracking::append('TOTAL_DPS_ALERTS_UPDATES', date('Y-m-d H:i:s'));
+        //RedisTracking::append('TOTAL_DPS_ALERTS_UPDATES', date('Y-m-d H:i:s'));
     
         return [
             true,
@@ -239,7 +239,7 @@ class CompanionMarketPrivate
     public function manualUpdateItemRequested()
     {
         RedisTracking::increment('TOTAL_MANUAL_UPDATES_CLICKED');
-        RedisTracking::append('TOTAL_MANUAL_UPDATES_CLICKED', date('Y-m-D H:i:s'));
+        //RedisTracking::append('TOTAL_MANUAL_UPDATES_CLICKED', date('Y-m-D H:i:s'));
     
         $itemId  = (int)$this->request->get('item_id');
         $server  = (int)$this->request->get('server');
@@ -330,7 +330,7 @@ class CompanionMarketPrivate
         }
     
         RedisTracking::increment('TOTAL_MANUAL_UPDATES');
-        RedisTracking::append('TOTAL_MANUAL_UPDATES', date('Y-m-D H:i:s'));
+        //RedisTracking::append('TOTAL_MANUAL_UPDATES', date('Y-m-D H:i:s'));
     
         return [
             true,
