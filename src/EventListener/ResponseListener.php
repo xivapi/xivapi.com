@@ -13,6 +13,8 @@ class ResponseListener
 {
     public function onKernelResponse(FilterResponseEvent $event)
     {
+        die('ready to respond');
+        
         /** @var JsonResponse $response */
         $response = $event->getResponse();
         /** @var Request $request */

@@ -10,6 +10,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GameData
 {
+    private $content = ["aozarrangement","aozboss","aozcontent","aozcontentbriefingbnpc","achievement","achievementcategory","achievementkind","action","actioncasttimeline","actioncastvfx","actioncategory","actioncomboroute","actionindirection","actionparam","actionprocstatus","actiontimeline","actiontimelinemove","actiontimelinereplace","actiontransient","activityfeedbuttons","activityfeedcaptions","activityfeedgroupcaptions","activityfeedimages","addon","addonhud","adventure","adventureexphase","aethercurrent","aethercurrentcompflgset","aetherialwheel","aetheryte","aetherytesystemdefine","airshipexplorationlevel","airshipexplorationlog","airshipexplorationparamtype","airshipexplorationpart","airshipexplorationpoint","animaweapon5","animaweapon5param","animaweapon5patterngroup","animaweapon5spirittalk","animaweapon5spirittalkparam","animaweapon5tradeitem","animaweaponfuitalk","animaweaponfuitalkparam","animaweaponicon","animaweaponitem","aozaction","aozactiontransient","aquariumfish","aquariumwater","arrayeventhandler","attacktype","bgm","bgmfade","bgmsituation","bgmswitch","bgmsystemdefine","bnpcannounceicon","bnpcbase","bnpccustomize","bnpcname","bnpcparts","backlightcolor","balloon","baseparam","battleleve","beastrankbonus","beastreputationrank","beasttribe","behavior","buddy","buddyaction","buddyequip","buddyitem","buddyrank","buddyskill","cabinet","cabinetcategory","calendar","charamakecustomize","charamaketype","chocoborace","chocoboraceability","chocoboraceabilitytype","chocoboraceitem","chocoboracerank","chocoboracestatus","chocoboraceterritory","chocoboracetutorial","chocoboraceweather","chocobotaxi","chocobotaxistand","classjob","classjobcategory","companion","companionmove","companiontransient","companyaction","companycraftdraft","companycraftdraftcategory","companycraftmanufactorystate","companycraftpart","companycraftprocess","companycraftsequence","companycraftsupplyitem","companycrafttype","completejournal","completejournalcategory","contentclosecycle","contentexaction","contentfindercondition","contentfinderconditiontransient","contentgauge","contentgaugecolor","contentmembertype","contentnpctalk","contentroulette","contentrouletteopenrule","contentrouletterolebonus","contenttalk","contenttalkparam","contenttype","contentsnote","craftaction","craftleve","crafttype","credit","creditbackimage","creditcast","currency","customtalk","customtalkdynamicicon","customtalknesthandlers","cutscreenimage","cutscene","dailysupplyitem","deepdungeon","deepdungeonban","deepdungeondanger","deepdungeonequipment","deepdungeonflooreffectui","deepdungeonitem","deepdungeonlayer","deepdungeonmagicstone","deepdungeonmap5x","deepdungeonroom","deepdungeonstatus","defaulttalk","defaulttalklipsynctype","deliveryquest","descriptionpage","descriptionstring","disposalshop","disposalshopfiltertype","disposalshopitem","dpschallenge","dpschallengeofficer","dpschallengetransient","enpcbase","enpcdressup","enpcdressupdress","enpcresident","eobj","eobjname","emjaddon","emjdani","emote","emotecategory","equipracecategory","equipslotcategory","eurekaaetheritem","eurekaaethernet","eurekagrowdata","eurekalogosmixerprobability","eurekamagiaaction","eurekamagiciteitem","eurekamagiciteitemtype","eurekasphereelementadjust","eventaction","eventiconpriority","eventicontype","eventitem","eventitemcasttimeline","eventitemhelp","eventitemtimeline","exversion","exportedsg","fcactivity","fcactivitycategory","fcauthority","fcauthoritycategory","fcchestname","fchierarchy","fcprofile","fcreputation","fcrights","fate","fccshop","festival","fieldmarker","fishparameter","fishingrecordtype","fishingrecordtypetransient","fishingspot","frontline03","frontline04","gcrankgridaniafemaletext","gcrankgridaniamaletext","gcranklimsafemaletext","gcranklimsamaletext","gcrankuldahfemaletext","gcrankuldahmaletext","gcscripshopcategory","gcscripshopitem","gcshop","gcshopitemcategory","gcsupplyduty","gcsupplydutyreward","gfate","gfateclimbing2","gfateclimbing2content","gfateclimbing2totemtype","gfaterideshooting","gardeningseed","gatheringcondition","gatheringexp","gatheringitem","gatheringitemlevelconverttable","gatheringitempoint","gatheringleve","gatheringleveroute","gatheringnotebooklist","gatheringpoint","gatheringpointbase","gatheringpointbonus","gatheringpointbonustype","gatheringpointname","gatheringsubcategory","gatheringtype","gcarmycapturetactics","gcarmyexpedition","gcarmyexpeditionmemberbonus","gcarmyexpeditiontype","gcarmymembergrow","gcarmytraining","generalaction","gilshop","gilshopitem","goldsaucerarcademachine","goldsaucertextdata","grandcompany","grandcompanyrank","guardiandeity","guildorderguide","guildorderofficer","guildleveassignment","guildleveassignmentcategory","hairmaketype","houseretainerpose","housingaethernet","housingappeal","housingemploymentnpclist","housingemploymentnpcrace","housingexterior","housingfurniture","housinglandset","housingmapmarkerinfo","housingmerchantpose","housingplacement","housingpreset","housingunitedexterior","housingyardobject","howto","howtocategory","howtopage","instancecontent","instancecontentbuff","instancecontentcsbonus","instancecontentguide","instancecontenttextdata","item","itemaction","itemfood","itemlevel","itemsearchcategory","itemseries","itemspecialbonus","itemuicategory","journalcategory","journalgenre","journalsection","leve","leveassignmenttype","leveclient","leverewarditem","leverewarditemgroup","levevfx","level","logfilter","logkind","logkindcategorytext","logmessage","lotteryexchangeshop","macroicon","macroiconredirectold","maincommand","maincommandcategory","maneuversarmor","map","mapmarker","mapmarkerregion","mapsymbol","marker","masterpiecesupplyduty","masterpiecesupplymultiplier","materia","minigamera","minionrace","minionrules","minionskilltype","mobhuntordertype","mobhunttarget","modelchara","modelstate","monsternote","monsternotetarget","mount","mountaction","mountcustomize","mountflyingcondition","mountspeed","mounttransient","movetimeline","movevfx","npcequip","npcyell","omen","onlinestatus","opening","orchestrion","orchestrioncategory","orchestrionpath","orchestrionuiparam","paramgrow","partycontent","partycontentcutscene","partycontenttextdata","perform","performtransient","pet","petaction","picture","placename","plantpotflowerseed","prehandler","publiccontent","publiccontentcutscene","publiccontenttextdata","pvpaction","pvpactionsort","pvprank","pvpselecttrait","pvptrait","quest","questclassjobreward","questclassjobsupply","questrepeatflag","questrewardother","quickchat","quickchattransient","rpparameter","race","racingchocoboitem","racingchocoboname","racingchocobonamecategory","racingchocobonameinfo","racingchocoboparam","recastnavimesh","recipe","recipeelement","recipeleveltable","recipenotebooklist","recommendcontents","relic","relic3","relicitem","relicnote","relicnotecategory","resident","retainertask","retainertasklvrange","retainertasknormal","retainertaskparameter","retainertaskrandom","salvage","satisfactionnpc","satisfactionsupply","satisfactionsupplyreward","scenariotree","scenariotreetips","scenariotreetipsclassquest","scenariotreetipsquest","scenariotype","screenimage","secretrecipebook","skyisland2mission","skyisland2missiondetail","skyisland2missiontype","skyisland2rangetype","spearfishingitem","spearfishingnotebook","spearfishingrecordpage","specialshop","specialshopitemcategory","stain","staintransient","status","statushiteffect","statusloopvfx","story","submarineexploration","submarinepart","submarinerank","switchtalk","territorytype","textcommand","title","tomestones","tomestonesitem","topicselect","town","trait","traitrecast","traittransient","transformation","treasure","treasurehuntrank","tribe","tripletriad","tripletriadcard","tripletriadcardrarity","tripletriadcardresident","tripletriadcardtype","tripletriadcompetition","tripletriadrule","tutorial","tutorialdps","tutorialhealer","tutorialtank","uicolor","vfx","vaseflower","warp","warpcondition","warplogic","weather","weathergroup","weatherrate","weatherreportreplace","weddingbgm","weeklybingoorderdata","weeklybingorewarddata","weeklybingotext","weeklylotbonus","world","worlddcgrouptype","ykw","zonesharedgroup"];
+    
     /** @var EntityManagerInterface */
     private $em;
     /** @var ContentList */
@@ -53,25 +55,6 @@ class GameData
             throw new NotFoundHttpException("Game Data does not exist: {$contentName} {$contentId}");
         }
 
-        // add additional data
-        $additional = [
-            'xiv2',
-            'xiv_korean',
-            'xiv_chinese',
-        ];
-
-        foreach($additional as $add) {
-            $data = Redis::Cache()->get("{$add}_{$contentName}_{$contentId}");
-
-            if (empty($data)) {
-                continue;
-            }
-
-            foreach ($data as $field => $value) {
-                $content->{$field} = $value;
-            }
-        }
-
         return $content;
     }
 
@@ -103,26 +86,12 @@ class GameData
      */
     public function validate(string $contentName): string
     {
-        $contentName = $this->getContentName($contentName);
+        $contentName = in_array(strtolower($contentName), $this->content);
 
         if (!$contentName) {
             throw new NotFoundHttpException("No content data found for: {$contentName}");
         }
 
         return $contentName;
-    }
-
-    /**
-     * Get the real content name
-     */
-    private function getContentName($string): ?string
-    {
-        foreach ($this->content() as $name) {
-            if (strtolower($string) === strtolower($name)) {
-                return $name;
-            }
-        }
-
-        return false;
     }
 }
