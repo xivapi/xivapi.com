@@ -62,7 +62,10 @@ class ResponseListener
                 // if its a list, handle columns per entry
                 // ignored when schema is requested
                 //
-                if ($columns = $request->get('columns')) {
+                // This does not do any further column extraction when the request was against the content list
+                // as this route has its own column extraction logic.
+                //
+                if ($columns = $request->get('columns') && $controller != 'App\Controller\XivGameContentController::contentList') {
                     // get columns param
                     $existingColumns = array_unique(explode(',', $columns));
                     
