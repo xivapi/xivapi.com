@@ -170,7 +170,7 @@ class ResponseListener
                 case 'App\Controller\MarketController::itemMulti':
                 case 'App\Controller\MarketController::search':
                 case 'App\Controller\MarketController::categories':
-                    $expires = 60;
+                    $expires = 30;
                     break;
             }
 
