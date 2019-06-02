@@ -13,11 +13,6 @@ class ResponseListener
 {
     public function onKernelResponse(FilterResponseEvent $event)
     {
-        $start = time();
-        $log = [];
-        $log[] = 'Request Time: '. date('Y-m-d H:i:s', REQUEST_TIME);
-        $log[] = 'Response Time: '. date('Y-m-d H:i:s', $start);
-        
         /** @var JsonResponse $response */
         $response = $event->getResponse();
         /** @var Request $request */
@@ -27,133 +22,128 @@ class ResponseListener
 
         // only process if response is a JsonResponse
         if (get_class($response) === JsonResponse::class) {
-            // grab json
-            $json = json_decode($response->getContent(), true);
+            $postProcess = $request->get('no_post_process') ? false : true;
+            
+            // if to post process or not
+            if ($postProcess) {
+                // grab json
+                $json = json_decode($response->getContent(), true);
     
-            $log[] = date('Y-m-d H:i:s', time()) . " json converted";
-            
-            // ignore when it's an exception
-            if (isset($json['Error']) && isset($json['Debug'])) {
-                return;
-            }
-            
-            // if printing a query, ignore any modifications
-            if ($request->get('print_query')) {
-                $response->setContent(
-                    json_encode(
-                        json_decode($response->getContent()), JSON_PRETTY_PRINT
-                    )
-                );
-                return;
-            }
-            
-            // last minute handlers
-            if (is_array($json)) {
-                //
-                // Language
-                //
-                $json = Language::handle($json, $request->get('language'));
+                // ignore when it's an exception
+                if (isset($json['Error']) && isset($json['Debug'])) {
+                    return;
+                }
     
-                $log[] = date('Y-m-d H:i:s', time()) . " language processed";
-
-                //
-                // Schema
-                //
-                // if its a list, handle columns per entry
-                // ignored when schema is requested
-                //
-                // This does not do any further column extraction when the request was against the content list
-                // as this route has its own column extraction logic.
-                //
-                if ($columns = $request->get('columns') && $controller != 'App\Controller\XivGameContentController::contentList') {
-                    // get columns param
-                    $existingColumns = array_unique(explode(',', $columns));
-                    
-                    if (isset($json['Pagination']) && !empty($json['Results'])) {
-                        foreach ($json['Results'] as $r => $result) {
-                            $columns = Arrays::extractColumnsCount($result, $existingColumns);
-                            $columns = Arrays::extractMultiLanguageColumns($columns);
-                            $json['Results'][$r] = Arrays::extractColumns($result, $columns);
-                        }
-                    } else if ($controller == 'App\Controller\MarketController::item' || $controller == 'App\Controller\LodestoneCharacterController::characters') {
-                        foreach ($json as $a => $result) {
-                            $columns = Arrays::extractColumnsCount($result, $existingColumns);
-                            $columns = Arrays::extractMultiLanguageColumns($columns);
-                            $json[$a] = Arrays::extractColumns($result, $columns);
-                        }
-                    } else if ($controller == 'App\Controller\MarketController::itemMulti') {
-                        foreach ($json as $i => $serverResults) {
-                            foreach ($serverResults as $server => $result) {
+                // if printing a query, ignore any modifications
+                if ($request->get('print_query')) {
+                    $response->setContent(
+                        json_encode(
+                            json_decode($response->getContent()), JSON_PRETTY_PRINT
+                        )
+                    );
+                    return;
+                }
+    
+                // last minute handlers
+                if (is_array($json)) {
+                    //
+                    // Language
+                    //
+                    $json = Language::handle($json, $request->get('language'));
+        
+                    //
+                    // Schema
+                    //
+                    // if its a list, handle columns per entry
+                    // ignored when schema is requested
+                    //
+                    // This does not do any further column extraction when the request was against the content list
+                    // as this route has its own column extraction logic.
+                    //
+                    if ($columns = $request->get('columns') && $controller != 'App\Controller\XivGameContentController::contentList') {
+                        // get columns param
+                        $existingColumns = array_unique(explode(',', $columns));
+            
+                        if (isset($json['Pagination']) && !empty($json['Results'])) {
+                            foreach ($json['Results'] as $r => $result) {
                                 $columns = Arrays::extractColumnsCount($result, $existingColumns);
                                 $columns = Arrays::extractMultiLanguageColumns($columns);
-                                $json[$i][$server] = Arrays::extractColumns($result, $columns);
+                                $json['Results'][$r] = Arrays::extractColumns($result, $columns);
                             }
+                        } else if ($controller == 'App\Controller\MarketController::item' || $controller == 'App\Controller\LodestoneCharacterController::characters') {
+                            foreach ($json as $a => $result) {
+                                $columns = Arrays::extractColumnsCount($result, $existingColumns);
+                                $columns = Arrays::extractMultiLanguageColumns($columns);
+                                $json[$a] = Arrays::extractColumns($result, $columns);
+                            }
+                        } else if ($controller == 'App\Controller\MarketController::itemMulti') {
+                            foreach ($json as $i => $serverResults) {
+                                foreach ($serverResults as $server => $result) {
+                                    $columns = Arrays::extractColumnsCount($result, $existingColumns);
+                                    $columns = Arrays::extractMultiLanguageColumns($columns);
+                                    $json[$i][$server] = Arrays::extractColumns($result, $columns);
+                                }
+                            }
+                        } else if (!isset($json['Pagination'])) {
+                            $columns = Arrays::extractColumnsCount($json, $existingColumns);
+                            $columns = Arrays::extractMultiLanguageColumns($columns);
+                            $json    = Arrays::extractColumns($json, $columns);
                         }
-                    } else if (!isset($json['Pagination'])) {
-                        $columns = Arrays::extractColumnsCount($json, $existingColumns);
-                        $columns = Arrays::extractMultiLanguageColumns($columns);
-                        $json    = Arrays::extractColumns($json, $columns);
                     }
+        
+                    //
+                    // Mini
+                    //
+                    if ($request->get('minify')) {
+                        if (isset($json['Pagination']) && !empty($json['Results'])) {
+                            foreach ($json['Results'] as $r => $result) {
+                                $json['Results'][$r] = Arrays::minification($result);
+                            }
+                        } else if (!isset($json['Pagination'])) {
+                            $json = Arrays::minification($json);
+                        }
+                    }
+        
+                    //
+                    // Ensure data types are enforced cleanly
+                    //
+                    $json = Arrays::ensureStrictDataTypes($json);
+        
+                    //
+                    // Sort data
+                    //
+                    $json = Arrays::sortArrayByKey($json);
                 }
     
-                $log[] = date('Y-m-d H:i:s', time()) . " columns processed";
-
                 //
-                // Mini
+                // Snake case check
                 //
-                if ($request->get('minify')) {
-                    if (isset($json['Pagination']) && !empty($json['Results'])) {
-                        foreach ($json['Results'] as $r => $result) {
-                            $json['Results'][$r] = Arrays::minification($result);
-                        }
-                    } else if (!isset($json['Pagination'])) {
-                        $json = Arrays::minification($json);
-                    }
+                if ($request->get('snake_case')) {
+                    Arrays::snakeCase($json);
                 }
-
-                //
-                // Ensure data types are enforced cleanly
-                //
-                $json = Arrays::ensureStrictDataTypes($json);
     
-                $log[] = date('Y-m-d H:i:s', time()) . " strict data types processed";
-
                 //
-                // Sort data
+                // Remove keys check
                 //
-                $json = Arrays::sortArrayByKey($json);
+                if ($request->get('remove_keys')) {
+                    Arrays::removeKeys($json);
+                }
     
-                $log[] = date('Y-m-d H:i:s', time()) . " array sorted processed";
-            }
-
-            //
-            // Snake case check
-            //
-            if ($request->get('snake_case')) {
-                Arrays::snakeCase($json);
-            }
-
-            //
-            // Remove keys check
-            //
-            if ($request->get('remove_keys')) {
-                Arrays::removeKeys($json);
-            }
-
-            // save
-            $response->setContent(
-                json_encode($json, JSON_BIGINT_AS_STRING | JSON_PRESERVE_ZERO_FRACTION)
-            );
-    
-            $log[] = date('Y-m-d H:i:s', time()) . " content set";
-            
-            // if pretty printing
-            if ($event->getRequest()->get('pretty')) {
+                // save
                 $response->setContent(
-                    json_encode(
-                        json_decode($response->getContent()), JSON_PRETTY_PRINT
-                    )
+                    json_encode($json, JSON_BIGINT_AS_STRING | JSON_PRESERVE_ZERO_FRACTION)
                 );
+    
+                $log[] = date('Y-m-d H:i:s', time()) . " content set";
+    
+                // if pretty printing
+                if ($event->getRequest()->get('pretty')) {
+                    $response->setContent(
+                        json_encode(
+                            json_decode($response->getContent()), JSON_PRETTY_PRINT
+                        )
+                    );
+                }
             }
 
             // work out expiry time
@@ -183,12 +173,6 @@ class ResponseListener
                     $expires = 60;
                     break;
             }
-    
-            $log[] = date('Y-m-d H:i:s', time()) . " ready to send";
-            
-            print_r($log);
-            
-            die;
 
             $response->setMaxAge($expires)->setExpires((new Carbon())->addSeconds($expires))->setPublic();
 

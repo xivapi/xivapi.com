@@ -97,18 +97,14 @@ class ContentList
             $id = (string)$id ?: '0';
             $content = Redis::Cache()->get("xiv_{$this->name}_{$id}");
             
-            $data[] = $content;
-            
-            /*
             if ($content) {
-                //$content = Language::handle($content, $this->request->get('language'));
+                $content = Language::handle($content, $this->request->get('language'));
                 $columns = Arrays::extractColumnsCount($content, $originalColumns);
                 $columns = Arrays::extractMultiLanguageColumns($columns);
                 $data[]  = Arrays::extractColumns($content, $columns);
             }
 
             unset($content);
-            */
         }
        
         return [
