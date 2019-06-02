@@ -82,21 +82,21 @@ class AdminController extends AbstractController
         ApiPermissions::set($user->getPermissions());
         ApiPermissions::must(ApiPermissions::PERMISSION_ADMIN);
 
-        $errors     = $this->ceh->getExceptions(2000);
+        $errors     = $this->ceh->getExceptions(20000);
         $lastError  = $errors[0];
         $errorGraph = [
-            date('dS H', time()) => 0,
+            date('dS', time()) => 0,
         ];
         $exception  = [];
 
-        foreach (range(0,100) as $hour) {
-            $seconds = time() - (3600 * $hour);
-            $hour    = date('dS H', $seconds);
+        foreach (range(0,30) as $hour) {
+            $seconds = time() - (3600 * $hour * 24);
+            $hour    = date('dS', $seconds);
             $errorGraph[$hour] = 0;
         }
 
         foreach ($errors as $error) {
-            $hour = date('dS H', $error['Added']);
+            $hour = date('dS', $error['Added']);
 
             if (isset($errorGraph[$hour])) {
                 $errorGraph[$hour] = $errorGraph[$hour] + 1;
