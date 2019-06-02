@@ -58,7 +58,7 @@ class ExceptionListener implements EventSubscriberInterface
         $pi   = pathinfo($path);
         
         // if it's an image
-        if (isset($pi['extension']) && strlen($pi['extension'] > 2)) {
+        if (isset($pi['extension']) && strlen($pi['extension']) > 2) {
             $event->setResponse(new Response("File not found: ". $path, 404));
             return null;
         }
