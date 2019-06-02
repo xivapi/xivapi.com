@@ -13,7 +13,10 @@ class ResponseListener
 {
     public function onKernelResponse(FilterResponseEvent $event)
     {
-        die('ready to respond');
+        $start = time();
+        $log = [];
+        $log[] = 'Request Time: '. date('Y-m-d H:i:s', REQUEST_TIME);
+        $log[] = 'Response Time: '. date('Y-m-d H:i:s', $start);
         
         /** @var JsonResponse $response */
         $response = $event->getResponse();
@@ -26,6 +29,8 @@ class ResponseListener
         if (get_class($response) === JsonResponse::class) {
             // grab json
             $json = json_decode($response->getContent(), true);
+    
+            $log[] = date('Y-m-d H:i:s', time()) . " json converted";
             
             // ignore when it's an exception
             if (isset($json['Error']) && isset($json['Debug'])) {
@@ -48,6 +53,8 @@ class ResponseListener
                 // Language
                 //
                 $json = Language::handle($json, $request->get('language'));
+    
+                $log[] = date('Y-m-d H:i:s', time()) . " language processed";
 
                 //
                 // Schema
@@ -85,6 +92,8 @@ class ResponseListener
                         $json    = Arrays::extractColumns($json, $columns);
                     }
                 }
+    
+                $log[] = date('Y-m-d H:i:s', time()) . " columns processed";
 
                 //
                 // Mini
@@ -103,11 +112,15 @@ class ResponseListener
                 // Ensure data types are enforced cleanly
                 //
                 $json = Arrays::ensureStrictDataTypes($json);
+    
+                $log[] = date('Y-m-d H:i:s', time()) . " strict data types processed";
 
                 //
                 // Sort data
                 //
                 $json = Arrays::sortArrayByKey($json);
+    
+                $log[] = date('Y-m-d H:i:s', time()) . " array sorted processed";
             }
 
             //
@@ -128,6 +141,8 @@ class ResponseListener
             $response->setContent(
                 json_encode($json, JSON_BIGINT_AS_STRING | JSON_PRESERVE_ZERO_FRACTION)
             );
+    
+            $log[] = date('Y-m-d H:i:s', time()) . " content set";
             
             // if pretty printing
             if ($event->getRequest()->get('pretty')) {
@@ -165,6 +180,12 @@ class ResponseListener
                     $expires = 60;
                     break;
             }
+    
+            $log[] = date('Y-m-d H:i:s', time()) . " ready to send";
+            
+            print_r($log);
+            
+            die;
 
             $response->setMaxAge($expires)->setExpires((new Carbon())->addSeconds($expires))->setPublic();
 
