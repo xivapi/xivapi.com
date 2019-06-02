@@ -60,7 +60,8 @@ class ResponseListener
                     // This does not do any further column extraction when the request was against the content list
                     // as this route has its own column extraction logic.
                     //
-                    if ($columns = $request->get('columns') && $controller != 'App\Controller\XivGameContentController::contentList') {
+                    $columns = $request->get('columns');
+                    if ($columns && $controller != 'App\Controller\XivGameContentController::contentList') {
                         // get columns param
                         $existingColumns = array_unique(explode(',', $columns));
             
