@@ -14,7 +14,6 @@ class MessageHandler implements MessageComponentInterface
     public function __construct()
     {
         $this->console = new ConsoleOutput();
-        Clients::init();
     }
 
     /**
@@ -35,7 +34,8 @@ class MessageHandler implements MessageComponentInterface
         try {
             CommandHandler::handle($clientFrom, Json::parse($message));
         } catch (\Exception $ex) {
-            $this->console->writeln("Custom Error: {$ex->getMessage()}");
+            $this->console->writeln("Custom Error: {$ex->getLine()} {$ex->getFile()} - {$ex->getMessage()}");
+            throw $ex;
         }
     }
 

@@ -52,7 +52,7 @@ class UpdateSearchCommand extends Command
                 }
         
                 $index  = strtolower($contentName);
-                $ids    = Redis::Cache()->get("ids_{$contentName}");
+                $ids    = (array)Redis::Cache()->get("ids_{$contentName}");
                 
                 if (empty($ids)) {
                     $this->io->error('No IDs for content: '. $contentName);

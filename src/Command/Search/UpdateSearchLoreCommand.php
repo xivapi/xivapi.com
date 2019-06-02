@@ -157,7 +157,7 @@ class UpdateSearchLoreCommand extends Command
     private function addGeneric($contentName, $fieldName)
     {
         $this->io->text(__METHOD__ ." = {$contentName} : {$fieldName}");
-        $ids = Redis::Cache()->get("ids_{$contentName}");
+        $ids = (array)Redis::Cache()->get("ids_{$contentName}");
         $this->io->progressStart(count($ids));
     
         $total = count($ids);

@@ -2,11 +2,16 @@ import BattleRooms from './BattleRooms';
 
 class UserInterface
 {
+    constructor()
+    {
+        this.createRoomMonsterIdList = [];
+    }
+
     watch()
     {
         this.watchMenuForRoomCreate();
-        this.watchForEnemySearch();
-        this.watchForEnemySelection();
+        this.watchForMonsterSearch();
+        this.watchForMonsterSelection();
         this.watchForCreateRoomFormSubmit();
         this.watchForRoomSelection();
     }
@@ -19,22 +24,23 @@ class UserInterface
         });
     }
 
-    watchForEnemySearch()
+    watchForMonsterSearch()
     {
-        $('.enemy_list_search_results').html('');
-        $('.search_enemy').on('click', event => {
-            const enemyName = $('.enemy_name').val().trim();
+        $('.search_monster').on('click', event => {
+            const monsterName = $('.monster_name').val().trim();
+
+            $('.monster_list_search_results').html('');
 
             $.ajax({
                 url: 'https://xivapi.com/search',
                 data: {
                     indexes: 'bnpcname',
-                    string: enemyName
+                    string: monsterName
                 },
                 success: response => {
-                    response.Results.forEach(enemy => {
-                        $('.enemy_list_search_results').append(`
-                            <button type="button" class="btn btn-outline-secondary enemy_selected" id="${enemy.ID}">${enemy.ID} - ${enemy.Name}</button>
+                    response.Results.forEach(monster => {
+                        $('.monster_list_search_results').append(`
+                            <button type="button" class="btn btn-outline-secondary monster_selected" id="${monster.ID}">${monster.ID} - ${monster.Name}</button>
                         `)
                     });
                 },
@@ -43,15 +49,14 @@ class UserInterface
         })
     }
 
-    watchForEnemySelection()
+    watchForMonsterSelection()
     {
-        let enemyList = [];
-        $('.enemy_list_search_results').on('click', '.btn', event => {
+        $('.monster_list_search_results').on('click', '.btn', event => {
             const id = $(event.target).attr('id');
 
-            enemyList.push(id);
+            this.createRoomMonsterIdList.push(id);
 
-            $('.enemy_list').val(enemyList.join(','));
+            $('.monster_list').val(this.createRoomMonsterIdList.join(','));
         });
     }
 
@@ -59,9 +64,14 @@ class UserInterface
     {
         $('.create_battle_room').on('click', event => {
             const name = $('.room_name').val().trim();
-            const enemies = $('.enemy_list').val().trim();
+            const monsters = $('.monster_list').val().trim();
 
-            BattleRooms.create(name, enemies);
+            $('.room_name').val('');
+            $('.monster_list').val('');
+            $('.monster_list_search_results').html('');
+            this.createRoomMonsterIdList = [];
+
+            BattleRooms.create(name, monsters);
         });
     }
 
@@ -74,6 +84,29 @@ class UserInterface
 
             BattleRooms.join(id);
         })
+    }
+
+    // ----------------------------------------------------------------------------
+
+    showAppStatusActivated()
+    {
+        $('.app_status').html('<span class="badge badge-success">Monitoring App Detected!</span>');
+    }
+
+    showAppStatusDeactivated()
+    {
+        $('.app_player_name').html('-');
+        $('.app_status').html('<span class="badge badge-danger">App not connected</span>');
+    }
+
+    showPlayerName(data)
+    {
+        $('.app_player_name').html(`<strong>${data.player_name}</strong>`);
+    }
+
+    showPlayerData(data)
+    {
+        // todo
     }
 }
 

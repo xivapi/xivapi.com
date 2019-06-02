@@ -18,12 +18,12 @@ location / {
 location ~ ^/index\.php(/|$) {
     fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
     fastcgi_split_path_info ^(.+\.php)(/.*)$;
-    include fastcgi_params;
     fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
     fastcgi_param DOCUMENT_ROOT $realpath_root;
     fastcgi_buffer_size 128k;
     fastcgi_buffers 4 256k;
     fastcgi_busy_buffers_size 256k;
+    include fastcgi_params;
     internal;
 }
 

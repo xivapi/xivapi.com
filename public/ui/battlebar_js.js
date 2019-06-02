@@ -110,6 +110,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var BattleRooms = function () {
     function BattleRooms() {
         _classCallCheck(this, BattleRooms);
+
+        this.room = null;
+        this.renderedEnemyIds = [];
     }
 
     _createClass(BattleRooms, [{
@@ -137,10 +140,10 @@ var BattleRooms = function () {
         }
     }, {
         key: 'create',
-        value: function create(name, enemies) {
+        value: function create(name, monsters) {
             __WEBPACK_IMPORTED_MODULE_0__WebSockets__["a" /* default */].webSocketSendMessage('CREATE_ROOM', {
                 name: name,
-                enemies: enemies.split(',')
+                monsters: monsters.split(',')
             });
         }
     }, {
@@ -148,9 +151,16 @@ var BattleRooms = function () {
         value: function join(roomId) {
             __WEBPACK_IMPORTED_MODULE_0__WebSockets__["a" /* default */].webSocketSendMessage('JOIN_ROOM', roomId);
         }
+
+        /**
+         * Load up a room, this handles all HTML for it.
+         */
+
     }, {
         key: 'load',
         value: function load(room) {
+            this.room = room;
+
             var $room = $('.room_view');
 
             // todo - this should be in its own class
@@ -160,7 +170,54 @@ var BattleRooms = function () {
             // load room info
             console.log(room);
 
-            $room.html('\n            <h2>(' + room.number + ') ' + room.name + '</h2>\n            <p>\n                Enemies: ' + room.enemies.join(', ') + '\n            </p>\n        ');
+            $room.html('\n            <h2>(' + room.number + ') ' + room.name + '</h2>\n            <hr>\n            <div class="monster_battles"></div>\n        ');
+        }
+    }, {
+        key: 'mobdata',
+        value: function mobdata(_mobdata) {
+            var $ui = $('.monster_battles');
+
+            for (var monsterId in _mobdata.monstersData) {
+                var monster = _mobdata.monstersData[monsterId];
+
+                // if the entry hasn't been rendered yet, do it!
+                if (this.renderedEnemyIds.indexOf(monster.spawn_id) === -1) {
+                    this.renderedEnemyIds.push(monster.spawn_id);
+                    this.renderMonsterBlock(monster);
+                }
+
+                // update info
+                var $mobrow = $ui.find('#' + monster.spawn_id);
+                var healthPercent = monster.hp / monster.hp_max * 100;
+
+                $mobrow.find('.mob_bar').css("width", healthPercent + '%');
+                $mobrow.find('.mob_hp').text(monster.hp);
+            }
+
+            console.log(_mobdata);
+        }
+    }, {
+        key: 'renderMonsterBlock',
+        value: function renderMonsterBlock(monster) {
+            var $ui = $('.monster_battles');
+
+            $ui.append('\n        <div id="' + monster.spawn_id + '">\n            <p>Name: ' + monster.level + ' ' + monster.name + ' - <span class="mob_hp">' + monster.hp + '</span>/' + monster.hp_max + '</p>        \n            <div class="progress">\n                <div class="progress-bar bg-danger mob_bar" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>\n            </div>\n        </div>\n        ');
+        }
+    }, {
+        key: 'removeSpawns',
+        value: function removeSpawns(spawns) {
+            console.log(spawns);
+
+            if (typeof spawns === 'undefined' || spawns.length === 0) {
+                return;
+            }
+
+            var $ui = $('.monster_battles');
+
+            for (var i in spawns) {
+                var spawn_id = spawns[i];
+                $ui.find('#' + spawn_id).remove();
+            }
         }
     }]);
 
@@ -181,9 +238,11 @@ var BattleRooms = function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__BattleRooms__ = __webpack_require__(/*! ./BattleRooms */ "./assets/js/BattleBar/BattleRooms.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__UserInterface__ = __webpack_require__(/*! ./UserInterface */ "./assets/js/BattleBar/UserInterface.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 
 
 
@@ -207,6 +266,14 @@ var CommandHandler = function () {
                     console.log("Unknown action: " + response.ACTION);
                     break;
 
+                case 'REGISTER_APP_CLIENT':
+                    __WEBPACK_IMPORTED_MODULE_1__UserInterface__["a" /* default */].showAppStatusActivated();
+                    break;
+
+                case 'APP_DISCONNECTED':
+                    __WEBPACK_IMPORTED_MODULE_1__UserInterface__["a" /* default */].showAppStatusDeactivated();
+                    break;
+
                 case 'LIST_ROOMS':
                     __WEBPACK_IMPORTED_MODULE_0__BattleRooms__["a" /* default */].renderList(response.DATA);
                     break;
@@ -219,48 +286,25 @@ var CommandHandler = function () {
                     __WEBPACK_IMPORTED_MODULE_0__BattleRooms__["a" /* default */].join(response.DATA);
                     break;
 
-                // -- test logic --
+                case 'GAME_PLAYER_NAME':
+                    __WEBPACK_IMPORTED_MODULE_1__UserInterface__["a" /* default */].showPlayerName(response.DATA);
+                    break;
 
-                /*
-                case 'PLAYER_NAME':
-                    $('#character_name').html(data);
+                case 'GAME_PLAYER_DATA':
+                    __WEBPACK_IMPORTED_MODULE_1__UserInterface__["a" /* default */].showPlayerData(response.DATA);
                     break;
-                  case 'PLAYER_DATA':
-                    data = data.split(',');
-                    const player = {
-                        id: data[0],
-                        hp: data[1],
-                        hpMax: data[2],
-                        mp: data[3],
-                        mpMax: data[4],
-                        level: data[5],
-                        classjob: data[6]
-                    };
-                      $('#player_hp').text(`${player.hp}/${player.hpMax}`);
-                    $('#player_mp').text(`${player.mp}/${player.mpMax}`);
+
+                case 'GAME_MOB_DATA':
+                    __WEBPACK_IMPORTED_MODULE_0__BattleRooms__["a" /* default */].mobdata(response.DATA);
                     break;
-                  case 'TARGET_DATA':
-                    data = data.split(',');
-                    const target = {
-                        id: data[0],
-                        hp: data[1],
-                        hpMax: data[2],
-                        mp: data[3],
-                        mpMax: data[4],
-                        level: data[5],
-                        name: data[6],
-                        bNpcNameId: data[7],
-                        bNpcBaseId: data[8],
-                        memoryId1: data[9]
-                    };
-                      // console.log(target);
-                      const hpPercent = (target.hp / target.hpMax) * 100;
-                    $('#target_hp_bar').css('width', `${hpPercent}%`);
-                      $('#target_name').html(`[bNpcName ${target.bNpcNameId}] [bNpcBase ${target.bNpcBaseId}] ${target.name}`);
-                    $('#target_level').html(target.level);
-                    $('#target_hp').html(`${target.hp}/${target.hpMax}`);
+
+                case 'GAME_MOB_REMOVE_SPAWNS':
+                    __WEBPACK_IMPORTED_MODULE_0__BattleRooms__["a" /* default */].removeSpawns(response.DATA);
                     break;
-                */
+
+                case 'GAME_MOB_DEAD':
+                    __WEBPACK_IMPORTED_MODULE_0__BattleRooms__["a" /* default */].removeSpawns();
+
             }
         }
     }]);
@@ -291,14 +335,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var UserInterface = function () {
     function UserInterface() {
         _classCallCheck(this, UserInterface);
+
+        this.createRoomMonsterIdList = [];
     }
 
     _createClass(UserInterface, [{
         key: 'watch',
         value: function watch() {
             this.watchMenuForRoomCreate();
-            this.watchForEnemySearch();
-            this.watchForEnemySelection();
+            this.watchForMonsterSearch();
+            this.watchForMonsterSelection();
             this.watchForCreateRoomFormSubmit();
             this.watchForRoomSelection();
         }
@@ -311,21 +357,22 @@ var UserInterface = function () {
             });
         }
     }, {
-        key: 'watchForEnemySearch',
-        value: function watchForEnemySearch() {
-            $('.enemy_list_search_results').html('');
-            $('.search_enemy').on('click', function (event) {
-                var enemyName = $('.enemy_name').val().trim();
+        key: 'watchForMonsterSearch',
+        value: function watchForMonsterSearch() {
+            $('.search_monster').on('click', function (event) {
+                var monsterName = $('.monster_name').val().trim();
+
+                $('.monster_list_search_results').html('');
 
                 $.ajax({
                     url: 'https://xivapi.com/search',
                     data: {
                         indexes: 'bnpcname',
-                        string: enemyName
+                        string: monsterName
                     },
                     success: function success(response) {
-                        response.Results.forEach(function (enemy) {
-                            $('.enemy_list_search_results').append('\n                            <button type="button" class="btn btn-outline-secondary enemy_selected" id="' + enemy.ID + '">' + enemy.ID + ' - ' + enemy.Name + '</button>\n                        ');
+                        response.Results.forEach(function (monster) {
+                            $('.monster_list_search_results').append('\n                            <button type="button" class="btn btn-outline-secondary monster_selected" id="' + monster.ID + '">' + monster.ID + ' - ' + monster.Name + '</button>\n                        ');
                         });
                     },
                     error: console.log
@@ -333,25 +380,33 @@ var UserInterface = function () {
             });
         }
     }, {
-        key: 'watchForEnemySelection',
-        value: function watchForEnemySelection() {
-            var enemyList = [];
-            $('.enemy_list_search_results').on('click', '.btn', function (event) {
+        key: 'watchForMonsterSelection',
+        value: function watchForMonsterSelection() {
+            var _this = this;
+
+            $('.monster_list_search_results').on('click', '.btn', function (event) {
                 var id = $(event.target).attr('id');
 
-                enemyList.push(id);
+                _this.createRoomMonsterIdList.push(id);
 
-                $('.enemy_list').val(enemyList.join(','));
+                $('.monster_list').val(_this.createRoomMonsterIdList.join(','));
             });
         }
     }, {
         key: 'watchForCreateRoomFormSubmit',
         value: function watchForCreateRoomFormSubmit() {
+            var _this2 = this;
+
             $('.create_battle_room').on('click', function (event) {
                 var name = $('.room_name').val().trim();
-                var enemies = $('.enemy_list').val().trim();
+                var monsters = $('.monster_list').val().trim();
 
-                __WEBPACK_IMPORTED_MODULE_0__BattleRooms__["a" /* default */].create(name, enemies);
+                $('.room_name').val('');
+                $('.monster_list').val('');
+                $('.monster_list_search_results').html('');
+                _this2.createRoomMonsterIdList = [];
+
+                __WEBPACK_IMPORTED_MODULE_0__BattleRooms__["a" /* default */].create(name, monsters);
             });
         }
     }, {
@@ -364,6 +419,30 @@ var UserInterface = function () {
 
                 __WEBPACK_IMPORTED_MODULE_0__BattleRooms__["a" /* default */].join(id);
             });
+        }
+
+        // ----------------------------------------------------------------------------
+
+    }, {
+        key: 'showAppStatusActivated',
+        value: function showAppStatusActivated() {
+            $('.app_status').html('<span class="badge badge-success">Monitoring App Detected!</span>');
+        }
+    }, {
+        key: 'showAppStatusDeactivated',
+        value: function showAppStatusDeactivated() {
+            $('.app_player_name').html('-');
+            $('.app_status').html('<span class="badge badge-danger">App not connected</span>');
+        }
+    }, {
+        key: 'showPlayerName',
+        value: function showPlayerName(data) {
+            $('.app_player_name').html('<strong>' + data.player_name + '</strong>');
+        }
+    }, {
+        key: 'showPlayerData',
+        value: function showPlayerData(data) {
+            // todo
         }
     }]);
 
@@ -430,6 +509,12 @@ var BattleBar = function () {
             };
 
             this.websocket.onclose = function (event) {
+                Swal.fire({
+                    title: 'Disconnected',
+                    text: 'Lost connection to the battlegrounds',
+                    type: 'error'
+                });
+
                 _this.webSocketOnDisconnect(event);
             };
 

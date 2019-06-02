@@ -37,6 +37,12 @@ class BattleBar
         };
 
         this.websocket.onclose = event => {
+            Swal.fire({
+                title: 'Disconnected',
+                text: 'Lost connection to the battlegrounds',
+                type: 'error',
+            });
+
             this.webSocketOnDisconnect(event);
         };
 

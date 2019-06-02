@@ -1,4 +1,5 @@
 import BattleRooms from './BattleRooms';
+import UserInterface from './UserInterface';
 
 /**
  * This class handles any incoming actions and decides what to do, it's
@@ -15,6 +16,14 @@ class CommandHandler
                 console.log("Unknown action: " + response.ACTION);
                 break;
 
+            case 'REGISTER_APP_CLIENT':
+                UserInterface.showAppStatusActivated();
+                break;
+
+            case 'APP_DISCONNECTED':
+                UserInterface.showAppStatusDeactivated();
+                break;
+
             case 'LIST_ROOMS':
                 BattleRooms.renderList(response.DATA);
                 break;
@@ -27,59 +36,25 @@ class CommandHandler
                 BattleRooms.join(response.DATA);
                 break;
 
-
-
-
-
-
-            // -- test logic --
-
-            /*
-            case 'PLAYER_NAME':
-                $('#character_name').html(data);
+            case 'GAME_PLAYER_NAME':
+                UserInterface.showPlayerName(response.DATA);
                 break;
 
-            case 'PLAYER_DATA':
-                data = data.split(',');
-                const player = {
-                    id: data[0],
-                    hp: data[1],
-                    hpMax: data[2],
-                    mp: data[3],
-                    mpMax: data[4],
-                    level: data[5],
-                    classjob: data[6]
-                };
-
-                $('#player_hp').text(`${player.hp}/${player.hpMax}`);
-                $('#player_mp').text(`${player.mp}/${player.mpMax}`);
+            case 'GAME_PLAYER_DATA':
+                UserInterface.showPlayerData(response.DATA);
                 break;
 
-            case 'TARGET_DATA':
-                data = data.split(',');
-                const target = {
-                    id: data[0],
-                    hp: data[1],
-                    hpMax: data[2],
-                    mp: data[3],
-                    mpMax: data[4],
-                    level: data[5],
-                    name: data[6],
-                    bNpcNameId: data[7],
-                    bNpcBaseId: data[8],
-                    memoryId1: data[9]
-                };
-
-                // console.log(target);
-
-                const hpPercent = (target.hp / target.hpMax) * 100;
-                $('#target_hp_bar').css('width', `${hpPercent}%`);
-
-                $('#target_name').html(`[bNpcName ${target.bNpcNameId}] [bNpcBase ${target.bNpcBaseId}] ${target.name}`);
-                $('#target_level').html(target.level);
-                $('#target_hp').html(`${target.hp}/${target.hpMax}`);
+            case 'GAME_MOB_DATA':
+                BattleRooms.mobdata(response.DATA);
                 break;
-            */
+
+            case 'GAME_MOB_REMOVE_SPAWNS':
+                BattleRooms.removeSpawns(response.DATA);
+                break;
+
+            case 'GAME_MOB_DEAD':
+                BattleRooms.removeSpawns()
+
         }
     }
 }

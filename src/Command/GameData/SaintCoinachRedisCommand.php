@@ -212,6 +212,7 @@ class SaintCoinachRedisCommand extends Command
                 unset($idList[0]);
             }
             
+            $idList = (array)$idList;
             Redis::Cache()->set("ids_{$contentName}", $idList, self::REDIS_DURATION);
         }
         Redis::Cache()->executePipeline();

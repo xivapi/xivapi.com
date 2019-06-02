@@ -17,11 +17,19 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            Hello <strong>{{ auth.user.username }}</strong>!
+                        <div class="col-md-4">
+                            Welcome to the battlegrounds<br>
+                            <strong>{{ auth.user.username }}</strong>
                         </div>
-                        <div class="col-md-6">
-
+                        <div class="col-md-4 tac">
+                            <small>PLAYER</small><br>
+                            <strong class="app_player_name">-</strong>
+                        </div>
+                        <div class="col-md-4 tar">
+                            <small>CLIENT STATUS</small><br>
+                            <span class="app_status">
+                                <span class="badge  badge-danger">App Not Connected</span>
+                            </span>
                         </div>
                     </div>
                 </div>
