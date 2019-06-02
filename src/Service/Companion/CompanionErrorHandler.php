@@ -145,8 +145,8 @@ class CompanionErrorHandler
 
             // pause for a random amount of time.
             $time = mt_rand(
-                $count2 > 3 ? 15 : 5,
-                $count2 > 3 ? 45 : 10
+                $count2 > 3 ? 10 : 1,
+                $count2 > 3 ? 30 : 10
             );
             Redis::Cache()->set(self::CRITICAL_EXCEPTIONS_STOPPED, $count, (60 * $time));
             Redis::Cache()->delete(self::CRITICAL_EXCEPTIONS);

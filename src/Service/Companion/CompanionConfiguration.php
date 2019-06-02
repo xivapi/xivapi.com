@@ -11,7 +11,7 @@ class CompanionConfiguration
     const MAX_ITEMS_PER_CRONJOB = 15;
 
     const MAX_ITEMS_PER_QUEUE = [
-        1 => (self::MAX_ITEMS_PER_CRONJOB * 5),
+        1 => (self::MAX_ITEMS_PER_CRONJOB * 6),
         2 => (self::MAX_ITEMS_PER_CRONJOB * 5),
         3 => (self::MAX_ITEMS_PER_CRONJOB * 2),
         4 => (self::MAX_ITEMS_PER_CRONJOB * 1),
