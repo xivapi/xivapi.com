@@ -170,7 +170,7 @@ class CompanionMarketPrivate
          * if so then we don't need to update it again.
          * - Currently 15 minutes
          */
-        $lastUpdatedLimitMinutes = 15;
+        $lastUpdatedLimitMinutes = 5;
         $lastUpdatedLimitSeconds = (60 * $lastUpdatedLimitMinutes);
         if ($marketEntry->getUpdated() > (time() - $lastUpdatedLimitSeconds)) {
             return [
@@ -184,10 +184,10 @@ class CompanionMarketPrivate
         $timeoutTimes = [
             1 => 15, // 1 hour queue
             2 => 15, // 3 hour queue
-            3 => 30, // 12 hour queue
-            4 => 30, // 30 hour queue
-            5 => 60, // 48 hour queue
-            6 => 60  // default
+            3 => 15, // 12 hour queue
+            4 => 15, // 30 hour queue
+            5 => 15, // 48 hour queue
+            6 => 15  // default
         ];
     
         $timeout = 60 * $timeoutTimes[$marketEntry->getNormalQueue()] ?? 60;
@@ -304,10 +304,10 @@ class CompanionMarketPrivate
         $timeoutTimes = [
             1 => 15, // 1 hour queue
             2 => 15, // 3 hour queue
-            3 => 30, // 12 hour queue
-            4 => 30, // 30 hour queue
-            5 => 60, // 48 hour queue
-            6 => 60  // default
+            3 => 15, // 12 hour queue
+            4 => 15, // 30 hour queue
+            5 => 15, // 48 hour queue
+            6 => 15  // default
         ];
     
         $timeout = 60 * $timeoutTimes[$marketEntry->getNormalQueue()] ?? 60;
@@ -319,7 +319,7 @@ class CompanionMarketPrivate
         Redis::Cache()->set("companion_item_dc_update_custom_{$itemId}_{$dc}", time(), $timeout);
     
         // Place the item on a very short cooldown prior to "updating"
-        Redis::Cache()->set("companion_item_dc_update_preupdate_{$itemId}_{$dc}", time(), (60 * 5));
+        Redis::Cache()->set("companion_item_dc_update_preupdate_{$itemId}_{$dc}", time(), (60 * 3));
     
         // mark all on the DC to update
         foreach ($servers as $server) {
