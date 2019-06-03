@@ -49,7 +49,9 @@ class ResponseListener
                     //
                     // Language
                     //
-                    $json = Language::handle($json, $request->get('language'));
+                    if ($controller != 'App\Controller\XivGameContentController::contentList') {
+                        $json = Language::handle($json, $request->get('language'));
+                    }
         
                     //
                     // Schema
