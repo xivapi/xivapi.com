@@ -4,6 +4,7 @@ namespace App\EventListener;
 
 use App\Common\Exceptions\BasicException;
 use App\Common\Exceptions\CompanionMarketServerException;
+use App\Exception\ApiRateLimitException;
 use App\Exception\ContentGoneException;
 use Lodestone\Exceptions\GenericException;
 use Lodestone\Exceptions\MaintenanceException;
@@ -99,7 +100,8 @@ class ExceptionListener implements EventSubscriberInterface
             ContentGoneException::class,
             CompanionMarketServerException::class,
             MaintenanceException::class,
-            GenericException::class
+            GenericException::class,
+            ApiRateLimitException::class
         ];
         
         if (Redis::Cache()->get(__METHOD__ . $json->hash) == null && !in_array($json->Ex, $validExceptions) && $json->Debug->Env != 'local') {
