@@ -84,7 +84,7 @@ class ExceptionListener implements EventSubscriberInterface
                 'Action'  => $event->getRequest()->attributes->get('_controller'),
                 'Code'    => method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : 500,
                 'Date'    => date('Y-m-d H:i:s'),
-                'Env'     => constant(Environment::CONSTANT),
+                'Env'     => defined(Environment::CONSTANT) ? constant(Environment::CONSTANT) : 'Prod(Assumed)',
             ],
         ];
         
@@ -104,8 +104,8 @@ class ExceptionListener implements EventSubscriberInterface
             ApiRateLimitException::class
         ];
         
-        if (Redis::Cache()->get(__METHOD__ . $json->hash) == null && !in_array($json->Ex, $validExceptions) && $json->Debug->Env != 'local') {
-            Redis::Cache()->set(__METHOD__ . $json->hash, true);
+        if (Redis::Cache()->get(__METHOD__ . $json->Hash) == null && !in_array($json->Ex, $validExceptions) && $json->Debug->Env != 'local') {
+            Redis::Cache()->set(__METHOD__ . $json->Hash, true);
             Discord::mog()->sendMessage(
                 DiscordConstants::ROOM_ERRORS,
                 "```json\n". json_encode($json, JSON_PRETTY_PRINT) ."\n```"
