@@ -68,7 +68,11 @@ class RemoveDeadCompanionDataCommand extends Command
             $console->writeln("Server: ({$serverId}) {$server}");
 
             foreach ($sellableItems as $itemId) {
-                $this->cm->delete($serverId, $itemId);
+                try {
+                    $this->cm->delete($serverId, $itemId);
+                } catch (\Exception $ex) {
+                
+                }
             }
         }
 
@@ -101,7 +105,11 @@ class RemoveDeadCompanionDataCommand extends Command
                     if ($shopData && $totalShops > 0) {
                         $console2->overwrite("{$itemId} has {$totalShops} stores");
                         $deleted++;
-                        $this->cm->delete($serverId, $itemId);
+                        try {
+                            $this->cm->delete($serverId, $itemId);
+                        } catch (\Exception $ex) {
+        
+                        }
                         continue;
                     }
                 }
