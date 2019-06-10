@@ -55,7 +55,7 @@ class CompanionMarket
             $this->elastic  = new ElasticSearch('ELASTIC_SERVER_COMPANION');
         }
     }
-    
+
     /**
      * Rebuilds the ElasticSearch index (this deletes everything inside the index)
      * Should only be run during the initial build of the service.
@@ -176,6 +176,14 @@ class CompanionMarket
         }
     
         return $item;
+    }
+
+    /**
+     * Delete a document
+     */
+    public function delete(int $server, int $itemId)
+    {
+        $this->elastic->deleteDocument(self::INDEX, self::INDEX, "{$server}_{$itemId}");
     }
     
     /**

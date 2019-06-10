@@ -425,7 +425,7 @@ class CompanionItemManager
             }
         }
 
-        Redis::Cache()->set(self::MARKET_ITEMS_CACHE_KEY, $items);
+        Redis::Cache()->set(self::MARKET_ITEMS_CACHE_KEY, $items, RedisConstants::TIME_10_YEAR);
         return $items;
     }
 }
