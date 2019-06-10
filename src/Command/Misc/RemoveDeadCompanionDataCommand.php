@@ -76,6 +76,7 @@ class RemoveDeadCompanionDataCommand extends Command
         $console->write("Cleaned out JP Servers");
 
         // delete all items which have shop data
+        $deleted = 0;
         foreach ($onlineServers as $server) {
             $serverId = GameServers::getServerId($server);
             $console->writeln("Server: ({$serverId}) {$server}");
@@ -98,13 +99,14 @@ class RemoveDeadCompanionDataCommand extends Command
                     // delete!!!
                     if ($shopData && $totalShops > 0) {
                         $console2->overwrite("{$itemId} has {$totalShops} stores");
+                        $deleted++;
                         # $this->cm->delete($serverId, $itemId);
                     }
                 }
             }
         }
 
-
+        $console->write("{$deleted} deleted entries.");
         $console->write("Finished with NPC Items");
     }
 }
