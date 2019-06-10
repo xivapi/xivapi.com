@@ -183,6 +183,7 @@ class CompanionMarket
      */
     public function delete(int $server, int $itemId)
     {
+        $this->connect();
         $this->elastic->deleteDocument(self::INDEX, self::INDEX, "{$server}_{$itemId}");
     }
     
