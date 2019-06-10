@@ -65,22 +65,23 @@ class RemoveDeadCompanionDataCommand extends Command
         // delete everything from JP Servers
         foreach ($offlineServers as $server) {
             $serverId = GameServers::getServerId($server);
+            $console->writeln("Server: ({$serverId}) {$server}");
 
             foreach ($sellableItems as $itemId) {
-                // delete!!!
-                $console->overwrite("Server: ({$serverId}) {$server} - ItemID: {$itemId}");
                 # $this->cm->delete($serverId, $itemId);
             }
         }
 
         // new section
         $console->write("Cleaned out JP Servers");
-        $console = new ConsoleOutput();
-        $console = $console->section();
 
         // delete all items which have shop data
         foreach ($onlineServers as $server) {
             $serverId = GameServers::getServerId($server);
+            $console->writeln("Server: ({$serverId}) {$server}");
+
+            $console2 = new ConsoleOutput();
+            $console2 = $console2->section();
 
             foreach ($sellableItems as $itemId) {
                 // get market item entry
@@ -90,13 +91,13 @@ class RemoveDeadCompanionDataCommand extends Command
                 $shopData = $stmt->fetch();
 
                 if ($shopData) {
-                    $shopData = json_decode($shopData['data']);
-                    $shopData = array_unique($shopData);
-
+                    $shopData  = json_decode($shopData['data']);
+                    $shopData  = array_unique($shopData);
+                    $totalShops = count($shopData);
 
                     // delete!!!
-                    if ($shopData) {
-                        $console->overwrite("Server: ({$serverId}) {$server} - ItemID: {$itemId}");
+                    if ($shopData && $totalShops > 0) {
+                        $console2->overwrite("{$itemId} has {$totalShops} stores");
                         # $this->cm->delete($serverId, $itemId);
                     }
                 }
