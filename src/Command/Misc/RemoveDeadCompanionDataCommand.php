@@ -84,6 +84,7 @@ class RemoveDeadCompanionDataCommand extends Command
             $console2 = $console2->section();
     
             $deleted = 0;
+            $nondeleted = 0;
             foreach ($sellableItems as $itemId) {
                 // get market item entry
                 $conn = $this->em->getConnection();
@@ -101,11 +102,14 @@ class RemoveDeadCompanionDataCommand extends Command
                         $console2->overwrite("{$itemId} has {$totalShops} stores");
                         $deleted++;
                         # $this->cm->delete($serverId, $itemId);
+                        continue;
                     }
                 }
+                
+                $nondeleted++;
             }
     
-            $console->write("{$deleted} deleted entries.");
+            $console->write("{$deleted} deleted entries / {$nondeleted} NONE deleted entries.");
         }
         
         $console->write("Finished with NPC Items");
