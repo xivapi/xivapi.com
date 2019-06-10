@@ -76,14 +76,14 @@ class RemoveDeadCompanionDataCommand extends Command
         $console->write("Cleaned out JP Servers");
 
         // delete all items which have shop data
-        $deleted = 0;
         foreach ($onlineServers as $server) {
             $serverId = GameServers::getServerId($server);
             $console->writeln("Server: ({$serverId}) {$server}");
 
             $console2 = new ConsoleOutput();
             $console2 = $console2->section();
-
+    
+            $deleted = 0;
             foreach ($sellableItems as $itemId) {
                 // get market item entry
                 $conn = $this->em->getConnection();
@@ -104,9 +104,10 @@ class RemoveDeadCompanionDataCommand extends Command
                     }
                 }
             }
+    
+            $console->write("{$deleted} deleted entries.");
         }
-
-        $console->write("{$deleted} deleted entries.");
+        
         $console->write("Finished with NPC Items");
     }
 }
