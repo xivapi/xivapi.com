@@ -64,18 +64,18 @@ class CompanionStatistics
         $message = [
             implode("", [
                 str_pad("Title", 35, ' ', STR_PAD_RIGHT),
-                str_pad('CycleTime', 18, ' ', STR_PAD_RIGHT),
-                str_pad('CycleTimeReal', 18, ' ', STR_PAD_RIGHT),
-                str_pad('CycleDiff', 18, ' ', STR_PAD_RIGHT),
-                str_pad('CycleDiffSec', 18, ' ', STR_PAD_RIGHT),
+                str_pad('CycleTime', 25, ' ', STR_PAD_RIGHT),
+                str_pad('CycleTimeReal', 25, ' ', STR_PAD_RIGHT),
+                str_pad('CycleDiff', 25, ' ', STR_PAD_RIGHT),
+                str_pad('CycleDiffSec', 25, ' ', STR_PAD_RIGHT),
             ])
         ];
 
         foreach ($this->report as $row) {
-            $CycleTime     = str_pad($row['CycleTime'], 18, ' ', STR_PAD_RIGHT);
-            $CycleTimeReal = str_pad($row['CycleTimeReal'], 18, ' ', STR_PAD_RIGHT);
-            $CycleDiff     = str_pad($row['CycleDiff'], 18, ' ', STR_PAD_RIGHT);
-            $CycleDiffSec  = str_pad($row['CycleDiffSec'], 18, ' ', STR_PAD_RIGHT);
+            $CycleTime     = str_pad($row['CycleTime'], 25, ' ', STR_PAD_RIGHT);
+            $CycleTimeReal = str_pad($row['CycleTimeReal'], 25, ' ', STR_PAD_RIGHT);
+            $CycleDiff     = str_pad($row['CycleDiff'], 25, ' ', STR_PAD_RIGHT);
+            $CycleDiffSec  = str_pad($row['CycleDiffSec'], 25, ' ', STR_PAD_RIGHT);
 
             $title = sprintf("[%s] %s (%s items)", $row['Priority'], $row['Name'], $row['Items']);
             $title = str_pad($title, 35, ' ', STR_PAD_RIGHT);
@@ -118,17 +118,14 @@ class CompanionStatistics
         /** @var CompanionItem $lastItem */
         $firstItem                = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ]);
         $lastItem                 = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'desc' ]);
-
-        $formatOneDay = '%H:%I hrs';
-        $formatMultiDay = '%d days, %H:%I hrs';
-        $formatOffset = (60 * 60 * 24);
+        $formatMultiDay           = '%d days, %H:%I hrs';
 
         // work out the real cycle time
         $realCycleTime            = abs($lastItem->getUpdated() - $firstItem->getUpdated());
-        $estimatedCycleDifference = Carbon::now()->diff(Carbon::now()->addSeconds($estimatedCycleTime))->format($estimatedCycleTime > $formatOffset ? $formatMultiDay : $formatOneDay);
-        $realCycleDifference      = Carbon::now()->diff(Carbon::now()->addSeconds($realCycleTime))->format($realCycleTime > $formatOffset ? $formatMultiDay : $formatOneDay);
+        $estimatedCycleDifference = Carbon::now()->diff(Carbon::now()->addSeconds($estimatedCycleTime))->format($formatMultiDay);
+        $realCycleDifference      = Carbon::now()->diff(Carbon::now()->addSeconds($realCycleTime))->format($formatMultiDay);
         $estimationTimeDifference = $realCycleTime - $estimatedCycleTime;
-        $difference               = Carbon::now()->diff(Carbon::now()->addSeconds($estimationTimeDifference))->format($estimationTimeDifference > $formatOffset ? $formatMultiDay : $formatOneDay);
+        $difference               = Carbon::now()->diff(Carbon::now()->addSeconds($estimationTimeDifference))->format($formatMultiDay);
 
         $this->report[$priority] = [
             'Name'          => $name,
