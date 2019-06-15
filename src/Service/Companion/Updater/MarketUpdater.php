@@ -53,6 +53,7 @@ class MarketUpdater
     private $items = [];
     /** @var array */
     private $marketItemEntryUpdated = [];
+    private $marketItemEntryFailed = [];
     /** @var int */
     private $priority = 0;
     /** @var int */
@@ -132,17 +133,17 @@ class MarketUpdater
         $api = new CompanionApi();
         
         // settings
-        CompanionSight::set('CLIENT_TIMEOUT', 2.5);
-        CompanionSight::set('QUERY_LOOP_COUNT', 5);
-        CompanionSight::set('QUERY_DELAY_MS', mt_rand(950,1250));
+        CompanionSight::set('CLIENT_TIMEOUT', 5);
+        CompanionSight::set('QUERY_LOOP_COUNT', 8);
+        CompanionSight::set('QUERY_DELAY_MS', mt_rand(1000,1200));
         
         // begin
         foreach ($this->items as $item) {
             // deeds
-            $itemId = $item['item'];
-            $serverId = $item['server'];
+            $itemId     = $item['item'];
+            $serverId   = $item['server'];
             $serverName = GameServers::LIST[$serverId];
-            $serverDc = GameServers::getDataCenter($serverName);
+            $serverDc   = GameServers::getDataCenter($serverName);
 
             try {
                 $a = microtime(true);
@@ -205,8 +206,9 @@ class MarketUpdater
                     sleep($pause);
                 }
             } catch (\Exception $ex) {
+                $this->marketItemEntryFailed[] = $item['id'];
+                
                 // log all errors
-                file_put_contents(__DIR__.'/../../../../CompanionErrors.log', "{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}", FILE_APPEND);
                 $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
     
                 $this->errorHandler->exception(
@@ -360,8 +362,8 @@ class MarketUpdater
      */
     private function storeMarketData($item, $prices, $history)
     {
-        $itemId     = $item['item'];
-        $server     = $item['server'];
+        $itemId = $item['item'];
+        $server = $item['server'];
     
         // update item entry
         $this->marketItemEntryUpdated[] = $item['id'];
@@ -594,6 +596,11 @@ class MarketUpdater
         $priority = time() + mt_rand(0,1000);
 
         foreach ($this->marketItemEntryUpdated as $id) {
+            // if it failed, skip, we'll do it again
+            if (in_array($id, $this->marketItemEntryFailed)) {
+                continue;
+            }
+            
             $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL WHERE id = '{$id}'";
 
             $stmt = $conn->prepare($sql);
