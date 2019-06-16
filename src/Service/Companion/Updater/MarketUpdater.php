@@ -300,7 +300,7 @@ class MarketUpdater
     {
         // if we go over the deadline, we stop.
         if (time() > $this->deadline) {
-            $this->console(date('H:i:s') ." | Ending auto-update as time limit seconds reached.");
+            #$this->console(date('H:i:s') ." | Ending auto-update as time limit seconds reached.");
             return true;
         }
         
@@ -544,7 +544,7 @@ class MarketUpdater
     private function fetchItemIdsToUpdate($queue)
     {
         // get items to update
-        $this->console('Finding Item IDs to Auto-Update');
+        #$this->console('Finding Item IDs to Auto-Update');
         $s = microtime(true);
 
         $sql = "
@@ -559,7 +559,7 @@ class MarketUpdater
         $this->items = $stmt->fetchAll();
         
         $sqlDuration = round(microtime(true) - $s, 2);
-        $this->console("Obtained items in: {$sqlDuration} seconds");
+        #$this->console("Obtained items in: {$sqlDuration} seconds");
     }
 
     /**
