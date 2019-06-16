@@ -339,11 +339,10 @@ class CompanionItemManager
                     $stmt = $conn->prepare(
                         sprintf(
                             "UPDATE companion_market_items
-                             SET state = %s, normal_queue = %s, updated = %s
+                             SET state = %s, normal_queue = %s
                              WHERE id = '%s'",
                             CompanionItem::STATE_NEVER_SOLD,
                             CompanionConfiguration::STATE_NEVER_SOLD,
-                            time(),
                             $item['id']
                         )
                     );
@@ -391,11 +390,10 @@ class CompanionItemManager
                 $stmt = $conn->prepare(
                     sprintf(
                         "UPDATE companion_market_items
-                         SET state = %s, normal_queue = %s, updated = %s
+                         SET state = %s, normal_queue = %s
                          WHERE id = '%s'",
                         CompanionItem::STATE_UPDATING,
                         $queue,
-                        time(),
                         $item['id']
                     )
                 );
