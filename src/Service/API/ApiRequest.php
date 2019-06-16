@@ -257,9 +257,6 @@ class ApiRequest
     {
         // XIVAPI Google Analytics
         GoogleAnalytics::trackHits($this->request->getPathInfo());
-        GoogleAnalytics::trackBaseEndpoint($this->getRequestEndpoint());
-        GoogleAnalytics::trackApiKey($this->apikey ?: 'no_api_key', $this->request->getPathInfo());
-        GoogleAnalytics::trackLanguage();
     }
     
     /**
@@ -304,8 +301,6 @@ class ApiRequest
         $count++;
 
         if ($count > $cap) {
-            GoogleAnalytics::trackApiKeyHardCapped($this->apikey);
-
             if (Redis::Cache()->get($key . "_alert") == null) {
                 Redis::Cache()->set($key . "_alert", true, 3600);
                 Discord::mog()->sendMessage(null, "The API Key: {$this->apikey} ({$this->user->getUsername()}) has performed over 1500 requests in the past 60 seconds. The rate limit for this key will be dramatically reduced.");

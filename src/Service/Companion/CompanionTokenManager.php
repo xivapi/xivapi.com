@@ -4,7 +4,6 @@ namespace App\Service\Companion;
 
 use App\Common\Entity\Maintenance;
 use App\Common\Game\GameServers;
-use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
 use App\Entity\CompanionToken;
 use App\Repository\CompanionTokenRepository;
 use App\Common\Service\Redis\Redis;
@@ -302,19 +301,16 @@ class CompanionTokenManager
             $this->console->writeln("- Account Login: {$account} {$username} {$server}");
             $api->Account()->login($username, $password);
             $steps[] = 'Logged-In';
-            GoogleAnalytics::companionTrackItemAsUrl("/account/login");
             
             // login with our character!
             $this->console->writeln("- Logging into character: {$characterId}");
             $api->Login()->loginCharacter($characterId);
             $steps[] = "Character Logged-In";
-            GoogleAnalytics::companionTrackItemAsUrl("/account/login-character");
             
             // get character status
             $api->login()->getCharacterWorlds();
             $this->console->writeln('- Character world status confirmed');
             $steps[] = "Worlds Confirmed";
-            GoogleAnalytics::companionTrackItemAsUrl("/account/worlds");
             
             // wait a bit
             $this->console->writeln('- Testing market in a moment...');

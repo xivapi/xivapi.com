@@ -4,7 +4,6 @@ namespace App\Service\Companion\Updater;
 
 use App\Common\Game\GameServers;
 use App\Common\ServicesThirdParty\Discord\Discord;
-use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
 use App\Entity\CompanionCharacter;
 use App\Entity\CompanionItem;
 use App\Entity\CompanionRetainer;
@@ -54,6 +53,7 @@ class MarketUpdater
     /** @var array */
     private $marketItemEntryUpdated = [];
     private $marketItemEntryFailed = [];
+    private $marketItemEntryLog = [];
     /** @var int */
     private $priority = 0;
     /** @var int */
@@ -136,10 +136,13 @@ class MarketUpdater
         // begin
         foreach ($this->items as $item) {
             // deeds
+            $dbid       = $item['id'];
             $itemId     = $item['item'];
             $serverId   = $item['server'];
             $serverName = GameServers::LIST[$serverId];
             $serverDc   = GameServers::getDataCenter($serverName);
+    
+            $this->marketItemEntryLog[$dbid] = "Starting";
 
             try {
                 $a = microtime(true);
@@ -147,12 +150,14 @@ class MarketUpdater
                 // Break if any errors or we're at the cronjob deadline
                 if ($this->checkErrorCount() || $this->checkScriptDeadline()) {
                     $this->marketItemEntryFailed[] = $item['id'];
+                    $this->marketItemEntryLog[$dbid] = "checkErrorCount OR checkScriptDeadline";
                     break;
                 }
 
                 if (!isset($this->tokens[$serverId]) || empty($this->tokens[$serverId])) {
                     $this->console("No tokens for: {$serverName} {$serverDc}");
                     $this->marketItemEntryFailed[] = $item['id'];
+                    $this->marketItemEntryLog[$dbid] = "No token for: {$serverName}";
                     continue;
                 }
     
@@ -171,7 +176,8 @@ class MarketUpdater
                 $prices = $api->Market()->getItemMarketListings($itemId);
                 if ($this->checkResponseForErrors($item, $prices)) {
                     $this->marketItemEntryFailed[] = $item['id'];
-                    break;
+                    $this->marketItemEntryLog[$dbid] = "Errors from getting prices";
+                    continue;
                 }
     
                 /**
@@ -180,19 +186,16 @@ class MarketUpdater
                 $history = $api->Market()->getTransactionHistory($itemId);
                 if ($this->checkResponseForErrors($item, $history)) {
                     $this->marketItemEntryFailed[] = $item['id'];
-                    break;
+                    $this->marketItemEntryLog[$dbid] = "Errors from getting history";
+                    continue;
                 }
     
                 /**
                  * Store in market
                  */
+                $this->marketItemEntryLog[$dbid] = "Storing.....";
                 $this->storeMarketData($item, $prices, $history);
-    
-                /**
-                 * Record item updates in analytics
-                 */
-                GoogleAnalytics::companionTrackItemAsUrl("/{$itemId}");
-    
+        
                 /**
                  * Log
                  */
@@ -256,7 +259,6 @@ class MarketUpdater
             $this->console("Response Rejected");
             RedisTracking::increment('COMPANION_RESPONSE_REJECTED');
             $this->errorHandler->exception("Rejected", "RESPONSE REJECTED: {$itemId} : ({$serverId}) {$serverName} - {$serverDc}");
-            GoogleAnalytics::companionTrackItemAsUrl('companion_rejected');
             return true;
         }
     
@@ -264,7 +266,6 @@ class MarketUpdater
             $this->console("Response Error");
             RedisTracking::increment('COMPANION_RESPONSE_ERROR');
             $this->errorHandler->exception($response->reason, "RESPONSE ERROR: {$itemId} : ({$serverId}) {$serverName} - {$serverDc}");
-            GoogleAnalytics::companionTrackItemAsUrl('companion_error');
             return true;
         }
     
@@ -273,7 +274,6 @@ class MarketUpdater
             $this->console("Response Empty");
             RedisTracking::increment('COMPANION_RESPONSE_EMPTY');
             $this->errorHandler->exception('Empty Response', "RESPONSE EMPTY: {$itemId} : ({$serverId}) {$serverName} - {$serverDc}");
-            GoogleAnalytics::companionTrackItemAsUrl('companion_empty');
             return true;
         }
         
@@ -364,6 +364,7 @@ class MarketUpdater
      */
     private function storeMarketData($item, $prices, $history)
     {
+        $dbid   = $item['id'];
         $itemId = $item['item'];
         $server = $item['server'];
     
@@ -454,9 +455,10 @@ class MarketUpdater
         
         // save market item
         $this->market->set($marketItem);
+        $this->marketItemEntryLog[$dbid] = "Set market data";
     
         // update item entry
-        $this->marketItemEntryUpdated[] = $item['id'];
+        $this->marketItemEntryUpdated[] = $dbid;
     }
     
     /**
@@ -545,7 +547,7 @@ class MarketUpdater
     {
         // get items to update
         #$this->console('Finding Item IDs to Auto-Update');
-        $s = microtime(true);
+        # $s = microtime(true);
 
         $sql = "
             SELECT id, item, server
@@ -558,7 +560,7 @@ class MarketUpdater
 
         $this->items = $stmt->fetchAll();
         
-        $sqlDuration = round(microtime(true) - $s, 2);
+        # $sqlDuration = round(microtime(true) - $s, 2);
         #$this->console("Obtained items in: {$sqlDuration} seconds");
     }
 
@@ -605,8 +607,12 @@ class MarketUpdater
             if (in_array($id, $this->marketItemEntryFailed)) {
                 continue;
             }
+    
+            $message = $this->marketItemEntryLog[$id] ?? 'NO MESSAGE???';
             
-            $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL WHERE id = '{$id}'";
+            $this->console("{$id} = {$message}");
+            
+            $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL, log = '". $message ."' WHERE id = '{$id}'";
 
             $stmt = $conn->prepare($sql);
             $stmt->execute();
