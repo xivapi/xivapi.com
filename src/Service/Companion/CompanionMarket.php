@@ -76,7 +76,13 @@ class CompanionMarket
         $marketItem->Updated = time();
     
         $data = json_decode(json_encode($marketItem), true);
-        $this->elastic->addDocument(self::INDEX, self::INDEX, $marketItem->ID, $data);
+        
+        try {
+            $this->elastic->addDocument(self::INDEX, self::INDEX, $marketItem->ID, $data);
+        } catch (\Exception $ex) {
+            file_put_contents(__DIR__.'/../../../companion_put_errors.txt', $ex->getMessage() . PHP_EOL, FILE_APPEND);
+        }
+        
     }
     
     /**
