@@ -200,7 +200,15 @@ class MarketUpdater
                  * Log
                  */
                 $duration = round(microtime(true) - $a, 1);
-                $this->console("{$itemId} on {$serverName} - {$serverDc} - Duration: {$duration}");
+                $this->console(
+                    sprintf(
+                        "%s %s %s Duration: %s",
+                        str_pad($itemId, 10),
+                        str_pad($serverName, 15),
+                        str_pad($serverDc, 10),
+                        $duration
+                    )
+                );
     
                 RedisTracking::increment('ITEM_UPDATED');
                 RedisTracking::increment('ITEM_UPDATED_DAILY_'. (strlen($queue) == 3 ? substr($queue, 0, 1) : 'PATRON') .'_'. date('y-m-d'));
@@ -240,8 +248,6 @@ class MarketUpdater
         $this->em->flush();
     
         // finish, output completed duration
-        $duration = round(microtime(true) - $this->startTime, 1);
-        $this->console("-> Completed. Duration: <comment>{$duration}</comment>");
         $this->closeDatabaseConnection();
     }
     
