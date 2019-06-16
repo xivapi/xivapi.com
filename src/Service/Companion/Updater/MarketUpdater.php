@@ -92,27 +92,23 @@ class MarketUpdater
         // todo - temp
         //
         $japan = Carbon::now(new CarbonTimeZone('Asia/Tokyo'));
-        $this->console->writeln("Hour: {$japan->hour}");
         switch($japan->hour) {
             default: $pause = false; break;
-            case 8: $pause = mt_rand(0, 2); break;
             case 9: $pause = mt_rand(1, 3); break;
             case 10: $pause = mt_rand(2, 5); break;
             case 11: $pause = mt_rand(2, 6); break;
-            case 12: $pause = mt_rand(2, 10); break;
-            case 13: $pause = mt_rand(2, 12); break;
-            case 14: $pause = mt_rand(2, 10); break;
+            case 12: $pause = mt_rand(2, 6); break;
+            case 13: $pause = mt_rand(2, 6); break;
+            case 14: $pause = mt_rand(2, 6); break;
             case 15: $pause = mt_rand(2, 8); break;
             case 16: $pause = mt_rand(1, 5); break;
             case 17: $pause = mt_rand(1, 4); break;
-            case 18: $pause = mt_rand(0, 3); break;
         }
         //
         // todo - temp
         //
 
         // init
-        $this->console("Queue: {$queue}");
         $this->startTime = microtime(true);
         $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
         $this->queue = $queue;
@@ -134,8 +130,8 @@ class MarketUpdater
         
         // settings
         CompanionSight::set('CLIENT_TIMEOUT', 5);
-        CompanionSight::set('QUERY_LOOP_COUNT', 8);
-        CompanionSight::set('QUERY_DELAY_MS', mt_rand(1000,1200));
+        CompanionSight::set('QUERY_LOOP_COUNT', 10);
+        CompanionSight::set('QUERY_DELAY_MS', 1000);
         
         // begin
         foreach ($this->items as $item) {
@@ -150,11 +146,13 @@ class MarketUpdater
     
                 // Break if any errors or we're at the cronjob deadline
                 if ($this->checkErrorCount() || $this->checkScriptDeadline()) {
+                    $this->marketItemEntryFailed[] = $item['id'];
                     break;
                 }
 
                 if (!isset($this->tokens[$serverId]) || empty($this->tokens[$serverId])) {
                     $this->console("No tokens for: {$serverName} {$serverDc}");
+                    $this->marketItemEntryFailed[] = $item['id'];
                     continue;
                 }
     
@@ -172,6 +170,7 @@ class MarketUpdater
                  */
                 $prices = $api->Market()->getItemMarketListings($itemId);
                 if ($this->checkResponseForErrors($item, $prices)) {
+                    $this->marketItemEntryFailed[] = $item['id'];
                     break;
                 }
     
@@ -180,6 +179,7 @@ class MarketUpdater
                  */
                 $history = $api->Market()->getTransactionHistory($itemId);
                 if ($this->checkResponseForErrors($item, $history)) {
+                    $this->marketItemEntryFailed[] = $item['id'];
                     break;
                 }
     
@@ -220,7 +220,6 @@ class MarketUpdater
                 if (stripos($ex->getMessage(), '319201') !== false ||
                     stripos($ex->getMessage(), '210010') !== false) {
                     // mark item as updated
-                    $this->marketItemEntryUpdated[] = $item['id'];
                     $this->logoutCharacterServers("Maintenance/Congestion", $serverName);
                     break;
                 }
@@ -255,6 +254,7 @@ class MarketUpdater
         
         if (isset($response->state) && $response->state == "rejected") {
             $this->console("Response Rejected");
+            RedisTracking::increment('COMPANION_RESPONSE_REJECTED');
             $this->errorHandler->exception("Rejected", "RESPONSE REJECTED: {$itemId} : ({$serverId}) {$serverName} - {$serverDc}");
             GoogleAnalytics::companionTrackItemAsUrl('companion_rejected');
             return true;
@@ -262,6 +262,7 @@ class MarketUpdater
     
         if (isset($response->error) || isset($response->error)) {
             $this->console("Response Error");
+            RedisTracking::increment('COMPANION_RESPONSE_ERROR');
             $this->errorHandler->exception($response->reason, "RESPONSE ERROR: {$itemId} : ({$serverId}) {$serverName} - {$serverDc}");
             GoogleAnalytics::companionTrackItemAsUrl('companion_error');
             return true;
@@ -270,6 +271,7 @@ class MarketUpdater
         // if responses are null
         if ($response == null) {
             $this->console("Response Empty");
+            RedisTracking::increment('COMPANION_RESPONSE_EMPTY');
             $this->errorHandler->exception('Empty Response', "RESPONSE EMPTY: {$itemId} : ({$serverId}) {$serverName} - {$serverDc}");
             GoogleAnalytics::companionTrackItemAsUrl('companion_empty');
             return true;
@@ -365,9 +367,6 @@ class MarketUpdater
         $itemId = $item['item'];
         $server = $item['server'];
     
-        // update item entry
-        $this->marketItemEntryUpdated[] = $item['id'];
-    
         // grab market item document
         $marketItem = $this->getMarketItemDocument($server, $itemId);
     
@@ -376,6 +375,9 @@ class MarketUpdater
 
         // reset prices (always do this)
         $marketItem->Prices = [];
+    
+        // set updated time
+        $marketItem->Updated = time();
 
         // CURRENT PRICES
         if (isset($prices->error) === false && isset($prices->entries) && $prices->entries) {
@@ -452,6 +454,9 @@ class MarketUpdater
         
         // save market item
         $this->market->set($marketItem);
+    
+        // update item entry
+        $this->marketItemEntryUpdated[] = $item['id'];
     }
     
     /**
