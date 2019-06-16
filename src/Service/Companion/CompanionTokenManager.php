@@ -121,6 +121,11 @@ class CompanionTokenManager
         $this->console               = new ConsoleOutput();
 
         $this->maintenance = $this->em->getRepository(Maintenance::class)->findOneBy(['id' => 1 ]) ?: new Maintenance();
+    
+        // settings
+        CompanionSight::set('CLIENT_TIMEOUT', 5);
+        CompanionSight::set('QUERY_LOOP_COUNT', 10);
+        CompanionSight::set('QUERY_DELAY_MS', 1000);
     }
 
     /**
