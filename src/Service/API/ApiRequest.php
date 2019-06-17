@@ -255,11 +255,7 @@ class ApiRequest
      */
     private function sendUsageAnalyticData()
     {
-        // XIVAPI Google Analytics
-        GoogleAnalytics::trackHits($this->request->getPathInfo());
-        GoogleAnalytics::trackBaseEndpoint($this->getRequestEndpoint());
-        GoogleAnalytics::trackApiKey($this->apikey ?: 'no_api_key', $this->request->getPathInfo());
-        GoogleAnalytics::trackLanguage();
+
     }
     
     /**
@@ -273,8 +269,6 @@ class ApiRequest
         if (empty($key)) {
             return;
         }
-
-        file_put_contents(__DIR__ ."/ga.log", "{$key} {$this->request->getPathInfo()}\n");
 
         // User Google Analytics
         GoogleAnalytics::hit($key, $this->request->getPathInfo());
