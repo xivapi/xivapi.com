@@ -97,8 +97,8 @@ class MarketUpdater
             case 9: $pause = mt_rand(1, 3); break;
             case 10: $pause = mt_rand(2, 5); break;
             case 11: $pause = mt_rand(2, 6); break;
-            case 12: $pause = mt_rand(2, 6); break;
-            case 13: $pause = mt_rand(2, 6); break;
+            case 12: $pause = mt_rand(2, 8); break;
+            case 13: $pause = mt_rand(2, 8); break;
             case 14: $pause = mt_rand(2, 6); break;
             case 15: $pause = mt_rand(2, 8); break;
             case 16: $pause = mt_rand(1, 5); break;
