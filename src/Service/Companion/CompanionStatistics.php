@@ -108,7 +108,7 @@ class CompanionStatistics
         }
         
         // Get the expected update time
-        $estimatedCycleTime = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 72);
+        $estimatedCycleTime = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 24 * 30);
 
         // work out how many queues required
         $expectedQueues = $totalItems / CompanionConfiguration::MAX_ITEMS_PER_CRONJOB;
@@ -149,7 +149,7 @@ class CompanionStatistics
         $this->console->writeln('Setting queue sizes');
         
         foreach($this->getCompanionQueuesView() as $row) {
-            $this->updateQueueSizes[$row['normal_queue']] = $row['total'];
+            $this->updateQueueSizes[$row['normal_queue']] = $row['total_items'];
         }
     }
     
