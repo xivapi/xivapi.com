@@ -62,7 +62,7 @@ class MarketQueue
         /**
          * Insert new items
          */
-        foreach (array_values(CompanionConfiguration::PRIORITY_TIMES) as $priority) {
+        foreach (CompanionConfiguration::PRIORITY_TIMES as $priority) {
             // grab items
             $updateItems = $this->repoEntries->findItemsToUpdate(
                 $priority,
