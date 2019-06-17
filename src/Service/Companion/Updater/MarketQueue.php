@@ -76,8 +76,6 @@ class MarketQueue
                 continue;
             }
             
-            shuffle($updateItems);
-            
             foreach (array_chunk($updateItems, CompanionConfiguration::MAX_ITEMS_PER_CRONJOB) as $i => $items) {
                 $console->writeln("Adding items for {$priority}, consumer: {$i}");
    
