@@ -317,9 +317,7 @@ class CompanionItemManager
                 if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
                     continue;
                 }
-        
-                $section->overwrite("{$i}/{$total} - {$itemId} - {$serverName}");
-    
+
                 /**
                  * Grab entry
                  */
