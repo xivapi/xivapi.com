@@ -648,7 +648,10 @@ class MarketUpdater
      */
     private function console($text)
     {
-        $this->console->writeln(date('Y-m-d H:i:s') . " | {$this->priority} | {$this->queue} | {$text}");
+        $date  = date('Y-m-d H:i:s');
+        $queue = str_pad($this->queue, 8);
+
+        $this->console->writeln("{$date}  |  {$queue}  |  {$text}");
     }
     
     /**
