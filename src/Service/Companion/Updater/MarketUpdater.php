@@ -120,7 +120,6 @@ class MarketUpdater
         $this->startTime = microtime(true);
         $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
         $this->queue = $queue;
-        $this->console('Starting!');
 
         // fetch tokens and items
         $this->fetchCompanionTokens();
@@ -228,12 +227,22 @@ class MarketUpdater
                 $this->marketItemEntryFailed[] = $item['id'];
                 
                 // log all errors
-                $this->console("{$itemId} on {$serverName} - {$serverDc} ERROR: {$ex->getMessage()}");
-    
+                $this->console(
+                    sprintf(
+                        "%s %s %s Error: %s",
+                        str_pad($itemId, 10),
+                        str_pad($serverName, 15),
+                        str_pad($serverDc, 10),
+                        $ex->getMessage()
+                    )
+                );
+
                 $this->errorHandler->exception(
                     $ex->getMessage(),
                     "Item Update Failure for: ({$token->account}) {$itemId} on {$serverName} - {$serverDc}"
                 );
+
+                $this->marketItemEntryLog[$dbid] = "EXCEPTION = {$ex->getMessage()}";
                 
                 // if emergency maintenance or "congestion" logout that server
                 if (stripos($ex->getMessage(), '319201') !== false ||
