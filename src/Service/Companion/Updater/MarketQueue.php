@@ -46,7 +46,7 @@ class MarketQueue
         }
 
         // run this 20 seconds in.
-        sleep(10);
+        sleep(25);
 
         $s = microtime(true);
     
@@ -62,7 +62,7 @@ class MarketQueue
         /**
          * Insert new items
          */
-        foreach (array_values(CompanionConfiguration::PRIORITY_TIMES ) as $priority) {
+        foreach (array_values(CompanionConfiguration::PRIORITY_TIMES) as $priority) {
             // grab items
             $updateItems = $this->repoEntries->findItemsToUpdate(
                 $priority,
