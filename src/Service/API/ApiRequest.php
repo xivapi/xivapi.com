@@ -257,6 +257,9 @@ class ApiRequest
     {
         // XIVAPI Google Analytics
         GoogleAnalytics::trackHits($this->request->getPathInfo());
+        GoogleAnalytics::trackBaseEndpoint($this->getRequestEndpoint());
+        GoogleAnalytics::trackApiKey($this->apikey ?: 'no_api_key', $this->request->getPathInfo());
+        GoogleAnalytics::trackLanguage();
     }
     
     /**
