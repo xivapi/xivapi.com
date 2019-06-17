@@ -82,7 +82,7 @@ class MarketUpdater
     
     public function update(int $queue)
     {
-        $this->perMinuteTrackingKey = "ITEM_UPDATE_PER_MINUTE_". date('m');
+        $this->perMinuteTrackingKey = "ITEM_UPDATE_PER_MINUTE_". date('i');
 
         if ($queue === 100) {
             RedisTracking::delete($this->perMinuteTrackingKey);
