@@ -62,6 +62,8 @@ class MarketUpdater
     private $deadline = 0;
     /** @var array */
     private $startTime;
+    /** @var string */
+    private $perMinuteTrackingKey;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -80,6 +82,12 @@ class MarketUpdater
     
     public function update(int $queue)
     {
+        $this->perMinuteTrackingKey = "companion_per_minute_". date('s');
+
+        if ($queue === 100) {
+            RedisTracking::delete($this->perMinuteTrackingKey);
+        }
+
         //
         // todo - tempz?
         //
@@ -465,6 +473,7 @@ class MarketUpdater
     
         // update item entry
         $this->marketItemEntryUpdated[] = $dbid;
+        RedisTracking::increment($this->perMinuteTrackingKey);
     }
     
     /**
