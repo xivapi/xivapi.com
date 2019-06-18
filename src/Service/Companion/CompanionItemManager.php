@@ -57,8 +57,6 @@ class CompanionItemManager
         // get all NPCs with a "GilShop" and obtain the items
         $this->console->writeln("Building NPCs with shops");
         $this->buildNPCWithShops();
-        
-        die;
 
         // get all items and handle their states
         $this->console->writeln("Building Items");
@@ -261,7 +259,7 @@ class CompanionItemManager
                     continue;
                 }
     
-                $id     = Uuid::uuid4()->toString();
+                $id    = Uuid::uuid4()->toString();
                 $state = CompanionItem::STATE_UPDATING;
                 
                 // check if it has a shop
