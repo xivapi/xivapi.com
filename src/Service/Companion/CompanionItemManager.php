@@ -283,10 +283,12 @@ class CompanionItemManager
                 $region = GameServers::LIST_DC_REGIONS[$dc];
                 $queue  = CompanionConfiguration::QUEUE_NEW_ITEM;
                 
+                $priority = time() - mt_rand(10,999999);
+                
                 // insert item entry
                 $stmt = $conn->prepare(
-                    "REPLACE INTO companion_market_items (id, updated, item, server, region, normal_queue, patreon_queue, state) " .
-                    "VALUES ('{$id}', 0, {$itemId}, {$serverId}, {$region}, {$queue}, 0, {$state});"
+                    "REPLACE INTO companion_market_items (id, updated, item, server, region, normal_queue, patreon_queue, state, priority) " .
+                    "VALUES ('{$id}', 0, {$itemId}, {$serverId}, {$region}, {$queue}, 0, {$state}, {$priority});"
                 );
                 $stmt->execute();
             }
