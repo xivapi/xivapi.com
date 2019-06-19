@@ -202,6 +202,9 @@ class MarketUpdater
                  */
                 $this->marketItemEntryLog[$dbid] = "Storing.....";
                 $this->storeMarketData($item, $prices, $history);
+                
+                $pricesSize  = strlen($prices);
+                $historySize = strlen($history);
         
                 /**
                  * Log
@@ -209,11 +212,13 @@ class MarketUpdater
                 $duration = round(microtime(true) - $a, 1);
                 $this->console(
                     sprintf(
-                        "%s %s %s Duration: %s",
+                        "%s %s %s Duration: %s - Prices: %s, History: %s",
                         str_pad($itemId, 10),
                         str_pad($serverName, 15),
                         str_pad($serverDc, 10),
-                        $duration
+                        $duration,
+                        $pricesSize,
+                        $historySize
                     )
                 );
     
