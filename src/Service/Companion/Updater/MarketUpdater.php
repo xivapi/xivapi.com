@@ -136,9 +136,9 @@ class MarketUpdater
         $api = new CompanionApi();
         
         // settings
-        CompanionSight::set('CLIENT_TIMEOUT', 5);
-        CompanionSight::set('QUERY_LOOP_COUNT', 10);
-        CompanionSight::set('QUERY_DELAY_MS', 1000);
+        CompanionSight::set('CLIENT_TIMEOUT', 3);
+        CompanionSight::set('QUERY_LOOP_COUNT', 5);
+        CompanionSight::set('QUERY_DELAY_MS', 1500);
         
         // begin
         foreach ($this->items as $item) {
@@ -266,6 +266,10 @@ class MarketUpdater
     
         // finish, output completed duration
         $this->closeDatabaseConnection();
+        
+        $updated = count($this->marketItemEntryUpdated);
+        $failed  = count($this->marketItemEntryFailed);
+        $this->console("-- Queue: {$queue} -- updated: {$updated} -- failed: {$failed}");
     }
     
     /**
