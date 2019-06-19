@@ -105,7 +105,7 @@ class MarketQueue
         foreach (CompanionConfiguration::QUEUE_CONSUMERS_PATREON as $patreonQueue) {
             $updateItems = $this->repoEntries->findBy(
                 [ 'patreonQueue' => $patreonQueue ],
-                [ 'updated' => 'asc' ],
+                [ 'priority' => 'asc' ],
                 CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
             );
     

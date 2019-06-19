@@ -317,6 +317,11 @@ class CompanionItemManager
                 if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
                     continue;
                 }
+                
+                // we can't do Spriggan and Twintania atm as very little history
+                if (in_array($serverId, [ 66, 67 ])) {
+                    continue;
+                }
 
                 /**
                  * Grab entry

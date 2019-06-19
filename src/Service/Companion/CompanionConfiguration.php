@@ -30,7 +30,7 @@ class CompanionConfiguration
         0  => 'Not Updating',
         
         1  => '< 1 hour',
-        2  => '< 2 hour',
+        2  => '< 2 hours',
         3  => '< 3 hours',
         4  => '< 4 hours',
         5  => '< 6 hours',
@@ -75,9 +75,9 @@ class CompanionConfiguration
     ];
     
     const QUEUE_CONSUMERS_PATREON = [
-        500,
-        501,
-        502,
-        503
+        50000,
+        50001,
+        50002,
+        50003
     ];
 }
