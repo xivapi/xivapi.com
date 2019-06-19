@@ -203,8 +203,8 @@ class MarketUpdater
                 $this->marketItemEntryLog[$dbid] = "Storing.....";
                 $this->storeMarketData($item, $prices, $history);
                 
-                $pricesSize  = strlen($prices);
-                $historySize = strlen($history);
+                $pricesSize  = isset($prices->entries)  ? count($prices->entries)  : 0;
+                $historySize = isset($history->history) ? count($history->history) : 0;
         
                 /**
                  * Log
