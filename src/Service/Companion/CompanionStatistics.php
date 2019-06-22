@@ -64,32 +64,29 @@ class CompanionStatistics
         $message = [
             implode("", [
                 str_pad("Title", 35, ' ', STR_PAD_RIGHT),
-                str_pad('CycleTime', 25, ' ', STR_PAD_RIGHT),
                 str_pad('CycleTimeReal', 25, ' ', STR_PAD_RIGHT),
                 str_pad('CycleDiff', 25, ' ', STR_PAD_RIGHT),
-                str_pad('CycleDiffSec', 25, ' ', STR_PAD_RIGHT),
+                'CycleDiffSec',
             ])
         ];
 
         foreach ($this->report as $row) {
-            $CycleTime     = str_pad($row['CycleTime'], 25, ' ', STR_PAD_RIGHT);
             $CycleTimeReal = str_pad($row['CycleTimeReal'], 25, ' ', STR_PAD_RIGHT);
             $CycleDiff     = str_pad($row['CycleDiff'], 25, ' ', STR_PAD_RIGHT);
-            $CycleDiffSec  = str_pad($row['CycleDiffSec'], 25, ' ', STR_PAD_RIGHT);
+            $CycleDiffSec  = $row['CycleDiffSec'];
 
-            $title = sprintf("[%s] %s (%s items)", $row['Priority'], $row['Name'], $row['Items']);
+            $title = sprintf("[%s] %s (%s)", $row['Priority'], $row['Name'], $row['Items']);
             $title = str_pad($title, 35, ' ', STR_PAD_RIGHT);
 
             $message[] = sprintf('%s%s%s%s%s',
                 $title,
-                $CycleTime,
                 $CycleTimeReal,
                 $CycleDiff,
                 $CycleDiffSec
             );
         }
         
-        Discord::mog()->sendMessage(null, "<@42667995159330816> - Companion Auto-Update Statistics\n```". implode("\n", $message) ."```");
+        Discord::mog()->sendMessage(538316536688017418, "```". implode("\n", $message) ."```");
     }
     
     private function buildQueueStatistics($priority)
@@ -118,7 +115,7 @@ class CompanionStatistics
         /** @var CompanionItem $lastItem */
         $firstItem                = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ]);
         $lastItem                 = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'desc' ]);
-        $formatMultiDay           = '%d days, %H:%I hrs';
+        $formatMultiDay           = '%d D, %H:%I HR';
 
         // work out the real cycle time
         $realCycleTime            = abs($lastItem->getUpdated() - $firstItem->getUpdated());
