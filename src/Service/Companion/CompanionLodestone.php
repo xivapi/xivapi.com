@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionLodestone
 {
-    const MAX_UPDATE = 30;
+    const MAX_UPDATE = 500;
     
     /** @var EntityManagerInterface */
     private $em;
