@@ -133,7 +133,7 @@ class ApiRequest
         $this->recordDailyLimit();
         
         file_put_contents(
-            __DIR__.'/logs.txt',
+            __DIR__.'/../../../api_logs.txt',
             sprintf(
                 "[%s] %s - %s\n",
                 date('Y-m-d H:i:s'),
