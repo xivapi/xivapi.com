@@ -46,6 +46,8 @@ class RemoveDeadCompanionDataCommand extends Command
 
         // grab sellable ids
         $sellableItems = $this->cim->getMarketItemIds();
+        
+        die;
 
         // offline servers ( japan dc )
         $offlineServers = array_merge(
