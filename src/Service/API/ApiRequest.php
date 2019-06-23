@@ -111,7 +111,6 @@ class ApiRequest
         // if no key, handle per ip
         if ($this->hasApiKey() === false) {
             $this->checkUserRateLimit();
-            $this->sendUsageAnalyticData();
             return;
         }
 
@@ -126,7 +125,6 @@ class ApiRequest
         $this->checkDeveloperRateLimit();
 
         // send any developer Google Analytics data
-        $this->sendUsageAnalyticData();
         $this->sendDeveloperAnalyticData();
 
         // log daily limits
@@ -258,14 +256,6 @@ class ApiRequest
     private function getRequestEndpoint()
     {
         return strtolower(explode('/', $this->request->getPathInfo())[1]) ?? 'x';
-    }
-    
-    /**
-     * Send xivapi usage analytic data
-     */
-    private function sendUsageAnalyticData()
-    {
-
     }
     
     /**
