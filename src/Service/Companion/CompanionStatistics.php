@@ -78,7 +78,7 @@ class CompanionStatistics
             $title = sprintf("[%s] %s (%s)", $row['Priority'], $row['Name'], $row['Items']);
             $title = str_pad($title, 35, ' ', STR_PAD_RIGHT);
 
-            $message[] = sprintf('%s%s%s%s%s',
+            $message[] = sprintf('%s%s%s%s',
                 $title,
                 $CycleTimeReal,
                 $CycleDiff,
