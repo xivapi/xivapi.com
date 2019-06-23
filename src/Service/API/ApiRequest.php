@@ -311,12 +311,6 @@ class ApiRequest
 
             throw new \Exception("You have reached the request hard-cap. Please re-think your API usage...");
         }
-    
-        // restore rate limit if it was below the max
-        if (Redis::Cache()->get($key . "_alert") == null && $this->user->getApiRateLimit() < ApiRequest::MAX_RATE_LIMIT_KEY) {
-            $this->user->setApiRateLimit(ApiRequest::MAX_RATE_LIMIT_KEY);
-            $this->users->save($this->user);
-        }
 
         Redis::Cache()->set($key, $count, 60);
     }
