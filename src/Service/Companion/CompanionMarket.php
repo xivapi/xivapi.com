@@ -126,7 +126,7 @@ class CompanionMarket
                 Redis::Cache()->set($key, $itemQueue);
             
                 // mark item as being tracked
-                $item->IsTracked = true;
+                $item->IsTracked = $itemQueue > 0;
             }
         
             $item->UpdatePriority = $itemQueue;
