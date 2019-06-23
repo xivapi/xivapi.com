@@ -7,6 +7,7 @@ use App\Common\Exceptions\BasicException;
 use App\Common\Exceptions\CompanionMarketServerException;
 use App\Exception\ApiRateLimitException;
 use App\Exception\ContentGoneException;
+use App\Exception\InvalidCompanionMarketRequestException;
 use Lodestone\Exceptions\GenericException;
 use Lodestone\Exceptions\MaintenanceException;
 use Lodestone\Exceptions\NotFoundException;
@@ -103,7 +104,8 @@ class ExceptionListener implements EventSubscriberInterface
             MaintenanceException::class,
             GenericException::class,
             ApiRateLimitException::class,
-            ApiUnknownPrivateKeyException::class
+            ApiUnknownPrivateKeyException::class,
+            InvalidCompanionMarketRequestException::class
         ];
         
         if (Redis::Cache()->get(__METHOD__ . $json->Hash) == null && !in_array($json->Ex, $validExceptions) && $json->Debug->Env != 'local') {
