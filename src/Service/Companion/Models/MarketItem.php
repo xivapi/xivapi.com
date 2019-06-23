@@ -9,6 +9,8 @@ class MarketItem
 {
     /** @var string */
     public $ID;
+    /** @var bool */
+    public $IsTracked = false;
     /** @var int */
     public $Server;
     /** @var int */

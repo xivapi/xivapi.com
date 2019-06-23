@@ -109,6 +109,28 @@ class CompanionMarket
     {
         $this->connect();
         $item = new MarketItem($server, $itemId);
+    
+        // if not internally called, append some more info
+        if ($internal === false) {
+            // append item information
+            $item->Item = GameItem::build($item->ItemID);
+        
+            $key = __METHOD__ . $item->ID;
+            if (!$itemQueue = Redis::Cache()->get($key)) {
+                $sql = "SELECT normal_queue FROM companion_market_items WHERE item = {$item->ItemID} AND server = {$item->Server} LIMIT 1";
+                $stmt = $this->em->getConnection()->prepare($sql);
+                $stmt->execute();
+                $itemQueue = $stmt->fetch()['normal_queue'] ?? null;
+            
+                // cache for an hour
+                Redis::Cache()->set($key, $itemQueue);
+            
+                // mark item as being tracked
+                $item->IsTracked = false;
+            }
+        
+            $item->UpdatePriority = $itemQueue;
+        }
         
         try {
             $result = $this->elastic->getDocument(self::INDEX, self::INDEX, "{$server}_{$itemId}");
@@ -160,25 +182,6 @@ class CompanionMarket
             }
         
             $item->History[] = $obj;
-        }
-    
-        // if not internally called, append some more info
-        if ($internal === false) {
-            // append item information
-            $item->Item = GameItem::build($item->ItemID);
-
-            $key = __METHOD__ . $item->ID;
-            if (!$itemQueue = Redis::Cache()->get($key)) {
-                $sql = "SELECT normal_queue FROM companion_market_items WHERE item = {$item->ItemID} AND server = {$item->Server} LIMIT 1";
-                $stmt = $this->em->getConnection()->prepare($sql);
-                $stmt->execute();
-                $itemQueue = $stmt->fetch()['normal_queue'] ?? null;
-
-                // cache for an hour
-                Redis::Cache()->set($key, $itemQueue);
-            }
-
-            $item->UpdatePriority = $itemQueue;
         }
     
         return $item;
