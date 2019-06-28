@@ -45,40 +45,26 @@ class CompanionItemManager
         $date  = date('Y-m-d H:i:s');
         $this->console->writeln("<info>-- Moving item priorities for Twintania and Spriggan --</info>");
         $this->console->writeln("<info>-- Start: {$date} --</info>");
-
-        $repo = $this->em->getRepository(CompanionItem::class);
-        $items = $repo->findBy([ 'server' =>  46 ]);
-
         $section = $this->console->section();
 
-        /** @var CompanionItem $item */
-        foreach ($items as $item) {
-            $priority = $item->getNormalQueue();
+        $sql = 'SELECT item, normal_queue FROM companion_market_items WHERE server = 46';
+        $sql = $this->em->getConnection()->prepare($sql);
+        $sql->execute();
 
-            /** @var CompanionItem $spriggan */
-            $spriggan  = $repo->findOneBy([ 'server' => 66, 'item' => $item->getItem() ]);
-            /** @var CompanionItem $twintania */
-            $twintania = $repo->findOneBy([ 'server' => 67, 'item' => $item->getItem() ]);
+        foreach ($sql->fetchAll() as $row) {
+            $itemId = $row['item'];
+            $queue  = $row['normal_queue'];
 
-            if ($spriggan == null) {
-                $this->console->writeln("spriggan - No item for: ". $item->getItem());
-                continue;
+            // update spriggan and wintania
+            try {
+                $sql = "UPDATE companion_market_items SET normal_queue = {$queue} WHERE item = {$itemId} AND server IN (66,67)";
+                $sql = $this->em->getConnection()->prepare($sql);
+                $sql->execute();
+            } catch (\Exception $e) {
+
             }
 
-            if ($twintania == null) {
-                $this->console->writeln("twintania - No item for: ". $item->getItem());
-                continue;
-            }
-
-            $spriggan->setNormalQueue($priority);
-            $twintania->setNormalQueue($priority);
-
-            // save
-            $this->em->persist($spriggan);
-            $this->em->persist($twintania);
-            $this->em->flush();
-
-            $section->overwrite('- Updated: '. $item->getItem() . ' to '. $priority);
+            $section->overwrite('- Updated: '. $itemId . ' to '. $queue);
         }
 
         // finished
