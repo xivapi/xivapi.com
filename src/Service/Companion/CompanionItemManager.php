@@ -56,9 +56,9 @@ class CompanionItemManager
             $priority = $item->getPriority();
 
             /** @var CompanionItem $spriggan */
-            $spriggan  = $repo->findBy([ 'server' => 66, 'item' => $item->getItem() ]);
+            $spriggan  = $repo->findOneBy([ 'server' => 66, 'item' => $item->getItem() ]);
             /** @var CompanionItem $twintania */
-            $twintania = $repo->findBy([ 'server' => 67, 'item' => $item->getItem() ]);
+            $twintania = $repo->findOneBy([ 'server' => 67, 'item' => $item->getItem() ]);
 
             $spriggan->setPriority($priority);
             $twintania->setPriority($priority);
