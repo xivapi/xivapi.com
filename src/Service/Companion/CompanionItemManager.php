@@ -351,11 +351,6 @@ class CompanionItemManager
                 if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
                     continue;
                 }
-                
-                // we can't do Spriggan and Twintania atm as very little history
-                if (in_array($serverId, [ 66, 67 ])) {
-                    continue;
-                }
 
                 /**
                  * Grab entry
@@ -366,6 +361,11 @@ class CompanionItemManager
                 );
                 $stmt->execute();
                 $item = $stmt->fetch();
+
+                // if its on queue 70, ignore for now
+                if ($item['normal_queue'] === 70) {
+                    continue;
+                }
                 
                 // grab recorded document
                 /** @var MarketItem $document */
