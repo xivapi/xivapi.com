@@ -53,7 +53,7 @@ class CompanionItemManager
 
         /** @var CompanionItem $item */
         foreach ($items as $item) {
-            $priority = $item->getPriority();
+            $priority = $item->getNormalQueue();
 
             /** @var CompanionItem $spriggan */
             $spriggan  = $repo->findOneBy([ 'server' => 66, 'item' => $item->getItem() ]);
@@ -70,8 +70,8 @@ class CompanionItemManager
                 continue;
             }
 
-            $spriggan->setPriority($priority);
-            $twintania->setPriority($priority);
+            $spriggan->setNormalQueue($priority);
+            $twintania->setNormalQueue($priority);
 
             // save
             $this->em->persist($spriggan);
