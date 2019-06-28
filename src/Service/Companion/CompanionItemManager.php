@@ -39,6 +39,40 @@ class CompanionItemManager
         $this->console          = new ConsoleOutput();
     }
 
+    public function moveNewServerItemIds()
+    {
+        $start = Carbon::now();
+        $date  = date('Y-m-d H:i:s');
+        $this->console->writeln("<info>-- Moving item priorities for Twintania and Spriggan --</info>");
+        $this->console->writeln("<info>-- Start: {$date} --</info>");
+        $section = $this->console->section();
+
+        $sql = 'SELECT item, normal_queue FROM companion_market_items WHERE server = 46';
+        $sql = $this->em->getConnection()->prepare($sql);
+        $sql->execute();
+
+        foreach ($sql->fetchAll() as $row) {
+            $itemId = $row['item'];
+            $queue  = $row['normal_queue'];
+
+            // update spriggan and wintania
+            try {
+                $sql = "UPDATE companion_market_items SET normal_queue = {$queue} WHERE item = {$itemId} AND normal_queue = 70";
+                $sql = $this->em->getConnection()->prepare($sql);
+                $sql->execute();
+            } catch (\Exception $e) {
+
+            }
+
+            $section->overwrite('- Updated: '. $itemId . ' to '. $queue);
+        }
+
+        // finished
+        $duration = $start->diff(Carbon::now())->format('%h hr, %i min and %s sec');
+        $this->console->writeln("- Complete");
+        $this->console->writeln("- Duration: <comment>{$duration}</comment>");
+    }
+
     /**
      * Populate the market database with marketable items so they can be auto-updated,
      * all newly added items start on priority 10 and will shift over time.
@@ -108,7 +142,7 @@ class CompanionItemManager
     private function buildMapPositions()
     {
         $mapPositions = $this->em->getRepository(MapPosition::class)->findBy([
-            'Type' => 'NPC'
+            'Type' => 'NPC',
         ]);
     
         /** @var MapPosition $mp */
@@ -124,7 +158,7 @@ class CompanionItemManager
                 'Pixels' => [
                     'X' => $mp->getPixelX(),
                     'Y' => $mp->getPixelY(),
-                ]
+                ],
             ];
         }
     
@@ -317,11 +351,6 @@ class CompanionItemManager
                 if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
                     continue;
                 }
-                
-                // we can't do Spriggan and Twintania atm as very little history
-                if (in_array($serverId, [ 66, 67 ])) {
-                    continue;
-                }
 
                 /**
                  * Grab entry
@@ -332,6 +361,11 @@ class CompanionItemManager
                 );
                 $stmt->execute();
                 $item = $stmt->fetch();
+
+                // if its on queue 70, ignore for now
+                if ($item['normal_queue'] === 70) {
+                    continue;
+                }
                 
                 // grab recorded document
                 /** @var MarketItem $document */
