@@ -803,5 +803,24 @@
         "PatchNotes_ja": "https://jp.finalfantasyxiv.com/lodestone/topics/detail/28892640dc953928eea9ab0e04cc49e60099d802",
         "ReleaseDate": 1546941600,
         "Version": "4.5"
+    },
+    {
+        "Banner": "https://img.finalfantasyxiv.com/lds/h/3/Jv-nF8an7MBqS0Cdp5DHnNLTy4.png",
+        "ID": 53,
+        "Url": "\/patch+5.0",
+        "ExVersion": 3,
+        "IsExpansion": false,
+        "Name_ja": "Patch 5.0: ShadowBringers",
+        "Name_en": "Patch 5.0: ShadowBringers",
+        "Name_fr": "Patch 5.0: ShadowBringers",
+        "Name_de": "Patch 5.0: ShadowBringers",
+        "Name_cn": "Patch 5.0: ShadowBringers",
+        "Name_kr": "Patch 5.0: ShadowBringers",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "",
+        "PatchNotes_fr": "",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1561712400,
+        "Version": "5.0"
     }
 ]
