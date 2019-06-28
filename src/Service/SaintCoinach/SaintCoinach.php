@@ -63,6 +63,24 @@ class SaintCoinach
         $this->generateBatScript($extractFolder, 'ui');
         $this->generateBatScript($extractFolder, 'bgm');
         $this->generateBatScript($extractFolder, 'maps');
+        
+        // build schema into 1 file
+        $this->console->writeln("Building single schema");
+        $schema = [];
+        foreach (scandir(self::SCHEMA_DIRECTORY . '/Definitions') as $file) {
+            $fileinfo = pathinfo($file);
+            
+            if ($fileinfo['extension'] === 'json') {
+                $schema[] = json_decode(file_get_contents(self::SCHEMA_DIRECTORY . '/Definitions/'. $file), true);
+            }
+        }
+        
+        // save schema
+        $version = trim(file_get_contents(self::SCHEMA_DIRECTORY . '/Definitions/game.ver'));
+        file_put_contents(self::SCHEMA_FILENAME, json_encode([
+            'version' => $version,
+            'sheets' => $schema
+        ], JSON_PRETTY_PRINT));
 
         $this->console->writeln('Finished');
     }
@@ -90,6 +108,15 @@ class SaintCoinach
     public static function version()
     {
         $dirs = glob(self::SCHEMA_DIRECTORY . '/*' , GLOB_ONLYDIR);
+
+        // remove non version names
+        foreach ($dirs as $i => $dir) {
+            $versions = explode('.', basename($dir));
+            
+            if (count($versions) < 3) {
+                unset($dirs[$i]);
+            }
+        }
         
         // there should only be 1, if not, throw exception to sort this
         if (count($dirs) > 1) {
