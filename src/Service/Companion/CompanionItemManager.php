@@ -201,7 +201,7 @@ class CompanionItemManager
      */
     private function buildItemList()
     {
-        $ids     = Redis::Cache()->get('ids_Item');
+        $ids     = (array)Redis::Cache()->get('ids_Item');
         $total   = count($ids);
         $section = $this->console->section();
  
