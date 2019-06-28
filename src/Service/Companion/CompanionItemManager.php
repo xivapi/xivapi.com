@@ -39,6 +39,44 @@ class CompanionItemManager
         $this->console          = new ConsoleOutput();
     }
 
+    public function moveNewServerItemIds()
+    {
+        $start = Carbon::now();
+        $date  = date('Y-m-d H:i:s');
+        $this->console->writeln("<info>-- Moving item priorities for Twintania and Spriggan --</info>");
+        $this->console->writeln("<info>-- Start: {$date} --</info>");
+
+        $repo = $this->em->getRepository(CompanionItem::class);
+        $items = $repo->findBy([ 'server' =>  46 ]);
+
+        $section = $this->console->section();
+
+        /** @var CompanionItem $item */
+        foreach ($items as $item) {
+            $priority = $item->getPriority();
+
+            /** @var CompanionItem $spriggan */
+            $spriggan  = $repo->findBy([ 'server' => 66, 'item' => $item->getItem() ]);
+            /** @var CompanionItem $twintania */
+            $twintania = $repo->findBy([ 'server' => 67, 'item' => $item->getItem() ]);
+
+            $spriggan->setPriority($priority);
+            $twintania->setPriority($priority);
+
+            // save
+            $this->em->persist($spriggan);
+            $this->em->persist($twintania);
+            $this->em->flush();
+
+            $section->overwrite('- Updated: '. $item->getItem());
+        }
+
+        // finished
+        $duration = $start->diff(Carbon::now())->format('%h hr, %i min and %s sec');
+        $this->console->writeln("- Complete");
+        $this->console->writeln("- Duration: <comment>{$duration}</comment>");
+    }
+
     /**
      * Populate the market database with marketable items so they can be auto-updated,
      * all newly added items start on priority 10 and will shift over time.
@@ -108,7 +146,7 @@ class CompanionItemManager
     private function buildMapPositions()
     {
         $mapPositions = $this->em->getRepository(MapPosition::class)->findBy([
-            'Type' => 'NPC'
+            'Type' => 'NPC',
         ]);
     
         /** @var MapPosition $mp */
@@ -124,7 +162,7 @@ class CompanionItemManager
                 'Pixels' => [
                     'X' => $mp->getPixelX(),
                     'Y' => $mp->getPixelY(),
-                ]
+                ],
             ];
         }
     
