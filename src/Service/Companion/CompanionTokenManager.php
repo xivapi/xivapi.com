@@ -239,8 +239,8 @@ class CompanionTokenManager
     public function login(string $account, string $server, string $characterId)
     {
         if ($this->maintenance->isCompanionMaintenance() || $this->maintenance->isGameMaintenance()) {
-            $this->console->writeln("Maintenance is active, stopping...");
-            return false;
+            //$this->console->writeln("Maintenance is active, stopping...");
+            //return false;
         }
 
         // check error count

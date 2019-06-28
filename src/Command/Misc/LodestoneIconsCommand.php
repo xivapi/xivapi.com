@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use XIVAPI\XIVAPI;
 
-class DownloadLodestoneIconsCommand extends Command
+class LodestoneIconsCommand extends Command
 {
     /** @var EntityManagerInterface */
     private $em;
@@ -30,7 +30,7 @@ class DownloadLodestoneIconsCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('DownloadLodestoneIconsCommand')
+            ->setName('LodestoneIconsCommand')
             ->setDescription('Downloads a bunch of info from Lodestone, including icons.')
             ->addArgument('item_id', InputArgument::OPTIONAL, 'Custom ID')
         ;
@@ -115,7 +115,7 @@ class DownloadLodestoneIconsCommand extends Command
                     try {
                         $section->overwrite("[{$i}] {$itemId} - Getting lodestone id from Companion directly.");
                         $market = $xivapi->_private->itemPrices(
-                            'C5gLlU9LZHvybBP6J4aL',
+                            getenv('MB_ACCESS'),
                             $itemId,
                             'Phoenix'
                         );
