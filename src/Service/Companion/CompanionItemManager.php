@@ -57,7 +57,7 @@ class CompanionItemManager
 
             // update spriggan and wintania
             try {
-                $sql = "UPDATE companion_market_items SET normal_queue = {$queue} WHERE item = {$itemId} AND server IN (66,67)";
+                $sql = "UPDATE companion_market_items SET normal_queue = {$queue} WHERE item = {$itemId} AND normal_queue = 70";
                 $sql = $this->em->getConnection()->prepare($sql);
                 $sql->execute();
             } catch (\Exception $e) {
