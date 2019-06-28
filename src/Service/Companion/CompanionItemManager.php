@@ -60,6 +60,16 @@ class CompanionItemManager
             /** @var CompanionItem $twintania */
             $twintania = $repo->findOneBy([ 'server' => 67, 'item' => $item->getItem() ]);
 
+            if ($spriggan == null) {
+                $this->console->writeln("spriggan - No item for: ". $item->getItem());
+                continue;
+            }
+
+            if ($twintania == null) {
+                $this->console->writeln("twintania - No item for: ". $item->getItem());
+                continue;
+            }
+
             $spriggan->setPriority($priority);
             $twintania->setPriority($priority);
 
@@ -68,7 +78,7 @@ class CompanionItemManager
             $this->em->persist($twintania);
             $this->em->flush();
 
-            $section->overwrite('- Updated: '. $item->getItem());
+            $section->overwrite('- Updated: '. $item->getItem() . ' to '. $priority);
         }
 
         // finished
