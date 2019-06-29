@@ -61,7 +61,7 @@ class LodestoneIconsCommand extends Command
         //
         // Grab all item ids
         //
-        $ids   = Redis::Cache()->get('ids_Item');
+        $ids   = (array)Redis::Cache()->get('ids_Item');
         $total = number_format(count($ids));
         $console->writeln("Total Items: {$total}");
 
@@ -106,6 +106,8 @@ class LodestoneIconsCommand extends Command
                  */
                 $section->overwrite("[{$i}] {$itemId} - Getting lodestone id from XIVAPI Market");
                 $market = $xivapi->queries($xivapiColumns)->market->item($itemId, ['Phoenix']);
+                $market = $market->Phoenix;
+
                 $section->overwrite("[{$i}] {$itemId} - Response: {$market->LodestoneID}");
 
                 /**
