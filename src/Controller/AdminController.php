@@ -84,23 +84,20 @@ class AdminController extends AbstractController
 
         $errors     = $this->ceh->getExceptions(20000);
         $lastError  = $errors[0];
-        $errorGraph = [];
+        $graph      = [];
         $exception  = [];
         
         foreach ($errors as $error) {
             $index = date('Y-m-d', $error['Added']);
+            $ex = $error['Exception'];
 
-            if (isset($errorGraph[$index])) {
-                $errorGraph[$index] = $errorGraph[$index] + 1;
-            }
-
-            $exception[$error['Exception']] = isset($exception[$error['Exception']])
-                ? $exception[$error['Exception']] + 1 : 1;
+            $graph[$index] = isset($graph[$index]) ? $graph[$index] + 1 : 1;
+            $exception[$ex]     = isset($exception[$ex]) ? $exception[$ex] + 1 : 1;
         }
 
-        krsort($errorGraph);
-        $errorGraph = array_reverse($errorGraph);
-        array_splice($errorGraph, 0, 60);
+        krsort($graph);
+        $graph = array_reverse($graph);
+        array_splice($graph, 0, 60);
 
         return $this->render('admin/companion.html.twig', [
             'status' => [
@@ -112,9 +109,9 @@ class AdminController extends AbstractController
                 'list'       => $errors,
                 'exceptions' => $exception,
             ],
-            'errorGraph' => [
-                'keys'   => array_keys($errorGraph),
-                'values' => array_values($errorGraph),
+            'graph' => [
+                'keys'   => array_keys($graph),
+                'values' => array_values($graph),
             ],
         ]);
     }
