@@ -132,10 +132,15 @@ class Mappy
                 ->setGatheringStatus($pos->GatheringStatus)
                 ->setHitBoxRadius($pos->HitBoxRadius)
                 ->setIsGM($pos->IsGM);
-            
-            $this->em->persist($obj);
-            $this->em->persist($mem);
-            $this->em->flush();
+
+            try {
+                $this->em->persist($obj);
+                $this->em->persist($mem);
+                $this->em->flush();
+            } catch (\Exception $e) {
+                // ignore
+            }
+
         }
     }
     
