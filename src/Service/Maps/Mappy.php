@@ -89,12 +89,11 @@ class Mappy
                 $hash = $this->getPositionHash($pos);
             }
 
-            // skip duplicates
-            if ($this->repository->findBy(['Hash' => $hash])) {
-                continue;
-            }
+            $existingObj = $this->repository->findBy(['Hash' => $hash]);
+            $existingMem = $this->repositoryMemory->findBy(['Hash' => $hash]);
+    
 
-            $obj = new MapPosition();
+            $obj = $existingObj ?: new MapPosition();
             $obj->setHash($hash)
                 ->setContentIndex($pos->Index)
                 ->setENpcResidentID($pos->ENpcResidentID)
@@ -114,7 +113,7 @@ class Mappy
                 ->setPixelX($pos->PixelX)
                 ->setPixelY($pos->PixelY);
             
-            $mem = new MemoryData();
+            $mem = $existingMem ?: new MemoryData();
             $mem->setHash($hash)
                 ->setContentIndex($pos->Index)
                 ->setENpcResidentID($pos->ENpcResidentID)
