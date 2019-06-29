@@ -89,9 +89,8 @@ class Mappy
                 $hash = $this->getPositionHash($pos);
             }
 
-            $existingObj = $this->repository->findBy(['Hash' => $hash]);
-            $existingMem = $this->repositoryMemory->findBy(['Hash' => $hash]);
-    
+            $existingObj = $this->repository->findOneBy(['Hash' => $hash]);
+            $existingMem = $this->repositoryMemory->findOneBy(['Hash' => $hash]);
 
             $obj = $existingObj ?: new MapPosition();
             $obj->setHash($hash)
@@ -138,6 +137,7 @@ class Mappy
                 $this->em->flush();
             } catch (\Exception $e) {
                 // ignore
+                return $e->getMessage();
             }
 
         }
