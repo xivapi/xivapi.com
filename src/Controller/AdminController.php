@@ -84,7 +84,9 @@ class AdminController extends AbstractController
 
         $errors     = $this->ceh->getExceptions(20000);
         $lastError  = $errors[0];
-        $errorGraph = [];
+        $errorGraph = [
+            date('Y-m-d', (time() + (60 * 60 * 24))) => 0,
+        ];
         $exception  = [];
         
         foreach ($errors as $error) {
