@@ -91,23 +91,24 @@
             </tbody>
         </table>
 
-        <br><Br>
+        <br><br>
 
-        <h1>Error log</h1>
+        <h4>Most recent errors</h4>
         <table class="table">
             <thead>
             <tr>
-                <th width="20%">Time</th>
-                <th width="5%">Code</th>
-                <th width="25%">Exception</th>
-                <th>Message</th>
+                <th width="20%">Code</th>
+                <th width="40%">Exception</th>
+                <th width="40%">Message</th>
             </tr>
             </thead>
             <tbody>
-            {% for error in errors.list|slice(0, 100) %}
+            {% for error in errors.list|slice(0, 50) %}
                 <tr>
-                    <td>{{ error.Added|date('Y-m-d H:i:s', "Europe/London") }}</td>
-                    <td>{{ error.Code }}</td>
+                    <td>
+                        <strong>{{ error.Added|date('Y-m-d H:i:s', "Europe/London") }}</strong>
+                        <code>{{ error.Code }}</code>
+                    </td>
                     <td>{{ error.Exception }}</td>
                     <td>{{ error.Message }}</td>
                 </tr>
