@@ -113,8 +113,11 @@ class CompanionStatistics
 
         /** @var CompanionItem $firstItem */
         /** @var CompanionItem $lastItem */
-        $firstItem                = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ]);
-        $lastItem                 = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'desc' ]);
+        $firstItem                = $this->repositoryEntries->findBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ], 1, 100);
+        $firstItem                = $firstItem[0];
+        $lastItem                 = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'desc' ], 1, 100);
+        $lastItem                 = $lastItem[0];
+        
         $formatMultiDay           = '%d D, %H:%I HR';
 
         // work out the real cycle time
