@@ -99,7 +99,7 @@ class AdminController extends AbstractController
 
         krsort($errorGraph);
         $errorGraph = array_reverse($errorGraph);
-        array_splice($errorGraph, 0, 60);
+        $errorGraph = array_splice($errorGraph, 0, 60);
 
         return $this->render('admin/companion.html.twig', [
             'status' => [
