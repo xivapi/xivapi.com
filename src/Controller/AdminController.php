@@ -69,7 +69,7 @@ class AdminController extends AbstractController
     }
 
     /**
-     * @Route("/admin/companion")
+     * @Route("/admin/companion", name="admin_companion)
      */
     public function home()
     {

@@ -33,7 +33,7 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <header>
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <a class="navbar-brand" href="#">ADMIN</a>
@@ -53,7 +53,7 @@
                             <a class="nav-link" href="#">Members</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Companion</a>
+                            <a class="nav-link" href="{{ path('admin_companion') }}">Companion Error Rate</a>
                         </li>
                     </ul>
                 </div>
