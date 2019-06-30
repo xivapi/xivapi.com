@@ -37,40 +37,29 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
+
     <div class="container-fluid">
-        <header>
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <a class="navbar-brand" href="#">ADMIN</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+        <div class="row">
+            <aside class="col-2 px-0" id="left">
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Statistics</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Members</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('admin_companion') }}">Companion Error Rate</a>
-                        </li>
-                    </ul>
+                <div class="list-group w-100">
+                    <div class="list-group-item">
+                        <h3>Admin</h3>
+                        <a href="{{ path('admin') }}">Home</a><br>
+                        <a href="{{ path('admin_tracking') }}">Tracking</a><br>
+                    </div>
+                    <div class="list-group-item">
+                        <h3>Companion</h3>
+                        <a href="{{ path('admin_companion_accounts') }}">Accounts</a><br>
+                        <a href="{{ path('admin_companion_errors') }}">Errors</a>
+                    </div>
                 </div>
-            </nav>
-        </header>
 
-        <main>
-            {% block body %}{% endblock %}
-        </main>
-
-        <footer>
-            <small>XIVAPI ADMIN</small>
-        </footer>
+            </aside>
+            <main class="col h-100">
+                {% block body %}{% endblock %}
+            </main>
+        </div>
     </div>
 
     {% block javascripts %}{% endblock %}

@@ -2,13 +2,16 @@
 
 namespace App\Controller;
 
+use App\Common\Entity\User;
 use App\Common\Game\GameServers;
+use App\Common\Service\Redis\RedisTracking;
 use App\Common\User\Users;
 use App\Entity\CompanionToken;
 use App\Service\API\ApiPermissions;
 use App\Service\Companion\CompanionErrorHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AdminController extends AbstractController
@@ -30,13 +33,29 @@ class AdminController extends AbstractController
         $this->users = $users;
     }
     
-    /**
-     * @Route("/admin")
-     */
-    public function index()
+    private function authenticate(): User
     {
         $user = $this->users->getUser(true);
         $user->mustBeAdmin();
+        return $user;
+    }
+    
+    /**
+     * @Route("/admin", name="admin")
+     */
+    public function admin()
+    {
+        $this->authenticate();
+        
+        return $this->render('admin/home.html.twig');
+    }
+    
+    /**
+     * @Route("/admin/companion/accounts", name="admin_companion_accounts")
+     */
+    public function companionAccounts()
+    {
+        $this->authenticate();
         
         $tokens = $this->em->getRepository(CompanionToken::class)->findAll();
     
@@ -61,7 +80,7 @@ class AdminController extends AbstractController
             $tokenServers[$index][] = $token->getServer();
         }
         
-        return $this->render('admin/home.html.twig', [
+        return $this->render('admin/companion_accounts.html.twig', [
             'token_servers' => $tokenServers,
             'valid_servers' => $validServers,
             'datacenter'  => GameServers::LIST_DC
@@ -69,12 +88,11 @@ class AdminController extends AbstractController
     }
 
     /**
-     * @Route("/admin/companion", name="admin_companion")
+     * @Route("/admin/companion/errors", name="admin_companion_errors")
      */
-    public function home()
+    public function companionErrors()
     {
-        $user = $this->users->getUser(true);
-        $user->mustBeAdmin();
+        $this->authenticate();
         
         date_default_timezone_set("Europe/London");
 
@@ -101,7 +119,7 @@ class AdminController extends AbstractController
         $errorGraph = array_reverse($errorGraph);
         $errorGraph = array_splice($errorGraph, 0, 60);
 
-        return $this->render('admin/companion.html.twig', [
+        return $this->render('admin/companion_errors.html.twig', [
             'status' => [
                 'at_critical' => $this->ceh->isCriticalExceptionCount(),
                 'state'       => $this->ceh->getCriticalExceptionCount(),
@@ -116,5 +134,42 @@ class AdminController extends AbstractController
                 'values' => array_values($errorGraph),
             ],
         ]);
+    }
+    
+    /**
+     * @Route("/admin/tracking", name="admin_tracking")
+     */
+    public function tracking()
+    {
+        $this->authenticate();
+        
+        return $this->render('admin/statistics.html.twig');
+    }
+    
+    /**
+     * @Route("/admin/tracking_stats")
+     */
+    public function trackingStats()
+    {
+        $this->authenticate();
+        
+        $report = RedisTracking::get();
+        $report = (Array)$report;
+        ksort($report);
+        
+        return new Response(
+            json_encode($report, JSON_PRETTY_PRINT)
+        );
+    }
+    
+    /**
+     * @Route("/admin/tracking_stats_reset")
+     */
+    public function trackingStatsReset()
+    {
+        $this->authenticate();
+        
+        RedisTracking::reset();
+        return $this->json(true);
     }
 }
