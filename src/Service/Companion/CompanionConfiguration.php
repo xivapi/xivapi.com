@@ -78,6 +78,7 @@ class CompanionConfiguration
         50000,
         50001,
         50002,
-        50003
+        50003,
+        50004
     ];
 }
