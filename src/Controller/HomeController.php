@@ -15,6 +15,14 @@ class HomeController extends AbstractController
     {
         return $this->render('home.html.twig');
     }
+    
+    /**
+     * @Route("/.well-known/acme-challenge/{hash}")
+     */
+    public function le($hash)
+    {
+        return $this->json($hash);
+    }
 
     /**
      * @Route("/discord", name="discord")
