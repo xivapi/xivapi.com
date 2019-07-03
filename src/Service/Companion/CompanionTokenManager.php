@@ -270,6 +270,11 @@ class CompanionTokenManager
             return false;
         }
         
+        if (in_array($token->getId(), [179, 267])) {
+            $this->console->writeln("Skipping these");
+            return false;
+        }
+        
         // ensure its marked as offline
         $token->setOnline(false)->setMessage('Offline')->setToken(null)->setExpiring(0);
         $this->em->persist($token);
