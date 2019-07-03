@@ -176,7 +176,9 @@ class CompanionItemManager
         $section = $this->console->section();
         foreach ($ids as $i => $id) {
             $i = $i+1;
-            $section->overwrite("{$i}/{$total} - {$id}");
+            if ($i % 50 == 0) {
+                $section->overwrite("{$i}/{$total}");
+            }
             
             // grab npc
             $npc = Redis::Cache()->get("xiv_ENpcResident_{$id}");
@@ -184,8 +186,6 @@ class CompanionItemManager
                 continue;
             }
     
-            $section->overwrite("{$i}/{$total} - {$id} = {$npc->Name_en}");
-            
             // if no gil shop, skip
             if (!isset($npc->GilShop) || empty($npc->GilShop)) {
                 continue;
@@ -241,15 +241,16 @@ class CompanionItemManager
  
         foreach ($ids as $i => $id) {
             $i = $i+1;
-            $section->overwrite("{$i}/{$total} - {$id}");
+            
+            if ($i % 50 == 0) {
+                $section->overwrite("{$i}/{$total}");
+            }
             
             $item = Redis::Cache()->get("xiv_Item_{$id}");
             if ($item === null) {
                 continue;
             }
     
-            $section->overwrite("{$i}/{$total} - {$id} = {$item->Name_en}");
-            
             // ignore non-sellable
             if (!isset($item->ItemSearchCategory->ID)) {
                 continue;
@@ -272,15 +273,16 @@ class CompanionItemManager
 
         foreach ($this->items as $i => $itemId) {
             $i = $i+1;
-            $section->overwrite("{$i}/{$total} - {$itemId}");
+            
+            if ($i % 50 == 0) {
+                $section->overwrite("{$i}/{$total}");
+            }
             
             foreach (GameServers::LIST as $serverId => $serverName) {
                 // skip offline servers
                 if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
                     continue;
                 }
-    
-                $section->overwrite("{$i}/{$total} - {$itemId} - {$serverName}");
     
                 /**
                  * Skip existing ones
@@ -324,8 +326,10 @@ class CompanionItemManager
                     "REPLACE INTO companion_market_items (id, updated, item, server, region, normal_queue, patreon_queue, state, priority) " .
                     "VALUES ('{$id}', 0, {$itemId}, {$serverId}, {$region}, {$queue}, 0, {$state}, {$priority});"
                 );
-                $stmt->execute();
             }
+
+            // insert
+            $stmt->execute();
         }
     
         $section->overwrite('- Complete');
