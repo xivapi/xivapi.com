@@ -21,14 +21,13 @@ class CompanionItemManager
     private $em;
     /** @var CompanionMarket */
     private $companionMarket;
-    /** @var ConsoleOutput */
-    private $output;
     /** @var array */
     private $positions = [];
     /** @var array */
-    private $shops = [];
-    /** @var array */
     private $itemToShops = [];
+    /** @var array */
+    private $itemToInfo = [];
+    
     /** @var array */
     private $items = [];
 
@@ -43,8 +42,8 @@ class CompanionItemManager
     {
         $start = Carbon::now();
         $date  = date('Y-m-d H:i:s');
-        $this->console->writeln("<info>-- Moving item priorities for Twintania and Spriggan --</info>");
-        $this->console->writeln("<info>-- Start: {$date} --</info>");
+        $this->console->writeln("<info>Moving item priorities for Twintania and Spriggan</info>");
+        $this->console->writeln("<info>Start: {$date}</info>");
         $section = $this->console->section();
 
         $sql = 'SELECT item, normal_queue FROM companion_market_items WHERE server = 46';
@@ -69,8 +68,7 @@ class CompanionItemManager
 
         // finished
         $duration = $start->diff(Carbon::now())->format('%h hr, %i min and %s sec');
-        $this->console->writeln("- Complete");
-        $this->console->writeln("- Duration: <comment>{$duration}</comment>");
+        $this->console->writeln("Duration: <comment>{$duration}</comment>");
     }
 
     /**
@@ -81,27 +79,19 @@ class CompanionItemManager
     {
         $start = Carbon::now();
         $date  = date('Y-m-d H:i:s');
-        $this->console->writeln("<info>-- Market Item Populator --</info>");
-        $this->console->writeln("<info>-- Start: {$date} --</info>");
+        $this->console->writeln("<info>Market Item Populator</info>");
+        $this->console->writeln("<info>Start: {$date}</info>");
         
         // map positions
-        $this->console->writeln("Building NPC Map Positions");
         $this->buildMapPositions();
         
         // get all NPCs with a "GilShop" and obtain the items
-        $this->console->writeln("Building NPCs with shops");
         $this->buildNPCWithShops();
 
         // get all items and handle their states
-        $this->console->writeln("Building Items");
         $this->buildItemList();
-        $totalItems        = number_format(count($this->items));
-        $totalItemsInShops = number_format(count($this->itemToShops));
-        $this->console->writeln("Total Items: <info>{$totalItems}</info>");
-        $this->console->writeln("Total Items in Shops: <info>{$totalItemsInShops}</info>");
         
         // insert market item entries for online servers
-        $this->console->writeln("Inserting market items");
         $this->insertMarketItems();
     
         // finished
@@ -115,24 +105,35 @@ class CompanionItemManager
      */
     public function calculateItemUpdatePriority()
     {
+        /*
+        $conn  = $this->em->getConnection();
+        $items = file_get_contents(__DIR__.'/companion_market_items.csv');
+        $items = explode("\n", $items);
+        $items = array_unique($items);
+        
+        foreach ($items as $itemId) {
+            $sql = "UPDATE companion_market_items SET state = ?, normal_queue = ? WHERE item = ?";
+            $sql = $conn->prepare($sql);
+            $sql->execute([ CompanionItem::STATE_UPDATING, 70, $itemId ]);
+        }
+        return;
+        */
+        
+        
+        
         $start = Carbon::now();
         $date  = date('Y-m-d H:i:s');
-        $this->console->writeln("<info>-- Calculate Item Update Priority --</info>");
-        $this->console->writeln("<info>-- Start: {$date} --</info>");
+        $this->console->writeln("<info>Calculate Item Update Priority</info>");
+        $this->console->writeln("<info>Start: {$date}</info>");
     
         // get all items and handle their states
-        $this->console->writeln("Building Items");
         $this->buildItemList();
-        $totalItems = number_format(count($this->items));
-        $this->console->writeln("Total Items: <info>{$totalItems}</info>");
         
         // update priorities
-        $this->console->writeln("Updating Item Queues");
         $this->insertMarketItemQueues();
     
         // finished
         $duration = $start->diff(Carbon::now())->format('%h hr, %i min and %s sec');
-        $this->console->writeln("- Complete");
         $this->console->writeln("- Duration: <comment>{$duration}</comment>");
     }
     
@@ -141,6 +142,8 @@ class CompanionItemManager
      */
     private function buildMapPositions()
     {
+        $this->console->writeln("Building map positions ...");
+        
         $mapPositions = $this->em->getRepository(MapPosition::class)->findBy([
             'Type' => 'NPC',
         ]);
@@ -163,6 +166,8 @@ class CompanionItemManager
         }
     
         unset($mapPositions);
+    
+        $this->console->writeln("Complete");
     }
     
     /**
@@ -170,16 +175,10 @@ class CompanionItemManager
      */
     private function buildNPCWithShops()
     {
-        $ids   = Redis::Cache()->get('ids_ENpcResident');
-        $total = count($ids);
+        $this->console->writeln("Building NPC stores ...");
         
-        $section = $this->console->section();
+        $ids = Redis::Cache()->get('ids_ENpcResident');
         foreach ($ids as $i => $id) {
-            $i = $i+1;
-            if ($i % 50 == 0) {
-                $section->overwrite("{$i}/{$total}");
-            }
-            
             // grab npc
             $npc = Redis::Cache()->get("xiv_ENpcResident_{$id}");
             if ($npc === null) {
@@ -206,8 +205,9 @@ class CompanionItemManager
                     'Shop_Name_de' => $gs->Name_de,
                     'Shop_Name_fr' => $gs->Name_fr,
                     'Shop_Name_ja' => $gs->Name_ja,
-                    'Map' => $this->positions[$npc->ID],
+                    'Map' => $this->positions[$npc->ID] ?? null,
                 ];
+                
                 Redis::Cache()->set("xiv_GilShopData_{$gs->ID}", $gilShopData, RedisConstants::TIME_10_YEAR);
                 
                 // record all shops an item is in.
@@ -226,8 +226,6 @@ class CompanionItemManager
             
             unset($npc);
         }
-    
-        $section->overwrite('- Complete');
     }
     
     /**
@@ -235,17 +233,12 @@ class CompanionItemManager
      */
     private function buildItemList()
     {
-        $ids     = (array)Redis::Cache()->get('ids_Item');
-        $total   = count($ids);
-        $section = $this->console->section();
- 
+        $this->console->writeln("Building item list and item information ...");
+
+        $ids = (array)Redis::Cache()->get('ids_Item');
+        $ids = array_unique($ids);
+        
         foreach ($ids as $i => $id) {
-            $i = $i+1;
-            
-            if ($i % 50 == 0) {
-                $section->overwrite("{$i}/{$total}");
-            }
-            
             $item = Redis::Cache()->get("xiv_Item_{$id}");
             if ($item === null) {
                 continue;
@@ -257,9 +250,18 @@ class CompanionItemManager
             }
             
             $this->items[] = $item->ID;
+            
+            // add some info
+            $this->itemToInfo[$item->ID] = [
+                'ID'         => $item->ID,
+                'CatId'      => $item->ClassJobCategory->ID ?? null,
+                'KindId'     => $item->ItemKind->ID ?? null,
+                'UIName'     => $item->ItemUICategory->Name_en ?? null,
+                'LevelEquip' => $item->LevelEquip,
+                'LevelItem'  => $item->LevelItem,
+                'Rarity'     => $item->Rarity,
+            ];
         }
-    
-        $section->overwrite('- Complete');
     }
     
     /**
@@ -267,72 +269,136 @@ class CompanionItemManager
      */
     private function insertMarketItems()
     {
+        $servers = GameServers::LIST;
+        
+        // remove offline servers
+        foreach ($servers as $serverId => $serverName) {
+            if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
+                unset($servers[$serverId]);
+            }
+        }
+  
         $conn    = $this->em->getConnection();
-        $total   = number_format(count($this->items));
+        $count   = 0;
+        $total   = count($this->items) * count($servers);
+        $uniq    = [];
+        $uniqShop= [];
+
+        $this->console->writeln("Inserting {$total} items into the market table");
         $section = $this->console->section();
+    
+        $insert  = [];
+        $columns = [
+            'updated',
+            'item',
+            'server',
+            'normal_queue',
+            'manual_queue',
+            'patreon_queue',
+            'state',
+            'priority'
+        ];
 
         foreach ($this->items as $i => $itemId) {
-            $i = $i+1;
-            
-            if ($i % 50 == 0) {
-                $section->overwrite("{$i}/{$total}");
+            // grab item info
+            $itemInfo = $this->itemToInfo[$itemId];
+    
+            //
+            // ADD: Where to buy from vendor
+            //
+            $hasShop = false;
+            $shops = $this->itemToShops[$itemId] ?? null;
+            if ($shops && !isset($uniqShop[$itemId])) {
+                $hasShop = true;
+                $uniqShop[$itemId] = 1;
+                $shops = json_encode(array_unique($shops));
+                $stmt = $conn->prepare(
+                    "INSERT IGNORE INTO companion_market_item_source (`item`,`data`) VALUES ('{$itemId}','{$shops}')"
+                );
+                $stmt->execute();
             }
             
-            foreach (GameServers::LIST as $serverId => $serverName) {
-                // skip offline servers
-                if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
-                    continue;
-                }
-    
-                /**
-                 * Skip existing ones
-                 */
-                $stmt = $conn->prepare("SELECT id FROM companion_market_items WHERE item = {$itemId} AND server = {$serverId} LIMIT 0,1");
-                $stmt->execute();
-    
-                // exists
-                if ($stmt->fetch()) {
-                    continue;
-                }
-    
-                $id    = Uuid::uuid4()->toString();
-                $state = CompanionItem::STATE_UPDATING;
-                
-                // check if it has a shop
-                $shops = $this->itemToShops[$itemId] ?? null;
-                $shops = $shops ? array_unique($shops) : null;
-                $shops = $shops ? json_encode($shops) : '';
-                
-                // if the item can be bought from the store, update state
-                if ($shops) {
-                    // insert source info
-                    $stmt = $conn->prepare(
-                        "REPLACE INTO companion_market_item_source (id, item, `data`) " .
-                        "VALUES ('{$id}', {$itemId}, '{$shops}')"
-                    );
-                    $stmt->execute();
-                    continue;
-                }
-    
-                // get region
-                $dc     = GameServers::getDataCenter($serverName);
-                $region = GameServers::LIST_DC_REGIONS[$dc];
-                $queue  = CompanionConfiguration::QUEUE_NEW_ITEM;
-                
+            // loop through servers to add each item
+            foreach ($servers as $serverId => $serverName) {
+                // setup
+                $queue    = CompanionConfiguration::QUEUE_NEW_ITEM;
+                $state    = CompanionItem::STATE_UPDATING;
                 $priority = time() - mt_rand(10,999999);
+                $uniqId   = $serverId . $itemId;
                 
-                // insert item entry
-                $stmt = $conn->prepare(
-                    "REPLACE INTO companion_market_items (id, updated, item, server, region, normal_queue, patreon_queue, state, priority) " .
-                    "VALUES ('{$id}', 0, {$itemId}, {$serverId}, {$region}, {$queue}, 0, {$state}, {$priority});"
-                );
+                // skip any unique's added, unsure why this happens..
+                // todo - investigate
+                if (isset($uniq[$uniqId])) {
+                    continue;
+                }
+    
+                $uniq[$uniqId] = 1;
+                
+                //
+                // If the item is gear and is below level 60, it wont be updated
+                //
+                if (in_array($itemInfo['KindId'], [1,2,3,4]) && $itemInfo['LevelEquip'] < 68) {
+                    // if the item is armor, equip level 1 and item level 1, it can be updated
+                    if (in_array($itemInfo['KindId'], [3]) && $itemInfo['LevelEquip'] == 1 && $itemInfo['LevelItem'] == 1) {
+                    // if item is rarity 3 (blue) it can be updated
+                    } elseif ($itemInfo['Rarity'] == 3) {
+                    // else, do not update
+                    } else {
+                        $state = CompanionItem::STATE_LOW_LEVEL;
+                        $queue = CompanionConfiguration::QUEUE_NOT_UPDATING;
+                    }
+                }
+                
+                //
+                // If the item can be bought from a shop and is either:
+                // a Medicine, material, or Other. Then don't update
+                //
+                if (in_array($itemInfo['KindId'], [5,6,7]) && $hasShop) {
+                    $state = CompanionItem::STATE_BOUGHT_FROM_NPC;
+                    $queue = CompanionConfiguration::QUEUE_NOT_UPDATING;
+                }
+                
+                // prep-insert
+                $insert[] = [
+                    0,
+                    $itemId,
+                    $serverId,
+                    $queue,
+                    0,
+                    0,
+                    $state,
+                    $priority
+                ];
             }
 
-            // insert
-            $stmt->execute();
+            // insert at count intervals
+            if (count($insert) > 200 || $count > ($total - 300)) {
+                //
+                // Insert item stuff
+                //
+                $count += count($insert);
+                $section->overwrite(number_format($count) . "/". number_format($total));
+                
+                // build query
+                $sql = "INSERT IGNORE INTO companion_market_items (%s) VALUES %s";
+                $sqlInsert = [];
+                
+                foreach ($insert as $in) {
+                    $sqlInsert[] = "(". implode(',', $in) .")";
+                }
+                
+                $sql = sprintf(
+                    $sql,
+                    implode(',', $columns),
+                    implode(',', $sqlInsert)
+                );
+                
+                // insert and reset
+                $insert = [];
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+            }
         }
-    
-        $section->overwrite('- Complete');
     }
     
     /**
@@ -342,109 +408,109 @@ class CompanionItemManager
      */
     private function insertMarketItemQueues()
     {
+        $this->console->writeln("Updating server market priority");
+        
         $conn    = $this->em->getConnection();
-        $total   = number_format(count($this->items));
         $section = $this->console->section();
-    
+        $total   = count($this->items);
+        $count   = 0;
+
+        // loop through prices
         foreach ($this->items as $i => $itemId) {
-            $i = $i + 1;
-            $section->overwrite("{$i}/{$total} - {$itemId}");
+            $count++;
     
-            foreach (GameServers::LIST as $serverId => $serverName) {
-                // skip offline servers
-                if (in_array($serverId, GameServers::MARKET_OFFLINE)) {
-                    continue;
-                }
-
-                /**
-                 * Grab entry
-                 */
-                $stmt = $conn->prepare(
-                    "SELECT * FROM companion_market_items
-                     WHERE item = {$itemId} AND server = {$serverId} LIMIT 0,1"
-                );
-                $stmt->execute();
-                $item = $stmt->fetch();
-
-                // if its on queue 70, ignore for now
-                if ($item['normal_queue'] === 70) {
-                    continue;
-                }
-                
-                // grab recorded document
-                /** @var MarketItem $document */
-                $document = $this->companionMarket->get($serverId, $itemId);
-                
-                // if no history, or never sells, update state and continue
-                if (empty($document->History) || count($document->History) < CompanionConfiguration::MINIMUM_SALES_TO_UPDATE) {
-                    $stmt = $conn->prepare(
-                        sprintf(
-                            "UPDATE companion_market_items
-                             SET state = %s, normal_queue = %s
-                             WHERE id = '%s'",
-                            CompanionItem::STATE_NEVER_SOLD,
-                            CompanionConfiguration::STATE_NEVER_SOLD,
-                            $item['id']
-                        )
-                    );
-                    $stmt->execute();
-                    continue;
-                }
-                
-                // work out the history
-                $lastDate        = $document->History[0]->PurchaseDate;
-                $historyCount    = 0;
-                $historyCountMax = 100;
-                $average         = [];
-                
-                // 1st one manually assigned
-                unset($document->History[0]);
+            // grab server stuff
+            $serverId = GameServers::getServerId(GameServers::MARKET_SERVER);
     
-                // work out average history
-                foreach ($document->History as $history) {
-                    $diff = $lastDate - $history->PurchaseDate;
-                    $lastDate = $history->PurchaseDate;
-                    $average[] = $diff;
+            // set default queue
+            $queue = CompanionConfiguration::QUEUE_DEFAULT;
     
-                    // stop after hitting max, we don't care about out of date sales.
-                    $historyCount++;
-                    if ($historyCount > $historyCountMax) {
-                        break;
-                    }
-                }
+            //
+            // Grab current entry
+            //
+            $stmt = $conn->prepare(
+                "SELECT * FROM companion_market_items
+                     WHERE item = {$itemId} AND server = {$serverId} LIMIT 1"
+            );
+            $stmt->execute();
+            $item = $stmt->fetch();
     
-                $saleAverage = floor(array_sum($average) / count($average));
-    
-                // set default queue
-                $queue = CompanionConfiguration::QUEUE_DEFAULT;
-                
-                // find where it fits in our table
-                foreach (CompanionConfiguration::PRIORITY_TIMES as $time => $queueNumber) {
-                    // continue if the avg is above the time, skip
-                    if ($saleAverage < $time) {
-                        $queue = $queueNumber;
-                        break;
-                    }
-                }
-    
-                // update with queue
-                $stmt = $conn->prepare(
-                    sprintf(
-                        "UPDATE companion_market_items
-                         SET state = %s, normal_queue = %s
-                         WHERE id = '%s'",
-                        CompanionItem::STATE_UPDATING,
-                        $queue,
-                        $item['id']
-                    )
-                );
-                $stmt->execute();
+            //
+            // SKIP: Item is new
+            //
+            if ($item['normal_queue'] === 70) {
+                continue;
             }
-        }
+            
+            //
+            // SKIP: Item not being updated
+            //
+            if ($item['state'] != CompanionItem::STATE_UPDATING) {
+                continue;
+            }
     
-        $section->overwrite('- Complete');
+            //
+            // grab recorded document
+            //
+            /** @var MarketItem $document */
+            $document = $this->companionMarket->get($serverId, $itemId);
+    
+            // if no history or never sells, update state and continue
+            if (empty($document->History) || count($document->History) < CompanionConfiguration::MINIMUM_SALES_TO_UPDATE) {
+                $this->insertMarketItemQueuesSetNewQueue($itemId, CompanionItem::STATE_UPDATING, CompanionConfiguration::QUEUE_NEVER_SOLD);
+                continue;
+            }
+    
+            // work out the history
+            $lastDate   = $document->History[0]->PurchaseDate;
+            $maxHistory = 50;
+            $average    = [];
+    
+            // 1st one manually assigned
+            unset($document->History[0]);
+    
+            // work out average history
+            foreach ($document->History as $history) {
+                $diff      = $lastDate - $history->PurchaseDate;
+                $lastDate  = $history->PurchaseDate;
+                $average[] = $diff;
+        
+                // stop after hitting max, we don't care about out of date sales.
+                if (count($average) > $maxHistory) {
+                    break;
+                }
+            }
+    
+            $saleAverage = floor(array_sum($average) / count($average));
+    
+            // find where it fits in our table
+            foreach (CompanionConfiguration::PRIORITY_TIMES as $time => $queueNumber) {
+                // continue if the avg is above the time, skip
+                if ($saleAverage < $time) {
+                    $queue = $queueNumber;
+                    break;
+                }
+            }
+    
+            //
+            // Update queue for item
+            //
+            $section->overwrite("{$count}/{$total} - Item: {$itemId}, Queue: {$queue}");
+            $this->insertMarketItemQueuesSetNewQueue($itemId, CompanionItem::STATE_UPDATING, $queue);
+        }
     }
 
+    /**
+     * Update queue
+     */
+    private function insertMarketItemQueuesSetNewQueue($itemId, $state, $queue)
+    {
+        $conn = $this->em->getConnection();
+        $sql = "UPDATE companion_market_items SET state = ?, normal_queue = ? WHERE item = ?";
+        $sql = $conn->prepare($sql);
+        $sql->execute([ $state, $queue, $itemId ]);
+    }
+    
     /**
      * Get a list of market item ids
      */
@@ -467,4 +533,5 @@ class CompanionItemManager
         Redis::Cache()->set(self::MARKET_ITEMS_CACHE_KEY, $items, RedisConstants::TIME_10_YEAR);
         return $items;
     }
+    
 }

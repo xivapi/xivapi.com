@@ -19,66 +19,62 @@ use Doctrine\ORM\Mapping as ORM;
 class CompanionItemQueue
 {
     /**
-     * @var string
      * @ORM\Id
-     * @ORM\Column(type="guid")
+     * @ORM\Column(type="integer")
      */
     private $id;
     /**
-     * @var int
      * @ORM\Column(type="integer")
      */
     private $item;
     /**
-     * @var int
      * @ORM\Column(type="integer")
      */
     private $server;
     /**
-     * @var int
      * @ORM\Column(type="integer")
      */
     private $queue;
     
-    public function getId(): string
+    public function getId()
     {
         return $this->id;
     }
     
-    public function setId(string $id)
+    public function setId($id)
     {
         $this->id = $id;
         return $this;
     }
     
-    public function getItem(): int
+    public function getItem()
     {
         return $this->item;
     }
     
-    public function setItem(int $item)
+    public function setItem($item)
     {
         $this->item = $item;
         return $this;
     }
     
-    public function getServer(): int
+    public function getServer()
     {
         return $this->server;
     }
     
-    public function setServer(int $server)
+    public function setServer($server)
     {
         $this->server = $server;
         return $this;
     }
     
-    public function getQueue(): int
+    public function getQueue()
     {
         return $this->queue;
     }
     
-    public function setQueue(int $queue)
+    public function setQueue($queue)
     {
         $this->queue = $queue;
         return $this;

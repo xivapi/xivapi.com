@@ -8,14 +8,18 @@ use Doctrine\ORM\Mapping as ORM;
  * - This has UpperCase variables as its game content
  * @ORM\Table(
  *     name="companion_market_items",
- *     indexes={
- *          @ORM\Index(name="updated", columns={"updated"}),
+ *     uniqueConstraints = {
+ *          @ORM\UniqueConstraint(name="unique_item", columns={"item", "server"})
+ *     },
+ *     indexes = {
  *          @ORM\Index(name="item", columns={"item"}),
+ *          @ORM\Index(name="server", columns={"server"}),
+ *          @ORM\Index(name="updated", columns={"updated"}),
  *          @ORM\Index(name="priority", columns={"priority"}),
  *          @ORM\Index(name="normal_queue", columns={"normal_queue"}),
+ *          @ORM\Index(name="manual_queue", columns={"normal_queue"}),
  *          @ORM\Index(name="patreon_queue", columns={"patreon_queue"}),
- *          @ORM\Index(name="server", columns={"server"}),
- *          @ORM\Index(name="region", columns={"region"})
+ *          @ORM\Index(name="state", columns={"state"})
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\CompanionItemRepository")
@@ -25,150 +29,142 @@ class CompanionItem
     const STATE_UPDATING        = 1;
     const STATE_BOUGHT_FROM_NPC = 2;
     const STATE_NEVER_SOLD      = 3;
+    const STATE_LOW_LEVEL       = 4;
     const STATE_OVER_MAX_TIME   = 9;
     
     /**
-     * @var string
      * @ORM\Id
-     * @ORM\Column(type="guid")
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
      */
     private $id;
     /**
-     * @var int
      * @ORM\Column(type="integer")
      */
     private $updated;
     /**
-     * @var int
      * @ORM\Column(type="integer")
      */
     private $priority;
     /**
-     * @var int
      * @ORM\Column(type="integer")
      */
     private $item;
     /**
-     * @var int
      * @ORM\Column(type="integer")
      */
     private $server;
     /**
-     * @var int
-     * @ORM\Column(type="integer")
-     */
-    private $region;
-    /**
-     * @var int
      * @ORM\Column(type="integer")
      */
     private $normalQueue;
     /**
-     * @var int
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $manualQueue;
+    /**
      * @ORM\Column(type="integer", nullable=true)
      */
     private $patreonQueue;
     /**
-     * @var int
      * @ORM\Column(type="integer", nullable=true)
      */
     private $state;
     
-    public function getId(): string
+    public function getId()
     {
         return $this->id;
     }
     
-    public function setId(string $id)
+    public function setId($id)
     {
         $this->id = $id;
         return $this;
     }
     
-    public function getUpdated(): int
+    public function getUpdated()
     {
         return $this->updated;
     }
     
-    public function setUpdated(int $updated)
+    public function setUpdated($updated)
     {
         $this->updated = $updated;
         return $this;
     }
     
-    public function getPriority(): int
+    public function getPriority()
     {
         return $this->priority;
     }
     
-    public function setPriority(int $priority)
+    public function setPriority($priority)
     {
         $this->priority = $priority;
-        
         return $this;
     }
     
-    public function getItem(): int
+    public function getItem()
     {
         return $this->item;
     }
     
-    public function setItem(int $item)
+    public function setItem($item)
     {
         $this->item = $item;
         return $this;
     }
     
-    public function getServer(): int
+    public function getServer()
     {
         return $this->server;
     }
     
-    public function setServer(int $server)
+    public function setServer($server)
     {
         $this->server = $server;
         return $this;
     }
     
-    public function getRegion(): int
+    public function getNormalQueue()
     {
-        return $this->region;
+        return $this->normalQueue;
     }
     
-    public function setRegion(int $region)
-    {
-        $this->region = $region;
-        return $this;
-    }
-    
-    public function getNormalQueue(): int
-    {
-        return $this->normalQueue ?: 0;
-    }
-    
-    public function setNormalQueue(int $normalQueue)
+    public function setNormalQueue($normalQueue)
     {
         $this->normalQueue = $normalQueue;
         return $this;
     }
     
-    public function getPatreonQueue(): int
+    public function getManualQueue()
     {
-        return $this->patreonQueue ?: 0;
+        return $this->manualQueue;
     }
     
-    public function setPatreonQueue(int $patreonQueue)
+    public function setManualQueue($manualQueue)
+    {
+        $this->manualQueue = $manualQueue;
+        return $this;
+    }
+    
+    public function getPatreonQueue()
+    {
+        return $this->patreonQueue;
+    }
+    
+    public function setPatreonQueue($patreonQueue)
     {
         $this->patreonQueue = $patreonQueue;
         return $this;
     }
     
-    public function getState(): int
+    public function getState()
     {
         return $this->state;
     }
     
-    public function setState(int $state)
+    public function setState($state)
     {
         $this->state = $state;
         return $this;

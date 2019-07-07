@@ -17,9 +17,9 @@ use Doctrine\ORM\Mapping as ORM;
 class CompanionItemSource
 {
     /**
-     * @var string
      * @ORM\Id
-     * @ORM\Column(type="guid")
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
      */
     private $id;
     /**
@@ -33,12 +33,12 @@ class CompanionItemSource
      */
     private $data;
     
-    public function getId(): string
+    public function getId()
     {
         return $this->id;
     }
     
-    public function setId(string $id)
+    public function setId($id)
     {
         $this->id = $id;
         return $this;

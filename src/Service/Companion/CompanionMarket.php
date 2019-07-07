@@ -7,6 +7,7 @@ use App\Common\Service\ElasticSearch\ElasticQuery;
 use App\Common\Service\ElasticSearch\ElasticSearch;
 use App\Common\Utils\Arrays;
 use App\Entity\CompanionCharacter;
+use App\Entity\CompanionItem;
 use App\Entity\CompanionRetainer;
 use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionRetainerRepository;
@@ -326,5 +327,17 @@ class CompanionMarket
         
         print_r($results);
         die;
+    }
+    
+    /**
+     * Get all companion items
+     */
+    public function getTrackedItems()
+    {
+        $sql = "SELECT DISTINCT(item), normal_queue, state FROM companion_market_items";
+        $sql = $this->em->getConnection()->prepare($sql);
+        $sql->execute();
+        
+        return $sql->fetchAll();
     }
 }

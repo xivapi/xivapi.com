@@ -55,8 +55,6 @@ class MarketUpdater
     private $marketItemEntryFailed = [];
     private $marketItemEntryLog = [];
     /** @var int */
-    private $priority = 0;
-    /** @var int */
     private $queue = 0;
     /** @var int */
     private $deadline = 0;
@@ -89,32 +87,12 @@ class MarketUpdater
         }
 
         //
-        // todo - tempz?
+        // todo - tempz? for whatever reason if you query during the 7th or 8th minute you get errors........
         //
         if (in_array(date('i'), [7,8])) {
             $this->console("Not doing any queries as it's 7/8 minutes past");
             return;
         }
-
-        //
-        // todo - temp
-        //
-        $japan = Carbon::now(new CarbonTimeZone('Asia/Tokyo'));
-        switch($japan->hour) {
-            default: $pause = false; break;
-            case 9: $pause = mt_rand(1, 3); break;
-            case 10: $pause = mt_rand(2, 5); break;
-            case 11: $pause = mt_rand(2, 6); break;
-            case 12: $pause = mt_rand(2, 8); break;
-            case 13: $pause = mt_rand(2, 8); break;
-            case 14: $pause = mt_rand(2, 6); break;
-            case 15: $pause = mt_rand(2, 8); break;
-            case 16: $pause = mt_rand(1, 5); break;
-            case 17: $pause = mt_rand(1, 4); break;
-        }
-        //
-        // todo - temp
-        //
 
         // init
         $this->startTime = microtime(true);
@@ -136,9 +114,9 @@ class MarketUpdater
         $api = new CompanionApi();
         
         // settings
-        CompanionSight::set('CLIENT_TIMEOUT', 3);
-        CompanionSight::set('QUERY_LOOP_COUNT', 5);
-        CompanionSight::set('QUERY_DELAY_MS', 1500);
+        CompanionSight::set('CLIENT_TIMEOUT', 1.2);
+        CompanionSight::set('QUERY_LOOP_COUNT', 4);
+        CompanionSight::set('QUERY_DELAY_MS', 2000);
         
         // begin
         foreach ($this->items as $item) {
@@ -224,10 +202,6 @@ class MarketUpdater
     
                 RedisTracking::increment('ITEM_UPDATED');
                 RedisTracking::increment('ITEM_UPDATED_DAILY_'. (strlen($queue) == 3 ? substr($queue, 0, 1) : 'PATRON') .'_'. date('y-m-d'));
-    
-                if ($pause) {
-                    sleep($pause);
-                }
             } catch (\Exception $ex) {
                 $this->marketItemEntryFailed[] = $item['id'];
                 
@@ -344,8 +318,8 @@ class MarketUpdater
      */
     private function logoutCharacterServers(string $message, string $serverName)
     {
-        // update expiring to 60-180 mins
-        $expiring = time() + (60 * mt_rand(60,180));
+        // logout for 6 hours
+        $expiring = time() + (60 * 60 * 6);
 
         $sql = "
             UPDATE companion_tokens
@@ -364,12 +338,12 @@ class MarketUpdater
     }
     
     /**
-     * Logout a character is congestion is detected
+     * Logout a character
      */
     private function logoutAccount(string $message, string $account)
     {
-        // update expiring to 60-180 mins
-        $expiring = time() + (60 * mt_rand(60,180));
+        // update expiring to 30-90 mins
+        $expiring = time() + (60 * mt_rand(30,90));
         
         $sql = "
             UPDATE companion_tokens

@@ -17,7 +17,10 @@ class CompanionConfiguration
     const MINIMUM_SALES_TO_UPDATE = 5;
     
     // Item never sold, or rarely sells
-    const STATE_NEVER_SOLD = 50;
+    const QUEUE_NOT_UPDATING = 0;
+    
+    // Item never sold, or rarely sells
+    const QUEUE_NEVER_SOLD = 50;
     
     // Item is new to the site
     const QUEUE_DEFAULT = 60;
@@ -25,25 +28,19 @@ class CompanionConfiguration
     // Item is new to the site
     const QUEUE_NEW_ITEM = 70;
     
+    // Queue information
     const QUEUE_INFO = [
-        // name, consumers
         0  => 'Not Updating',
         
         1  => '< 1 hour',
-        2  => '< 2 hours',
-        3  => '< 3 hours',
-        4  => '< 4 hours',
-        5  => '< 6 hours',
-        6  => '< 12 hours',
-        7  => '< 16 hours',
-        8  => '< 24 hours',
-        9  => '< 30 hours',
-        10 => '< 40 hours',
-        11 => '< 60 hours',
-        12 => '< 100 hours',
-        13 => '< 200 hours',
-        14 => '< 300 hours',
-        15 => '< 400 hours',
+        2  => '< 3 hours',
+        3  => '< 6 hours',
+        4  => '< 12 hours',
+        5  => '< 24 hours',
+        6  => '< 30 hours',
+        7  => '< 50 hours',
+        8  => '< 72 hours',
+        9  => '< 100 hours',
 
         50  => 'Never Sold',
         60  => 'Default',
@@ -52,26 +49,15 @@ class CompanionConfiguration
     
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
-        (60 * 60 * 1)         => 1,
-        (60 * 60 * 2)         => 2,
-        (60 * 60 * 3)         => 3,
-        (60 * 60 * 4)         => 4,
-        (60 * 60 * 6)         => 5,
-        (60 * 60 * 12)        => 6,
-        (60 * 60 * 16)        => 7,
-        (60 * 60 * 24)        => 8,
-        (60 * 60 * 30)        => 9,
-        (60 * 60 * 40)        => 10,
-        (60 * 60 * 60)        => 11,
-        (60 * 60 * 100)       => 12,
-        (60 * 60 * 200)       => 13,
-        (60 * 60 * 300)       => 14,
-        (60 * 60 * 400)       => 15,
-
-        // just give these 30 days to keep them at least somewhat updatable
-        (60 * 60 * 24 * 30)   => self::STATE_NEVER_SOLD,
-        (60 * 60 * 24 * 30)   => self::QUEUE_DEFAULT,
-        (60 * 60 * 24 * 30)   => self::QUEUE_NEW_ITEM,
+        (60 * 60 * 1)   => 1,
+        (60 * 60 * 3)   => 2,
+        (60 * 60 * 6)   => 3,
+        (60 * 60 * 12)  => 4,
+        (60 * 60 * 24)  => 5,
+        (60 * 60 * 30)  => 6,
+        (60 * 60 * 50)  => 7,
+        (60 * 60 * 72)  => 8,
+        (60 * 60 * 100) => 9,
     ];
     
     const QUEUE_CONSUMERS_PATREON = [
@@ -79,6 +65,5 @@ class CompanionConfiguration
         50001,
         50002,
         50003,
-        50004
     ];
 }

@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Common\Game\GameServers;
+use App\Common\Service\Redis\Redis;
+use App\Common\Utils\Arrays;
+use App\Entity\CompanionItem;
 use App\Entity\CompanionToken;
 use App\Exception\InvalidCompanionMarketRequestException;
 use App\Exception\InvalidCompanionMarketRequestServerSizeException;
@@ -201,5 +204,45 @@ class MarketController extends AbstractController
         $response = $this->companionMarket->get($serverId, $itemId, $maxHistory, $maxPrices);
         
         return $this->json($response);
+    }
+    
+    /**
+     * @Route("/market/tracked")
+     */
+    public function itemsBeingTracked()
+    {
+        $items = $this->companionMarket->getTrackedItems();
+        
+        $response = [
+            CompanionItem::STATE_UPDATING => [],
+            CompanionItem::STATE_BOUGHT_FROM_NPC => [],
+            CompanionItem::STATE_LOW_LEVEL => [],
+        ];
+        
+        foreach ($items as $itemRow) {
+            $itemId = $itemRow['item'];
+            $queue  = $itemRow['normal_queue'];
+            $state  = $itemRow['state'];
+            
+            $item = Redis::cache()->get("xiv_Item_{$itemId}");
+            
+            $response[$state][] = [
+                'ID' => $itemId,
+                'Queue' => $queue,
+                'Name' => $item->Name_en,
+                'ItemSearchCategory' => $item->ItemSearchCategory->Name_en,
+                'ItemKind' => $item->ItemKind->Name_en,
+                'LevelEquip' => $item->LevelEquip,
+                'LevelItem' => $item->LevelItem,
+            ];
+        }
+    
+        Arrays::sortBySubKey($response[CompanionItem::STATE_UPDATING], 'ItemSearchCategory', true);
+        Arrays::sortBySubKey($response[CompanionItem::STATE_BOUGHT_FROM_NPC], 'ItemSearchCategory', true);
+        Arrays::sortBySubKey($response[CompanionItem::STATE_LOW_LEVEL], 'ItemSearchCategory', true);
+        
+        return $this->render('_tracked.html.twig', [
+            'tracked_items' => $response
+        ]);
     }
 }
