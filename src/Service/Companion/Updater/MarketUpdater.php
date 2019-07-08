@@ -114,8 +114,8 @@ class MarketUpdater
         $api = new CompanionApi();
         
         // settings
-        CompanionSight::set('CLIENT_TIMEOUT', 1.2);
-        CompanionSight::set('QUERY_LOOP_COUNT', 4);
+        CompanionSight::set('CLIENT_TIMEOUT', 1.25);
+        CompanionSight::set('QUERY_LOOP_COUNT', 6);
         CompanionSight::set('QUERY_DELAY_MS', 1000);
         
         // begin
@@ -612,6 +612,7 @@ class MarketUpdater
         foreach ($this->marketItemEntryUpdated as $id) {
             // if it failed, skip, we'll do it again
             if (in_array($id, $this->marketItemEntryFailed)) {
+                $this->console("Failed: {$id}");
                 continue;
             }
     
