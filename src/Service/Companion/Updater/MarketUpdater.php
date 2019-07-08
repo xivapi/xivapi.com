@@ -620,7 +620,7 @@ class MarketUpdater
             
             $this->console("{$id} = {$message}");
             
-            $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL, log = '". $message ."' WHERE id = '{$id}'";
+            $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL WHERE id = '{$id}'";
 
             $stmt = $conn->prepare($sql);
             $stmt->execute();
