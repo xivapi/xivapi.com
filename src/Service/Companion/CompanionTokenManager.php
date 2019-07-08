@@ -292,9 +292,9 @@ class CompanionTokenManager
 
         try {
             // settings
-            CompanionSight::set('CLIENT_TIMEOUT', 10);
-            CompanionSight::set('QUERY_LOOP_COUNT', 8);
-            CompanionSight::set('QUERY_DELAY_MS', mt_rand(1000,1500));
+            CompanionSight::set('CLIENT_TIMEOUT', 1.2);
+            CompanionSight::set('QUERY_LOOP_COUNT', 5);
+            CompanionSight::set('QUERY_DELAY_MS', 1000);
 
             // initialize API and create a new token
             $api = new CompanionApi("{$account}_{$username}_{$server}");
@@ -327,12 +327,10 @@ class CompanionTokenManager
             $steps[] = "Price Checked";
             
             // token expiry time 8-16 hours
-            $hoursMin = (60 * 60 * 8);
-            $hoursMax = (60 * 60 * 16);
             $token
                 ->setMessage('Online')
                 ->setOnline(true)
-                ->setExpiring(time() + mt_rand($hoursMin, $hoursMax))
+                ->setExpiring(time() + mt_rand((60 * 60 * 15), (60 * 60 * 20)))
                 ->setToken($api->Token()->get());
     
             RedisTracking::increment('ACCOUNT_LOGIN_SUCCESS');
