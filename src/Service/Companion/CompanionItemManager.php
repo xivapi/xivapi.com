@@ -91,6 +91,9 @@ class CompanionItemManager
         // get all items and handle their states
         $this->buildItemList();
         
+        // insert items
+        $this->insertItems();
+        
         // insert market item entries for online servers
         $this->insertMarketItems();
     
@@ -118,8 +121,6 @@ class CompanionItemManager
         }
         return;
         */
-        
-        
         
         $start = Carbon::now();
         $date  = date('Y-m-d H:i:s');
@@ -265,6 +266,22 @@ class CompanionItemManager
     }
     
     /**
+     * Insert items
+     */
+    private function insertItems()
+    {
+        $this->console->writeln("Inserting items into companion_items");
+        $conn = $this->em->getConnection();
+        
+        foreach ($this->items as $i => $itemId) {
+            $stmt = $conn->prepare(
+                "INSERT IGNORE INTO companion_items (`item_id`,`last_visit`) VALUES ({$itemId},0)"
+            );
+            $stmt->execute();
+        }
+    }
+    
+    /**
      * Insert all the items
      */
     private function insertMarketItems()
@@ -318,11 +335,17 @@ class CompanionItemManager
                 $stmt->execute();
             }
             
+            // grab existing
+            $sql = "SELECT * FROM companion_market_items WHERE item = {$itemId} AND server = 47";
+            $sql = $conn->prepare($sql);
+            $sql->execute();
+            $existing = $sql->fetch();
+            
             // loop through servers to add each item
             foreach ($servers as $serverId => $serverName) {
                 // setup
-                $queue    = CompanionConfiguration::QUEUE_NEW_ITEM;
-                $state    = CompanionItem::STATE_UPDATING;
+                $queue    = $existing['normal_queue'] ?: CompanionConfiguration::QUEUE_NEW_ITEM;
+                $state    = $existing['state'] ?: CompanionItem::STATE_UPDATING;
                 $priority = time() - mt_rand(10,999999);
                 $uniqId   = $serverId . $itemId;
                 
@@ -353,9 +376,18 @@ class CompanionItemManager
                 // If the item can be bought from a shop and is either:
                 // a Medicine, material, or Other. Then don't update
                 //
-                if (in_array($itemInfo['KindId'], [5,6,7]) && $hasShop) {
+                if (in_array($itemInfo['KindId'], [6,7]) && $hasShop) {
                     $state = CompanionItem::STATE_BOUGHT_FROM_NPC;
                     $queue = CompanionConfiguration::QUEUE_NOT_UPDATING;
+                }
+                
+                //
+                // Medicine and Meals
+                // or anything above item level 400 will update
+                //
+                if ($itemInfo['KindId'] == 5 || $itemInfo['LevelItem'] > 400) {
+                    $state = CompanionItem::STATE_UPDATING;
+                    $queue = CompanionConfiguration::QUEUE_NEW_ITEM;
                 }
                 
                 // prep-insert

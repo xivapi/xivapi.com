@@ -9,6 +9,7 @@ use App\Repository\CompanionItemRepository;
 use App\Repository\CompanionItemQueueRepository;
 use App\Service\Companion\CompanionConfiguration;
 use App\Service\Companion\CompanionTokenManager;
+use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -45,8 +46,8 @@ class MarketQueue
             return;
         }
 
-        // run this 20 seconds in.
-        sleep(25);
+        // run this 15 seconds in.
+        sleep(15);
 
         $s = microtime(true);
     
@@ -139,6 +140,57 @@ class MarketQueue
         $this->em->clear();
         $duration = round(microtime(true) - $s, 2);
         $console->writeln("Done: {$duration} seconds.");
+    }
+    
+    public function untrackNonVisititems()
+    {
+        $start = Carbon::now();
+        $console = new ConsoleOutput();
+        $console = $console->section();
+        $console->writeln("Handling tracking state for items");
+        
+        $conn = $this->em->getConnection();
+        $stmt = $conn->prepare('SELECT * FROM companion_items');
+        $stmt->execute();
+    
+        $timeout = time() - (60 * 60 * 24);
+        
+        foreach ($stmt->fetchAll() as $row) {
+            $itemId    = $row['item_id'];
+            $lastVisit = $row['last_visit'];
+            $queue     = (int)$row['normal_queue'] ?: 0;
+
+            $console->overwrite("Item: {$itemId}");
+            
+            if ($lastVisit < $timeout) {
+                // grab its current queue
+                $stmt  = $conn->prepare("SELECT normal_queue FROM companion_market_items WHERE item = {$itemId} AND server = 47");
+                $stmt->execute();
+                $row   = $stmt->fetch();
+                
+                if (!$row) {
+                    continue;
+                }
+                
+                $queue = $row['normal_queue'] > 0 ? $row['normal_queue'] : $queue;
+                
+                // mark as no longer updated
+                $stmt = $conn->prepare("UPDATE companion_market_items SET priority = 0, normal_queue = 0 WHERE item = {$itemId}");
+                $stmt->execute();
+    
+                // keep a record of its queue
+                $stmt = $conn->prepare("UPDATE companion_items SET normal_queue = {$queue} WHERE item_id = {$itemId}");
+                $stmt->execute();
+            } else {
+                // ensure item starts updating again
+                $stmt = $conn->prepare("UPDATE companion_market_items SET priority = 0, normal_queue = {$queue} WHERE item = {$itemId}");
+                $stmt->execute();
+            }
+        }
+    
+        // finished
+        $duration = $start->diff(Carbon::now())->format('%h hr, %i min and %s sec');
+        $console->writeln("Duration: <comment>{$duration}</comment>");
     }
     
     /**
