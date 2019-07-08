@@ -47,16 +47,18 @@ class CompanionErrorHandler
      */
     public function exception(string $companionError, string $customMessage)
     {
-        RedisTracking::increment('ITEM_UPDATE_ERROR');
-        
-        // Analytics
-        GoogleAnalytics::companionTrackItemAsUrl('companion_error');
 
         // Get the error exception type
         [$errorCode, $errorException] = $this->getExceptionCodeAndType($companionError);
+
+        // ignore 500 errors and cURL errors.
+        if ($errorCode == '340000' || $errorCode == 'cURL error 28') {
+            return;
+        }
         
         // track each code
         RedisTracking::increment('ITEM_UPDATE_ERROR_'. $errorCode);
+        RedisTracking::increment('ITEM_UPDATE_ERROR');
 
         // Increase critical exception count
         $this->incrementCriticalExceptionCount();
@@ -70,10 +72,7 @@ class CompanionErrorHandler
         $this->em->persist($error);
         $this->em->flush();
         
-        // ignore 500 errors and cURL errors.
-        if ($errorCode == '340000' || $errorCode == 'cURL error 28') {
-            return;
-        }
+
         
         $date = date('Y-m-d H:i:s', $error->getAdded());
         Discord::mog()->sendMessage(

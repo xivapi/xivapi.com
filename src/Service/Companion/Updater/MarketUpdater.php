@@ -114,9 +114,9 @@ class MarketUpdater
         $api = new CompanionApi();
         
         // settings
-        CompanionSight::set('CLIENT_TIMEOUT', 1.25);
-        CompanionSight::set('QUERY_LOOP_COUNT', 6);
-        CompanionSight::set('QUERY_DELAY_MS', 1000);
+        CompanionSight::set('CLIENT_TIMEOUT', 2);
+        CompanionSight::set('QUERY_LOOP_COUNT', 5);
+        CompanionSight::set('QUERY_DELAY_MS', 1300);
         
         // begin
         foreach ($this->items as $item) {
