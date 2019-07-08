@@ -620,10 +620,13 @@ class MarketUpdater
             
             $this->console("{$id} = {$message}");
             
-            $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL WHERE id = '{$id}'";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            try {
+                $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL WHERE id = '{$id}'";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+            } catch (\Exception $ex) {
+                $this->console->writeln("Error inserting: ". $ex->getMessage());
+            }
         }
     }
 
