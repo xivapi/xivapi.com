@@ -293,7 +293,7 @@ class CompanionTokenManager
         try {
             // settings
             CompanionSight::set('CLIENT_TIMEOUT', 3);
-            CompanionSight::set('QUERY_LOOP_COUNT', 3);
+            CompanionSight::set('QUERY_LOOP_COUNT', 5);
             CompanionSight::set('QUERY_DELAY_MS', 1000);
 
             // initialize API and create a new token
