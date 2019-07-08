@@ -8,10 +8,10 @@ class CompanionConfiguration
     const ERROR_COUNT_THRESHOLD = 40;
 
     // the total number of items to process per cronjob
-    const MAX_ITEMS_PER_CRONJOB = 15;
+    const MAX_ITEMS_PER_CRONJOB = 10;
 
     // the total time a cronjob should stay active
-    const CRONJOB_TIMEOUT_SECONDS = 55;
+    const CRONJOB_TIMEOUT_SECONDS = 58;
     
     // Minimum sales
     const MINIMUM_SALES_TO_UPDATE = 5;

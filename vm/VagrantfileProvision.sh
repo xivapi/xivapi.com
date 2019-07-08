@@ -29,9 +29,26 @@ sudo cp /vagrant/vm/VagrantfileNginx.conf /etc/nginx/nginx.conf
 echo "Installing: PHP + Composer"
 sudo add-apt-repository ppa:ondrej/php -y
 sudo apt-get update -y
-sudo apt-get install -y php7.3-fpm php-apcu php-imagick php7.3-dev php7.3-cli php7.3-tidy php7.3-json
-sudo apt-get install -y php7.3-fpm php7.3-intl php7.3-mysql php7.3-sqlite php7.3-curl php7.3-gd
-sudo apt-get install -y php7.3-mbstring php7.3-dom php7.3-xml php7.3-zip php7.3-tidy php7.3-bcmath
+sudo apt-get install -y \
+    php7.3-fpm \
+    php-apcu \
+    php-imagick \
+    php7.3-dev \
+    php7.3-cli \
+    php7.3-json \
+    php7.3-intl \
+    php7.3-mysql \
+    php7.3-sqlite \
+    php7.3-curl \
+    php7.3-gd \
+    php7.3-mbstring \
+    php7.3-dom \
+    php7.3-xml \
+    php7.3-zip \
+    php7.3-tidy \
+    php7.3-bcmath
+
+
 sudo sed -i 's|display_errors = Off|display_errors = On|' /etc/php/7.3/fpm/php.ini
 sudo sed -i 's|memory_limit = 128M|memory_limit = -1|' /etc/php/7.3/fpm/php.ini
 sudo sed -i "s|www-data|$USER|" /etc/php/7.3/fpm/pool.d/www.conf
@@ -64,7 +81,7 @@ sudo service php7.3-fpm restart
 # Install JAVA + ElasticSearch
 #
 echo "Installing: Java + ElasticSearch"
-export _JAVA_OPTIONS="-Xmx5g -Xms5g"
+export _JAVA_OPTIONS="-Xmx1g -Xms1g"
 sudo apt install -y openjdk-8-jre apt-transport-https
 sudo wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 sudo bash -c 'sudo echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" > /etc/apt/sources.list.d/elastic.list'
