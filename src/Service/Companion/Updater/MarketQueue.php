@@ -136,6 +136,44 @@ class MarketQueue
             $console->writeln("Patreon queue: {$patreonQueue} filled.");
             $this->em->flush();
         }
+
+        /**
+         * Inset manual items
+         */
+        $console->writeln("Adding Patreon Queues");
+        foreach (CompanionConfiguration::QUEUE_CONSUMERS_MANUAL as $manualqueue) {
+            $updateItems = $this->repoEntries->findBy(
+                [ 'manualQueue' => $manualqueue ],
+                [ 'priority' => 'asc' ],
+                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
+            );
+
+            // skip queue if no items for that priority
+            if (empty($updateItems)) {
+                $console->writeln("(Manual) No items for priority: {$manualqueue}");
+                continue;
+            }
+
+            /** @var CompanionItem $item */
+            foreach ($updateItems as $item) {
+                // don't add items we already have queued.
+                if (in_array($item->getId(), $insertedItems)) {
+                    continue;
+                }
+
+                $queued = new CompanionItemQueue();
+                $queued
+                    ->setId($item->getId())
+                    ->setItem($item->getItem())
+                    ->setServer($item->getServer())
+                    ->setQueue($item->getPatreonQueue());
+
+                $this->em->persist($queued);
+            }
+
+            $console->writeln("Manual queue: {$manualqueue} filled.");
+            $this->em->flush();
+        }
         
         $this->em->clear();
         $duration = round(microtime(true) - $s, 2);
