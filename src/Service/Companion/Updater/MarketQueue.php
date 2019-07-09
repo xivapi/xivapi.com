@@ -158,30 +158,27 @@ class MarketQueue
         foreach ($stmt->fetchAll() as $row) {
             $itemId    = $row['item_id'];
             $lastVisit = $row['last_visit'];
-            $queue     = (int)$row['normal_queue'] ?: 0;
+            $queue     = (int)$row['normal_queue'];
 
-            $console->overwrite("Item: {$itemId}");
+            // grab its current queue
+            $stmt  = $conn->prepare("SELECT normal_queue FROM companion_market_items WHERE item = {$itemId} AND server = 7");
+            $stmt->execute();
+            $existing = $stmt->fetch();
+            $queue = $existing['normal_queue'] > 0 ? $existing['normal_queue'] : $queue;
             
             if ($lastVisit < $timeout) {
-                // grab its current queue
-                $stmt  = $conn->prepare("SELECT normal_queue FROM companion_market_items WHERE item = {$itemId} AND server = 47");
-                $stmt->execute();
-                $row   = $stmt->fetch();
-                
-                if (!$row) {
-                    continue;
-                }
-                
-                $queue = $row['normal_queue'] > 0 ? $row['normal_queue'] : $queue;
-                
-                // mark as no longer updated
-                $stmt = $conn->prepare("UPDATE companion_market_items SET priority = 0, normal_queue = 0 WHERE item = {$itemId}");
-                $stmt->execute();
-    
+                $console->writeln("Item: {$itemId} - Queue: {$queue} - INACTIVE");
+
                 // keep a record of its queue
                 $stmt = $conn->prepare("UPDATE companion_items SET normal_queue = {$queue} WHERE item_id = {$itemId}");
                 $stmt->execute();
+
+                // mark as no longer updated
+                $stmt = $conn->prepare("UPDATE companion_market_items SET priority = 0, normal_queue = 0 WHERE item = {$itemId}");
+                $stmt->execute();
             } else {
+                $console->writeln("Item: {$itemId} - Queue: {$queue} - UPDATING");
+
                 // ensure item starts updating again
                 $stmt = $conn->prepare("UPDATE companion_market_items SET priority = 0, normal_queue = {$queue} WHERE item = {$itemId}");
                 $stmt->execute();
