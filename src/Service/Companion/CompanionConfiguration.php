@@ -33,8 +33,8 @@ class CompanionConfiguration
         0  => 'Not Updating',
         
         1  => '< 1 hour',
-        2  => '< 3 hours',
-        3  => '< 6 hours',
+        2  => '< 5 hours',
+        3  => '< 10 hours',
         4  => '< 24 hours',
         5  => '< 168 hours',
         6  => '< 1000 hours',
@@ -47,8 +47,8 @@ class CompanionConfiguration
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
         (60 * 60 * 1)     => 1,
-        (60 * 60 * 3)     => 2,
-        (60 * 60 * 6)     => 3,
+        (60 * 60 * 5)     => 2,
+        (60 * 60 * 10)    => 3,
         (60 * 60 * 25)    => 4,
         (60 * 60 * 168)   => 5,
         (60 * 60 * 1000)  => 6,
