@@ -115,7 +115,7 @@ class CompanionStatistics
         /** @var CompanionItem $lastItem */
         $firstItem                = $this->repositoryEntries->findBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ], 1, 25);
         $firstItem                = $firstItem[0] ?? null;
-        $lastItem                 = $this->repositoryEntries->findOneBy([ 'normalQueue' => $priority, ], [ 'updated' => 'desc' ], 1, 25);
+        $lastItem                 = $this->repositoryEntries->findBy([ 'normalQueue' => $priority, ], [ 'updated' => 'desc' ], 1, 25);
         $lastItem                 = $lastItem[0] ?? null;
 
         // if we can't determine, we'll skip
