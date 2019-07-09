@@ -35,12 +35,9 @@ class CompanionConfiguration
         1  => '< 1 hour',
         2  => '< 3 hours',
         3  => '< 6 hours',
-        4  => '< 12 hours',
-        5  => '< 24 hours',
-        6  => '< 30 hours',
-        7  => '< 50 hours',
-        8  => '< 72 hours',
-        9  => '< 100 hours',
+        4  => '< 24 hours',
+        5  => '< 168 hours',
+        6  => '< 1000 hours',
 
         50  => 'Never Sold',
         60  => 'Default',
@@ -49,15 +46,12 @@ class CompanionConfiguration
     
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
-        (60 * 60 * 1)   => 1,
-        (60 * 60 * 3)   => 2,
-        (60 * 60 * 6)   => 3,
-        (60 * 60 * 12)  => 4,
-        (60 * 60 * 24)  => 5,
-        (60 * 60 * 30)  => 6,
-        (60 * 60 * 50)  => 7,
-        (60 * 60 * 72)  => 8,
-        (60 * 60 * 100) => 9,
+        (60 * 60 * 1)     => 1,
+        (60 * 60 * 3)     => 2,
+        (60 * 60 * 6)     => 3,
+        (60 * 60 * 25)    => 4,
+        (60 * 60 * 168)   => 5,
+        (60 * 60 * 1000)  => 6,
     ];
     
     const QUEUE_CONSUMERS_PATREON = [
