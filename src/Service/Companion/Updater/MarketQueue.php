@@ -141,16 +141,16 @@ class MarketQueue
          * Inset manual items
          */
         $console->writeln("Adding Patreon Queues");
-        foreach (CompanionConfiguration::QUEUE_CONSUMERS_MANUAL as $manualqueue) {
+        foreach (CompanionConfiguration::QUEUE_CONSUMERS_MANUAL as $manualQueue) {
             $updateItems = $this->repoEntries->findBy(
-                [ 'manualQueue' => $manualqueue ],
+                [ 'manualQueue' => $manualQueue ],
                 [ 'priority' => 'asc' ],
                 CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
             );
 
             // skip queue if no items for that priority
             if (empty($updateItems)) {
-                $console->writeln("(Manual) No items for priority: {$manualqueue}");
+                $console->writeln("(Manual) No items for priority: {$manualQueue}");
                 continue;
             }
 
@@ -166,12 +166,12 @@ class MarketQueue
                     ->setId($item->getId())
                     ->setItem($item->getItem())
                     ->setServer($item->getServer())
-                    ->setQueue($item->getPatreonQueue());
+                    ->setQueue($item->getManualQueue());
 
                 $this->em->persist($queued);
             }
 
-            $console->writeln("Manual queue: {$manualqueue} filled.");
+            $console->writeln("Manual queue: {$manualQueue} filled.");
             $this->em->flush();
         }
         
