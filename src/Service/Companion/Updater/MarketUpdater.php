@@ -621,7 +621,7 @@ class MarketUpdater
             $this->console("{$id} = {$message}");
             
             try {
-                $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL manual_queue = NULL WHERE id = '{$id}'";
+                $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL, manual_queue = NULL WHERE id = '{$id}'";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();
             } catch (\Exception $ex) {
