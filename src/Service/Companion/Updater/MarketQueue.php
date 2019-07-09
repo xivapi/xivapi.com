@@ -136,6 +136,44 @@ class MarketQueue
             $console->writeln("Patreon queue: {$patreonQueue} filled.");
             $this->em->flush();
         }
+
+        /**
+         * Inset manual items
+         */
+        $console->writeln("Adding Patreon Queues");
+        foreach (CompanionConfiguration::QUEUE_CONSUMERS_MANUAL as $manualQueue) {
+            $updateItems = $this->repoEntries->findBy(
+                [ 'manualQueue' => $manualQueue ],
+                [ 'priority' => 'asc' ],
+                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
+            );
+
+            // skip queue if no items for that priority
+            if (empty($updateItems)) {
+                $console->writeln("(Manual) No items for priority: {$manualQueue}");
+                continue;
+            }
+
+            /** @var CompanionItem $item */
+            foreach ($updateItems as $item) {
+                // don't add items we already have queued.
+                if (in_array($item->getId(), $insertedItems)) {
+                    continue;
+                }
+
+                $queued = new CompanionItemQueue();
+                $queued
+                    ->setId($item->getId())
+                    ->setItem($item->getItem())
+                    ->setServer($item->getServer())
+                    ->setQueue($item->getManualQueue());
+
+                $this->em->persist($queued);
+            }
+
+            $console->writeln("Manual queue: {$manualQueue} filled.");
+            $this->em->flush();
+        }
         
         $this->em->clear();
         $duration = round(microtime(true) - $s, 2);
@@ -158,34 +196,26 @@ class MarketQueue
         foreach ($stmt->fetchAll() as $row) {
             $itemId    = $row['item_id'];
             $lastVisit = $row['last_visit'];
-            $queue     = (int)$row['normal_queue'] ?: 0;
+            $queue     = (int)$row['normal_queue'];
 
-            $console->overwrite("Item: {$itemId}");
-            
-            if ($lastVisit < $timeout) {
-                // grab its current queue
-                $stmt  = $conn->prepare("SELECT normal_queue FROM companion_market_items WHERE item = {$itemId} AND server = 47");
-                $stmt->execute();
-                $row   = $stmt->fetch();
-                
-                if (!$row) {
-                    continue;
-                }
-                
-                $queue = $row['normal_queue'] > 0 ? $row['normal_queue'] : $queue;
-                
-                // mark as no longer updated
-                $stmt = $conn->prepare("UPDATE companion_market_items SET priority = 0, normal_queue = 0 WHERE item = {$itemId}");
-                $stmt->execute();
-    
-                // keep a record of its queue
-                $stmt = $conn->prepare("UPDATE companion_items SET normal_queue = {$queue} WHERE item_id = {$itemId}");
-                $stmt->execute();
-            } else {
-                // ensure item starts updating again
-                $stmt = $conn->prepare("UPDATE companion_market_items SET priority = 0, normal_queue = {$queue} WHERE item = {$itemId}");
-                $stmt->execute();
-            }
+            // grab its current queue
+            $stmt  = $conn->prepare("SELECT normal_queue FROM companion_market_items WHERE item = {$itemId} AND server = 7");
+            $stmt->execute();
+            $existing = $stmt->fetch();
+
+            // only save the existing if it isn't 0, otherwise keep what we have
+            $queue = $existing['normal_queue'] > 0 ? $existing['normal_queue'] : $queue;
+
+            // ensure the companion items has its normal_queue updated
+            $stmt = $conn->prepare("UPDATE companion_items SET normal_queue = {$queue} WHERE item_id = {$itemId}");
+            $stmt->execute();
+
+            $newQueue = $lastVisit < $timeout ? 0 : $queue;
+            $console->overwrite("Item: {$itemId} - Queue: {$queue}");
+
+            // update queue depending on activity
+            $stmt = $conn->prepare("UPDATE companion_market_items SET normal_queue = {$newQueue} WHERE item = {$itemId}");
+            $stmt->execute();
         }
     
         // finished

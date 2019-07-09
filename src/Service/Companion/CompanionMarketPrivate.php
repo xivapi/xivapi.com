@@ -219,12 +219,11 @@ class CompanionMarketPrivate
          * if we have a queue, use it, otherwise pick oen at random
          */
         $queue = $queue ? $queue : $queues[array_rand($queues)];
-        $this->companionMarketUpdater->updateManual($itemId, $server, $queue);
+        $this->companionMarketUpdater->updatePatreon($itemId, $server, $queue);
     
         RedisTracking::increment('TOTAL_DPS_ALERTS_UPDATES');
         RedisTracking::increment("TOTAL_DPS_ALERTS_UPDATES_QUEUE_{$queue}");
-        //RedisTracking::append('TOTAL_DPS_ALERTS_UPDATES', date('Y-m-d H:i:s'));
-    
+
         return [
             true,
             time(),
@@ -239,13 +238,11 @@ class CompanionMarketPrivate
     public function manualUpdateItemRequested()
     {
         RedisTracking::increment('TOTAL_MANUAL_UPDATES_CLICKED');
-        //RedisTracking::append('TOTAL_MANUAL_UPDATES_CLICKED', date('Y-m-D H:i:s'));
-    
+
         $itemId  = (int)$this->request->get('item_id');
         $server  = (int)$this->request->get('server');
         $dc      = GameServers::getDataCenter(GameServers::LIST[$server]);
-        $servers = GameServers::LIST_DC[$dc];
-    
+
         /**
          * Check the server isn't an offline one
          */
@@ -320,18 +317,35 @@ class CompanionMarketPrivate
     
         // Place the item on a very short cooldown prior to "updating"
         Redis::Cache()->set("companion_item_dc_update_preupdate_{$itemId}_{$dc}", time(), (60 * 3));
-    
-        // mark all on the DC to update
-        foreach ($servers as $server) {
-            $server = GameServers::getServerId($server);
-            $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
-            $marketEntry->setPriority(0);
-            $this->companionMarketUpdater->saveMarketItemEntry($marketEntry);
+
+        /**
+         * Pick a random queue, it should distribute mostly... evenly.
+         */
+        $queue  = null;
+        $queues = range(
+            min(CompanionConfiguration::QUEUE_CONSUMERS_MANUAL),
+            max(CompanionConfiguration::QUEUE_CONSUMERS_MANUAL)
+        );
+
+        // try look for an empty queue, if one isn't found it'll pick one at random
+        foreach ($queues as $i => $num) {
+            $size = Redis::Cache()->get("companion_market_manual_queue_{$num}");
+
+            if ($size === null) {
+                Redis::Cache()->set("companion_market_manual_queue_{$num}", 1, 60);
+                $queue = $num;
+                break;
+            }
         }
+
+        /**
+         * if we have a queue, use it, otherwise pick oen at random
+         */
+        $queue = $queue ? $queue : $queues[array_rand($queues)];
+        $this->companionMarketUpdater->updateManual($itemId, $server, $queue);
     
         RedisTracking::increment('TOTAL_MANUAL_UPDATES');
-        //RedisTracking::append('TOTAL_MANUAL_UPDATES', date('Y-m-D H:i:s'));
-    
+
         return [
             true,
             time(),

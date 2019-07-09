@@ -621,7 +621,7 @@ class MarketUpdater
             $this->console("{$id} = {$message}");
             
             try {
-                $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL WHERE id = '{$id}'";
+                $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL, manual_queue = NULL WHERE id = '{$id}'";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();
             } catch (\Exception $ex) {
@@ -655,7 +655,7 @@ class MarketUpdater
     /**
      * Mark an item to be manually updated on an DC
      */
-    public function updateManual(int $itemId, int $server, int $queueNumber)
+    public function updatePatreon(int $itemId, int $server, int $queueNumber)
     {
         /** @var CompanionItemRepository $repo */
         $repo    = $this->em->getRepository(CompanionItem::class);
@@ -668,6 +668,25 @@ class MarketUpdater
             $this->em->persist($item);
         }
         
+        $this->em->flush();
+    }
+
+    /**
+     * Mark an item to be manually updated on an DC
+     */
+    public function updateManual(int $itemId, int $server, int $queueNumber)
+    {
+        /** @var CompanionItemRepository $repo */
+        $repo    = $this->em->getRepository(CompanionItem::class);
+        $servers = GameServers::getDataCenterServersIds(GameServers::LIST[$server]);
+        $items   = $repo->findItemsInServers($itemId, $servers);
+
+        /** @var CompanionItem $item */
+        foreach ($items as $item) {
+            $item->setManualQueue($queueNumber);
+            $this->em->persist($item);
+        }
+
         $this->em->flush();
     }
 }
