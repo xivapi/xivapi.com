@@ -165,24 +165,17 @@ class MarketQueue
             $stmt->execute();
             $existing = $stmt->fetch();
             $queue = $existing['normal_queue'] > 0 ? $existing['normal_queue'] : $queue;
-            
-            if ($lastVisit < $timeout) {
-                $console->writeln("Item: {$itemId} - Queue: {$queue} - INACTIVE");
 
-                // keep a record of its queue
-                $stmt = $conn->prepare("UPDATE companion_items SET normal_queue = {$queue} WHERE item_id = {$itemId}");
-                $stmt->execute();
+            // ensure the companion items has its normal_queue updated
+            $stmt = $conn->prepare("UPDATE companion_items SET normal_queue = {$queue} WHERE item_id = {$itemId}");
+            $stmt->execute();
 
-                // mark as no longer updated
-                $stmt = $conn->prepare("UPDATE companion_market_items SET priority = 0, normal_queue = 0 WHERE item = {$itemId}");
-                $stmt->execute();
-            } else {
-                $console->writeln("Item: {$itemId} - Queue: {$queue} - UPDATING");
+            $newQueue = $lastVisit < $timeout ? 0 : $queue;
+            $console->overwrite("Item: {$itemId} - Queue: {$queue}");
 
-                // ensure item starts updating again
-                $stmt = $conn->prepare("UPDATE companion_market_items SET priority = 0, normal_queue = {$queue} WHERE item = {$itemId}");
-                $stmt->execute();
-            }
+            // update queue depending on activity
+            $stmt = $conn->prepare("UPDATE companion_market_items SET normal_queue = {$newQueue} WHERE item = {$itemId}");
+            $stmt->execute();
         }
     
         // finished
