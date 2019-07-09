@@ -447,13 +447,13 @@ class CompanionItemManager
         $total   = count($this->items);
         $count   = 0;
 
+        // grab server stuff
+        $serverId = 7;
+
         // loop through prices
         foreach ($this->items as $i => $itemId) {
             $count++;
-    
-            // grab server stuff
-            $serverId = GameServers::getServerId(GameServers::MARKET_SERVER);
-    
+
             // set default queue
             $queue = CompanionConfiguration::QUEUE_DEFAULT;
     
