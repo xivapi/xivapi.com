@@ -164,6 +164,8 @@ class MarketQueue
             $stmt  = $conn->prepare("SELECT normal_queue FROM companion_market_items WHERE item = {$itemId} AND server = 7");
             $stmt->execute();
             $existing = $stmt->fetch();
+
+            // only save the existing if it isn't 0, otherwise keep what we have
             $queue = $existing['normal_queue'] > 0 ? $existing['normal_queue'] : $queue;
 
             // ensure the companion items has its normal_queue updated
