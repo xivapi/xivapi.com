@@ -191,7 +191,7 @@ class MarketQueue
         $stmt = $conn->prepare('SELECT * FROM companion_items');
         $stmt->execute();
     
-        $timeout = time() - (60 * 60 * 24);
+        $timeout = time() - (60 * 60 * 72);
         
         foreach ($stmt->fetchAll() as $row) {
             $itemId    = $row['item_id'];
