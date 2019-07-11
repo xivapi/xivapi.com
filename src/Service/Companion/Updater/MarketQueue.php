@@ -199,9 +199,14 @@ class MarketQueue
             $queue     = (int)$row['normal_queue'];
 
             // grab its current queue
-            $stmt  = $conn->prepare("SELECT normal_queue FROM companion_market_items WHERE item = {$itemId} AND server = 7");
+            $stmt  = $conn->prepare("SELECT normal_queue, state FROM companion_market_items WHERE item = {$itemId} AND server = 7");
             $stmt->execute();
             $existing = $stmt->fetch();
+
+            // don't do anything regarding non-updated items.
+            if ($existing['state'] === 0) {
+                continue;
+            }
 
             // only save the existing if it isn't 0, otherwise keep what we have
             $queue = $existing['normal_queue'] > 0 ? $existing['normal_queue'] : $queue;
