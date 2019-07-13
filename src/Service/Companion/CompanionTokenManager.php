@@ -294,7 +294,7 @@ class CompanionTokenManager
             // settings
             CompanionSight::set('CLIENT_TIMEOUT', 3);
             CompanionSight::set('QUERY_LOOP_COUNT', 8);
-            CompanionSight::set('QUERY_DELAY_MS', 1000);
+            CompanionSight::set('QUERY_DELAY_MS', 1500);
 
             // initialize API and create a new token
             $api = new CompanionApi("{$account}_{$username}_{$server}");
@@ -325,17 +325,18 @@ class CompanionTokenManager
             $api->market()->getItemMarketListings(mt_rand(2000,25000));
             $this->console->writeln('- Market fetch confirmed.');
             $steps[] = "Price Checked";
-            
-            // token expiry time 8-16 hours
+
+            // set token expiry
             $token
                 ->setMessage('Online')
                 ->setOnline(true)
-                ->setExpiring(time() + mt_rand((60 * 60 * 15), (60 * 60 * 20)))
+                ->setExpiring(time() + mt_rand((3600 * 6), (3600 * 18)))
                 ->setToken($api->Token()->get());
     
             RedisTracking::increment('ACCOUNT_LOGIN_SUCCESS');
         } catch (\Exception $ex) {
-            $timeout = mt_rand(900, 5400);
+            // try again in a bit
+            $timeout = mt_rand(3600, 3600 * 5);
 
             // prevent logging into same server if it fails for a random amount of time
             Redis::Cache()->set("companion_server_login_issues_{$account}_{$server}", true, $timeout);
