@@ -90,7 +90,7 @@ class AutoPrioritisePatronCharactersCommand extends Command
     
                     // if it does not exist, it needs adding, then next iteration it should exist
                     // and get added to patron queue
-                    if ($apiCharacter === null) {
+                    if ($apiCharacter == null) {
                         $api->character->get($character->getLodestoneId());
                         continue;
                     }
@@ -174,7 +174,7 @@ class AutoPrioritisePatronCharactersCommand extends Command
                         /** @var Character $apiCharacter */
                         $apiCharacter = $apiCharRepo->findOneBy([ 'id' => $friend->ID ]);
                         
-                        if ($apiCharacter === null) {
+                        if ($apiCharacter == null) {
                             continue;
                         }
                         
@@ -190,7 +190,7 @@ class AutoPrioritisePatronCharactersCommand extends Command
                         
                         // if they exist, add patron status
                         if ($apiCharacter) {
-                            $output->writeln("- ADD (Tier: {$tier}) Friend: {$apiCharacter->getId()}");
+                            $output->writeln("- ADD User: {$user->getUsername()} - (Tier: {$tier}) Friend: {$apiCharacter->getId()}");
                             $apiCharacter->setPriority(Entity::PRIORITY_PATRON);
     
                             if ($apiCharacterFriend) {
