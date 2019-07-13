@@ -169,6 +169,11 @@ class AutoPrioritisePatronCharactersCommand extends Command
     
                         /** @var Character $apiCharacter */
                         $apiCharacter = $apiCharRepo->findOneBy([ 'id' => $friend->ID ]);
+                        
+                        if ($apiCharacter === null) {
+                            continue;
+                        }
+                        
                         /** @var CharacterFriends $apiCharacterFriend */
                         $apiCharacterFriend = $apiCharFriendRepo->findOneBy([ 'id' => $friend->ID ]);
                         /** @var CharacterAchievements $apiCharacterAchievements */
@@ -183,8 +188,23 @@ class AutoPrioritisePatronCharactersCommand extends Command
                         if ($apiCharacter) {
                             $output->writeln("- ADD (Tier: {$tier}) Friend: {$apiCharacter->getId()}");
                             $apiCharacter->setPriority(Entity::PRIORITY_PATRON);
-                            $apiCharacterFriend->setPriority(Entity::PRIORITY_PATRON);
-                            $apiCharacterAchievements->setPriority(Entity::PRIORITY_PATRON);
+    
+                            if ($apiCharacterFriend) {
+                                $apiCharacterFriend->setPriority(Entity::PRIORITY_PATRON);
+                            } else {
+                                $apiCharacterFriend = new CharacterFriends($character->getLodestoneId());
+                                $apiCharacterFriend->setPriority(Entity::PRIORITY_PATRON);
+                                $apiCharacterFriend->setState(Entity::STATE_CACHED);
+                            }
+    
+                            if ($apiCharacterAchievements) {
+                                $apiCharacterAchievements->setPriority(Entity::PRIORITY_PATRON);
+                            } else {
+                                $apiCharacterAchievements = new CharacterAchievements($character->getLodestoneId());
+                                $apiCharacterAchievements->setPriority(Entity::PRIORITY_PATRON);
+                                $apiCharacterAchievements->setState(Entity::STATE_CACHED);
+                            }
+                            
                             $this->em->persist($apiCharacter);
                             $this->em->persist($apiCharacterFriend);
                             $this->em->persist($apiCharacterAchievements);
