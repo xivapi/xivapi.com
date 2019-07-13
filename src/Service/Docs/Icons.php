@@ -2,6 +2,8 @@
 
 namespace App\Service\Docs;
 
+use App\Common\Exceptions\BasicException;
+
 class Icons
 {
     const ROOT = __DIR__ . '/../../../public';
@@ -48,6 +50,10 @@ class Icons
     private function getIconSetList()
     {
         $sets = self::ICON_SETS;
+        
+        if (!is_dir(scandir(self::ROOT .'/i/'))) {
+            throw new BasicException("Unknown icon folder");
+        }
 
         // add game icons
         foreach (scandir(self::ROOT .'/i/') as $dir) {
