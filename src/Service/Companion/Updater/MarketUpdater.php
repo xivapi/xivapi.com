@@ -227,7 +227,7 @@ class MarketUpdater
                 if (stripos($ex->getMessage(), '319201') !== false ||
                     stripos($ex->getMessage(), '210010') !== false) {
                     // mark item as updated
-                    $this->logoutCharacterServers("Maintenance/Congestion", $serverName);
+                    $this->logoutCharacterServers("Maintenance/Congestion {$ex->getMessage()}", $serverName);
                     break;
                 }
 
