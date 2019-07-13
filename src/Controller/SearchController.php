@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Common\Exceptions\SearchException;
 use App\Service\Search\SearchRequest;
 use App\Service\Search\SearchResponse;
 use App\Service\Search\Search;
@@ -36,19 +37,23 @@ class SearchController extends AbstractController
      */
     public function search(Request $request)
     {
-        $searchRequest = new SearchRequest();
-        $searchRequest->buildFromRequest($request);
-
-        $searchResponse = new SearchResponse($searchRequest);
-        $this->search->handleRequest($searchRequest, $searchResponse);
-
-        # print_r($searchResponse->response);die;
-        
-        if ($request->get('print_query')) {
-            return $this->json($searchResponse->query);
+        try {
+            $searchRequest = new SearchRequest();
+            $searchRequest->buildFromRequest($request);
+    
+            $searchResponse = new SearchResponse($searchRequest);
+            $this->search->handleRequest($searchRequest, $searchResponse);
+    
+            # print_r($searchResponse->response);die;
+    
+            if ($request->get('print_query')) {
+                return $this->json($searchResponse->query);
+            }
+    
+            return $this->json($searchResponse->response);
+        } catch (\Exception $ex) {
+            throw new SearchException("Search Error: {$ex->getMessage()}");
         }
-        
-        return $this->json($searchResponse->response);
     }
 
     /**
@@ -68,19 +73,23 @@ class SearchController extends AbstractController
      */
     public function lore(Request $request)
     {
-        $request->request->set('indexes', 'lore_finder');
-        $request->request->set('string_column', 'Text_%s');
-
-        // setup request
-        $searchRequest = new SearchRequest();
-        $searchRequest->buildFromRequest($request);
+        try {
+            $request->request->set('indexes', 'lore_finder');
+            $request->request->set('string_column', 'Text_%s');
     
-        $searchResponse = new SearchResponse($searchRequest);
-        $this->search->handleRequest($searchRequest, $searchResponse);
-    
-        # print_r($searchResponse->response);die;
-    
-        return $this->json($searchResponse->response);
+            // setup request
+            $searchRequest = new SearchRequest();
+            $searchRequest->buildFromRequest($request);
+        
+            $searchResponse = new SearchResponse($searchRequest);
+            $this->search->handleRequest($searchRequest, $searchResponse);
+        
+            # print_r($searchResponse->response);die;
+        
+            return $this->json($searchResponse->response);
+        } catch (\Exception $ex) {
+            throw new SearchException("Search Error: {$ex->getMessage()}");
+        }
     }
     
     
