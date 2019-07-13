@@ -90,7 +90,7 @@ class BuildCharacterData extends Command
         $this->io->text('Cache: Item');
         $ids = Redis::Cache()->get('ids_Item');
         
-        $this->io->progressStart(count($ids));
+        $this->io->progressStart(count((array)$ids));
         
         foreach ($ids as $id) {
             $this->io->progressAdvance();
