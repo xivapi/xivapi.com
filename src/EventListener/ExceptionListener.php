@@ -5,6 +5,7 @@ namespace App\EventListener;
 use App\Common\Exceptions\ApiUnknownPrivateKeyException;
 use App\Common\Exceptions\BasicException;
 use App\Common\Exceptions\CompanionMarketServerException;
+use App\Common\Exceptions\SearchException;
 use App\Exception\ApiRateLimitException;
 use App\Exception\ContentGoneException;
 use App\Exception\InvalidCompanionMarketRequestException;
@@ -105,7 +106,8 @@ class ExceptionListener implements EventSubscriberInterface
             GenericException::class,
             ApiRateLimitException::class,
             ApiUnknownPrivateKeyException::class,
-            InvalidCompanionMarketRequestException::class
+            InvalidCompanionMarketRequestException::class,
+            SearchException::class
         ];
         
         if (Redis::Cache()->get(__METHOD__ . $json->Hash) == null && !in_array($json->Ex, $validExceptions) && $json->Debug->Env != 'local') {
