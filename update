@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 
-cd /home/dalamud/xivapi.com && bash /home/dalamud/xivapi.com/update &&
-cd /home/dalamud/xivapi.com.beta && bash /home/dalamud/xivapi.com.beta/update &&
-cd /home/dalamud/mogboard.com && bash /home/dalamud/mogboard.com/update &&
-cd /home/dalamud/mogboard.com.beta && bash /home/dalamud/mogboard.com.beta/update
+echo "Updating Common ..."
+cd src/Common
+git pull
+cd -
+
+echo "Updating main repo ..."
+git pull
+
+echo "Clearing cache"
+php bin/console cache:clear
+
+echo "Generating Version"
+bash bin/version
+
+echo "Done"
