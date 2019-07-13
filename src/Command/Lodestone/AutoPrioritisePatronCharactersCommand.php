@@ -277,8 +277,6 @@ class AutoPrioritisePatronCharactersCommand extends Command
                 }
             }
         }
-
-        $this->em->flush();
         
         $output->writeln("Done");
     }
