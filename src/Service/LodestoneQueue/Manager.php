@@ -67,7 +67,7 @@ class Manager
                         $this->io->text("> ". time() ." {$request->method}  ". str_pad($id, 15) ."  (OK)");
                     } catch (\Exception $ex) {
                         $request->responses[$id] = get_class($ex);
-                        #$this->io->text("> ". time() ." {$request->method}  ". str_pad($id, 15) ."  (". get_class($ex) .")");
+                        $this->io->text("> ". time() ." {$request->method}  ". str_pad($id, 15) ."  (". get_class($ex) .")");
                         
                         // if it's not a valid lodestone exception, report it
                         if (strpos(get_class($ex), 'Lodestone\Exceptions') === false) {
@@ -110,7 +110,7 @@ class Manager
             }
     
             $this->io->error("[35] REQUEST :: ". $exClassName ." at: {$this->now} -- {$ex->getMessage()} #{$ex->getLine()} {$ex->getFile()}");
-            //$this->io->error($ex->getTraceAsString());
+            $this->io->error($ex->getTraceAsString());
         }
     }
     
@@ -156,6 +156,8 @@ class Manager
     
                 $this->em->persist($stat);
                 $this->em->flush();
+                
+                $this->io->text("Watching response: {$queue}");
     
                 try {
                     foreach ($response->responses as $id => $data) {
