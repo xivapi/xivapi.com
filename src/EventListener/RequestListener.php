@@ -2,6 +2,7 @@
 
 namespace App\EventListener;
 
+use App\Common\Exceptions\BasicException;
 use App\Common\Service\Redis\RedisTracking;
 use App\Common\Utils\Environment;
 use App\Common\Utils\Language;
@@ -49,10 +50,7 @@ class RequestListener
         
         // look for multiple ?'s
         if (substr_count(urldecode($request->getQueryString()), '?') > 0) {
-            Redis::Cache()->increment('query_params_errors');
-            $counter = (int)Redis::Cache()->getCount('query_params_errors');
-
-            throw new \Exception("({$counter}) https://en.wikipedia.org/wiki/Query_string");
+            throw new BasicException("https://en.wikipedia.org/wiki/Query_string");
         }
 
         // Another quick hack to convert all queries into the request object
