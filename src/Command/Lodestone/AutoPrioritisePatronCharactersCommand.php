@@ -267,20 +267,18 @@ class AutoPrioritisePatronCharactersCommand extends Command
                                     $this->em->persist($apiCharacter);
                                     $this->em->persist($apiCharacterFriend);
                                     $this->em->persist($apiCharacterAchievements);
+                                    $this->em->flush();
                                 } catch (\Exception $ex) {
                                     // ignore
                                 }
                             }
                         }
                     }
-
-                    $this->em->flush();
                 }
             }
         }
 
         $this->em->flush();
-        $this->em->clear();
         
         $output->writeln("Done");
     }
