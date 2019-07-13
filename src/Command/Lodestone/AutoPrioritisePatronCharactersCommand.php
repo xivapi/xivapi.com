@@ -120,10 +120,14 @@ class AutoPrioritisePatronCharactersCommand extends Command
                         $apiCharacterAchievements->setState(Entity::STATE_CACHED);
                     }
                     
-                    $this->em->persist($apiCharacter);
-                    $this->em->persist($apiCharacterFriend);
-                    $this->em->persist($apiCharacterAchievements);
-                    $this->em->flush();
+                    try {
+                        $this->em->persist($apiCharacter);
+                        $this->em->persist($apiCharacterFriend);
+                        $this->em->persist($apiCharacterAchievements);
+                        $this->em->flush();
+                    } catch (\Exception $ex) {
+                        // ignore
+                    }
                 }
             }
         }
@@ -205,10 +209,14 @@ class AutoPrioritisePatronCharactersCommand extends Command
                                 $apiCharacterAchievements->setState(Entity::STATE_CACHED);
                             }
                             
-                            $this->em->persist($apiCharacter);
-                            $this->em->persist($apiCharacterFriend);
-                            $this->em->persist($apiCharacterAchievements);
-                            $this->em->flush();
+                            try {
+                                $this->em->persist($apiCharacter);
+                                $this->em->persist($apiCharacterFriend);
+                                $this->em->persist($apiCharacterAchievements);
+                                $this->em->flush();
+                            } catch (\Exception $ex) {
+                                // ignore
+                            }
                         }
                     }
 
@@ -236,12 +244,32 @@ class AutoPrioritisePatronCharactersCommand extends Command
                             // if they exist, remove patron status
                             if ($apiCharacter) {
                                 $output->writeln("- REMOVE (Tier: {$tier}) Friend: {$apiCharacter->getId()}");
+                                
                                 $apiCharacter->setPriority(Entity::PRIORITY_NORMAL);
-                                $apiCharacterFriend->setPriority(Entity::PRIORITY_NORMAL);
-                                $apiCharacterAchievements->setPriority(Entity::PRIORITY_NORMAL);
-                                $this->em->persist($apiCharacter);
-                                $this->em->persist($apiCharacterFriend);
-                                $this->em->persist($apiCharacterAchievements);
+    
+                                if ($apiCharacterFriend) {
+                                    $apiCharacterFriend->setPriority(Entity::PRIORITY_NORMAL);
+                                } else {
+                                    $apiCharacterFriend = new CharacterFriends($character->getLodestoneId());
+                                    $apiCharacterFriend->setPriority(Entity::PRIORITY_NORMAL);
+                                    $apiCharacterFriend->setState(Entity::STATE_CACHED);
+                                }
+    
+                                if ($apiCharacterAchievements) {
+                                    $apiCharacterAchievements->setPriority(Entity::PRIORITY_NORMAL);
+                                } else {
+                                    $apiCharacterAchievements = new CharacterAchievements($character->getLodestoneId());
+                                    $apiCharacterAchievements->setPriority(Entity::PRIORITY_NORMAL);
+                                    $apiCharacterAchievements->setState(Entity::STATE_CACHED);
+                                }
+                                
+                                try {
+                                    $this->em->persist($apiCharacter);
+                                    $this->em->persist($apiCharacterFriend);
+                                    $this->em->persist($apiCharacterAchievements);
+                                } catch (\Exception $ex) {
+                                    // ignore
+                                }
                             }
                         }
                     }
