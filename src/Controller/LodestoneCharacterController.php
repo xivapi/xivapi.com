@@ -80,6 +80,12 @@ class LodestoneCharacterController extends AbstractController
      */
     public function index(Request $request, $lodestoneId, bool $internal = false)
     {
+        $key = "xivapi_character_request_{$lodestoneId}";
+        
+        if ($response = Redis::cache()->get($key)) {
+            return $this->json($response);
+        }
+        
         $lodestoneId = strtolower(trim($lodestoneId));
 
         // choose which content you want
@@ -155,6 +161,7 @@ class LodestoneCharacterController extends AbstractController
             return $response;
         }
     
+        Redis::cache()->set($key, $response, 5);
         return $this->json($response);
     }
 
