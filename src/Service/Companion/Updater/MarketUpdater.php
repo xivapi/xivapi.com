@@ -223,7 +223,7 @@ class MarketUpdater
     
     private function recordCompanionUpdate($queue, $itemId, $pass, $message = null)
     {
-        $sql = "INSERT INTO companion_updates (queue,item_id,added,pass,message) SET (?,?,?,?,?)";
+        $sql = "INSERT INTO companion_updates (queue,item_id,added,pass,message) VALUES (?,?,?,?,?)";
         $sql = $this->em->getConnection()->prepare($sql);
         $sql->execute([
             $queue,
