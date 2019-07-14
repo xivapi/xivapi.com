@@ -51,7 +51,7 @@ class Manager
                 $request->responses = [];
                 $startTime = microtime(true);
                 $startDate = date('H:i:s');
-                $this->io->text("REQUESTS START : ". str_pad($request->queue, 50) ." - ". $startDate);
+                # $this->io->text("REQUESTS START : ". str_pad($request->queue, 50) ." - ". $startDate);
                 
                 // loop through request ids
                 $count = 0;
@@ -73,7 +73,7 @@ class Manager
                         if (strpos(get_class($ex), 'Lodestone\Exceptions') === false) {
                             $this->io->error("[10] REQUEST :: ". get_class($ex) ." at: {$this->now} -- {$ex->getMessage()} #{$ex->getLine()} {$ex->getFile()}");
                             $this->io->error(json_encode($request, JSON_PRETTY_PRINT));
-                            $this->io->error($ex->getTraceAsString());
+                            # $this->io->error($ex->getTraceAsString());
                             break;
                         }
                     }
@@ -85,11 +85,11 @@ class Manager
                 
                 // report duration
                 $duration = round(microtime(true) - $startTime, 3);
-                $this->io->text("REQUESTS END   : ". str_pad($request->queue, 50) ." - ". $startDate ." > ". date('H:i:s') ." = Duration: {$duration} for {$count} ids");
+                # $this->io->text("REQUESTS END   : ". str_pad($request->queue, 50) ." - ". $startDate ." > ". date('H:i:s') ." = Duration: {$duration} for {$count} ids");
             });
 
             // close connections
-            $this->io->text('Closing RabbitMQ Connections...');
+            # $this->io->text('Closing RabbitMQ Connections...');
             $requestRabbit->close();
             $responseRabbit->close();
         } catch (\Exception $ex) {
@@ -157,7 +157,7 @@ class Manager
                 $this->em->persist($stat);
                 $this->em->flush();
                 
-                $this->io->text("Watching response: {$queue}");
+                # $this->io->text("Watching response: {$queue}");
     
                 try {
                     foreach ($response->responses as $id => $data) {
@@ -232,7 +232,7 @@ class Manager
                     }
                 } catch (\Exception $ex) {
                     $this->io->error("[40] RESPONSE :: Exception ". get_class($ex) ." at: {$this->now} = {$ex->getMessage()} #{$ex->getLine()} {$ex->getFile()}");
-                    $this->io->error($ex->getTraceAsString());
+                    #$this->io->error($ex->getTraceAsString());
                 }
     
                 // report duration
@@ -244,7 +244,7 @@ class Manager
             $responseRabbit->close();
         } catch (\Exception $ex) {
             $this->io->error("[80] RESPONSE :: ". get_class($ex) ." at: {$this->now} -- {$ex->getMessage()} {$ex->getLine()} #{$ex->getFile()}");
-            $this->io->error($ex->getTraceAsString());
+            #$this->io->error($ex->getTraceAsString());
         }
     }
 }
