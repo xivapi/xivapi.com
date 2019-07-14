@@ -115,8 +115,8 @@ class MarketUpdater
         // settings
         CompanionSight::set('QUERY_LOOPED', false);
         CompanionSight::set('CLIENT_TIMEOUT', 5);
-        CompanionSight::set('QUERY_LOOP_COUNT', 1);
-        CompanionSight::set('QUERY_DELAY_MS', 1000);
+        CompanionSight::set('QUERY_LOOP_COUNT', 0);
+        CompanionSight::set('QUERY_DELAY_MS', 10000);
         
         // begin
         foreach ($this->items as $item) {
@@ -154,10 +154,14 @@ class MarketUpdater
                 $priceRequestId   = Uuid::uuid4()->toString();
                 $historyRequestId = Uuid::uuid4()->toString();
     
+                $this->console("Prices: {$itemId}");
+    
                 // Request Prices + History
                 CompanionSight::set('REQUEST_ID', $priceRequestId);
                 $api->Market()->getItemMarketListings($itemId);
-                
+    
+                $this->console("History: {$itemId}");
+    
                 // Request History
                 CompanionSight::set('REQUEST_ID', $historyRequestId);
                 $api->Market()->getTransactionHistory($itemId);
@@ -165,9 +169,13 @@ class MarketUpdater
                 // wait 2 seconds
                 sleep(2);
     
+                $this->console("Prices: {$itemId}");
+    
                 // Request Prices + History
                 CompanionSight::set('REQUEST_ID', $priceRequestId);
                 $prices = $api->Market()->getItemMarketListings($itemId);
+    
+                $this->console("History: {$itemId}");
     
                 // Request History
                 CompanionSight::set('REQUEST_ID', $historyRequestId);
