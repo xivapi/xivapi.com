@@ -51,7 +51,7 @@ class Icons
     {
         $sets = self::ICON_SETS;
         
-        if (!is_dir(scandir(self::ROOT .'/i/'))) {
+        if (!is_dir(self::ROOT .'/i/')) {
             throw new BasicException("Unknown icon folder");
         }
 
