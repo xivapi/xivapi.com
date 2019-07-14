@@ -119,13 +119,6 @@ class MarketUpdater
             $serverName = GameServers::LIST[$serverId];
             $serverDc   = GameServers::getDataCenter($serverName);
             
-            // prevent updating same item within a 15 minute period
-            if (Redis::cache()->get("auto_updated_{$itemId}")) {
-                $this->marketItemEntryUpdated[] = $dbid;
-                $this->marketItemEntryLog[$dbid] = "Starting";
-                continue;
-            }
-    
             $this->marketItemEntryLog[$dbid] = "Starting";
 
             try {
@@ -463,8 +456,6 @@ class MarketUpdater
         // update item entry
         $this->marketItemEntryUpdated[] = $dbid;
         RedisTracking::increment($this->perMinuteTrackingKey);
-        
-        Redis::cache()->set("auto_updated_{$itemId}", (60 * 15));
     }
     
     /**
