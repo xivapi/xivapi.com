@@ -388,7 +388,7 @@ class MarketUpdater
         // set updated time
         $marketItem->Updated = time();
     
-        $this->console(microtime(true) . " - processing");
+        $this->console(microtime(true) . " - processing prices");
 
         // CURRENT PRICES
         if (isset($prices->error) === false && isset($prices->entries) && $prices->entries) {
@@ -420,6 +420,8 @@ class MarketUpdater
                 return $first->PricePerUnit > $second->PricePerUnit;
             });
         }
+    
+        $this->console(microtime(true) . " - processing history");
 
         // CURRENT HISTORY
         if ($history && isset($history->error) === false && $history->history) {
