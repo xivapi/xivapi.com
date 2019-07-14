@@ -3,6 +3,7 @@
 namespace App\Service\Companion\Updater;
 
 use App\Common\Game\GameServers;
+use App\Common\Service\Redis\Redis;
 use App\Common\ServicesThirdParty\Discord\Discord;
 use App\Entity\CompanionCharacter;
 use App\Entity\CompanionItem;
@@ -85,14 +86,6 @@ class MarketUpdater
             RedisTracking::delete($this->perMinuteTrackingKey);
         }
 
-        //
-        // todo - tempz? for whatever reason if you query during the 7th or 8th minute you get errors........
-        //
-        if (in_array(date('i'), [7,8])) {
-            $this->console("Not doing any queries as it's 7/8 minutes past");
-            return;
-        }
-
         // init
         $this->startTime = microtime(true);
         $this->deadline = time() + CompanionConfiguration::CRONJOB_TIMEOUT_SECONDS;
@@ -113,10 +106,9 @@ class MarketUpdater
         $api = new CompanionApi();
         
         // settings
-        CompanionSight::set('QUERY_LOOPED', false);
         CompanionSight::set('CLIENT_TIMEOUT', 5);
-        CompanionSight::set('QUERY_LOOP_COUNT', 0);
-        CompanionSight::set('QUERY_DELAY_MS', 10000);
+        CompanionSight::set('QUERY_LOOP_COUNT', 5);
+        CompanionSight::set('QUERY_DELAY_MS', 1000);
         
         // begin
         foreach ($this->items as $item) {
@@ -126,6 +118,13 @@ class MarketUpdater
             $serverId   = $item['server'];
             $serverName = GameServers::LIST[$serverId];
             $serverDc   = GameServers::getDataCenter($serverName);
+            
+            // prevent updating same item within a 15 minute period
+            if (Redis::cache()->get("auto_updated_{$itemId}")) {
+                $this->marketItemEntryUpdated[] = $dbid;
+                $this->marketItemEntryLog[$dbid] = "Starting";
+                continue;
+            }
     
             $this->marketItemEntryLog[$dbid] = "Starting";
 
@@ -150,35 +149,10 @@ class MarketUpdater
                 $token = $this->tokens[$serverId][array_rand($this->tokens[$serverId])];
                 $api->Token()->set($token);
                 
-                // creqte request ids
-                $priceRequestId   = Uuid::uuid4()->toString();
-                $historyRequestId = Uuid::uuid4()->toString();
-    
-                $this->console("Prices: {$itemId}");
-    
-                // Request Prices + History
-                CompanionSight::set('REQUEST_ID', $priceRequestId);
-                $api->Market()->getItemMarketListings($itemId);
-    
-                $this->console("History: {$itemId}");
-    
-                // Request History
-                CompanionSight::set('REQUEST_ID', $historyRequestId);
-                $api->Market()->getTransactionHistory($itemId);
-                
-                // wait 2 seconds
-                sleep(2);
-    
-                $this->console("Prices: {$itemId}");
-    
-                // Request Prices + History
-                CompanionSight::set('REQUEST_ID', $priceRequestId);
+                // Request Prices
                 $prices = $api->Market()->getItemMarketListings($itemId);
     
-                $this->console("History: {$itemId}");
-    
                 // Request History
-                CompanionSight::set('REQUEST_ID', $historyRequestId);
                 $history = $api->Market()->getTransactionHistory($itemId);
                 
                 // check responses
@@ -474,6 +448,8 @@ class MarketUpdater
         // update item entry
         $this->marketItemEntryUpdated[] = $dbid;
         RedisTracking::increment($this->perMinuteTrackingKey);
+        
+        Redis::cache()->set("auto_updated_{$itemId}", (60 * 15));
     }
     
     /**
