@@ -408,7 +408,7 @@ class MarketUpdater
                 );
 
                 // grab internal records
-                $row->_retainerId = $this->getInternalRetainerId($server, $row->sellRetainerName);
+                $row->_retainerId = null;
                 $row->_creatorSignatureId = null;
 
                 // append prices
@@ -501,42 +501,6 @@ class MarketUpdater
     {
         // return an existing one, otherwise return a new one
         return $this->market->get($server, $itemId, null, null, true);
-    }
-    
-    /**
-     * Returns the ID for internally stored retainers
-     */
-    private function getInternalRetainerId(int $server, string $name): ?string
-    {
-        return $this->handleMarketTrackingNames(
-            $server,
-            $name,
-            $this->repositoryCompanionRetainer,
-            CompanionRetainer::class
-        );
-    }
-    
-    /**
-     * Handles the tracking logic for all name fields
-     */
-    private function handleMarketTrackingNames(int $server, string $name, ObjectRepository $repository, $class)
-    {
-        if (empty($name)) {
-            return null;
-        }
-        
-        $obj = $repository->findOneBy([
-            'name'   => $name,
-            'server' => $server,
-        ]);
-        
-        if ($obj === null) {
-            $obj = new $class($name, $server);
-            $this->em->persist($obj);
-            $this->em->flush();
-        }
-        
-        return $obj->getId();
     }
 
     /**
