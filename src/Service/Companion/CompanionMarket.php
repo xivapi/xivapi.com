@@ -2,12 +2,10 @@
 
 namespace App\Service\Companion;
 
-use App\Common\Game\GameServers;
 use App\Common\Service\ElasticSearch\ElasticQuery;
 use App\Common\Service\ElasticSearch\ElasticSearch;
 use App\Common\Utils\Arrays;
 use App\Entity\CompanionCharacter;
-use App\Entity\CompanionItem;
 use App\Entity\CompanionRetainer;
 use App\Repository\CompanionCharacterRepository;
 use App\Repository\CompanionRetainerRepository;

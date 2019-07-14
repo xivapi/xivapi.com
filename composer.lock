@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "045052623fcad115998ee70b726f3155",
+    "content-hash": "8ca389b8f4e64dcd204d57db10fcfc6f",
     "packages": [
         {
             "name": "cboden/ratchet",
@@ -7010,16 +7010,16 @@
         },
         {
             "name": "xivapi/companion-php",
-            "version": "1.2.5",
+            "version": "1.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/xivapi/companion-php.git",
-                "reference": "e41f10c2080b262c63e53a831fcffb9137e71fc2"
+                "reference": "97fc2f0639ba11e2e6519be8e89fbd02de74b90e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/xivapi/companion-php/zipball/e41f10c2080b262c63e53a831fcffb9137e71fc2",
-                "reference": "e41f10c2080b262c63e53a831fcffb9137e71fc2",
+                "url": "https://api.github.com/repos/xivapi/companion-php/zipball/97fc2f0639ba11e2e6519be8e89fbd02de74b90e",
+                "reference": "97fc2f0639ba11e2e6519be8e89fbd02de74b90e",
                 "shasum": ""
             },
             "require": {
@@ -7045,7 +7045,7 @@
                 "ffxiv",
                 "php"
             ],
-            "time": "2019-07-14T00:26:37+00:00"
+            "time": "2019-07-14T01:00:57+00:00"
         },
         {
             "name": "xivapi/lodestone-parser",
