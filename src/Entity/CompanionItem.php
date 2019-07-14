@@ -15,7 +15,6 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="item", columns={"item"}),
  *          @ORM\Index(name="server", columns={"server"}),
  *          @ORM\Index(name="updated", columns={"updated"}),
- *          @ORM\Index(name="priority", columns={"priority"}),
  *          @ORM\Index(name="normal_queue", columns={"normal_queue"}),
  *          @ORM\Index(name="manual_queue", columns={"normal_queue"}),
  *          @ORM\Index(name="patreon_queue", columns={"patreon_queue"}),
@@ -42,10 +41,6 @@ class CompanionItem
      * @ORM\Column(type="integer")
      */
     private $updated;
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $priority;
     /**
      * @ORM\Column(type="integer")
      */
@@ -90,17 +85,6 @@ class CompanionItem
     public function setUpdated($updated)
     {
         $this->updated = $updated;
-        return $this;
-    }
-    
-    public function getPriority()
-    {
-        return $this->priority;
-    }
-    
-    public function setPriority($priority)
-    {
-        $this->priority = $priority;
         return $this;
     }
     

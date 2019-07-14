@@ -37,16 +37,11 @@ class Companion_AutoQueueItemsCommand extends Command
     {
         /**
          *   php bin/console Companion_AutoQueueItemsCommand
-         *   php bin/console Companion_AutoQueueItemsCommand prioritise
          *   php bin/console Companion_AutoQueueItemsCommand untrack
          */
         switch ($input->getArgument('action')) {
             default:
                 $this->marketQueue->queue();
-                break;
-                
-            case 'prioritise':
-                $this->marketQueue->rePrioritiseItems();
                 break;
     
             case 'untrack':

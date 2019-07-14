@@ -60,25 +60,31 @@ class MarketQueue
         
         $insertedItems = [];
         
+        // grab update queues
+        $queues = array_keys(CompanionConfiguration::QUEUE_INFO);
+        
+        // remove 0, we dont update queue 0
+        unset($queues[0]);
+        
         /**
          * Insert new items
          */
-        foreach (CompanionConfiguration::PRIORITY_TIMES as $priority) {
+        foreach ($queues as $normalQueue) {
             // grab items
             $updateItems = $this->repoEntries->findItemsToUpdate(
-                $priority,
+                $normalQueue,
                 CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * 5,
                 $this->ctm->getOnlineServers()
             );
 
             // skip queue if no items for that priority
             if (empty($updateItems)) {
-                $console->writeln("No items for priority: {$priority}");
+                $console->writeln("No items for priority: {$normalQueue}");
                 continue;
             }
             
             foreach (array_chunk($updateItems, CompanionConfiguration::MAX_ITEMS_PER_CRONJOB) as $i => $items) {
-                $console->writeln("Adding items for {$priority}, consumer: {$i}");
+                $console->writeln("Adding items for {$normalQueue}, consumer: {$i}");
    
                 /** @var CompanionItem $item */
                 foreach ($items as $item) {
@@ -106,13 +112,13 @@ class MarketQueue
         foreach (CompanionConfiguration::QUEUE_CONSUMERS_PATREON as $patreonQueue) {
             $updateItems = $this->repoEntries->findBy(
                 [ 'patreonQueue' => $patreonQueue ],
-                [ 'priority' => 'asc' ],
+                [ 'updated' => 'asc' ],
                 CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
             );
     
-            // skip queue if no items for that priority
+            // skip queue if no items for that queue
             if (empty($updateItems)) {
-                $console->writeln("(Patreon) No items for priority: {$patreonQueue}");
+                $console->writeln("(Patreon) No items for queue: {$patreonQueue}");
                 continue;
             }
     
@@ -144,13 +150,13 @@ class MarketQueue
         foreach (CompanionConfiguration::QUEUE_CONSUMERS_MANUAL as $manualQueue) {
             $updateItems = $this->repoEntries->findBy(
                 [ 'manualQueue' => $manualQueue ],
-                [ 'priority' => 'asc' ],
+                [ 'updated' => 'asc' ],
                 CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
             );
 
-            // skip queue if no items for that priority
+            // skip queue if no items for that queue
             if (empty($updateItems)) {
-                $console->writeln("(Manual) No items for priority: {$manualQueue}");
+                $console->writeln("(Manual) No items for queue: {$manualQueue}");
                 continue;
             }
 
@@ -226,27 +232,5 @@ class MarketQueue
         // finished
         $duration = $start->diff(Carbon::now())->format('%h hr, %i min and %s sec');
         $console->writeln("Duration: <comment>{$duration}</comment>");
-    }
-    
-    /**
-     * This will randomly shuffle the items
-     */
-    public function rePrioritiseItems()
-    {
-        $console = new ConsoleOutput();
-        $console = $console->section();
-    
-        $conn = $this->em->getConnection();
-        $stmt = $conn->prepare("SELECT id FROM companion_market_items");
-        $stmt->execute();
-        
-        foreach ($stmt->fetchAll() as $row) {
-            $id = $row['id'];
-            $rand = mt_rand(1,9999999);
-            
-            $console->overwrite($id);
-            $stmt = $conn->prepare("UPDATE companion_market_items SET priority = '{$rand}' WHERE id = '{$id}'");
-            $stmt->execute();
-        }
     }
 }

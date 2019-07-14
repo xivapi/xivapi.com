@@ -108,20 +108,6 @@ class CompanionItemManager
      */
     public function calculateItemUpdatePriority()
     {
-        /*
-        $conn  = $this->em->getConnection();
-        $items = file_get_contents(__DIR__.'/companion_market_items.csv');
-        $items = explode("\n", $items);
-        $items = array_unique($items);
-        
-        foreach ($items as $itemId) {
-            $sql = "UPDATE companion_market_items SET state = ?, normal_queue = ? WHERE item = ?";
-            $sql = $conn->prepare($sql);
-            $sql->execute([ CompanionItem::STATE_UPDATING, 70, $itemId ]);
-        }
-        return;
-        */
-        
         $start = Carbon::now();
         $date  = date('Y-m-d H:i:s');
         $this->console->writeln("<info>Calculate Item Update Priority</info>");
@@ -312,8 +298,7 @@ class CompanionItemManager
             'normal_queue',
             'manual_queue',
             'patreon_queue',
-            'state',
-            'priority'
+            'state'
         ];
 
         foreach ($this->items as $i => $itemId) {
@@ -346,7 +331,6 @@ class CompanionItemManager
                 // setup
                 $queue    = $existing['normal_queue'] ?: CompanionConfiguration::QUEUE_NEW_ITEM;
                 $state    = $existing['state'] ?: CompanionItem::STATE_UPDATING;
-                $priority = time() - mt_rand(10,999999);
                 $uniqId   = $serverId . $itemId;
                 
                 // skip any unique's added, unsure why this happens..
@@ -398,8 +382,7 @@ class CompanionItemManager
                     $queue,
                     0,
                     0,
-                    $state,
-                    $priority
+                    $state
                 ];
             }
 

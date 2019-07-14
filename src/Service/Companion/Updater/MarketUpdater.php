@@ -17,12 +17,11 @@ use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
 use App\Common\Service\Redis\RedisTracking;
-use Carbon\Carbon;
-use Carbon\CarbonTimeZone;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
@@ -30,9 +29,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 class MarketUpdater
 {
-    const PRICES  = 10;
-    const HISTORY = 50;
-    
     /** @var EntityManagerInterface */
     private $em;
     /** @var CompanionCharacterRepository */
@@ -80,6 +76,9 @@ class MarketUpdater
     
     public function update(int $queue)
     {
+        // randomly offset the start
+        sleep(mt_rand(0,99) > 50 ? 1 : 2);
+        
         $this->perMinuteTrackingKey = "ITEM_UPDATE_PER_MINUTE_". date('i');
 
         if ($queue === 100) {
@@ -114,9 +113,10 @@ class MarketUpdater
         $api = new CompanionApi();
         
         // settings
-        CompanionSight::set('CLIENT_TIMEOUT', 2);
-        CompanionSight::set('QUERY_LOOP_COUNT', 5);
-        CompanionSight::set('QUERY_DELAY_MS', 1300);
+        CompanionSight::set('QUERY_LOOPED', false);
+        CompanionSight::set('CLIENT_TIMEOUT', 5);
+        CompanionSight::set('QUERY_LOOP_COUNT', 1);
+        CompanionSight::set('QUERY_DELAY_MS', 1000);
         
         // begin
         foreach ($this->items as $item) {
@@ -148,60 +148,53 @@ class MarketUpdater
     
                 // pick a random token
                 $token = $this->tokens[$serverId][array_rand($this->tokens[$serverId])];
-
-                // record
-                RedisTracking::increment('COMPANION_ACCOUNT_USAGE_'. $token->account);
-
-                // set token
                 $api->Token()->set($token);
+                
+                // creqte request ids
+                $priceRequestId   = Uuid::uuid4()->toString();
+                $historyRequestId = Uuid::uuid4()->toString();
     
-                /**
-                 * GET PRICES
-                 */
+                // Request Prices + History
+                CompanionSight::set('REQUEST_ID', $priceRequestId);
+                $api->Market()->getItemMarketListings($itemId);
+                
+                // Request History
+                CompanionSight::set('REQUEST_ID', $historyRequestId);
+                $api->Market()->getTransactionHistory($itemId);
+                
+                // wait 2 seconds
+                sleep(2);
+    
+                // Request Prices + History
+                CompanionSight::set('REQUEST_ID', $priceRequestId);
                 $prices = $api->Market()->getItemMarketListings($itemId);
-                if ($this->checkResponseForErrors($item, $prices)) {
-                    $this->marketItemEntryFailed[] = $item['id'];
-                    $this->marketItemEntryLog[$dbid] = "Errors from getting prices";
-                    continue;
-                }
     
-                /**
-                 * GET HISTORY
-                 */
+                // Request History
+                CompanionSight::set('REQUEST_ID', $historyRequestId);
                 $history = $api->Market()->getTransactionHistory($itemId);
-                if ($this->checkResponseForErrors($item, $history)) {
+                
+                // check responses
+                if ($this->checkResponseForErrors($item, $prices) || $this->checkResponseForErrors($item, $history)) {
                     $this->marketItemEntryFailed[] = $item['id'];
-                    $this->marketItemEntryLog[$dbid] = "Errors from getting history";
+                    $this->marketItemEntryLog[$dbid] = "Errors from getting prices/history";
                     continue;
                 }
-    
-                /**
-                 * Store in market
-                 */
+
+                // store results
                 $this->marketItemEntryLog[$dbid] = "Storing.....";
                 $this->storeMarketData($item, $prices, $history);
-                
-                $pricesSize  = isset($prices->entries)  ? count($prices->entries)  : 0;
-                $historySize = isset($history->history) ? count($history->history) : 0;
         
-                /**
-                 * Log
-                 */
+                // log results
                 $duration = round(microtime(true) - $a, 1);
                 $this->console(
                     sprintf(
-                        "%s %s %s Duration: %s - Prices: %s, History: %s",
+                        "%s %s %s Duration: %s",
                         str_pad($itemId, 10),
                         str_pad($serverName, 15),
                         str_pad($serverDc, 10),
-                        $duration,
-                        $pricesSize,
-                        $historySize
+                        $duration
                     )
                 );
-    
-                RedisTracking::increment('ITEM_UPDATED');
-                RedisTracking::increment('ITEM_UPDATED_DAILY_'. (strlen($queue) == 3 ? substr($queue, 0, 1) : 'PATRON') .'_'. date('y-m-d'));
             } catch (\Exception $ex) {
                 $this->marketItemEntryFailed[] = $item['id'];
                 
@@ -405,7 +398,7 @@ class MarketUpdater
 
                 // grab internal records
                 $row->_retainerId = $this->getInternalRetainerId($server, $row->sellRetainerName);
-                $row->_creatorSignatureId = $this->getInternalCharacterId($server, $row->signatureName);
+                $row->_creatorSignatureId = null;
 
                 // append prices
                 $marketItem->Prices[] = MarketListing::build($id, $row);
@@ -447,7 +440,7 @@ class MarketUpdater
                 }
 
                 // grab internal record
-                $row->_characterId = $this->getInternalCharacterId($server, $row->buyCharacterName);
+                $row->_characterId = null;
 
                 // add history to front
                 array_unshift($marketItem->History, MarketHistory::build($id, $row));
@@ -507,19 +500,6 @@ class MarketUpdater
             $name,
             $this->repositoryCompanionRetainer,
             CompanionRetainer::class
-        );
-    }
-    
-    /**
-     * Returns the ID for internally stored character ids
-     */
-    private function getInternalCharacterId(int $server, string $name): ?string
-    {
-        return $this->handleMarketTrackingNames(
-            $server,
-            $name,
-            $this->repositoryCompanionCharacter,
-            CompanionCharacter::class
         );
     }
     
@@ -607,8 +587,6 @@ class MarketUpdater
         $this->console('Updating database item entries');
         $conn = $this->em->getConnection();
         
-        $priority = time() + mt_rand(0,1000);
-
         foreach ($this->marketItemEntryUpdated as $id) {
             // if it failed, skip, we'll do it again
             if (in_array($id, $this->marketItemEntryFailed)) {
@@ -621,7 +599,7 @@ class MarketUpdater
             $this->console("{$id} = {$message}");
             
             try {
-                $sql = "UPDATE companion_market_items SET updated = ". time() .", priority = ". $priority .", patreon_queue = NULL, manual_queue = NULL WHERE id = '{$id}'";
+                $sql = "UPDATE companion_market_items SET updated = ". time() .", patreon_queue = NULL, manual_queue = NULL WHERE id = '{$id}'";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();
             } catch (\Exception $ex) {

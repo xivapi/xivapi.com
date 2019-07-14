@@ -42,7 +42,7 @@ class CompanionStatistics
         // Get queue sizes
         $this->setUpdateQueueSizes();
     
-        // build priority stats
+        // build queue stats
         foreach (CompanionConfiguration::PRIORITY_TIMES as $queue) {
             $this->buildQueueStatistics($queue);
         }
@@ -89,15 +89,15 @@ class CompanionStatistics
         Discord::mog()->sendMessage(538316536688017418, "```". implode("\n", $message) ."```");
     }
     
-    private function buildQueueStatistics($priority)
+    private function buildQueueStatistics($queue)
     {
-        $this->console->writeln("Building stats for queue: {$priority}");
+        $this->console->writeln("Building stats for queue: {$queue}");
         
         // queue name
-        $name = CompanionConfiguration::QUEUE_INFO[$priority] ?? 'Unknown Queue';
+        $name = CompanionConfiguration::QUEUE_INFO[$queue] ?? 'Unknown Queue';
     
         // get the total items in this queue
-        $totalItems = $this->updateQueueSizes[$priority] ?? 0;
+        $totalItems = $this->updateQueueSizes[$queue] ?? 0;
     
         // some queues have no items
         if ($totalItems === 0) {
@@ -105,7 +105,7 @@ class CompanionStatistics
         }
         
         // Get the expected update time
-        $estimatedCycleTime = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$priority] ?? (60 * 60 * 24 * 30);
+        $estimatedCycleTime = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$queue] ?? (60 * 60 * 24 * 30);
 
         // work out how many queues required
         $expectedQueues = $totalItems / CompanionConfiguration::MAX_ITEMS_PER_CRONJOB;
@@ -113,9 +113,9 @@ class CompanionStatistics
 
         /** @var CompanionItem $firstItem */
         /** @var CompanionItem $lastItem */
-        $firstItem                = $this->repositoryEntries->findBy([ 'normalQueue' => $priority, ], [ 'updated' => 'asc' ], 1, 25);
+        $firstItem                = $this->repositoryEntries->findBy([ 'normalQueue' => $queue, ], [ 'updated' => 'asc' ], 1, 25);
         $firstItem                = $firstItem[0] ?? null;
-        $lastItem                 = $this->repositoryEntries->findBy([ 'normalQueue' => $priority, ], [ 'updated' => 'desc' ], 1, 25);
+        $lastItem                 = $this->repositoryEntries->findBy([ 'normalQueue' => $queue, ], [ 'updated' => 'desc' ], 1, 25);
         $lastItem                 = $lastItem[0] ?? null;
 
         // if we can't determine, we'll skip
@@ -132,9 +132,9 @@ class CompanionStatistics
         $estimationTimeDifference = $realCycleTime - $estimatedCycleTime;
         $difference               = Carbon::now()->diff(Carbon::now()->addSeconds($estimationTimeDifference))->format($formatMultiDay);
 
-        $this->report[$priority] = [
+        $this->report[$queue] = [
             'Name'          => $name,
-            'Priority'      => $priority,
+            'Queue'         => $queue,
             'ReqQueues'     => $expectedQueues,
             'Items'         => number_format($totalItems),
             'Requests'      => number_format($totalItems * 4),

@@ -11,7 +11,7 @@ class CompanionConfiguration
     const MAX_ITEMS_PER_CRONJOB = 15;
 
     // the total time a cronjob should stay active
-    const CRONJOB_TIMEOUT_SECONDS = 58;
+    const CRONJOB_TIMEOUT_SECONDS = 56;
     
     // Minimum sales
     const MINIMUM_SALES_TO_UPDATE = 5;

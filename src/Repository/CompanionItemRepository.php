@@ -29,12 +29,12 @@ class CompanionItemRepository extends ServiceEntityRepository
     /**
      * Returns a list of items to update
      */
-    public function findItemsToUpdate(int $priority, int $limit, array $servers)
+    public function findItemsToUpdate(int $normalQueue, int $limit, array $servers)
     {
         $sql = $this->createQueryBuilder('a');
-        $sql->where("a.normalQueue = {$priority}")
+        $sql->where("a.normalQueue = {$normalQueue}")
             ->andWhere('a.server IN ('. implode(',', $servers) .')')
-            ->orderBy('a.priority', 'asc')
+            ->orderBy('a.updated', 'asc')
             ->setMaxResults($limit);
     
         return $sql->getQuery()->getResult();
