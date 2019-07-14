@@ -165,6 +165,7 @@ class MarketUpdater
                 // store results
                 $this->marketItemEntryLog[$dbid] = "Storing.....";
                 $this->storeMarketData($item, $prices, $history);
+                $this->recordCompanionUpdate($queue, $item, true);
         
                 // log results
                 $duration = round(microtime(true) - $a, 1);
@@ -178,6 +179,7 @@ class MarketUpdater
                     )
                 );
             } catch (\Exception $ex) {
+                $this->recordCompanionUpdate($queue, $item, false, $ex->getMessage());
                 $this->marketItemEntryFailed[] = $item['id'];
                 
                 // log all errors
@@ -224,6 +226,19 @@ class MarketUpdater
         $updated = count($this->marketItemEntryUpdated);
         $failed  = count($this->marketItemEntryFailed);
         $this->console("-- Queue: {$queue} -- updated: {$updated} -- failed: {$failed}");
+    }
+    
+    private function recordCompanionUpdate($queue, $itemId, $pass, $message = null)
+    {
+        $sql = "INSERT INTO companion_updates (queue,item_id,added,pass,message) SET (?,?,?,?,?)";
+        $sql = $this->em->getConnection()->prepare($sql);
+        $sql->execute([
+            $queue,
+            $itemId,
+            time(),
+            $pass ? '1' : '0',
+            $message
+        ]);
     }
     
     /**
