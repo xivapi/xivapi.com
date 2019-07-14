@@ -158,7 +158,7 @@ class MarketUpdater
                 // store results
                 $this->marketItemEntryLog[$dbid] = "Storing.....";
                 $this->storeMarketData($item, $prices, $history);
-                $this->recordCompanionUpdate($queue, $item, true);
+                $this->recordCompanionUpdate($queue, $itemId, true);
         
                 // log results
                 $duration = round(microtime(true) - $a, 1);
@@ -172,7 +172,7 @@ class MarketUpdater
                     )
                 );
             } catch (\Exception $ex) {
-                $this->recordCompanionUpdate($queue, $item, false, $ex->getMessage());
+                $this->recordCompanionUpdate($queue, $itemId, false, $ex->getMessage());
                 $this->marketItemEntryFailed[] = $item['id'];
                 
                 // log all errors
