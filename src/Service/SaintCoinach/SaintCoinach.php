@@ -74,6 +74,8 @@ class SaintCoinach
                 $schema[] = json_decode(file_get_contents(self::SCHEMA_DIRECTORY . '/Definitions/'. $file), true);
             }
         }
+    
+        $schema = array_values(array_filter($schema));
         
         // save schema
         $version = trim(file_get_contents(self::SCHEMA_DIRECTORY . '/Definitions/game.ver'));
