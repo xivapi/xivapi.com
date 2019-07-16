@@ -12,7 +12,8 @@ START_TIME=$SECONDS
 
 sleep 5
 
-for (( i = 0; i <= 20; ++i )); do
+for i in {1..20}
+do
     start_point=$(( $i * 25 ))
 
     echo " --------- Loop: $i / 20 - chunk: $start_point ------------------------------------"
