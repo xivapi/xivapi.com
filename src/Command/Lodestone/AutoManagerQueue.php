@@ -71,7 +71,6 @@ class AutoManagerQueue extends Command
     {
         /** @var CharacterRepository $repo */
         $repo = $this->em->getRepository(Character::class);
-        $this->io->text(__METHOD__);
     
         foreach(range(0, ServiceQueues::TOTAL_CHARACTER_QUEUES) as $number) {
             $this->io->text("Queue: {$number}");
@@ -88,7 +87,6 @@ class AutoManagerQueue extends Command
     {
         /** @var CharacterFriendsRepository $repo */
         $repo = $this->em->getRepository(CharacterFriends::class);
-        $this->io->text(__METHOD__);
     
         foreach(range(0, ServiceQueues::TOTAL_CHARACTER_FRIENDS_QUEUES) as $number) {
             $this->io->text("Queue: {$number}");
@@ -105,7 +103,6 @@ class AutoManagerQueue extends Command
     {
         /** @var CharacterAchievementRepository $repo */
         $repo = $this->em->getRepository(CharacterAchievements::class);
-        $this->io->text(__METHOD__);
     
         foreach(range(0, ServiceQueues::TOTAL_CHARACTER_ACHIEVEMENTS_QUEUES) as $number) {
             $this->io->text("Queue: {$number}");
@@ -122,7 +119,6 @@ class AutoManagerQueue extends Command
     {
         /** @var FreeCompanyRepository $repo */
         $repo = $this->em->getRepository(FreeCompany::class);
-        $this->io->text(__METHOD__);
     
         foreach(range(0, ServiceQueues::TOTAL_FC_QUEUES) as $number) {
             $this->io->text("Queue: {$number}");
@@ -139,7 +135,6 @@ class AutoManagerQueue extends Command
     {
         /** @var LinkshellRepository $repo */
         $repo = $this->em->getRepository(Linkshell::class);
-        $this->io->text(__METHOD__);
     
         foreach(range(0, ServiceQueues::TOTAL_LS_QUEUES) as $number) {
             $this->io->text("Queue: {$number}");
@@ -156,7 +151,6 @@ class AutoManagerQueue extends Command
     {
         /** @var PvPTeamRepository $repo */
         $repo = $this->em->getRepository(PvPTeam::class);
-        $this->io->text(__METHOD__);
     
         foreach(range(0, ServiceQueues::TOTAL_PVP_QUEUES) as $number) {
             $this->io->text("Queue: {$number}");

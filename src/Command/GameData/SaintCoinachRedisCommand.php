@@ -139,17 +139,12 @@ class SaintCoinachRedisCommand extends Command
             $allContentData = FileSystem::load($contentName, 'json');
 
             // build content (this saves it)
-            $idCount = 0;
-            $idTotal = count(array_keys((array)$allContentData));
             $section = (new ConsoleOutput())->section();
+    
+            $memory   = number_format(System::memory());
+            $section->writeln("[{$memory}MB memory] Sheet: {$count}/{$total} <info>{$contentName}</info>");
             
             foreach ($allContentData as $contentId => $contentData) {
-                $idCount++;
-                
-                $progress = round($idCount / $idTotal * 100);
-                $memory   = number_format(System::memory());
-                $section->overwrite(" [{$progress}% | {$memory}MB memory] Sheet: {$count}/{$total} <info>{$contentName}</info> - {$contentId}");
-                
                 if ($focusId && $focusId != $contentId) {
                     continue;
                 }
@@ -158,14 +153,12 @@ class SaintCoinachRedisCommand extends Command
             }
             
             unset($allContentData);
-            $section->writeln('Saving...');
             
             // save data
             if ($this->save) {
-                $idTotal = count($this->save);
                 $idCount = 0;
                 $saveCount = 0;
-                
+    
                 Redis::Cache()->startPipeline();
                 foreach ($this->save as $key => $data) {
                     $idCount++;
@@ -173,11 +166,7 @@ class SaintCoinachRedisCommand extends Command
                     if (!$data || empty($data) || !isset($data->ID)) {
                         continue;
                     }
-    
-                    $progress = round($idCount / $idTotal * 100);
-                    $memory   = System::memory();
-                    $section->overwrite(" [{$progress}% | {$memory} memory | {$saveCount} saves] Sheet: {$count}/{$total} <info>{$contentName}</info> - {$key}");
-                    
+
                     // Set content url and some placeholders
                     $data->Url = "/{$contentName}/{$data->ID}";
                     $data->GameContentLinks = null;
