@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+START_TIME=$SECONDS
+
+## -------------------------------------------------------------------------------------
+
+# Convert data from CSV to Json
+/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachJsonCacheCommand
+
+# run ENpcBase on its own
+/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand 0 500 1 -q ENpcBase
+
+sleep 5
+
+for (( i = 0; i <= 20; ++i )); do
+    start_point=$(( $i * 25 ))
+
+    echo " --------- Loop: $i / 20 - chunk: $start_point ------------------------------------"
+
+    /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand $start_point 25 1 -q
+
+    sleep 3
+done
+
+# Populate market items
+sleep 3
+/usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoPopulateItemsCommand
+
+sleep 3
+/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCustomCommand Quest
+
+# Add custom data
+sleep 3
+/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCustomCommand
+
+sleep 3
+/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCustomCommand SkillDescriptions
+
+
+# Add on patch info
+sleep 3
+/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdatePatchCommand 1
+
+# Update search
+sleep 3
+/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdateSearchCommand dev
+
+# Update lore search
+sleep 3
+/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdateSearchLoreCommand dev
+
+## -------------------------------------------------------------------------------------
+
+end=`date +%s`
+
+ELAPSED_TIME=$(($SECONDS - $START_TIME))
+
+echo ""
+echo "Completed"
+echo "$(($ELAPSED_TIME/60)) min $(($ELAPSED_TIME%60)) sec"
+echo ""
