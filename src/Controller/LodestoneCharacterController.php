@@ -66,9 +66,10 @@ class LodestoneCharacterController extends AbstractController
 
             // achievements might be private/public, can check on 1st one
             $first = $api->character()->achievements($lodestoneId, 1);
-            $achievements = array_merge($achievements, $first);
 
             if ($first) {
+                $achievements = array_merge($achievements, $first->Achievements);
+
                 // parse the rest of the pages
                 $api->config()->useAsync();
                 foreach([2,3,4,5,6,8,11,12,13] as $kindId) {
@@ -76,7 +77,9 @@ class LodestoneCharacterController extends AbstractController
                     $api->character()->achievements($lodestoneId, $kindId);
                 }
 
-                $achievements = array_merge($achievements, $api->http()->settle());
+                foreach ($api->http()->settle() as $res) {
+                    $achievements = array_merge($achievements, $res->Achievements);
+                }
                 $api->config()->useSync();
             }
 
@@ -89,16 +92,19 @@ class LodestoneCharacterController extends AbstractController
 
             // grab 1st page, so we know if there is more than 1 page
             $first = $api->character()->friends($lodestoneId, 1);
-            $friends = array_merge($friends, $first);
 
             if ($first && $first->Pagination->PageTotal > 1) {
+                $friends = array_merge($friends, $first->Results);
+
                 // parse the rest of pages
                 $api->config()->useAsync();
                 foreach (range(2, $first->Pagination->PageTotal) as $page) {
                     $api->character()->friends($lodestoneId, $page);
                 }
 
-                $friends = array_merge($friends, $api->http()->settle());
+                foreach ($api->http()->settle() as $res) {
+                    $friends = array_merge($friends, $res->Results);
+                }
                 $api->config()->useSync();
             }
 
@@ -117,16 +123,19 @@ class LodestoneCharacterController extends AbstractController
 
             // grab 1st page, so we know if there is more than 1 page
             $first = $api->freecompany()->members($response->Character->FreeCompanyId, 1);
-            $members = array_merge($members, $first);
 
             if ($first && $first->Pagination->PageTotal > 1) {
+                $members = array_merge($members, $first->Results);
+
                 // parse the rest of pages
                 $api->config()->useAsync();
                 foreach (range(2, $first->Pagination->PageTotal) as $page) {
                     $api->freecompany()->members($response->Character->FreeCompanyId, $page);
                 }
 
-                $members = array_merge($members, $api->http()->settle());
+                foreach ($api->http()->settle() as $res) {
+                    $members = array_merge($members, $res->Results);
+                }
                 $api->config()->useSync();
             }
 
