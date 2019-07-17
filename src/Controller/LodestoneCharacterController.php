@@ -92,12 +92,16 @@ class LodestoneCharacterController extends AbstractController
                 }
                 $api->config()->useSync();
             }
-
-            $response->Achievements = $achievements;
+    
+            $response->Achievements = (Object)[
+                'List' => [],
+                'Points' => 0
+            ];
             
             // simplify achievements
-            foreach ($response->Achievements as $i => $achi) {
-                $response->Achievements[$i] = [
+            foreach ($achievements as $i => $achi) {
+                $response->Achievements->Points += $achi->Points;
+                $response->Achievements->List[$i] = [
                     'ID'   => $achi->ID,
                     'Date' => $achi->ObtainedTimestamp
                 ];
