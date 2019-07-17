@@ -13,6 +13,7 @@
                     <small>v{{ siteVersion().version }} - {{ environment() == 'staging' ? 'Staging' : 'Production' }}</small>
                 </div>
 
+                {% if auth.hasAccess %}
                 <div class="docs-links">
                     <a href="{{ path('docs_page', { page: 'Welcome' }) }}" class="{{ section != 1 ?: 'active' }}">Welcome</a>
                     <div class="sub-nav">
@@ -97,12 +98,30 @@
                     <a href="{{ path('docs_page', { page: 'Mappy-Data' }) }}" class="{{ section != 17 ?: 'active' }}">Mappy Data</a>
                     <a href="{{ path('docs_page', { page: 'Costs' }) }}" class="{{ section != 20 ?: 'active' }}">Costs</a>
                 </div>
+                {% endif %}
             </div>
         </aside>
     </div>
     <div>
         <main>
-            {% block doc %}{% endblock %}
+            {% if auth.hasAccess %}
+                {% block doc %}{% endblock %}
+            {% else %}
+
+                <h2>PRIVATE API</h2>
+
+                <p>
+                    XIVAPI is an invitation private only API.
+                </p>
+
+                <p>
+                    If you are interested in using the API then
+                    <a href="https://discord.gg/MFFVHWC">please jump on Discord</a> to
+                    discuss your requirements.
+                </p>
+
+            {% endif %}
+
         </main>
     </div>
 </div>

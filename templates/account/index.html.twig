@@ -64,6 +64,7 @@
             {# API Information #}
             <h1>API Access</h1>
             <div class="account-panel">
+                {% if auth.hasAccess %}
                 <table>
                     <tr>
                         <td width="30%">API Key</td>
@@ -162,6 +163,24 @@
                         </td>
                     </tr>
                 </table>
+                {% else %}
+                <table>
+                    <tr>
+                        <td width="30%">Information</td>
+                        <td>
+                            <p>
+                                XIVAPI is an invitation private only API.
+                            </p>
+
+                            <p>
+                                If you are interested in using the API then
+                                <a href="https://discord.gg/MFFVHWC">please jump on Discord</a> to
+                                discuss your requirements.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+                {% endif %}
             </div>
         </div>
     {% else %}

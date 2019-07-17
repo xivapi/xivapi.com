@@ -21,6 +21,7 @@ use App\Exception\ApiAppBannedException;
 use App\Exception\ApiRateLimitException;
 use App\Common\Service\Redis\Redis;
 use App\Common\User\Users;
+use App\Exception\ApiRestrictedException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -110,13 +111,17 @@ class ApiRequest
         
         // if no key, handle per ip
         if ($this->hasApiKey() === false) {
-            $this->checkUserRateLimit();
-            return;
+            throw new ApiRestrictedException();
         }
 
         /** @var User $user */
         $this->user = $this->users->getUserByApiKey($this->apikey);
         $this->setApiPermissions();
+        
+        // throw error if they do not have permission
+        if (ApiPermissions::has(ApiPermissions::PERMISSION_ACCESS) === false) {
+            throw new ApiRestrictedException();
+        }
 
         // checks
         $this->checkUserIsNotBanned();

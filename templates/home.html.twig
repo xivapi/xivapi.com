@@ -94,6 +94,7 @@
     </div>
 </div>
 
+{% if auth.hasAccess %}
 <div class="paymysub-section">
     <div>
         <div>
@@ -125,17 +126,14 @@
         </div>
     </div>
 </div>
-
+{% endif %}
 
 <footer>
     <div>
         <div>
-            <strong>Premium Virtue (Phoenix)</strong> <br>
-            Discord: Vekien#3458 <br>
-            Twitter: <a href="https://twitter.com/viion">@viion</a>
+            XIVAPI v{{ siteVersion().version }} - {{ siteVersion().hash_min|upper }}
         </div>
         <div>
-            v{{ siteVersion().version }} ({{ siteVersion().hash_min }}) - {{ siteVersion().commits|number_format }} changes - Deployed {{ siteVersion().time }} <br>
             ALL FINAL FANTASY XIV CONTENT IS PROPERTY OF SQUARE ENIX CO., LTD <br>
 
             {% if auth.user %}

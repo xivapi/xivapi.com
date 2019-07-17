@@ -12,6 +12,7 @@ class ApiPermissions
     const PERMISSION_MAPPY     = 'mappy';
     const PERMISSION_KING      = 'king';
     const PERMISSION_ADMIN     = 'admin';
+    const PERMISSION_ACCESS    = 'access';
 
     private static $permissions = [];
 
