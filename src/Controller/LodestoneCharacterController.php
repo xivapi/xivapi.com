@@ -98,8 +98,8 @@ class LodestoneCharacterController extends AbstractController
             // simplify achievements
             foreach ($response->Achievements as $i => $achi) {
                 $response->Achievements[$i] = [
-                    'ID'   => $achi['ID'],
-                    'Date' => $achi['ObtainedTimestamp']
+                    'ID'   => $achi->ID,
+                    'Date' => $achi->ObtainedTimestamp
                 ];
             }
 
