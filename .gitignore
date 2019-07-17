@@ -1,3 +1,4 @@
+composer.phar
 git_version.txt
 .idea
 src/Service/Common/Statistics\.php\.log
