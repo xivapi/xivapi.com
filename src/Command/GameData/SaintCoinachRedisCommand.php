@@ -21,7 +21,7 @@ use App\Service\GamePatch\Patch;
 class SaintCoinachRedisCommand extends Command
 {
     use CommandHelperTrait;
-
+    
     const MAX_DEPTH = 3;
     const SAVE_TO_REDIS = true;
     const REDIS_DURATION = (60 * 60 * 24 * 365 * 10); // 10 years
@@ -55,30 +55,30 @@ class SaintCoinachRedisCommand extends Command
             ->addArgument('force_content_name', InputArgument::OPTIONAL, 'Forced content name')
             ->addArgument('force_content_id', InputArgument::OPTIONAL, 'Forced content name');
     }
-
+    
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->patch = new Patch();
-
+        
         $this->setSymfonyStyle($input, $output);
         $start = $this->input->getArgument('file_start');
-        $end = $start + $this->input->getArgument('file_count');
-
+        $end   = $start + $this->input->getArgument('file_count');
+        
         $this->title("CONTENT UPDATE: {$start} --> {$end}");
         $this->startClock();
-
+    
         $this->checkSchema();
         $this->checkVersion();
         #$this->checkCache();
-
+    
         // this forces exceptions to be thrown
-        set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
+        set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
             # print_r($errcontext);
             throw new \Exception("{$errfile} {$errline} - {$errstr}", 0);
         });
-
+    
         $this->buildData();
-
+        
         $this->endClock();
     }
 
@@ -87,16 +87,16 @@ class SaintCoinachRedisCommand extends Command
      */
     private function buildData()
     {
-        $focusName = $this->input->getArgument('force_content_name');
-        $focusId = $this->input->getArgument('force_content_id');
-
+        $focusName  = $this->input->getArgument('force_content_name');
+        $focusId    = $this->input->getArgument('force_content_id');
+        
         if ($focusName || $focusId) {
             $this->io->table(
-                ['Focus Name', 'Focus ID'],
-                [[$focusName, $focusId]]
+                [ 'Focus Name', 'Focus ID' ],
+                [ [$focusName, $focusId] ]
             );
         }
-
+        
         // chunk schema as doing everything in 1 go is costly
         $chunkySchema = $this->schema;
         $chunkySchema = array_splice(
@@ -104,93 +104,77 @@ class SaintCoinachRedisCommand extends Command
             $this->input->getArgument('file_start'),
             $this->input->getArgument('file_count')
         );
-
+    
         if (!$chunkySchema) {
             $this->io->text('No data to process!');
             return;
         }
-
+        
         // stats
         $count = 0;
         $total = count($chunkySchema);
-
+        
         // start a pipeline
         foreach ($chunkySchema as $contentName => $contentSchema) {
             $count++;
-
+            
             if ($focusName && $focusName != $contentName) {
                 # $this->io->text("Sheet: {$count}/{$total}    <info>SKIPPED {$contentName}</info>");
                 continue;
             }
-
+            
             // skip ENpcBase, will do it on its own...
             if (!$focusName && $contentName == 'ENpcBase') {
                 continue;
             }
-
+            
             // skip level as it takes about 50 years
             if ($contentName == 'Level') {
                 continue;
             }
-
+    
             $this->maxDepth = $contentName == 'ENpcBase' ? 1 : self::MAX_DEPTH;
-
+            
             // load all content for that schema
             $allContentData = FileSystem::load($contentName, 'json');
 
             // build content (this saves it)
-            $idCount = 0;
-            $idTotal = count(array_keys((array)$allContentData));
             $section = (new ConsoleOutput())->section();
-
+    
+            $memory   = number_format(System::memory());
+            $section->writeln("[{$memory}MB memory] Sheet: {$count}/{$total} <info>{$contentName}</info>");
+            
             foreach ($allContentData as $contentId => $contentData) {
-                $idCount++;
-
-                $progress = round($idCount / $idTotal * 100);
-                $memory = number_format(System::memory());
-                if ($idCount % 100 == 0) {
-                    $section->overwrite(" [{$progress}% | {$memory}MB memory] Sheet: {$count}/{$total} <info>{$contentName}</info> - {$contentId}");
-                }
-
                 if ($focusId && $focusId != $contentId) {
                     continue;
                 }
-
+   
                 $this->buildContent($contentId, $contentName, $contentSchema, clone $contentData, 0, true);
             }
-
+            
             unset($allContentData);
-            $section->writeln('Saving...');
-
+            
             // save data
             if ($this->save) {
-                $idTotal = count($this->save);
                 $idCount = 0;
                 $saveCount = 0;
-
+    
                 Redis::Cache()->startPipeline();
                 foreach ($this->save as $key => $data) {
                     $idCount++;
-
+    
                     if (!$data || empty($data) || !isset($data->ID)) {
                         continue;
-                    }
-
-                    $progress = round($idCount / $idTotal * 100);
-                    $memory = System::memory();
-
-                    if ($idCount % 100 == 0) {
-                        $section->overwrite(" [{$progress}% | {$memory} memory | {$saveCount} saves] Sheet: {$count}/{$total} <info>{$contentName}</info> - {$key}");
                     }
 
                     // Set content url and some placeholders
                     $data->Url = "/{$contentName}/{$data->ID}";
                     $data->GameContentLinks = null;
-
+                    
                     // save
                     $this->saveContentId($data->ID, $contentName);
                     Redis::Cache()->set($key, $data, self::REDIS_DURATION);
-
+                    
                     if ($idCount % 250 == 0) {
                         $saveCount++;
                         Redis::Cache()->executePipeline();
@@ -198,17 +182,17 @@ class SaintCoinachRedisCommand extends Command
                     }
                 }
                 Redis::Cache()->executePipeline();
-
+                
                 unset($this->save);
             }
-
+            
             unset($section);
         }
-
+    
         //
         // save the ids
         //
-
+        
         $this->io->text('<fg=cyan>Caching content ID lists</>');
         Redis::Cache()->startPipeline();
         foreach ($this->ids as $contentName => $idList) {
@@ -216,37 +200,37 @@ class SaintCoinachRedisCommand extends Command
             if (!in_array($contentName, self::ZERO_CONTENT) && $idList[0] == '0') {
                 unset($idList[0]);
             }
-
+            
             $idList = (array)$idList;
             Redis::Cache()->set("ids_{$contentName}", $idList, self::REDIS_DURATION);
         }
         Redis::Cache()->executePipeline();
         $this->complete();
-
+        
         //
         // Save links
         //
-
+        
         $this->io->text('<fg=cyan>Building content connection links</>');
         $this->io->progressStart(count($this->links));
         foreach ($this->links as $linkTarget => $contentData) {
             $key = "connections_{$linkTarget}";
             $contentLinks = Redis::Cache()->get($key) ?: [];
             $contentLinks = (Array)$contentLinks;
-
+    
             // process each target info
-            foreach ($contentData as $contentTarget => $targetInfo) {
+            foreach($contentData as $contentTarget => $targetInfo) {
                 // grab existing and append on content target
                 $contentLinks[$contentTarget] = 1;
             }
-
+    
             // save
             Redis::Cache()->set($key, $contentLinks, self::REDIS_DURATION);
             $this->io->progressAdvance();
         }
         $this->io->progressFinish();
     }
-
+    
     /**
      * Build content
      */
@@ -256,26 +240,26 @@ class SaintCoinachRedisCommand extends Command
         if ($depth >= $this->maxDepth) {
             return $content;
         }
-
+        
         // if we have a schema, build the data
         if ($contentSchema) {
             foreach ($contentSchema->definitions as $definition) {
                 if (!isset($definition->name) && !isset($definition->type)) {
                     continue;
                 }
-
-
+                
+                
                 // is this a repeater definition?
                 if (!isset($definition->name) && $definition->type === 'repeat') {
                     $this->handleSingleRepeat($contentId, $contentName, $content, $depth, $definition);
                     continue;
                 }
-
+                
                 // not a repeater, handle it
                 $this->handleDefinition($contentId, $contentName, $content, $definition, $depth + 1);
             }
         }
-
+ 
         // only save at a depth of 0
         if ($save && $content) {
             $content->ID = $content->ID === null ? 0 : $content->ID;
@@ -283,10 +267,10 @@ class SaintCoinachRedisCommand extends Command
         } else if ($save && !$content) {
             $this->io->error("No Data: {$contentName} @{$contentId}");
         }
-
+        
         return $content;
     }
-
+    
     /**
      * Handle a single repeat definition
      */
@@ -297,12 +281,12 @@ class SaintCoinachRedisCommand extends Command
             $this->handleMultiRepeat($contentId, $contentName, $content, $depth, $definition);
             return;
         }
-
+        
         // loop through all definitions
         foreach (range(0, $definition->count - 1) as $num) {
             $originalDefinition = clone $definition;
             $tempDefinition = clone $definition->definition;
-
+            
             if (!isset($tempDefinition->name) && isset($tempDefinition->definition->type) && $tempDefinition->definition->type == 'group') {
                 $this->handleMultiMultiRepeat($contentId, $contentName, $content, $depth, $originalDefinition);
                 continue;
@@ -312,14 +296,14 @@ class SaintCoinachRedisCommand extends Command
             if (!isset($tempDefinition->name)) {
                 continue;
             }
-
+            
             $tempDefinition->name = "{$tempDefinition->name}{$num}";
             $this->handleDefinition($contentId, $contentName, $content, $tempDefinition, $depth + 1);
         }
-
+        
         unset($tempDefinition);
     }
-
+    
     /**
      * Handle a multi-MULTI repeat definition
      */
@@ -338,7 +322,7 @@ class SaintCoinachRedisCommand extends Command
             }
         }
     }
-
+    
     /**
      * Handle a multi repeat definition
      */
@@ -350,20 +334,20 @@ class SaintCoinachRedisCommand extends Command
             foreach ($definition->definition->members as $memberDefinition) {
                 $originalDefinition = clone $definition;
                 $tempDefinition = clone $memberDefinition;
-
+                
                 if (!isset($tempDefinition->name)) {
                     $this->handleMultiGroupRepeatDefinition($contentId, $contentName, $content, $depth + 1, $originalDefinition);
                     continue;
                 }
-
+                
                 $tempDefinition->name = "{$tempDefinition->name}{$num}";
                 $this->handleDefinition($contentId, $contentName, $content, $tempDefinition, $depth + 1);
             }
         }
-
+        
         unset($tempDefinition);
     }
-
+    
     /**
      * Handle multi group repeat definition
      */
@@ -384,7 +368,7 @@ class SaintCoinachRedisCommand extends Command
             }
         }
     }
-
+    
     /**
      * Handle the definition
      */
@@ -393,35 +377,35 @@ class SaintCoinachRedisCommand extends Command
         // simplify column names
         $definition->name = DataHelper::getSimpleColumnName($definition->name);
         $definition->name = DataHelper::getReplacedName($contentName, $definition->name);
-
+        
         // if definition is set, ignore it
         if (isset($content->{$definition->name}) && is_object($content->{$definition->name})) {
             return null;
         }
-
+        
         // special one because SE is crazy and link level_item id by the ACTUAL level...
         if ($contentName == 'Item' && isset($definition->name) && $definition->name == 'LevelItem') {
             return null;
         }
-
+        
         // handle link type definition
         if (isset($definition->converter) && $definition->converter->type == 'link') {
             // id of linked data
             $linkId = $content->{$definition->name} ?? null;
-
+    
             // target name of linked data
             $linkTarget = $definition->converter->target;
-
+    
             // add link target and target id
             $content->{$definition->name} = null;
-            $content->{$definition->name . "Target"} = $linkTarget;
-            $content->{$definition->name . "TargetID"} = $linkId;
-
+            $content->{$definition->name ."Target"} = $linkTarget;
+            $content->{$definition->name ."TargetID"} = $linkId;
+    
             // if link id is an object, it has already been managed
             if (is_object($linkId)) {
                 return $linkId;
             }
-
+            
             // if link id is null, something wrong with the content and definition
             // this shouldn't happen ...
             if ($linkId === null) {
@@ -449,33 +433,33 @@ class SaintCoinachRedisCommand extends Command
                 
                 die;
                 */
-
+           
                 return $content;
             }
-
+            
             // depth reached
             if ($depth > $this->maxDepth) {
                 return null;
             }
-
+            
             // linkId is 0 and linkTarget is not in our zero content list
             if ($linkId == 0 && in_array($linkTarget, self::ZERO_CONTENT) == false) {
                 return null;
             }
-
+            
             # $this->io->text("<info>[LINK {$depth}]</info> {$contentId} {$contentName} : {$definition->name} ---> {$linkId} {$linkTarget}");
-
+            
             // if the content links to itself, then return back
             if ($contentName == $linkTarget && (int)$contentId == (int)$linkId) {
                 return null;
             }
-
+            
             // grab linked data
             $linkData = $this->linkContent($linkId, $linkTarget, ($contentName == $linkTarget) ? 99 : $depth);
-
+            
             // append on linked data if it exists
             $content->{$definition->name} = $linkData ?: $content->{$definition->name};
-
+            
             // save connection
             if ($linkData) {
                 $this->saveConnection($contentId, $contentName, $definition->name, $linkId, $linkTarget);
@@ -484,10 +468,10 @@ class SaintCoinachRedisCommand extends Command
             unset($linkData);
             return null;
         }
-
+        
         return null;
     }
-
+    
     /**
      * Link content
      */
@@ -497,23 +481,23 @@ class SaintCoinachRedisCommand extends Command
         if ($linkId == 0 && in_array($linkTarget, self::ZERO_CONTENT) == false) {
             return null;
         }
-
+    
         $targetContent = FileSystemCache::get($linkTarget, $linkId);
-        $targetSchema = $this->schema[$linkTarget] ?? null;
-
+        $targetSchema  = $this->schema[$linkTarget] ?? null;
+        
         // no content? return null
         if (!$targetContent) {
             return null;
         }
-
+        
         // if no schema, return just the value
         if (!$targetSchema) {
             return $targetContent;
         }
-
+        
         return $this->buildContent($linkId, $linkTarget, $targetSchema, clone $targetContent, $depth);
     }
-
+    
     /**
      * Save the content connection
      */
@@ -523,20 +507,20 @@ class SaintCoinachRedisCommand extends Command
         if ($linkId == 0 && in_array($linkTarget, self::ZERO_CONTENT) == false) {
             return null;
         }
-
+        
         if (!isset($this->links)) {
             $this->links = [];
         }
-
+        
         $this->links["{$linkTarget}_{$linkId}"]["{$contentName}_{$contentId}_{$definitionName}"] = (object)[
             'ContentColumnName' => $definitionName,
-            'ContentName' => $contentName,
-            'ContentId' => $contentId,
-            'LinkTarget' => $linkTarget,
-            'LinkTargetID' => $linkId,
+            'ContentName'       => $contentName,
+            'ContentId'         => $contentId,
+            'LinkTarget'        => $linkTarget,
+            'LinkTargetID'      => $linkId,
         ];
     }
-
+    
     /**
      * Save ID
      */
@@ -545,7 +529,7 @@ class SaintCoinachRedisCommand extends Command
         if (!isset($this->ids[$contentName])) {
             $this->ids[$contentName] = [];
         }
-
+    
         if (!in_array($contentId, $this->ids[$contentName])) {
             $this->ids[$contentName][] = $contentId;
         }
