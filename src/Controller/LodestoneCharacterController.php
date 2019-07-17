@@ -117,11 +117,10 @@ class LodestoneCharacterController extends AbstractController
             $friends = [];
 
             // grab 1st page, so we know if there is more than 1 page
-            $first = $api->character()->friends($lodestoneId, 1);
-
+            $first   = $api->character()->friends($lodestoneId, 1);
+            $friends = $first ? array_merge($friends, $first->Results) : $friends;
+            
             if ($first && $first->Pagination->PageTotal > 1) {
-                $friends = array_merge($friends, $first->Results);
-
                 // parse the rest of pages
                 $api->config()->useAsync();
                 foreach (range(2, $first->Pagination->PageTotal) as $page) {
@@ -148,10 +147,10 @@ class LodestoneCharacterController extends AbstractController
             $members = [];
 
             // grab 1st page, so we know if there is more than 1 page
-            $first = $api->freecompany()->members($response->Character->FreeCompanyId, 1);
+            $first   = $api->freecompany()->members($response->Character->FreeCompanyId, 1);
+            $members = $first ? array_merge($members, $first->Results) : $members;
 
             if ($first && $first->Pagination->PageTotal > 1) {
-                $members = array_merge($members, $first->Results);
 
                 // parse the rest of pages
                 $api->config()->useAsync();
