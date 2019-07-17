@@ -51,7 +51,7 @@ class CharacterConverter
         //
         // Attributes
         //
-        foreach ($data->Attributes as $attr) {
+        foreach ($data->GearSet->Attributes as $attr) {
             $attr->Name = ($attr->Name === 'Critical Hit Rate') ? 'Critical Hit' : $attr->Name;
             $set->Attributes[CharacterData::find('BaseParam', $attr->Name)] = $attr->Value;
         }
@@ -59,7 +59,7 @@ class CharacterConverter
         //
         // Gear
         //
-        foreach ($data->Gear as $slot => $item) {
+        foreach ($data->GearSet->Gear as $slot => $item) {
             $item->ID = CharacterData::find('Item', $item->Name);
         
             // has dye?
