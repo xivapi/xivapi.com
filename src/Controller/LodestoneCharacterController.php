@@ -62,41 +62,47 @@ class LodestoneCharacterController extends AbstractController
 
         // Achievements
         if ($content->AC) {
-            $api->config()->useAsync();
+            $achievements = [];
 
-            $api->character()->achievements($lodestoneId, 1);
-            $api->character()->achievements($lodestoneId, 2);
-            $api->character()->achievements($lodestoneId, 3);
-            $api->character()->achievements($lodestoneId, 4);
-            $api->character()->achievements($lodestoneId, 5);
-            $api->character()->achievements($lodestoneId, 6);
-            $api->character()->achievements($lodestoneId, 8);
-            $api->character()->achievements($lodestoneId, 11);
-            $api->character()->achievements($lodestoneId, 12);
-            $api->character()->achievements($lodestoneId, 13);
+            // achievements might be private/public, can check on 1st one
+            $first = $api->character()->achievements($lodestoneId, 1);
+            $achievements = array_merge($achievements, $first);
 
-            $response->Achievements = $api->http()->settle();
-            $api->config()->useSync();
+            if ($first) {
+                // parse the rest of the pages
+                $api->config()->useAsync();
+                foreach([2,3,4,5,6,8,11,12,13] as $kindId) {
+                    $api->config()->setRequestId("kind_{$kindId}");
+                    $api->character()->achievements($lodestoneId, $kindId);
+                }
+
+                $achievements = array_merge($achievements, $api->http()->settle());
+                $api->config()->useSync();
+            }
+
+            $response->Achievements = $achievements;
         }
 
         // Friends
         if ($content->FR) {
-            $api->config()->useAsync();
-
             $friends = [];
 
-            // grab 1st page
-            $friends[] = $api->character()->friends($lodestoneId);
+            // grab 1st page, so we know if there is more than 1 page
+            $first = $api->character()->friends($lodestoneId, 1);
+            $friends = array_merge($friends, $first);
 
-            // parse rest of pages
-            if ($friends[0]->Pagination->PageTotal > 1) {
-                foreach (range(2, $friends[0]->Pagination->PageTotal) as $page) {
-                    $friends[] = $api->character()->friends($lodestoneId, $page);
+            if ($first && $first->Pagination->PageTotal > 1) {
+                // parse the rest of pages
+                $api->config()->useAsync();
+                foreach (range(2, $first->Pagination->PageTotal) as $page) {
+                    $api->character()->friends($lodestoneId, $page);
                 }
+
+                $friends = array_merge($friends, $api->http()->settle());
+                $api->config()->useSync();
             }
 
             $response->Friends = $friends;
-            $api->config()->useSync();
         }
 
         // Free Company
@@ -107,23 +113,24 @@ class LodestoneCharacterController extends AbstractController
 
         // Free Company Members
         if ($content->FCM) {
-            $fcId = $response->Character->FreeCompanyId;
-            $api->config()->useAsync();
-
             $members = [];
 
-            // grab 1st page
-            $members[] = $api->freecompany()->members($lodestoneId);
+            // grab 1st page, so we know if there is more than 1 page
+            $first = $api->freecompany()->members($response->Character->FreeCompanyId, 1);
+            $members = array_merge($members, $first);
 
-            // parse rest of pages
-            if ($members[0]->Pagination->PageTotal > 1) {
-                foreach (range(2, $members[0]->Pagination->PageTotal) as $page) {
-                    $members[] = $api->freecompany()->members($lodestoneId, $page);
+            if ($first && $first->Pagination->PageTotal > 1) {
+                // parse the rest of pages
+                $api->config()->useAsync();
+                foreach (range(2, $first->Pagination->PageTotal) as $page) {
+                    $api->freecompany()->members($response->Character->FreeCompanyId, $page);
                 }
+
+                $members = array_merge($members, $api->http()->settle());
+                $api->config()->useSync();
             }
 
             $response->FreeCompanyMembers = $members;
-            $api->config()->useSync();
         }
 
         // PVP Team

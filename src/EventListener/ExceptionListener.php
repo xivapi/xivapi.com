@@ -10,8 +10,8 @@ use App\Exception\ApiRateLimitException;
 use App\Exception\ContentGoneException;
 use App\Exception\InvalidCompanionMarketRequestException;
 use Lodestone\Exceptions\GenericException;
-use Lodestone\Exceptions\MaintenanceException;
-use Lodestone\Exceptions\NotFoundException;
+use Lodestone\Exceptions\LodestoneMaintenanceException;
+use Lodestone\Exceptions\LodestoneNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -99,10 +99,10 @@ class ExceptionListener implements EventSubscriberInterface
             UnauthorizedHttpException::class,
             NotAcceptableHttpException::class,
             NotFoundHttpException::class,
-            NotFoundException::class,
+            LodestoneNotFoundException::class,
             ContentGoneException::class,
             CompanionMarketServerException::class,
-            MaintenanceException::class,
+            LodestoneMaintenanceException::class,
             GenericException::class,
             ApiRateLimitException::class,
             ApiUnknownPrivateKeyException::class,

@@ -10,9 +10,9 @@ use App\Service\Lodestone\CharacterService;
 use App\Common\Service\Redis\Redis;
 use Doctrine\ORM\EntityManagerInterface;
 use Lodestone\Exceptions\AchievementsPrivateException;
-use Lodestone\Exceptions\ForbiddenException;
+use Lodestone\Exceptions\LodestonePrivateException;
 use Lodestone\Exceptions\GenericException;
-use Lodestone\Exceptions\NotFoundException;
+use Lodestone\Exceptions\LodestoneNotFoundException;
 
 trait QueueTrait
 {
@@ -105,14 +105,14 @@ trait QueueTrait
                     break;
 
                 // register as not found
-                case NotFoundException::class:
+                case LodestoneNotFoundException::class:
                     $entity->setStateNotFound()->incrementNotFoundChecks();
                     self::save($em, $entity);
                     break;
 
                 // register as private
                 case AchievementsPrivateException::class:
-                case ForbiddenException::class:
+                case LodestonePrivateException::class:
                     $entity->setStatePrivate()->incrementAchievementsPrivateChecks();
                     self::save($em, $entity);
                     break;
