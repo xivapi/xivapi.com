@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterConverter;
 use Lodestone\Api;
+use Lodestone\Exceptions\LodestoneNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
@@ -58,6 +59,7 @@ class LodestoneCharacterController extends AbstractController
         $response = (Object)[
             'Character'          => $api->character()->get($lodestoneId),
             'Achievements'       => null,
+            'AchievementsPublic' => null,
             'Friends'            => null,
             'FreeCompany'        => null,
             'FreeCompanyMembers' => null,
@@ -74,10 +76,21 @@ class LodestoneCharacterController extends AbstractController
         if ($content->AC) {
             $achievements = [];
 
-            // achievements might be private/public, can check on 1st one
-            $first = $api->character()->achievements($lodestoneId, 1);
+            $public = true;
+            
+            try {
+                // achievements might be private/public, can check on 1st one
+                $first = $api->character()->achievements($lodestoneId, 1);
+            } catch (LodestoneNotFoundException $ex) {
+                // we catch this exception as users will probably still want to handle the response (profile, other data)
+                // even if achievements are private
+                $public = false;
+            }
+    
+            // add tp response
+            $response->AchievementsPublic = $public;
 
-            if ($first) {
+            if ($public && $first) {
                 $achievements = array_merge($achievements, $first->Achievements);
 
                 // parse the rest of the pages
