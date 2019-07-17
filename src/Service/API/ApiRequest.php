@@ -2,6 +2,7 @@
 
 namespace App\Service\API;
 
+use App\Common\Service\Redis\RedisTracking;
 use App\Common\ServicesThirdParty\Discord\Discord;
 use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
 use App\Common\Utils\Language;
@@ -113,6 +114,9 @@ class ApiRequest
             $this->checkUserRateLimit();
             return;
         }
+        
+        // Track users key
+        RedisTracking::increment('API_KEY_USAGE_'. $this->apikey);
 
         /** @var User $user */
         $this->user = $this->users->getUserByApiKey($this->apikey);

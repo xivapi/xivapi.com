@@ -63,6 +63,11 @@ class PreviewGenerator
         // group by id and maps
         $list = [];
         foreach ($positions as $pos) {
+            // skip 0 entries
+            if ($pos->getBNpcNameID() == 0) {
+                continue;
+            }
+            
             $list[$pos->getBNpcNameID()][$pos->getMapID()][] = [
                 $pos->getPixelX(),
                 $pos->getPixelY(),
