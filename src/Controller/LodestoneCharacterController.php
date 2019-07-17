@@ -6,6 +6,7 @@ use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterConverter;
 use Lodestone\Api;
 use Lodestone\Exceptions\LodestoneNotFoundException;
+use Lodestone\Exceptions\LodestonePrivateException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
@@ -81,7 +82,7 @@ class LodestoneCharacterController extends AbstractController
             try {
                 // achievements might be private/public, can check on 1st one
                 $first = $api->character()->achievements($lodestoneId, 1);
-            } catch (LodestoneNotFoundException $ex) {
+            } catch (LodestonePrivateException $ex) {
                 // we catch this exception as users will probably still want to handle the response (profile, other data)
                 // even if achievements are private
                 $public = false;
