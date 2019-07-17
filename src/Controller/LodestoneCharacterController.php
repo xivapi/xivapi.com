@@ -54,39 +54,15 @@ class LodestoneCharacterController extends AbstractController
     }
 
     /**
-     * @Route("/Characters")
-     * @Route("/characters")
-     */
-    public function characters(Request $request)
-    {
-        $ids = explode(',', $request->get('ids'));
-
-        if (count($ids) > 512) {
-            throw new \Exception("Woah their calm down, 512+ characters wtf?");
-        }
-
-        $response = [];
-
-        foreach ($ids as $id) {
-            $response[] = $this->index($request, $id, true);
-        }
-
-        return $this->json($response);
-    }
-
-    /**
      * @Route("/Character/{lodestoneId}")
      * @Route("/character/{lodestoneId}")
      */
-    public function index(Request $request, $lodestoneId, bool $internal = false)
+    public function index(Request $request, $lodestoneId)
     {
-        $key = "xivapi_character_request_{$lodestoneId}";
-        
-        if ($response = Redis::cache()->get($key)) {
-            return $this->json($response);
-        }
-        
-        $lodestoneId = strtolower(trim($lodestoneId));
+        $lodestoneId = (int)strtolower(trim($lodestoneId));
+
+        // initialise api
+        $api = new Api();
 
         // choose which content you want
         $data = $request->get('data') ? explode(',', strtoupper($request->get('data'))) : [];
@@ -97,23 +73,31 @@ class LodestoneCharacterController extends AbstractController
             'FCM' => in_array('FCM', $data),
             'PVP' => in_array('PVP', $data),
         ];
-        
+
+        // response model
         $response = (Object)[
-            'Character'              => null,
-            'Achievements'           => null,
-            'Friends'                => null,
-            'FreeCompany'            => null,
-            'FreeCompanyMembers'     => null,
-            'PvPTeam'                => null,
-            'Info' => (Object)[
-                'Character'          => null,
-                'Achievements'       => null,
-                'Friends'            => null,
-                'FreeCompany'        => null,
-                'FreeCompanyMembers' => null,
-                'PvPTeam'            => null,
-            ],
+            'Character'          => null,
+            'Achievements'       => null,
+            'Friends'            => null,
+            'FreeCompany'        => null,
+            'FreeCompanyMembers' => null,
+            'PvPTeam'            => null,
         ];
+
+        // cache check
+        if (!$characterData = Redis::cache()->get(__METHOD__ . $lodestoneId)) {
+            $characterData = $api->character()->get($lodestoneId);
+            $characterData->_CacheTime = time();
+
+            Redis::cache()->set(__METHOD__ . $lodestoneId, $characterData, 60);
+        }
+
+
+        // set shit
+        $response->Character = $characterData;
+
+
+        /*
 
         $character = $this->service->get($lodestoneId, $request->get('extended'), !$internal);
         $response->Character = $character->data;
@@ -162,6 +146,10 @@ class LodestoneCharacterController extends AbstractController
         }
     
         Redis::cache()->set($key, $response, 5);
+        */
+
+
+
         return $this->json($response);
     }
 
