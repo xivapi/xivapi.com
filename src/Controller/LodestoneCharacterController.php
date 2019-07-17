@@ -94,6 +94,14 @@ class LodestoneCharacterController extends AbstractController
             }
 
             $response->Achievements = $achievements;
+            
+            // simplify achievements
+            foreach ($response->Achievements as $i => $achi) {
+                $response->Achievements[$i] = [
+                    'ID'   => $achi['ID'],
+                    'Date' => $achi['ObtainedTimestamp']
+                ];
+            }
 
             if ($isExtended) {
                 LodestoneCharacter::extendAchievementData($response->Achievements);
