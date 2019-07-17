@@ -92,7 +92,10 @@ class LodestoneCharacterController extends AbstractController
                         continue;
                     }
 
-                    $achievements = array_merge($achievements, $res ? $res->Achievements : []);
+                    $achievements = array_merge(
+                        $achievements,
+                        ($res && is_object($res)) ? $res->Achievements : []
+                    );
                 }
                 
                 $api->config()->useSync();
