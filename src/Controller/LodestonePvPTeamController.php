@@ -2,12 +2,7 @@
 
 namespace App\Controller;
 
-use App\Exception\ContentGoneException;
-use App\Service\Lodestone\PvPTeamService;
-use App\Service\Lodestone\ServiceQueues;
-use App\Service\LodestoneQueue\PvPTeamQueue;
 use Lodestone\Api;
-use App\Common\Service\Redis\Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
@@ -15,14 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class LodestonePvPTeamController extends AbstractController
 {
-    /** @var PvPTeamService */
-    private $service;
-    
-    public function __construct(PvPTeamService $service)
-    {
-        $this->service = $service;
-    }
-    
     /**
      * @Route("/PvPTeam/Search")
      * @Route("/PvpTeam/Search")
@@ -35,7 +22,7 @@ class LodestonePvPTeamController extends AbstractController
         }
         
         return $this->json(
-            (new Api())->searchPvPTeam(
+            (new Api())->pvpteam->search(
                 $request->get('name'),
                 ucwords($request->get('server')),
                 $request->get('page') ?: 1
@@ -51,44 +38,14 @@ class LodestonePvPTeamController extends AbstractController
     public function index($lodestoneId)
     {
         $lodestoneId = strtolower(trim($lodestoneId));
+    
+        // initialise api
+        $api = new Api();
         
         $response = (Object)[
-            'PvPTeam' =>     null,
-            'Info' => (Object)[
-                'PvPTeam' => null,
-            ],
+            'PvPTeam' => $api->pvpteam()->get($lodestoneId),
         ];
-    
-        $pvp = $this->service->get($lodestoneId);
-        $response->Linkshell = $pvp->data;
-        $response->Info->Linkshell = $pvp->ent->getInfo();
   
         return $this->json($response);
-    }
-
-    /**
-     * @Route("/PvPTeam/{lodestoneId}/Update")
-     * @Route("/pvpteam/{lodestoneId}/update")
-     */
-    public function update($lodestoneId)
-    {
-        $pvp = $this->service->get($lodestoneId);
-    
-        if ($pvp->ent->isBlackListed()) {
-            throw new ContentGoneException('Blacklisted');
-        }
-    
-        if ($pvp->ent->isAdding()) {
-            throw new ContentGoneException('Not Added');
-        }
-    
-        if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {
-            return $this->json(0);
-        }
-
-        PvPTeamQueue::request($lodestoneId, 'pvp_team_update');
-
-        Redis::Cache()->set(__METHOD__.$lodestoneId, ServiceQueues::UPDATE_TIMEOUT);
-        return $this->json(1);
     }
 }

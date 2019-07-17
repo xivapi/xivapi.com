@@ -2,13 +2,8 @@
 
 namespace App\Controller;
 
-use App\Exception\ContentGoneException;
-use App\Service\Lodestone\FreeCompanyService;
-use App\Service\Lodestone\ServiceQueues;
-use App\Service\LodestoneQueue\FreeCompanyQueue;
 use Intervention\Image\ImageManager;
 use Lodestone\Api;
-use App\Common\Service\Redis\Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,14 +15,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class LodestoneFreeCompanyController extends AbstractController
 {
-    /** @var FreeCompanyService */
-    private $service;
-    
-    public function __construct(FreeCompanyService $service)
-    {
-        $this->service = $service;
-    }
-    
     /**
      * @Route("/FreeCompany/Search")
      * @Route("/freecompany/search")
@@ -39,7 +26,7 @@ class LodestoneFreeCompanyController extends AbstractController
         }
         
         return $this->json(
-            (new Api())->searchFreeCompany(
+            (new Api())->freecompany->search(
                 $request->get('name'),
                 ucwords($request->get('server')),
                 $request->get('page') ?: 1
@@ -54,59 +41,47 @@ class LodestoneFreeCompanyController extends AbstractController
     public function index(Request $request, $lodestoneId)
     {
         $lodestoneId = strtolower(trim($lodestoneId));
-        
+    
+        // initialise api
+        $api = new Api();
+    
+        $response = (Object)[
+            'FreeCompany' => $api->freecompany()->get($lodestoneId),
+            'FreeCompanyMembers' => null,
+        ];
+    
         // choose which content you want
         $data = $request->get('data') ? explode(',', strtoupper($request->get('data'))) : [];
         $content = (object)[
             'FCM' => in_array('FCM', $data),
         ];
     
-        $response = (Object)[
-            'FreeCompany'            => null,
-            'FreeCompanyMembers'     => null,
-            'Info' => (Object)[
-                'FreeCompany'        => null,
-                'FreeCompanyMembers' => null,
-            ],
-        ];
-
-        $freecompany = $this->service->get($lodestoneId);
-        $response->FreeCompany = $freecompany->data;
-        $response->Info->FreeCompany = $freecompany->ent->getInfo();
-    
+        // Free Company Members
         if ($content->FCM) {
-            $members = $this->service->getMembers($lodestoneId);
-            $response->FreeCompanyMembers = $members->data;
-            $response->Info->FreeCompanyMembers = $members->ent->getInfo();
+            $members = [];
+        
+            // grab 1st page, so we know if there is more than 1 page
+            $first = $api->freecompany()->members($lodestoneId, 1);
+        
+            if ($first && $first->Pagination->PageTotal > 1) {
+                $members = array_merge($members, $first->Results);
+            
+                // parse the rest of pages
+                $api->config()->useAsync();
+                foreach (range(2, $first->Pagination->PageTotal) as $page) {
+                    $api->freecompany()->members($lodestoneId, $page);
+                }
+            
+                foreach ($api->http()->settle() as $res) {
+                    $members = array_merge($members, $res->Results);
+                }
+                $api->config()->useSync();
+            }
+        
+            $response->FreeCompanyMembers = $members;
         }
     
         return $this->json($response);
-    }
-
-    /**
-     * @Route("/FreeCompany/{lodestoneId}/Update")
-     * @Route("/freecompany/{lodestoneId}/update")
-     */
-    public function update($lodestoneId)
-    {
-        $freecompany = $this->service->get($lodestoneId);
-    
-        if ($freecompany->ent->isBlackListed()) {
-            throw new ContentGoneException('Blacklisted');
-        }
-    
-        if ($freecompany->ent->isAdding()) {
-            throw new ContentGoneException('Not Added');
-        }
-        
-        if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {
-            return $this->json(0);
-        }
-
-        FreeCompanyQueue::request($lodestoneId, 'free_company_update');
-        
-        Redis::Cache()->set(__METHOD__.$lodestoneId, 1, ServiceQueues::UPDATE_TIMEOUT);
-        return $this->json(1);
     }
 
     /**
@@ -116,13 +91,12 @@ class LodestoneFreeCompanyController extends AbstractController
     public function icon($lodestoneId)
     {
         $lodestoneId = strtolower(trim($lodestoneId));
-
-        $freecompany = $this->service->get($lodestoneId);
-        $freecompany = $freecompany->data;
-
-        if ($freecompany == null) {
-            throw new \Exception('FC not found, maybe it needs adding? (it will be now)');
-        }
+    
+        // initialise api
+        $api = new Api();
+        
+        // grab FC
+        $freecompany = $api->freecompany()->get($lodestoneId);
 
         /**
          * Filename for FC icon
@@ -155,17 +129,14 @@ class LodestoneFreeCompanyController extends AbstractController
             );
         }
 
-
         /**
          * Save and compress
          */
         $img->save($filename);
 
         usleep(500 * 1000);
-
         $img = imagecreatefrompng($filename);
         imagejpeg($img, $filename, 95);
-
         usleep(500 * 1000);
 
         return new BinaryFileResponse($filename, 200);
