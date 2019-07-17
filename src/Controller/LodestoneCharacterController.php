@@ -85,7 +85,7 @@ class LodestoneCharacterController extends AbstractController
         ];
 
 
-        if (isset($data['AC'])) {
+        if ($content->AC) {
             $api->config()->useAsync();
 
             $api->character()->achievements($lodestoneId, 1);
@@ -100,6 +100,7 @@ class LodestoneCharacterController extends AbstractController
             $api->character()->achievements($lodestoneId, 13);
 
             $response->Achievements = $api->http()->settle();
+            $api->config()->useSync();
         }
 
 
