@@ -62,10 +62,14 @@ class LodestoneCharacterController extends AbstractController
             'Achievements'       => null,
             'AchievementsPublic' => null,
             'Friends'            => null,
+            'FriendsPublic'      => null,
             'FreeCompany'        => null,
             'FreeCompanyMembers' => null,
             'PvPTeam'            => null,
         ];
+    
+        // ensure bio is UT8
+        $response->Character->Bio = mb_convert_encoding($response->Character->Bio, 'UTF-8', 'UTF-8');
 
         CharacterConverter::handle($response->Character);
 
@@ -76,8 +80,7 @@ class LodestoneCharacterController extends AbstractController
         // Achievements
         if ($content->AC) {
             $achievements = [];
-
-            $public = true;
+            $achievementsPublic = true;
             
             try {
                 // achievements might be private/public, can check on 1st one
@@ -85,13 +88,13 @@ class LodestoneCharacterController extends AbstractController
             } catch (LodestonePrivateException $ex) {
                 // we catch this exception as users will probably still want to handle the response (profile, other data)
                 // even if achievements are private
-                $public = false;
+                $achievementsPublic = false;
             }
     
-            // add tp response
-            $response->AchievementsPublic = $public;
+            // add public status to response
+            $response->AchievementsPublic = $achievementsPublic;
 
-            if ($public && $first) {
+            if ($achievementsPublic && $first) {
                 $achievements = array_merge($achievements, $first->Achievements);
 
                 // parse the rest of the pages
@@ -137,12 +140,22 @@ class LodestoneCharacterController extends AbstractController
         // Friends
         if ($content->FR) {
             $friends = [];
+            $friendsPublic = true;
 
             // grab 1st page, so we know if there is more than 1 page
-            $first   = $api->character()->friends($lodestoneId, 1);
-            $friends = $first ? array_merge($friends, $first->Results) : $friends;
+            try {
+                $first   = $api->character()->friends($lodestoneId, 1);
+                $friends = $first ? array_merge($friends, $first->Results) : $friends;
+            } catch (LodestonePrivateException $ex) {
+                // we catch this exception as users will probably still want to handle the response (profile, other data)
+                // even if achievements are private
+                $friendsPublic = false;
+            }
+    
+            // add public status to response
+            $response->FriendsPublic = $achievementsPublic;
             
-            if ($first && $first->Pagination->PageTotal > 1) {
+            if ($friendsPublic && $first && $first->Pagination->PageTotal > 1) {
                 // parse the rest of pages
                 $api->config()->useAsync();
                 foreach (range(2, $first->Pagination->PageTotal) as $page) {
@@ -198,14 +211,15 @@ class LodestoneCharacterController extends AbstractController
         // ensure IDs exist
         $response->Character->ID = $lodestoneId;
         
-        if ($response->FreeCompany) {
-            $response->FreeCompany->ID = $fcId;
+        if ($response->FreeCompany && $response->Character->FreeCompanyId) {
+            $response->FreeCompany->ID = $response->Character->FreeCompanyId;
         }
+        
     
-        if ($response->PvPTeam) {
-            $response->PvPTeam->ID = $pvpId;
+        if ($response->PvPTeam && $response->Character->PvPTeamId) {
+            $response->PvPTeam->ID = (string)$response->Character->PvPTeamId;
         }
-
+        
         return $this->json($response);
     }
 }
