@@ -44,11 +44,11 @@ sleep 3
 
 # Update search
 sleep 3
-#/usr/bin/php /vagrant/bin/console UpdateSearchCommand dev
+/usr/bin/php /vagrant/bin/console UpdateSearchCommand dev
 
 # Update lore search
 sleep 3
-#/usr/bin/php /vagrant/bin/console UpdateSearchLoreCommand dev
+/usr/bin/php /vagrant/bin/console UpdateSearchLoreCommand dev
 
 ## -------------------------------------------------------------------------------------
 
