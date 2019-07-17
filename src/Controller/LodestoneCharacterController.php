@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Service\Content\LodestoneCharacter;
+use App\Service\LodestoneQueue\CharacterConverter;
 use Lodestone\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +34,7 @@ class LodestoneCharacterController extends AbstractController
     /**
      * @Route("/Character/{lodestoneId}")
      * @Route("/character/{lodestoneId}")
+     * @throws \Exception
      */
     public function index(Request $request, $lodestoneId)
     {
@@ -42,6 +45,7 @@ class LodestoneCharacterController extends AbstractController
 
         // choose which content you want
         $data = $request->get('data') ? explode(',', strtoupper($request->get('data'))) : [];
+        $isExtended = $request->get('extended');
         $content = (object)[
             'AC'  => in_array('AC', $data),
             'FR'  => in_array('FR', $data),
@@ -59,6 +63,12 @@ class LodestoneCharacterController extends AbstractController
             'FreeCompanyMembers' => null,
             'PvPTeam'            => null,
         ];
+
+        CharacterConverter::handle($response->Character);
+
+        if ($isExtended) {
+            LodestoneCharacter::extendCharacterData($response->Character);
+        }
 
         // Achievements
         if ($content->AC) {
@@ -84,6 +94,10 @@ class LodestoneCharacterController extends AbstractController
             }
 
             $response->Achievements = $achievements;
+
+            if ($isExtended) {
+                LodestoneCharacter::extendAchievementData($response->Achievements);
+            }
         }
 
         // Friends
