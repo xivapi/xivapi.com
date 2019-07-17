@@ -76,7 +76,7 @@ class LodestoneCharacterController extends AbstractController
 
         // response model
         $response = (Object)[
-            'Character'          => null,
+            'Character'          => $api->character()->get($lodestoneId),
             'Achievements'       => null,
             'Friends'            => null,
             'FreeCompany'        => null,
@@ -84,32 +84,26 @@ class LodestoneCharacterController extends AbstractController
             'PvPTeam'            => null,
         ];
 
-        // cache check
-        if (!$characterData = Redis::cache()->get(__METHOD__ . $lodestoneId)) {
-            $characterData = $api->character()->get($lodestoneId);
-            $characterData->_CacheTime = time();
 
-            Redis::cache()->set(__METHOD__ . $lodestoneId, $characterData, 60);
+        if (isset($data['AC'])) {
+            $api->config()->useAsync();
+
+            $api->character()->achievements($lodestoneId, 1);
+            $api->character()->achievements($lodestoneId, 2);
+            $api->character()->achievements($lodestoneId, 3);
+            $api->character()->achievements($lodestoneId, 4);
+            $api->character()->achievements($lodestoneId, 5);
+            $api->character()->achievements($lodestoneId, 6);
+            $api->character()->achievements($lodestoneId, 8);
+            $api->character()->achievements($lodestoneId, 11);
+            $api->character()->achievements($lodestoneId, 12);
+            $api->character()->achievements($lodestoneId, 13);
+
+            $response->Achievements = $api->http()->settle();
         }
-
-
-        // set shit
-        $response->Character = $characterData;
 
 
         /*
-
-        $character = $this->service->get($lodestoneId, $request->get('extended'), !$internal);
-        $response->Character = $character->data;
-        $response->Info->Character = $character->ent->getInfo();
-
-        // achievements
-        if ($content->AC) {
-            $achievements = $this->service->getAchievements($lodestoneId, $request->get('extended'));
-            $response->Achievements = $achievements->data;
-            $response->Info->Achievements = $achievements->ent->getInfo();
-        }
-        
         // friends
         if ($content->FR) {
             $friends = $this->service->getFriends($lodestoneId);
@@ -140,15 +134,7 @@ class LodestoneCharacterController extends AbstractController
                 $response->Info->PvPTeam = $pvp->ent->getInfo();
             }
         }
-
-        if ($internal) {
-            return $response;
-        }
-    
-        Redis::cache()->set($key, $response, 5);
         */
-
-
 
         return $this->json($response);
     }
