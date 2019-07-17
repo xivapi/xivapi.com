@@ -172,6 +172,17 @@ class LodestoneCharacterController extends AbstractController
             $pvpId = $response->Character->PvPTeamId;
             $response->PvPTeam = $api->pvpteam()->get($pvpId);
         }
+        
+        // ensure IDs exist
+        $response->Character->ID = $lodestoneId;
+        
+        if ($response->FreeCompany) {
+            $response->FreeCompany->ID = $fcId;
+        }
+    
+        if ($response->PvPTeam) {
+            $response->PvPTeam->ID = $pvpId;
+        }
 
         return $this->json($response);
     }

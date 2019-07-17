@@ -81,6 +81,8 @@ class LodestoneFreeCompanyController extends AbstractController
             $response->FreeCompanyMembers = $members;
         }
     
+        $response->FreeCompany->ID = $lodestoneId;
+    
         return $this->json($response);
     }
 

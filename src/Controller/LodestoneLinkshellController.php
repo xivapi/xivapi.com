@@ -47,6 +47,8 @@ class LodestoneLinkshellController extends AbstractController
             'Linkshell' => $api->linkshell()->get($lodestoneId),
         ];
     
+        $response->Linkshell->ID = $lodestoneId;
+    
         return $this->json($response);
     }
 }

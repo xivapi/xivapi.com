@@ -45,6 +45,8 @@ class LodestonePvPTeamController extends AbstractController
         $response = (Object)[
             'PvPTeam' => $api->pvpteam()->get($lodestoneId),
         ];
+    
+        $response->PvPTeam->ID = $lodestoneId;
   
         return $this->json($response);
     }
