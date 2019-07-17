@@ -7187,12 +7187,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/xivapi/lodestone-parser.git",
-                "reference": "db09903cd8353097ff8f49e3762b88db4f8cc5c4"
+                "reference": "fc1a2cf157a1503514b948dca066219306b8fcfc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/xivapi/lodestone-parser/zipball/db09903cd8353097ff8f49e3762b88db4f8cc5c4",
-                "reference": "db09903cd8353097ff8f49e3762b88db4f8cc5c4",
+                "url": "https://api.github.com/repos/xivapi/lodestone-parser/zipball/fc1a2cf157a1503514b948dca066219306b8fcfc",
+                "reference": "fc1a2cf157a1503514b948dca066219306b8fcfc",
                 "shasum": ""
             },
             "require": {
@@ -7232,7 +7232,7 @@
                 "parser",
                 "php"
             ],
-            "time": "2019-07-17T18:32:13+00:00"
+            "time": "2019-07-17T18:43:37+00:00"
         },
         {
             "name": "xivapi/xivapi-php",
