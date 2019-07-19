@@ -133,9 +133,9 @@ class CompanionStatistics
         // discord message
         $message = [
             implode("", [
-                str_pad("Name", 15, ' ', STR_PAD_RIGHT),
-                str_pad('Items', 15, ' ', STR_PAD_RIGHT),
-                str_pad('24 Hours', 15, ' ', STR_PAD_RIGHT),
+                str_pad("Name", 20, ' ', STR_PAD_RIGHT),
+                str_pad('Items', 12, ' ', STR_PAD_RIGHT),
+                str_pad('24 Hours', 12, ' ', STR_PAD_RIGHT),
                 'Report',
             ])
         ];
@@ -143,9 +143,9 @@ class CompanionStatistics
         foreach ($tableData as $row) {
             $message[] = sprintf(
                 '%s%s%s%s',
-                str_pad($row[0], 15, ' ', STR_PAD_RIGHT),
-                str_pad($row[1], 15, ' ', STR_PAD_RIGHT),
-                str_pad($row[2], 15, ' ', STR_PAD_RIGHT),
+                str_pad($row[0], 20, ' ', STR_PAD_RIGHT),
+                str_pad($row[1], 12, ' ', STR_PAD_RIGHT),
+                str_pad($row[2], 12, ' ', STR_PAD_RIGHT),
                 $row[3]
             );
         }
