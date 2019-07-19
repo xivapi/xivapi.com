@@ -5,28 +5,30 @@ namespace App\Service\DataCustom;
 use App\Service\Data\CsvReader;
 use App\Service\Content\ManualHelper;
 use App\Common\Service\Redis\Redis;
+use stdClass;
 
 class Item extends ManualHelper
 {
     const PRIORITY = 20;
-    
+
     public function handle()
     {
         $ids = $this->getContentIds('Item');
-    
+
         foreach ($ids as $id) {
             $key = "xiv_Item_{$id}";
             $item = Redis::Cache()->get($key);
 
             // this is prep for something else
             $item->Materia = $item->Materia ?? null;
-            
+
             // do stuff
+            $this->processStats($item);
             $this->itemLinkItemUiCategoryToItemKind($item);
             Redis::Cache()->set($key, $item, self::REDIS_DURATION);
         }
     }
-    
+
     /**
      * This adds the search category to items that don't have it
      */
@@ -35,35 +37,35 @@ class Item extends ManualHelper
         $itemUiCategory_TO_itemKind = [
             // arms
             1 => [
-                1,2,3,4,5,6,7,8,9,10,
-                84,87,88,89,96,97,98,
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                84, 87, 88, 89, 96, 97, 98,
             ],
             // tools
             2 => [
-                12,13,14,15,16,17,18,19,20,
-                21,22,23,24,25,26,27,28,29,
-                30,31,32,33,99
+                12, 13, 14, 15, 16, 17, 18, 19, 20,
+                21, 22, 23, 24, 25, 26, 27, 28, 29,
+                30, 31, 32, 33, 99
             ],
             // armor
             3 => [
-                11,34,35,36,37,38,39
+                11, 34, 35, 36, 37, 38, 39
             ],
             // accessories
             4 => [
-                40,41,42,43
+                40, 41, 42, 43
             ],
             // medicines and meals
             5 => [
-                44,45,46,47,
+                44, 45, 46, 47,
             ],
             // Materials
             6 => [
-                48,49,50,51,52,53,54,55,56
+                48, 49, 50, 51, 52, 53, 54, 55, 56
             ],
         ];
-        
+
         $itemKindId = false;
-        
+
         // find the slot id
         foreach ($itemUiCategory_TO_itemKind as $kindId => $uiCategoryList) {
             if (isset($item->ItemUICategory->ID) && in_array($item->ItemUICategory->ID, $uiCategoryList)) {
@@ -71,11 +73,68 @@ class Item extends ManualHelper
                 break;
             }
         }
-        
+
         // 7 = other
-        $itemKindId     = $itemKindId ?: 7;
-        $itemKindCsv    = CsvReader::Get(__DIR__.'/Csv/ItemKind.csv');
-        $itemKindCsv    = $itemKindCsv[$itemKindId];
+        $itemKindId = $itemKindId ?: 7;
+        $itemKindCsv = CsvReader::Get(__DIR__ . '/Csv/ItemKind.csv');
+        $itemKindCsv = $itemKindCsv[$itemKindId];
         $item->ItemKind = $itemKindCsv;
+    }
+
+    private function processStats($item)
+    {
+        foreach ($item as $key => $baseParam) {
+            if (isset($baseParam) && preg_match('/^BaseParam(\d+)$/', $key, $matches, PREG_OFFSET_CAPTURE)) {
+                $valuePropName = 'BaseParamValue' . $matches[1][0];
+                $statName = $baseParam->Name_en;
+                $item->Stats = $item->Stats ?? array();
+                $statsEntry = new stdClass;
+                $statsEntry->Name = $statName;
+                $statsEntry->ID = $baseParam->ID;
+                $statsEntry->NQ = $item->$valuePropName;
+                if ($item->CanBeHq == 1) {
+                    $hqStatValue = $item->$valuePropName;
+                    foreach ($item as $specialKey => $baseParamSpecial) {
+                        if (preg_match('/^BaseParamSpecial(\d+)$/', $specialKey, $specialMatches, PREG_OFFSET_CAPTURE)) {
+                            $hqStatBonusPropName = 'BaseParamValueSpecial' . $matches[1][0];
+                            $hqStatValue += $item->$hqStatBonusPropName;
+                            break;
+                        }
+                    }
+                    $statsEntry->HQ = $hqStatValue;
+                }
+                $item->Stats[] = $statsEntry;
+            }
+        }
+        $bonusActions = array(844, 845, 846);
+        if (isset($item->ItemAction) && in_array($item->ItemAction->Type, $bonusActions)) {
+            $food = Redis::cache()->get("xiv_ItemFood_{$item->ItemAction->Data1}");
+            $item->Bonuses = array();
+            for ($i = 0; $i < 2; $i++) {
+                $bonusEntry = new stdClass;
+                $baseParamKey = "BaseParam{$i}";
+                $valueKey = "Value{$i}";
+                $valueHQKey = "ValueHQ{$i}";
+                $isRelativeKey = "IsRelative${i}";
+                $maxKey = "Max${i}";
+                $maxHQKey = "MaxHQ${i}";
+
+                $bonusEntry->ID = $food->$baseParamKey->ID;
+                $bonusEntry->Name = $food->$baseParamKey->Name_en;
+                $bonusEntry->Relative = $food->$isRelativeKey == 1;
+
+                if ($food->$valueKey > 0) {
+                    $bonusEntry->Value = $food->$valueKey;
+                    if ($bonusEntry->Relative) {
+                        $bonusEntry->Max = $food->$maxKey;
+                    }
+                    $bonusEntry->ValueHQ = $food->$valueHQKey;
+                    if ($bonusEntry->Relative) {
+                        $bonusEntry->MaxHQ = $food->$maxHQKey;
+                    }
+                }
+                $item->Bonuses[] = $bonusEntry;
+            }
+        }
     }
 }
