@@ -58,6 +58,7 @@ class CompanionConfiguration
         50000,
         50001,
         50002,
+        50003,
     ];
 
     const QUEUE_CONSUMERS_MANUAL = [

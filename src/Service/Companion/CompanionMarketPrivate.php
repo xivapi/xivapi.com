@@ -36,7 +36,7 @@ class CompanionMarketPrivate
     {
         $this->request = $request;
     
-        if ($request->get('access') !== getenv('MB_ACCESS')) {
+        if ($request->get('access') != getenv('MB_ACCESS')) {
             throw new UnauthorizedHttpException('Denied');
         }
         
@@ -132,102 +132,33 @@ class CompanionMarketPrivate
         $itemId = (int)$this->request->get('item_id');
         $server = (int)$this->request->get('server');
         $dc     = GameServers::getDataCenter(GameServers::LIST[$server]);
-    
-        /**
-         * Check the server isn't an offline one
-         */
-        if (in_array($server, GameServers::MARKET_OFFLINE)) {
-            return [ false, 0, 'The server provided is currently not supported.' ];
-        }
-    
+
+        // redis timeout key
+        $timeoutkey = "mogboard_dps_item_update_timeout_{$itemId}_{$dc}";
+
         /** @var CompanionItem $marketEntry */
         $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
     
-        /**
-         * First, check if the item was passed here already and is on a timeout.
-         */
-        if (Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$dc}")) {
+        // First, check if the item was passed here already and is on a timeout.
+        if (Redis::Cache()->get($timeoutkey)) {
             return [
                 false,
                 $marketEntry->getUpdated(),
                 'This item has already been requested very recently to be updated, it should update shortly.'
             ];
         }
-    
-        /**
-         * Check if the item is in a patreon queue, if so it will update soon
-         */
-        if ($marketEntry->getPatreonQueue() > 0) {
-            return [
-                false,
-                $marketEntry->getUpdated(),
-                'This item is in a patron queue and will be updated shortly.'
-            ];
-        }
-    
-        /**
-         * Check when the item was last updated, maybe it updated within the last 5 minutes,
-         * if so then we don't need to update it again.
-         * - Currently 15 minutes
-         */
-        $lastUpdatedLimitMinutes = 5;
-        $lastUpdatedLimitSeconds = (60 * $lastUpdatedLimitMinutes);
-        if ($marketEntry->getUpdated() > (time() - $lastUpdatedLimitSeconds)) {
-            return [
-                false,
-                $marketEntry->getUpdated(),
-                "Item was updated recently (within {$lastUpdatedLimitMinutes} minutes) and cannot be updated at this time."
-            ];
-        }
-    
-        // timeout based on queue
-        $timeoutTimes = [
-            1 => 15, // 1 hour queue
-            2 => 15, // 3 hour queue
-            3 => 15, // 12 hour queue
-            4 => 15, // 30 hour queue
-            5 => 15, // 48 hour queue
-            6 => 15  // default
-        ];
-    
-        $timeout = 60 * $timeoutTimes[$marketEntry->getNormalQueue()] ?? 60;
-    
-        // Place the item on this server in a cooldown based on its queue number
-        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$dc}", time(), $timeout);
-    
-        /**
-         * Pick a random queue, it should distribute mostly... evenly.
-         */
-        $queue  = null;
-        $queues = range(
-            min(CompanionConfiguration::QUEUE_CONSUMERS_PATREON),
-            max(CompanionConfiguration::QUEUE_CONSUMERS_PATREON)
-        );
-    
-        // try look for an empty queue, if one isn't found it'll pick one at random
-        foreach ($queues as $i => $num) {
-            $size = Redis::Cache()->get("companion_market_manual_queue_{$num}");
-        
-            if ($size === null) {
-                Redis::Cache()->set("companion_market_manual_queue_{$num}", 1, 60);
-                $queue = $num;
-                break;
-            }
-        }
-    
-        /**
-         * if we have a queue, use it, otherwise pick oen at random
-         */
-        $queue = $queue ? $queue : $queues[array_rand($queues)];
-        $this->companionMarketUpdater->updatePatreon($itemId, $server, $queue);
-    
+
+        // Place item on a 15 minute cooldown
+        Redis::Cache()->set($timeoutkey, true, 900);
+
+        // request item update
+        $this->companionMarketUpdater->updatePatreon($itemId, $server);
         RedisTracking::increment('TOTAL_DPS_ALERTS_UPDATES');
-        RedisTracking::increment("TOTAL_DPS_ALERTS_UPDATES_QUEUE_{$queue}");
 
         return [
             true,
             time(),
-            "Item will be updated by patreon queue: {$queue}"
+            "Item will be updated shortly."
         ];
     }
     
@@ -243,49 +174,21 @@ class CompanionMarketPrivate
         $server  = (int)$this->request->get('server');
         $dc      = GameServers::getDataCenter(GameServers::LIST[$server]);
 
-        /**
-         * Check the server isn't an offline one
-         */
-        if (in_array($server, GameServers::MARKET_OFFLINE)) {
-            return [
-                false,
-                0,
-                'The server provided is currently not supported.'
-            ];
-        }
-    
+        // redis timeout key
+        $timeoutkey = "mogboard_dps_item_update_timeout_{$itemId}_{$dc}";
+
         /** @var CompanionItem $marketEntry */
         $marketEntry = $this->companionMarketUpdater->getMarketItemEntry($server, $itemId);
-    
-        // if the item was manually updated within the hour, ignore
-        if (Redis::Cache()->get("companion_item_dc_update_preupdate_{$itemId}_{$dc}")) {
+
+        // First, check if the item was passed here already and is on a timeout.
+        if (Redis::Cache()->get($timeoutkey)) {
             return [
                 false,
                 $marketEntry->getUpdated(),
-                'This item has already been requested to be updated, it should update shortly.'
+                'This item was updated (or requested to be) in the last 15 minutes. Please check in a few minutes to see if it has updated.'
             ];
         }
-    
-        // if the item was manually updated within the hour, ignore
-        if (Redis::Cache()->get("companion_item_dc_update_custom_{$itemId}_{$dc}")) {
-            return [
-                false,
-                $marketEntry->getUpdated(),
-                'This item was recently placed in the update queue and should be up to date or will be very shortly. Check back in a few minutes for up to date prices.'
-            ];
-        }
-    
-        /**
-         * Check if the item was updated manually
-         */
-        if (Redis::Cache()->get("companion_market_manual_queue_check_{$itemId}_{$dc}")) {
-            return [
-                false,
-                $marketEntry->getUpdated(),
-                'This item was updated very recently and cannot be queued to update at this time.'
-            ];
-        }
-    
+
         /**
          * Check if the item is in a patreon queue, if so it will update soon
          */
@@ -293,63 +196,21 @@ class CompanionMarketPrivate
             return [
                 false,
                 $marketEntry->getUpdated(),
-                'This item is in a patron queue and will be updated shortly.'
+                'This item is in a patreon queue and will be updated within the next minute, refresh the page in a bit!'
             ];
         }
-    
-        // timeout based on queue
-        $timeoutTimes = [
-            1 => 15, // 1 hour queue
-            2 => 15, // 3 hour queue
-            3 => 15, // 12 hour queue
-            4 => 15, // 30 hour queue
-            5 => 15, // 48 hour queue
-            6 => 15  // default
-        ];
-    
-        $timeout = 60 * $timeoutTimes[$marketEntry->getNormalQueue()] ?? 60;
-    
-        // Place the item on this server in a cooldown based on its queue number
-        Redis::Cache()->set("companion_market_manual_queue_check_{$itemId}_{$dc}", time(), $timeout);
-    
-        // Place the item on a "manual update" cooldown as well
-        Redis::Cache()->set("companion_item_dc_update_custom_{$itemId}_{$dc}", time(), $timeout);
-    
-        // Place the item on a very short cooldown prior to "updating"
-        Redis::Cache()->set("companion_item_dc_update_preupdate_{$itemId}_{$dc}", time(), (60 * 3));
 
-        /**
-         * Pick a random queue, it should distribute mostly... evenly.
-         */
-        $queue  = null;
-        $queues = range(
-            min(CompanionConfiguration::QUEUE_CONSUMERS_MANUAL),
-            max(CompanionConfiguration::QUEUE_CONSUMERS_MANUAL)
-        );
+        // Place item on a 15 minute cooldown
+        Redis::Cache()->set($timeoutkey, true, 900);
 
-        // try look for an empty queue, if one isn't found it'll pick one at random
-        foreach ($queues as $i => $num) {
-            $size = Redis::Cache()->get("companion_market_manual_queue_{$num}");
-
-            if ($size === null) {
-                Redis::Cache()->set("companion_market_manual_queue_{$num}", 1, 60);
-                $queue = $num;
-                break;
-            }
-        }
-
-        /**
-         * if we have a queue, use it, otherwise pick oen at random
-         */
-        $queue = $queue ? $queue : $queues[array_rand($queues)];
-        $this->companionMarketUpdater->updateManual($itemId, $server, $queue);
-    
+        // request item update
+        $this->companionMarketUpdater->updateManual($itemId, $server);
         RedisTracking::increment('TOTAL_MANUAL_UPDATES');
 
         return [
             true,
             time(),
-            "Item has been bumped to the front of the queue. Please allow up to 5 minutes for the system to process the request and for Prices + History on ALL servers within your Data-Center to be updated."
+            "Item has been bumped to the front of the queue. Please allow a couple minutes for the system to process the request and for Prices + History on ALL servers within your Data-Center to be updated."
         ];
     }
 }
