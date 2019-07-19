@@ -132,34 +132,26 @@ class CompanionStatistics
             //return;
         }
 
-        /*
         // discord message
         $message = [
             implode("", [
-                str_pad("Title", 35, ' ', STR_PAD_RIGHT),
-                str_pad('CycleTimeReal', 25, ' ', STR_PAD_RIGHT),
-                str_pad('CycleDiff', 25, ' ', STR_PAD_RIGHT),
-                'CycleDiffSec',
+                str_pad("Name", 35, ' ', STR_PAD_RIGHT),
+                str_pad('Total Items', 20, ' ', STR_PAD_RIGHT),
+                str_pad('Updated 24 Hours', 20, ' ', STR_PAD_RIGHT),
+                'Update Report',
             ])
         ];
 
-        foreach ($this->report as $row) {
-            $CycleTimeReal = str_pad($row['CycleTimeReal'], 25, ' ', STR_PAD_RIGHT);
-            $CycleDiff     = str_pad($row['CycleDiff'], 25, ' ', STR_PAD_RIGHT);
-            $CycleDiffSec  = $row['CycleDiffSec'];
-
-            $title = sprintf("[%s] %s (%s)", $row['Priority'], $row['Name'], $row['Items']);
-            $title = str_pad($title, 35, ' ', STR_PAD_RIGHT);
-
-            $message[] = sprintf('%s%s%s%s',
-                $title,
-                $CycleTimeReal,
-                $CycleDiff,
-                $CycleDiffSec
+        foreach ($tableData as $row) {
+            $message[] = sprintf(
+                '%s%s%s%s',
+                str_pad($row[0], 35, ' ', STR_PAD_RIGHT),
+                str_pad($row[1], 20, ' ', STR_PAD_RIGHT),
+                str_pad($row[2], 20, ' ', STR_PAD_RIGHT),
+                $row[3]
             );
         }
         
         Discord::mog()->sendMessage(538316536688017418, "```". implode("\n", $message) ."```");
-        */
     }
 }
