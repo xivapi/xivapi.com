@@ -110,37 +110,41 @@ class MarketQueue
          */
         $console->writeln("Adding Patreon Queues");
         foreach (CompanionConfiguration::QUEUE_CONSUMERS_PATREON as $patreonQueue) {
-            $updateItems = $this->repoEntries->findBy(
-                [ 'patreonQueue' => $patreonQueue ],
-                [ 'updated' => 'asc' ],
-                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
-            );
-    
-            // skip queue if no items for that queue
-            if (empty($updateItems)) {
-                $console->writeln("(Patreon) No items for queue: {$patreonQueue}");
-                continue;
-            }
-    
-            /** @var CompanionItem $item */
-            foreach ($updateItems as $item) {
-                // don't add items we already have queued.
-                if (in_array($item->getId(), $insertedItems)) {
+            try {
+                $updateItems = $this->repoEntries->findBy(
+                    [ 'patreonQueue' => $patreonQueue ],
+                    [ 'updated' => 'asc' ],
+                    CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
+                );
+        
+                // skip queue if no items for that queue
+                if (empty($updateItems)) {
+                    $console->writeln("(Patreon) No items for queue: {$patreonQueue}");
                     continue;
                 }
-                
-                $queued = new CompanionItemQueue();
-                $queued
-                    ->setId($item->getId())
-                    ->setItem($item->getItem())
-                    ->setServer($item->getServer())
-                    ->setQueue($item->getPatreonQueue());
-                
-                $this->em->persist($queued);
+        
+                /** @var CompanionItem $item */
+                foreach ($updateItems as $item) {
+                    // don't add items we already have queued.
+                    if (in_array($item->getId(), $insertedItems)) {
+                        continue;
+                    }
+                    
+                    $queued = new CompanionItemQueue();
+                    $queued
+                        ->setId($item->getId())
+                        ->setItem($item->getItem())
+                        ->setServer($item->getServer())
+                        ->setQueue($item->getPatreonQueue());
+                    
+                    $this->em->persist($queued);
+                }
+        
+                $console->writeln("Patreon queue: {$patreonQueue} filled.");
+                $this->em->flush();
+            } catch (\Exception $ex) {
+                $console->writeln("Ignored Error: ". $ex->getMessage());
             }
-    
-            $console->writeln("Patreon queue: {$patreonQueue} filled.");
-            $this->em->flush();
         }
 
         /**
@@ -148,37 +152,41 @@ class MarketQueue
          */
         $console->writeln("Adding Patreon Queues");
         foreach (CompanionConfiguration::QUEUE_CONSUMERS_MANUAL as $manualQueue) {
-            $updateItems = $this->repoEntries->findBy(
-                [ 'manualQueue' => $manualQueue ],
-                [ 'updated' => 'asc' ],
-                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
-            );
-
-            // skip queue if no items for that queue
-            if (empty($updateItems)) {
-                $console->writeln("(Manual) No items for queue: {$manualQueue}");
-                continue;
-            }
-
-            /** @var CompanionItem $item */
-            foreach ($updateItems as $item) {
-                // don't add items we already have queued.
-                if (in_array($item->getId(), $insertedItems)) {
+            try {
+                $updateItems = $this->repoEntries->findBy(
+                    [ 'manualQueue' => $manualQueue ],
+                    [ 'updated' => 'asc' ],
+                    CompanionConfiguration::MAX_ITEMS_PER_CRONJOB
+                );
+    
+                // skip queue if no items for that queue
+                if (empty($updateItems)) {
+                    $console->writeln("(Manual) No items for queue: {$manualQueue}");
                     continue;
                 }
-
-                $queued = new CompanionItemQueue();
-                $queued
-                    ->setId($item->getId())
-                    ->setItem($item->getItem())
-                    ->setServer($item->getServer())
-                    ->setQueue($item->getManualQueue());
-
-                $this->em->persist($queued);
+    
+                /** @var CompanionItem $item */
+                foreach ($updateItems as $item) {
+                    // don't add items we already have queued.
+                    if (in_array($item->getId(), $insertedItems)) {
+                        continue;
+                    }
+        
+                    $queued = new CompanionItemQueue();
+                    $queued
+                        ->setId($item->getId())
+                        ->setItem($item->getItem())
+                        ->setServer($item->getServer())
+                        ->setQueue($item->getManualQueue());
+        
+                    $this->em->persist($queued);
+                }
+    
+                $console->writeln("Manual queue: {$manualQueue} filled.");
+                $this->em->flush();
+            } catch (\Exception $ex) {
+                $console->writeln("Ignored Error: ". $ex->getMessage());
             }
-
-            $console->writeln("Manual queue: {$manualQueue} filled.");
-            $this->em->flush();
         }
         
         $this->em->clear();
