@@ -87,17 +87,22 @@ class CompanionStatistics
                 $updatesWithinSchedule = 0;
             }
 
-            // Work out the percentage of items updated within the cycle time
-            $percent = $updatesWithinSchedule > 0 ? round(($updatesWithinSchedule / $totalItems) * 100) : '-';
+
 
             // print update results
             $updateResult = 'No update schedule requirements';
             if ($updatesWithinSchedule > 0) {
+                // Work out the percentage of items updated within the cycle time
+                $percent      = $updatesWithinSchedule > 0 ? round(($updatesWithinSchedule / $totalItems) * 100) : '-';
+                $percentDaily = $totalUpdates24Hour > 0 ? round(($totalUpdates24Hour / $totalItems) * 100) : '-';
+
+                // set report results
                 $updateResult = sprintf(
-                    "%s / %s (%s%%)",
+                    "%s / %s (%s%% - Daily: %s%%)",
                     number_format($updatesWithinSchedule),
                     number_format($totalItems),
-                    $percent
+                    $percent,
+                    $percentDaily
                 );
             }
 
