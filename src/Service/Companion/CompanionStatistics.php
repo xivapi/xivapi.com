@@ -39,27 +39,84 @@ class CompanionStatistics
 
     public function run()
     {
-        // Get queue sizes
-        $this->setUpdateQueueSizes();
-    
-        // build queue stats
-        foreach (CompanionConfiguration::PRIORITY_TIMES as $queue) {
-            $this->buildQueueStatistics($queue);
+        $conn = $this->em->getConnection();
+
+        $tableData = [];
+        $tableHeaders = [
+            'Name',
+            'Queue',
+            'Items',
+            'Updated 24 Hours',
+            'Updated Scheduled',
+            'Percent Updated'
+        ];
+
+        foreach (CompanionConfiguration::QUEUE_INFO as $queueNumber => $queueName) {
+            $this->console->writeln("Generating statistics for: {$queueNumber}");
+
+            //
+            // Grab the total number of items
+            //
+            $sql = $conn->prepare(
+                "SELECT COUNT(*) as total_items FROM companion_market_items WHERE normal_queue = ?"
+            );
+            $sql->execute([ $queueNumber ]);
+            $totalItems = $sql->fetch()['total_items'];
+
+            //
+            // grab number of updates in past 24 hours
+            //
+            $queueLength = time() - (60 * 60 * 24);
+            $sql = $conn->prepare(
+                "SELECT COUNT(*) as total_updates FROM companion_updates WHERE queue = ? AND added > ?"
+            );
+            $sql->execute([ $queueNumber, $queueLength ]);
+            $totalUpdates24Hour = $sql->fetch()['total_updates'];
+
+            //
+            // Get the total count of items updated within the queues cycle time
+            //
+            $cycleTime   = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$queueNumber] ?? 0;
+            $cycleLength = time() - $cycleTime;
+
+            if ($queueNumber > 0) {
+                $sql = $conn->prepare(
+                    "SELECT COUNT(*) as total_updates FROM companion_updates WHERE queue = ? AND added > ?"
+                );
+                $sql->execute([ $queueNumber, $cycleLength ]);
+                $updatesWithinSchedule = $sql->fetch()['total_updates'];
+            } else {
+                $updatesWithinSchedule = 0;
+            }
+
+            // Work out the percentage of items updated within the cycle time
+            $percent = $updatesWithinSchedule > 0 ? round(($updatesWithinSchedule / $totalItems) * 100) : '-';
+
+            //
+            // Add to the table
+            //
+            $tableData[] = [
+                $queueName,
+                $queueNumber,
+                $totalItems,
+                $totalUpdates24Hour,
+                $updatesWithinSchedule > 0 ? $updatesWithinSchedule : '-',
+                $percent
+            ];
         }
-    
-        // save
-        $this->saveStatistics();
-    
+
+
         // table
         $table = new Table($this->console);
-        $table->setHeaders(array_keys($this->report[1]))->setRows($this->report);
+        $table->setHeaders($tableHeaders)->setRows($tableData);
         $table->setStyle('box')->render();
-
+    
         // send it late GMT
         if (date('H') != 20) {
-            return;
+            //return;
         }
-        
+
+        /*
         // discord message
         $message = [
             implode("", [
@@ -87,119 +144,6 @@ class CompanionStatistics
         }
         
         Discord::mog()->sendMessage(538316536688017418, "```". implode("\n", $message) ."```");
-    }
-    
-    private function buildQueueStatistics($queue)
-    {
-        $this->console->writeln("Building stats for queue: {$queue}");
-        
-        // queue name
-        $name = CompanionConfiguration::QUEUE_INFO[$queue] ?? 'Unknown Queue';
-    
-        // get the total items in this queue
-        $totalItems = $this->updateQueueSizes[$queue] ?? 0;
-    
-        // some queues have no items
-        if ($totalItems === 0) {
-            return;
-        }
-        
-        // Get the expected update time
-        $estimatedCycleTime = array_flip(CompanionConfiguration::PRIORITY_TIMES)[$queue] ?? (60 * 60 * 24 * 30);
-
-        // work out how many queues required
-        $expectedQueues = $totalItems / CompanionConfiguration::MAX_ITEMS_PER_CRONJOB;
-        $expectedQueues = ceil($expectedQueues / ($estimatedCycleTime / 60));
-
-        /** @var CompanionItem $firstItem */
-        /** @var CompanionItem $lastItem */
-        $firstItem                = $this->repositoryEntries->findBy([ 'normalQueue' => $queue, ], [ 'updated' => 'asc' ], 1, 25);
-        $firstItem                = $firstItem[0] ?? null;
-        $lastItem                 = $this->repositoryEntries->findBy([ 'normalQueue' => $queue, ], [ 'updated' => 'desc' ], 1, 25);
-        $lastItem                 = $lastItem[0] ?? null;
-
-        // if we can't determine, we'll skip
-        if ($firstItem == null || $lastItem == null) {
-            return;
-        }
-        
-        $formatMultiDay           = '%d D, %H:%I HR';
-
-        // work out the real cycle time
-        $realCycleTime            = abs($lastItem->getUpdated() - $firstItem->getUpdated());
-        $estimatedCycleDifference = Carbon::now()->diff(Carbon::now()->addSeconds($estimatedCycleTime))->format($formatMultiDay);
-        $realCycleDifference      = Carbon::now()->diff(Carbon::now()->addSeconds($realCycleTime))->format($formatMultiDay);
-        $estimationTimeDifference = $realCycleTime - $estimatedCycleTime;
-        $difference               = Carbon::now()->diff(Carbon::now()->addSeconds($estimationTimeDifference))->format($formatMultiDay);
-
-        $this->report[$queue] = [
-            'Name'          => $name,
-            'Queue'         => $queue,
-            'ReqQueues'     => $expectedQueues,
-            'Items'         => number_format($totalItems),
-            'Requests'      => number_format($totalItems * 4),
-            'CycleTime'     => $estimatedCycleDifference,
-            'CycleTimeSec'  => $estimatedCycleTime,
-            'CycleTimeReal' => $realCycleDifference,
-            'CycleDiff'     => $difference,
-            'CycleDiffSec'  => $estimationTimeDifference,
-        ];
-    }
-
-    /**
-     * Set the queue sizes for us
-     */
-    private function setUpdateQueueSizes()
-    {
-        $this->console->writeln('Setting queue sizes');
-        
-        foreach($this->getCompanionQueuesView() as $row) {
-            $this->updateQueueSizes[$row['normal_queue']] = $row['total_items'];
-        }
-    }
-    
-    /**
-     * Get statistics view
-     */
-    private function getStatisticsView()
-    {
-        $sql = $this->em->getConnection()->prepare('SELECT * FROM `companion stats` LIMIT 1');
-        $sql->execute();
-        
-        return $sql->fetchAll()[0];
-    }
-    
-    /**
-     * @return mixed[]
-     */
-    private function getCompanionQueuesView()
-    {
-        $sql = $this->em->getConnection()->prepare('SELECT * FROM `companion queues`');
-        $sql->execute();
-        
-        return $sql->fetchAll();
-    }
-    
-    /**
-     * Save our statistics
-     */
-    public function saveStatistics()
-    {
-        $data = [
-            'ReportUpdated'     => time(),
-            'Report'            => $this->report,
-            'ItemPriority'      => $this->updateQueueSizes,
-            'DatabaseSqlReport' => $this->getStatisticsView(),
-        ];
-        
-        Redis::Cache()->set('stats_CompanionUpdateStatistics', $data, (60 * 60 * 24 * 7));
-    }
-    
-    /**
-     * Load our statistics
-     */
-    public function getStatistics()
-    {
-        return Redis::Cache()->get('stats_CompanionUpdateStatistics');
+        */
     }
 }
