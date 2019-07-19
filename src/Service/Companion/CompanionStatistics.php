@@ -40,11 +40,9 @@ class CompanionStatistics
         $tableData = [];
         $tableHeaders = [
             'Name',
-            'Queue',
-            'Items',
+            'Total Items',
             'Updated 24 Hours',
-            'Updated Scheduled',
-            'Percent Updated'
+            'Update Report',
         ];
 
         foreach (CompanionConfiguration::QUEUE_INFO as $queueNumber => $queueName) {
@@ -90,18 +88,31 @@ class CompanionStatistics
             }
 
             // Work out the percentage of items updated within the cycle time
-            $percent = $updatesWithinSchedule > 0 ? round(($totalItems / $updatesWithinSchedule) * 100) : '-';
+            $percent = $updatesWithinSchedule > 0 ? round(($updatesWithinSchedule / $totalItems) * 100) : '-';
+
+            // print update results
+            $updateResult = 'No update schedule requirements';
+            if ($updatesWithinSchedule > 0) {
+                $updateResult = sprintf(
+                    "%s / %s (%s%%)",
+                    number_format($updatesWithinSchedule),
+                    number_format($totalItems),
+                    $percent
+                );
+            }
 
             //
             // Add to the table
             //
             $tableData[] = [
-                $queueName,
-                $queueNumber,
+                sprintf(
+                    "[%s] %s",
+                    $queueNumber,
+                    $queueName
+                ),
                 number_format($totalItems),
                 number_format($totalUpdates24Hour),
-                $updatesWithinSchedule > 0 ? number_format($updatesWithinSchedule) : '-',
-                $percent . "%"
+                $updateResult . "%"
             ];
         }
 
