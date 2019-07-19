@@ -117,7 +117,7 @@ class CompanionStatistics
                 ),
                 number_format($totalItems),
                 number_format($totalUpdates24Hour),
-                $updateResult . "%"
+                $updateResult
             ];
         }
 
