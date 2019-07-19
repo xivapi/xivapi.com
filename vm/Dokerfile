@@ -1,0 +1,58 @@
+FROM debian:jessie
+
+RUN apt-get update -y
+RUN apt-get upgrade -y
+RUN apt-get install -y htop unzip curl git dos2unix
+
+RUN add-apt-repository ppa:nginx/stable -y
+RUN apt-get update
+RUN apt-get install -y nginx
+RUN rm /etc/nginx/sites-available/default
+RUN cp /vagrant/vm/VagrantfileNginxCommon /etc/nginx/sites-available/common
+RUN cp /vagrant/vm/VagrantfileNginxDefault /etc/nginx/sites-available/default
+RUN cp /vagrant/vm/VagrantfileNginx.conf /etc/nginx/nginx.conf
+
+RUN apt-get install -y \
+        php7.3-fpm \
+        php-apcu \
+        php-imagick \
+        php7.3-dev \
+        php7.3-cli \
+        php7.3-json \
+        php7.3-intl \
+        php7.3-mysql \
+        php7.3-sqlite \
+        php7.3-curl \
+        php7.3-gd \
+        php7.3-mbstring \
+        php7.3-dom \
+        php7.3-xml \
+        php7.3-zip \
+        php7.3-tidy \
+        php7.3-bcmath
+
+RUN sed -i 's|display_errors = Off|display_errors = On|' /etc/php/7.3/fpm/php.ini
+RUN sed -i 's|memory_limit = 128M|memory_limit = -1|' /etc/php/7.3/fpm/php.ini
+RUN sed -i "s|www-data|$USER|" /etc/php/7.3/fpm/pool.d/www.conf
+
+RUN apt install mysql-server -y
+RUN mysql -uroot -pdalamud < /vagrant/vm/Database.sql
+
+RUN apt-get install redis-server -y
+RUN git clone https://github.com/phpredis/phpredis.git
+RUN cd phpredis && phpize && ./configure && make && make install
+RUN cd ..
+RUN rm -rf ./phpredis
+RUN echo "extension=redis.so" > /etc/php/7.3/mods-available/redis.ini
+RUN ln -sf /etc/php/7.3/mods-available/redis.ini /etc/php/7.3/fpm/conf.d/20-redis.ini
+RUN ln -sf /etc/php/7.3/mods-available/redis.ini /etc/php/7.3/cli/conf.d/20-redis.ini
+RUN service php7.3-fpm restart
+
+RUN mkdir -p /vagrant_xivapi /vagrant_mogboard
+RUN chown vagrant:vagrant /vagrant_xivapi /vagrant_mogboard
+RUN chmod -R 777 /vagrant_xivapi /vagrant_mogboard
+RUN service nginx restart
+RUN service php7.3-fpm restart
+RUN apt-get autoremove -y
+RUN apt-get update -y
+RUN apt-get upgrade -y
