@@ -127,7 +127,7 @@ class CompanionStatistics
     
         // send it late GMT
         if (date('H') != 20) {
-            //return;
+            return;
         }
 
         // discord message
