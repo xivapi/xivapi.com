@@ -594,7 +594,7 @@ class MarketUpdater
     /**
      * Mark an item to be manually updated on an DC
      */
-    public function updatePatreon(int $itemId, int $server, int $queueNumber)
+    public function updatePatreon(int $itemId, int $server)
     {
         /** @var CompanionItemRepository $repo */
         $repo    = $this->em->getRepository(CompanionItem::class);
@@ -603,6 +603,9 @@ class MarketUpdater
         
         /** @var CompanionItem $item */
         foreach ($items as $item) {
+            // pick a random queue for each item
+            $queueNumber = CompanionConfiguration::QUEUE_CONSUMERS_PATREON[array_rand(CompanionConfiguration::QUEUE_CONSUMERS_PATREON)];
+
             $item->setPatreonQueue($queueNumber);
             $this->em->persist($item);
         }
@@ -613,7 +616,7 @@ class MarketUpdater
     /**
      * Mark an item to be manually updated on an DC
      */
-    public function updateManual(int $itemId, int $server, int $queueNumber)
+    public function updateManual(int $itemId, int $server)
     {
         /** @var CompanionItemRepository $repo */
         $repo    = $this->em->getRepository(CompanionItem::class);
@@ -622,6 +625,9 @@ class MarketUpdater
 
         /** @var CompanionItem $item */
         foreach ($items as $item) {
+            // pick a random queue for each item
+            $queueNumber = CompanionConfiguration::QUEUE_CONSUMERS_MANUAL[array_rand(CompanionConfiguration::QUEUE_CONSUMERS_MANUAL)];
+
             $item->setManualQueue($queueNumber);
             $this->em->persist($item);
         }

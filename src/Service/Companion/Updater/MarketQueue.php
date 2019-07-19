@@ -186,7 +186,7 @@ class MarketQueue
         $console->writeln("Done: {$duration} seconds.");
     }
     
-    public function untrackNonVisititems()
+    public function untrackNonVisitItems()
     {
         $start = Carbon::now();
         $console = new ConsoleOutput();
