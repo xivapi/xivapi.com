@@ -23,10 +23,6 @@ class CompanionStatistics
     private $repositoryExceptions;
     /** @var ConsoleOutput */
     private $console;
-    
-    // stats vars
-    private $report = [];
-    private $updateQueueSizes = [];
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -54,6 +50,10 @@ class CompanionStatistics
         foreach (CompanionConfiguration::QUEUE_INFO as $queueNumber => $queueName) {
             $this->console->writeln("Generating statistics for: {$queueNumber}");
 
+            // queues are multiplied by 100
+            $queues = range($queueNumber * 100, $queueNumber * 100 + 10);
+            $queues = implode(',', $queues);
+
             //
             // Grab the total number of items
             //
@@ -68,9 +68,9 @@ class CompanionStatistics
             //
             $queueLength = time() - (60 * 60 * 24);
             $sql = $conn->prepare(
-                "SELECT COUNT(*) as total_updates FROM companion_updates WHERE queue = ? AND added > ?"
+                "SELECT COUNT(*) as total_updates FROM companion_updates WHERE queue IN ({$queues}) AND added > ?"
             );
-            $sql->execute([ $queueNumber, $queueLength ]);
+            $sql->execute([ $queueLength ]);
             $totalUpdates24Hour = $sql->fetch()['total_updates'];
 
             //
@@ -81,9 +81,9 @@ class CompanionStatistics
 
             if ($queueNumber > 0) {
                 $sql = $conn->prepare(
-                    "SELECT COUNT(*) as total_updates FROM companion_updates WHERE queue = ? AND added > ?"
+                    "SELECT COUNT(*) as total_updates FROM companion_updates WHERE queue IN ({$queues}) AND added > ?"
                 );
-                $sql->execute([ $queueNumber, $cycleLength ]);
+                $sql->execute([ $cycleLength ]);
                 $updatesWithinSchedule = $sql->fetch()['total_updates'];
             } else {
                 $updatesWithinSchedule = 0;
