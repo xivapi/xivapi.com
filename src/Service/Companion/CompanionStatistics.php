@@ -90,7 +90,7 @@ class CompanionStatistics
             }
 
             // Work out the percentage of items updated within the cycle time
-            $percent = $updatesWithinSchedule > 0 ? round(($updatesWithinSchedule / $totalItems) * 100) : '-';
+            $percent = $updatesWithinSchedule > 0 ? round(($totalItems / $updatesWithinSchedule) * 100) : '-';
 
             //
             // Add to the table
@@ -98,10 +98,10 @@ class CompanionStatistics
             $tableData[] = [
                 $queueName,
                 $queueNumber,
-                $totalItems,
-                $totalUpdates24Hour,
-                $updatesWithinSchedule > 0 ? $updatesWithinSchedule : '-',
-                $percent
+                number_format($totalItems),
+                number_format($totalUpdates24Hour),
+                $updatesWithinSchedule > 0 ? number_format($updatesWithinSchedule) : '-',
+                $percent . "%"
             ];
         }
 
