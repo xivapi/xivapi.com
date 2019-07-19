@@ -40,9 +40,9 @@ class CompanionStatistics
         $tableData = [];
         $tableHeaders = [
             'Name',
-            'Total Items',
-            'Updated 24 Hours',
-            'Update Report',
+            'Items',
+            '24 Hours',
+            'Report',
         ];
 
         foreach (CompanionConfiguration::QUEUE_INFO as $queueNumber => $queueName) {
@@ -86,8 +86,6 @@ class CompanionStatistics
             } else {
                 $updatesWithinSchedule = 0;
             }
-
-
 
             // print update results
             $updateResult = 'No update schedule requirements';
@@ -135,10 +133,10 @@ class CompanionStatistics
         // discord message
         $message = [
             implode("", [
-                str_pad("Name", 35, ' ', STR_PAD_RIGHT),
-                str_pad('Total Items', 20, ' ', STR_PAD_RIGHT),
-                str_pad('Updated 24 Hours', 20, ' ', STR_PAD_RIGHT),
-                'Update Report',
+                str_pad("Name", 15, ' ', STR_PAD_RIGHT),
+                str_pad('Items', 12, ' ', STR_PAD_RIGHT),
+                str_pad('24 Hours', 12, ' ', STR_PAD_RIGHT),
+                'Report',
             ])
         ];
 
