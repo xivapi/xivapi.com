@@ -87,9 +87,8 @@ class Item extends ManualHelper
             if (isset($baseParam) && preg_match('/^BaseParam(\d+)$/', $key, $matches, PREG_OFFSET_CAPTURE)) {
                 $valuePropName = 'BaseParamValue' . $matches[1][0];
                 $statName = $baseParam->Name_en;
-                $item->Stats = $item->Stats ?? array();
+                $item->Stats = $item->Stats ?? new stdClass;
                 $statsEntry = new stdClass;
-                $statsEntry->Name = $statName;
                 $statsEntry->ID = $baseParam->ID;
                 $statsEntry->NQ = $item->$valuePropName;
                 if ($item->CanBeHq == 1) {
@@ -103,13 +102,13 @@ class Item extends ManualHelper
                     }
                     $statsEntry->HQ = $hqStatValue;
                 }
-                $item->Stats[] = $statsEntry;
+                $item->Stats->$statName = $statsEntry;
             }
         }
         $bonusActions = array(844, 845, 846);
         if (isset($item->ItemAction) && in_array($item->ItemAction->Type, $bonusActions)) {
             $food = Redis::cache()->get("xiv_ItemFood_{$item->ItemAction->Data1}");
-            $item->Bonuses = array();
+            $item->Bonuses = new stdClass;
             for ($i = 0; $i < 2; $i++) {
                 $bonusEntry = new stdClass;
                 $baseParamKey = "BaseParam{$i}";
@@ -118,9 +117,9 @@ class Item extends ManualHelper
                 $isRelativeKey = "IsRelative${i}";
                 $maxKey = "Max${i}";
                 $maxHQKey = "MaxHQ${i}";
+                $statName = $food->$baseParamKey->Name_en;
 
                 $bonusEntry->ID = $food->$baseParamKey->ID;
-                $bonusEntry->Name = $food->$baseParamKey->Name_en;
                 $bonusEntry->Relative = $food->$isRelativeKey == 1;
 
                 if ($food->$valueKey > 0) {
@@ -133,7 +132,7 @@ class Item extends ManualHelper
                         $bonusEntry->MaxHQ = $food->$maxHQKey;
                     }
                 }
-                $item->Bonuses[] = $bonusEntry;
+                $item->Bonuses->$statName = $bonusEntry;
             }
         }
     }
