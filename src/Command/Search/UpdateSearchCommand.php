@@ -26,7 +26,7 @@ class UpdateSearchCommand extends Command
             ->addArgument('content', InputArgument::OPTIONAL, 'Run a specific content')
         ;
     }
-    
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this
@@ -36,13 +36,13 @@ class UpdateSearchCommand extends Command
 
         $envAllowed  = in_array($input->getArgument('environment'), ['prod','staging']);
         $environment = $envAllowed ? 'ELASTIC_SERVER_PROD' : 'ELASTIC_SERVER_LOCAL';
-    
+
         if ($input->getArgument('environment') == 'prod') {
             $this->io->success('DEPLOYING TO PRODUCTION');
         }
-        
+
         $elastic = new ElasticSearch($environment);
-        
+
         // import documents to ElasticSearch
         try {
             foreach (SearchContent::LIST as $contentName) {
@@ -50,64 +50,72 @@ class UpdateSearchCommand extends Command
                     $input->getArgument('content') != $contentName) {
                     continue;
                 }
-        
+
                 $index  = strtolower($contentName);
                 $ids    = (array)Redis::Cache()->get("ids_{$contentName}");
-                
+
                 if (empty($ids)) {
                     $this->io->error('No IDs for content: '. $contentName);
                     continue;
                 }
-                
+
                 $total  = count($ids);
                 $docs   = [];
-            
+
                 $this->io->text("<info>ElasticSearch import: {$total} {$contentName} documents to index: {$index}</info>");
-    
+
                 // rebuild index
                 $elastic->deleteIndex($index);
-        
                 // create index
                 $elastic->addIndexGameData($index);
-        
+
+                $elastic->putSettings([
+                    "index" => "$index",
+                    "body" => [
+                        "settings" => [
+                            "refresh_interval" => "-1"
+                        ]
+                    ]
+                ]);
+
                 // Add documents to elastic
                 $count = 0;
                 $this->io->progressStart($total);
                 foreach ($ids as $id) {
                     $count++;
-    
+
                     // grab content
                     $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
-                    
+
                     // if no name_en, skip it!
                     if (empty($content->Name_en)) {
                         continue;
                     }
-    
+
                     // remove arrays from content
                     foreach ($content as $field => $value) {
                         if (is_array($value)) {
                             unset($content->{$field});
                         }
                     }
-                    
+
                     // convert the whole thing to an array
                     $content = json_decode(json_encode($content), true);
-                    
+
                     // ensure content types are correctly assigned
                     $content = Arrays::ensureStrictDataTypes($content);
-                    
+
                     // handle custom string columns
                     $content = $this->handleCustomStringColumns($contentName, $content);
-                    
+
                     // handle clean up
                     $content = $this->handleCleanUp($contentName, $content);
 
                     // append to docs
                     $docs[$id] = $content;
-    
+
                     //$elastic->addDocument($index, 'search', $id, $content);
-                    
+
                     // insert docs
                     if ($count >= ElasticSearch::MAX_BULK_DOCUMENTS) {
                         $this->io->progressAdvance($count);
@@ -116,23 +124,32 @@ class UpdateSearchCommand extends Command
                         $count = 0;
                     }
                 }
-        
+
                 // add any reminders
                 if (count($docs) > 0) {
                     $elastic->bulkDocuments($index, 'search', $docs);
                 }
                 $this->io->progressFinish();
+
+                $elastic->putSettings([
+                    "index" => "$index",
+                    "body" => [
+                        "settings" => [
+                            "refresh_interval" => "null"
+                        ]
+                    ]
+                ]);
             }
         } catch (\Exception $ex) {
             //print_r($content ?? ['no content']);
             print_r($ex->getMessage());
             throw $ex;
         }
-    
+
         unset($content, $docs);
         $this->complete()->endClock();
     }
-    
+
     private function handleCleanUp(string $contentName, array $content)
     {
         if ($contentName === 'Quest') {
@@ -147,7 +164,7 @@ class UpdateSearchCommand extends Command
                     $content["TextData_ja"],
                     $content["TextData_kr"],
                     $content["TextData_cn"],
-                    
+
                     $content["Level{$num}"],
                     $content["Level{$num}Target"],
                     $content["Level{$num}TargetID"],
@@ -156,7 +173,7 @@ class UpdateSearchCommand extends Command
                     $content["ScriptInstruction{$num}_fr"],
                     $content["ScriptInstruction{$num}_ja"],
                     $content["ScriptArg{$num}"],
-                    
+
                     $content["PreviousQuest0"]["Level{$num}"],
                     $content["PreviousQuest0"]["Level{$num}Target"],
                     $content["PreviousQuest0"]["Level{$num}TargetID"],
@@ -168,10 +185,10 @@ class UpdateSearchCommand extends Command
                 );
             }
         }
-        
+
         return $content;
     }
-    
+
     /**
      * This will create 2 new columns:
      * - NameCombined_[Lang]: Combines the fields of content where 2 names may
@@ -189,13 +206,13 @@ class UpdateSearchCommand extends Command
                 $content["Name_{$lang}"] = $content["Dialogue_{$lang}"] ?? '';
             }
         }
-        
+
         //
         // Build NameCombined fields
         //
         foreach (Language::LANGUAGES as $lang) {
             $content["NameCombined_{$lang}"] = $content["Name_{$lang}"] ?? '';
-            
+
             // append on female names
             if ($contentName == 'Title') {
                 $content["NameCombined_{$lang}"] .= " ". ($content["NameFemale_{$lang}"] ?? '');
@@ -203,7 +220,7 @@ class UpdateSearchCommand extends Command
 
             $content["NameCombined_{$lang}"] = trim($content["NameCombined_{$lang}"]);
         }
-    
+
         //
         // Build NameLocale fields
         //
@@ -211,9 +228,9 @@ class UpdateSearchCommand extends Command
         foreach (Language::LANGUAGES as $lang) {
             $content['NameLocale'] .= ' '. ($content["NameCombined_{$lang}"] ?? '');
         }
-    
+
         $content['NameLocale'] = trim($content['NameLocale']);
-        
+
         return $content;
     }
 }
