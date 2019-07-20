@@ -135,7 +135,7 @@ class UpdateSearchCommand extends Command
                     "index" => "$index",
                     "body" => [
                         "settings" => [
-                            "refresh_interval" => "null"
+                            "refresh_interval" => "1s"
                         ]
                     ]
                 ]);
