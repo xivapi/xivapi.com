@@ -180,7 +180,7 @@ class Search
         $filters = str_getcsv($searchRequest->filters);
 
         foreach ($filters as $filter) {
-            preg_match('/(?P<column>[A-Za-z0-9_\.]+)(?P<op>(?:=|[<\|>]=?))(?P<value>[\w\,]+)/', $filter, $matches);
+            preg_match('/(?P<column>[A-Za-z0-9_\.]+)(?P<op>(?:=|[<\|>]=?))\[?(?P<value>[\w\;]+)\]?/', $filter, $matches);
 
             $column = $matches['column'] ?? null;
             $op     = $matches['op'] ?? null;
@@ -202,7 +202,7 @@ class Search
 
                 $this->query->filterRange($column, (int)$value, $opConversion[$op]);
             } else if (in_array($op, ['|='])) {
-                $this->query->filterTerms($column, explode(',', $value));
+                $this->query->filterTerms($column, explode(';', $value));
             } else {
                 throw new \Exception("Invalid operand provided: {$op}, please provide either: >, >=, <, <=, or =");
             }
