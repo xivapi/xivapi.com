@@ -93,7 +93,11 @@ class Item extends ManualHelper
         foreach ($recipes as $recipe) {
             if ($recipe->ItemResult->ID == $item->ID) {
                 $item->Recipes   = $item->Recipes ?? array();
-                $item->Recipes[] = $recipe;
+                $item->Recipes[] = [
+                    'ID' => $recipe->ID,
+                    'ClassJobID' => $recipe->ClassJob->ID,
+                    'Level' => $recipe->RecipeLevelTable->ClassJobLevel
+                ];
             }
         }
     }
