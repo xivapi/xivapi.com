@@ -67,6 +67,10 @@ class LodestoneCharacterController extends AbstractController
             'FreeCompanyMembers' => null,
             'PvPTeam'            => null,
         ];
+        
+        // fc id + pvp team id
+        $fcId  = $response->Character->FreeCompanyId;
+        $pvpId = $response->Character->PvPTeamId;
     
         // ensure bio is UT8
         $response->Character->Bio = mb_convert_encoding($response->Character->Bio, 'UTF-8', 'UTF-8');
@@ -172,13 +176,12 @@ class LodestoneCharacterController extends AbstractController
         }
 
         // Free Company
-        if ($content->FC) {
-            $fcId = $response->Character->FreeCompanyId;
+        if ($content->FC && $fcId) {
             $response->FreeCompany = $api->freecompany()->get($fcId);
         }
 
         // Free Company Members
-        if ($content->FCM) {
+        if ($content->FCM && $fcId) {
             $members = [];
 
             // grab 1st page, so we know if there is more than 1 page
@@ -203,8 +206,8 @@ class LodestoneCharacterController extends AbstractController
         }
 
         // PVP Team
-        if ($content->PVP && isset($response->Character->PvPTeamId)) {
-            $pvpId = $response->Character->PvPTeamId;
+        if ($content->PVP && $pvpId) {
+            
             $response->PvPTeam = $api->pvpteam()->get($pvpId);
         }
         
