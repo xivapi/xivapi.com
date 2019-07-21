@@ -13,10 +13,16 @@ class Item extends ManualHelper
 
     public function handle()
     {
-        $ids = $this->getContentIds('Item');
+        $ids       = $this->getContentIds('Item');
+        $recipeIds = $this->getContentIds('Recipe');
+        $recipes   = array();
+
+        foreach ($recipeIds as $recipeId) {
+            $recipes[] = Redis::Cache()->get("xiv_Recipe_{$recipeId}");
+        }
 
         foreach ($ids as $id) {
-            $key = "xiv_Item_{$id}";
+            $key  = "xiv_Item_{$id}";
             $item = Redis::Cache()->get($key);
 
             // this is prep for something else
@@ -25,6 +31,7 @@ class Item extends ManualHelper
             // do stuff
             $this->processStats($item);
             $this->itemLinkItemUiCategoryToItemKind($item);
+            $this->linkRecipes($item, $recipes);
             Redis::Cache()->set($key, $item, self::REDIS_DURATION);
         }
     }
@@ -75,20 +82,30 @@ class Item extends ManualHelper
         }
 
         // 7 = other
-        $itemKindId = $itemKindId ?: 7;
-        $itemKindCsv = CsvReader::Get(__DIR__ . '/Csv/ItemKind.csv');
-        $itemKindCsv = $itemKindCsv[$itemKindId];
+        $itemKindId     = $itemKindId ?: 7;
+        $itemKindCsv    = CsvReader::Get(__DIR__ . '/Csv/ItemKind.csv');
+        $itemKindCsv    = $itemKindCsv[$itemKindId];
         $item->ItemKind = $itemKindCsv;
+    }
+
+    private function linkRecipes($item, $recipes)
+    {
+        foreach ($recipes as $recipe) {
+            if ($recipe->ItemResultTargetID == $item->ID) {
+                $item->Recipes   = $item->Recipes ?? array();
+                $item->Recipes[] = $recipe;
+            }
+        }
     }
 
     private function processStats($item)
     {
         foreach ($item as $key => $baseParam) {
             if (isset($baseParam) && preg_match('/^BaseParam(\d+)$/', $key, $matches, PREG_OFFSET_CAPTURE)) {
-                $valuePropName = 'BaseParamValue' . $matches[1][0];
-                $statName = $baseParam->Name_en;
-                $item->Stats = $item->Stats ?? new stdClass;
-                $statsEntry = new stdClass;
+                $valuePropName  = 'BaseParamValue' . $matches[1][0];
+                $statName       = $baseParam->Name_en;
+                $item->Stats    = $item->Stats ?? new stdClass;
+                $statsEntry     = new stdClass;
                 $statsEntry->ID = $baseParam->ID;
                 $statsEntry->NQ = $item->$valuePropName;
                 if ($item->CanBeHq == 1) {
@@ -96,7 +113,7 @@ class Item extends ManualHelper
                     foreach ($item as $specialKey => $baseParamSpecial) {
                         if (preg_match('/^BaseParamSpecial(\d+)$/', $specialKey, $specialMatches, PREG_OFFSET_CAPTURE)) {
                             $hqStatBonusPropName = 'BaseParamValueSpecial' . $matches[1][0];
-                            $hqStatValue += $item->$hqStatBonusPropName;
+                            $hqStatValue         += $item->$hqStatBonusPropName;
                             break;
                         }
                     }
@@ -107,19 +124,19 @@ class Item extends ManualHelper
         }
         $bonusActions = array(844, 845, 846);
         if (isset($item->ItemAction) && in_array($item->ItemAction->Type, $bonusActions)) {
-            $food = Redis::cache()->get("xiv_ItemFood_{$item->ItemAction->Data1}");
+            $food          = Redis::cache()->get("xiv_ItemFood_{$item->ItemAction->Data1}");
             $item->Bonuses = new stdClass;
             for ($i = 0; $i < 2; $i++) {
-                $bonusEntry = new stdClass;
-                $baseParamKey = "BaseParam{$i}";
-                $valueKey = "Value{$i}";
-                $valueHQKey = "ValueHQ{$i}";
+                $bonusEntry    = new stdClass;
+                $baseParamKey  = "BaseParam{$i}";
+                $valueKey      = "Value{$i}";
+                $valueHQKey    = "ValueHQ{$i}";
                 $isRelativeKey = "IsRelative${i}";
-                $maxKey = "Max${i}";
-                $maxHQKey = "MaxHQ${i}";
-                $statName = $food->$baseParamKey->Name_en;
+                $maxKey        = "Max${i}";
+                $maxHQKey      = "MaxHQ${i}";
+                $statName      = $food->$baseParamKey->Name_en;
 
-                $bonusEntry->ID = $food->$baseParamKey->ID;
+                $bonusEntry->ID       = $food->$baseParamKey->ID;
                 $bonusEntry->Relative = $food->$isRelativeKey == 1;
 
                 if ($food->$valueKey > 0) {
