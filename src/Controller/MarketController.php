@@ -71,10 +71,9 @@ class MarketController extends AbstractController
      */
     public function statistics()
     {
-        $report = $this->companionStatistics->getStatistics();
-        $report->IsCritical = $this->companionErrorHandler->isCriticalExceptionCount();
-
-        return $this->json($report);
+        return $this->json([
+            'Endpoint no longer supported'
+        ]);
     }
     
     /**

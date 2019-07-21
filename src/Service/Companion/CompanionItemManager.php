@@ -38,39 +38,6 @@ class CompanionItemManager
         $this->console          = new ConsoleOutput();
     }
 
-    public function moveNewServerItemIds()
-    {
-        $start = Carbon::now();
-        $date  = date('Y-m-d H:i:s');
-        $this->console->writeln("<info>Moving item priorities for Twintania and Spriggan</info>");
-        $this->console->writeln("<info>Start: {$date}</info>");
-        $section = $this->console->section();
-
-        $sql = 'SELECT item, normal_queue FROM companion_market_items WHERE server = 46';
-        $sql = $this->em->getConnection()->prepare($sql);
-        $sql->execute();
-
-        foreach ($sql->fetchAll() as $row) {
-            $itemId = $row['item'];
-            $queue  = $row['normal_queue'];
-
-            // update spriggan and wintania
-            try {
-                $sql = "UPDATE companion_market_items SET normal_queue = {$queue} WHERE item = {$itemId} AND normal_queue = 70";
-                $sql = $this->em->getConnection()->prepare($sql);
-                $sql->execute();
-            } catch (\Exception $e) {
-
-            }
-
-            $section->overwrite('- Updated: '. $itemId . ' to '. $queue);
-        }
-
-        // finished
-        $duration = $start->diff(Carbon::now())->format('%h hr, %i min and %s sec');
-        $this->console->writeln("Duration: <comment>{$duration}</comment>");
-    }
-
     /**
      * Populate the market database with marketable items so they can be auto-updated,
      * all newly added items start on priority 10 and will shift over time.

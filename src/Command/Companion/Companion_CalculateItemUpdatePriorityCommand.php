@@ -29,5 +29,8 @@ class Companion_CalculateItemUpdatePriorityCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->cim->calculateItemUpdatePriority();
+
+        // cache market ids
+        $this->cim->getMarketItemIds();
     }
 }

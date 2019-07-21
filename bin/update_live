@@ -39,7 +39,7 @@ sleep 3
 
 # Add on patch info
 sleep 3
-/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdatePatchCommand 1
+# /usr/bin/php /home/dalamud/xivapi.com/bin/console UpdatePatchCommand 1
 
 # Update search
 sleep 3
