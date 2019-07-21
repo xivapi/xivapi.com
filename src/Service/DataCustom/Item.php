@@ -91,7 +91,7 @@ class Item extends ManualHelper
     private function linkRecipes($item, $recipes)
     {
         foreach ($recipes as $recipe) {
-            if ($recipe->ItemResultTargetID == $item->ID) {
+            if ($recipe->ItemResult->ID == $item->ID) {
                 $item->Recipes   = $item->Recipes ?? array();
                 $item->Recipes[] = $recipe;
             }
