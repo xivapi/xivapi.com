@@ -103,7 +103,7 @@ class Item extends ManualHelper
         foreach ($item as $key => $baseParam) {
             if (isset($baseParam) && preg_match('/^BaseParam(\d+)$/', $key, $matches, PREG_OFFSET_CAPTURE)) {
                 $valuePropName  = 'BaseParamValue' . $matches[1][0];
-                $statName       = str_replace(' ', '_', $baseParam->Name_en);
+                $statName       = str_replace(' ', '', $baseParam->Name_en);
                 $item->Stats    = $item->Stats ?? new stdClass;
                 $statsEntry     = new stdClass;
                 $statsEntry->ID = $baseParam->ID;
@@ -134,7 +134,7 @@ class Item extends ManualHelper
                 $isRelativeKey = "IsRelative${i}";
                 $maxKey        = "Max${i}";
                 $maxHQKey      = "MaxHQ${i}";
-                $statName      = str_replace(' ', '_', $food->$baseParamKey->Name_en);
+                $statName      = str_replace(' ', '', $food->$baseParamKey->Name_en);
 
                 $bonusEntry->ID       = $food->$baseParamKey->ID;
                 $bonusEntry->Relative = $food->$isRelativeKey == 1;
