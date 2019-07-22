@@ -8,6 +8,7 @@
 
     <div>
         <button id="reset">Reset</button>
+        <button id="stop">Stop</button>
     </div>
 
     <br><br>
@@ -24,10 +25,14 @@
     $('#reset').on('click', event => {
         $.get('/admin/tracking_stats_reset');
     });
+    
+    $('#stop').on('click', event => {
+        clearInterval(timer);
+    });
 
-    setInterval(function() {
+    var timer = setInterval(function() {
         getStatistics()
-    }, 2500);
+    }, 1000);
     </script>
 
 {% endblock %}
