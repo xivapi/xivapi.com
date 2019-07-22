@@ -94,7 +94,7 @@ class UpdateSearchCommand extends Command
 
                     // remove arrays from content
                     foreach ($content as $field => $value) {
-                        if (is_array($value)) {
+                        if (is_array($value) && $field != "Recipes") {
                             unset($content->{$field});
                         }
                     }
