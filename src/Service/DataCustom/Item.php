@@ -94,9 +94,9 @@ class Item extends ManualHelper
             if ($recipe->ItemResult->ID == $item->ID) {
                 $item->Recipes   = $item->Recipes ?? array();
                 $item->Recipes[] = [
-                    'ID' => $recipe->ID,
+                    'ID'         => $recipe->ID,
                     'ClassJobID' => $recipe->ClassJob->ID,
-                    'Level' => $recipe->RecipeLevelTable->ClassJobLevel
+                    'Level'      => $recipe->RecipeLevelTable->ClassJobLevel
                 ];
             }
         }
@@ -139,6 +139,9 @@ class Item extends ManualHelper
                 $maxKey        = "Max${i}";
                 $maxHQKey      = "MaxHQ${i}";
                 $statName      = str_replace(' ', '', $food->$baseParamKey->Name_en);
+                if ($food->$baseParamKey == NULL) {
+                    break;
+                }
 
                 $bonusEntry->ID       = $food->$baseParamKey->ID;
                 $bonusEntry->Relative = $food->$isRelativeKey == 1;
