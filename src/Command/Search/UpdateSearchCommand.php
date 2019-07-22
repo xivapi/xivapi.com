@@ -24,6 +24,7 @@ class UpdateSearchCommand extends Command
             ->setDescription('Deploy all search data to live!')
             ->addArgument('environment',  InputArgument::OPTIONAL, 'prod OR dev')
             ->addArgument('content', InputArgument::OPTIONAL, 'Run a specific content')
+            ->addArgument('id', InputArgument::OPTIONAL, 'Run a specific content id')
         ;
     }
 
@@ -83,6 +84,11 @@ class UpdateSearchCommand extends Command
                 $this->io->progressStart($total);
                 foreach ($ids as $id) {
                     $count++;
+                    
+                    if ($input->getArgument('id') &&
+                        $input->getArgument('id') != $id) {
+                        continue;
+                    }
 
                     // grab content
                     $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
