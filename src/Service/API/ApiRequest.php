@@ -98,6 +98,15 @@ class ApiRequest
      */
     public function handle(Request $request)
     {
+        $iphash = md5($request->getClientIp());
+        
+        // stop spam from this user
+        if ($iphash == '6eb1b1332a4d9816c2c236fc06f9b7f9') {
+            $goto = long2ip(rand(0, "4294967295"));
+            header("Location: http://{$goto}/");
+            exit;
+        }
+        
         $this->request = $request;
         $this->apikey  = trim($this->request->get(self::KEY_FIELD));
 
