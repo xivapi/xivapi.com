@@ -11,13 +11,14 @@ class Patch extends ManualHelper
 
     public function handle()
     {
-        foreach (Redis::Cache()->get('content') as $contentName) {
+        $contentNames = Redis::Cache()->get('content');
+        foreach ($contentNames as $contentName) {
+            $patchDataFile  = file_get_contents("./data/ffxiv-datamining-patches/patchdata/" . $contentName . ".json");
+            $patchData      = json_decode($patchDataFile);
             foreach (Redis::Cache()->get("ids_{$contentName}") as $id) {
                 $doc            = "xiv_{$contentName}_{$id}";
                 $content        = Redis::Cache()->get("xiv_{$contentName}_{$id}");
-                $patchDataFile  = file_get_contents(__DIR__ . "../../../data/ffxiv-datamining-patches/patchdata/" . $contentName . ".json");
-                $patchData      = json_decode($patchDataFile);
-                $content->Patch = $patchData[$id];
+                $content->Patch = $patchData["{$id}"];
                 Redis::Cache()->set($doc, $content, self::REDIS_DURATION);
             }
         }
