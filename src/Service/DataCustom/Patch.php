@@ -18,7 +18,7 @@ class Patch extends ManualHelper
             foreach (Redis::Cache()->get("ids_{$contentName}") as $id) {
                 $doc            = "xiv_{$contentName}_{$id}";
                 $content        = Redis::Cache()->get("xiv_{$contentName}_{$id}");
-                $content->Patch = $patchData["{$id}"];
+                $content->Patch = $patchData->{$id};
                 Redis::Cache()->set($doc, $content, self::REDIS_DURATION);
             }
         }
