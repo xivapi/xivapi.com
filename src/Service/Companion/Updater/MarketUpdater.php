@@ -596,6 +596,9 @@ class MarketUpdater
      */
     public function updatePatreon(int $itemId, int $server)
     {
+        // grab all tokens
+        $this->fetchCompanionTokens();
+        
         /** @var CompanionItemRepository $repo */
         $repo    = $this->em->getRepository(CompanionItem::class);
         $servers = GameServers::getDataCenterServersIds(GameServers::LIST[$server]);
@@ -603,6 +606,11 @@ class MarketUpdater
         
         /** @var CompanionItem $item */
         foreach ($items as $item) {
+            // skip servers with no logged in characters
+            if (!isset($this->tokens[$item->getServer()])) {
+                continue;
+            }
+            
             // pick a random queue for each item
             $queueNumber = CompanionConfiguration::QUEUE_CONSUMERS_PATREON[array_rand(CompanionConfiguration::QUEUE_CONSUMERS_PATREON)];
 
@@ -618,6 +626,9 @@ class MarketUpdater
      */
     public function updateManual(int $itemId, int $server)
     {
+        // grab all tokens
+        $this->fetchCompanionTokens();
+        
         /** @var CompanionItemRepository $repo */
         $repo    = $this->em->getRepository(CompanionItem::class);
         $servers = GameServers::getDataCenterServersIds(GameServers::LIST[$server]);
@@ -625,6 +636,11 @@ class MarketUpdater
 
         /** @var CompanionItem $item */
         foreach ($items as $item) {
+            // skip servers with no logged in characters
+            if (!isset($this->tokens[$item->getServer()])) {
+                continue;
+            }
+            
             // pick a random queue for each item
             $queueNumber = CompanionConfiguration::QUEUE_CONSUMERS_MANUAL[array_rand(CompanionConfiguration::QUEUE_CONSUMERS_MANUAL)];
 
