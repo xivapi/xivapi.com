@@ -805,7 +805,7 @@
         "Version": "4.5"
     },
     {
-        "Banner": "https://img.finalfantasyxiv.com/lds/h/3/Jv-nF8an7MBqS0Cdp5DHnNLTy4.png",
+        "Banner": null,
         "ID": 54,
         "Url": "\/patch+4.55",
         "ExVersion": 2,
@@ -824,7 +824,7 @@
         "Version": "4.55"
     },
     {
-        "Banner": "https://img.finalfantasyxiv.com/lds/h/3/Jv-nF8an7MBqS0Cdp5DHnNLTy4.png",
+        "Banner": null,
         "ID": 55,
         "Url": "\/patch+4.56",
         "ExVersion": 2,
@@ -843,7 +843,7 @@
         "Version": "4.56"
     },
     {
-        "Banner": "https://img.finalfantasyxiv.com/lds/h/3/Jv-nF8an7MBqS0Cdp5DHnNLTy4.png",
+        "Banner": null,
         "ID": 56,
         "Url": "\/patch+4.57",
         "ExVersion": 2,
@@ -862,7 +862,7 @@
         "Version": "4.57"
     },
     {
-        "Banner": "https://img.finalfantasyxiv.com/lds/h/3/Jv-nF8an7MBqS0Cdp5DHnNLTy4.png",
+        "Banner": null,
         "ID": 57,
         "Url": "\/patch+4.58",
         "ExVersion": 2,
@@ -881,7 +881,7 @@
         "Version": "4.58"
     },
     {
-        "Banner": "https://img.finalfantasyxiv.com/lds/h/3/Jv-nF8an7MBqS0Cdp5DHnNLTy4.png",
+        "Banner": "https://img.finalfantasyxiv.com/lds/promo/h/M/jmK4Q5CcFnBD1FfV90aw1zeUG8.png",
         "ID": 58,
         "Url": "\/patch+5.0",
         "ExVersion": 3,
@@ -900,7 +900,7 @@
         "Version": "5.0"
     },
     {
-        "Banner": "https://img.finalfantasyxiv.com/lds/h/3/Jv-nF8an7MBqS0Cdp5DHnNLTy4.png",
+        "Banner": null,
         "ID": 59,
         "Url": "\/patch+5.01",
         "ExVersion": 3,
