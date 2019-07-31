@@ -73,7 +73,7 @@ class MarketQueue
             // grab items
             $updateItems = $this->repoEntries->findItemsToUpdate(
                 $normalQueue,
-                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * 5,
+                CompanionConfiguration::MAX_ITEMS_PER_CRONJOB * 15,
                 $this->ctm->getOnlineServers()
             );
 
@@ -205,7 +205,7 @@ class MarketQueue
         $stmt = $conn->prepare('SELECT * FROM companion_items');
         $stmt->execute();
     
-        $timeout = time() - (60 * 60 * 72);
+        $timeout = time() - (60 * 60 * 168);
         
         foreach ($stmt->fetchAll() as $row) {
             $itemId    = $row['item_id'];
