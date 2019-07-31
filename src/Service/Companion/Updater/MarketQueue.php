@@ -63,9 +63,6 @@ class MarketQueue
         // grab update queues
         $queues = array_keys(CompanionConfiguration::QUEUE_INFO);
         
-        // remove 0, we dont update queue 0
-        unset($queues[0]);
-        
         /**
          * Insert new items
          */
