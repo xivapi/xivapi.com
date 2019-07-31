@@ -336,7 +336,7 @@ class CompanionTokenManager
             RedisTracking::increment('ACCOUNT_LOGIN_SUCCESS');
         } catch (\Exception $ex) {
             // try again in a bit
-            $timeout = mt_rand(3600, 3600 * (mt_rand(3,8));
+            $timeout = mt_rand(3600, 3600 * 5);
 
             // prevent logging into same server if it fails for a random amount of time
             Redis::Cache()->set("companion_server_login_issues_{$account}_{$server}", true, $timeout);
