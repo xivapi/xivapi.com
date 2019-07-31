@@ -143,10 +143,7 @@ class CompanionErrorHandler
             Redis::Cache()->set(self::CRITICAL_EXCEPTIONS, $count, 1800);
 
             // pause for a random amount of time.
-            $time = mt_rand(
-                $count2 > 3 ? 10 : 1,
-                $count2 > 3 ? 30 : 10
-            );
+            $time = mt_rand(30,120);
             Redis::Cache()->set(self::CRITICAL_EXCEPTIONS_STOPPED, $count, (60 * $time));
             Redis::Cache()->delete(self::CRITICAL_EXCEPTIONS);
 
@@ -160,7 +157,7 @@ class CompanionErrorHandler
                 // alert mogboard
                 Discord::mog()->sendMessage(
                     '571007332616503296',
-                    "**Companion has auto stopped at least 3 times in the past hour... extended stop time.**"
+                    "**Companion has auto stopped at least 3 times in the past hour...**"
                 );
             }
         }
