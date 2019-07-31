@@ -20,6 +20,9 @@ class CompanionConfiguration
     const QUEUE_NOT_UPDATING = 0;
     
     // Item never sold, or rarely sells
+    const QUEUE_LOW_TRAFFIC = 4;
+    
+    // Item never sold, or rarely sells
     const QUEUE_NEVER_SOLD = 3;
     
     // Item is new to the site
