@@ -123,7 +123,7 @@ class CompanionTokenManager
     
         // settings
         CompanionSight::set('CLIENT_TIMEOUT', 5);
-        CompanionSight::set('QUERY_LOOP_COUNT', 10);
+        CompanionSight::set('QUERY_LOOP_COUNT', 5);
         CompanionSight::set('QUERY_DELAY_MS', 1000);
     }
 
@@ -336,7 +336,7 @@ class CompanionTokenManager
             RedisTracking::increment('ACCOUNT_LOGIN_SUCCESS');
         } catch (\Exception $ex) {
             // try again in a bit
-            $timeout = mt_rand(3600, 3600 * 5);
+            $timeout = mt_rand(3600, 3600 * (mt_rand(3,8));
 
             // prevent logging into same server if it fails for a random amount of time
             Redis::Cache()->set("companion_server_login_issues_{$account}_{$server}", true, $timeout);
