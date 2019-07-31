@@ -32,11 +32,11 @@ class CompanionConfiguration
     const QUEUE_INFO = [
         0  => 'Not Updating',
         // timed queues
-        1  => '< 3 hour',
-        2  => 'Everything Else',
-        
+        1  => 'Common Sellers',
+        2  => 'Default',
         3  => 'Never Sold',
-        5  => 'Item is new'
+        4  => 'Low Traffic',
+        5  => 'New Item'
     ];
     
     // Priority values against a slot of time
