@@ -11,47 +11,38 @@ class CompanionConfiguration
     const MAX_ITEMS_PER_CRONJOB = 15;
 
     // the total time a cronjob should stay active
-    const CRONJOB_TIMEOUT_SECONDS = 56;
+    const CRONJOB_TIMEOUT_SECONDS = 58;
     
     // Minimum sales
-    const MINIMUM_SALES_TO_UPDATE = 5;
+    const MINIMUM_SALES_TO_UPDATE = 3;
     
     // Item never sold, or rarely sells
     const QUEUE_NOT_UPDATING = 0;
     
     // Item never sold, or rarely sells
-    const QUEUE_NEVER_SOLD = 50;
+    const QUEUE_NEVER_SOLD = 3;
     
     // Item is new to the site
-    const QUEUE_DEFAULT = 60;
+    const QUEUE_DEFAULT = 2;
     
     // Item is new to the site
-    const QUEUE_NEW_ITEM = 70;
+    const QUEUE_NEW_ITEM = 5;
     
     // Queue information
     const QUEUE_INFO = [
         0  => 'Not Updating',
+        // timed queues
+        1  => '< 3 hour',
+        2  => 'Everything Else',
         
-        1  => '< 1 hour',
-        2  => '< 5 hours',
-        3  => '< 10 hours',
-        4  => '< 24 hours',
-        5  => '< 168 hours',
-        6  => '< 1000 hours',
-
-        50  => 'Never Sold',
-        60  => 'Default',
-        70  => 'Item is new'
+        3  => 'Never Sold',
+        5  => 'Item is new'
     ];
     
     // Priority values against a slot of time
     const PRIORITY_TIMES = [
-        (60 * 60 * 1)     => 1,
-        (60 * 60 * 5)     => 2,
-        (60 * 60 * 10)    => 3,
-        (60 * 60 * 25)    => 4,
-        (60 * 60 * 168)   => 5,
-        (60 * 60 * 1000)  => 6,
+        (60 * 60 * 3)     => 1,
+        (60 * 60 * 99999) => 2,
     ];
     
     const QUEUE_CONSUMERS_PATREON = [
@@ -59,6 +50,7 @@ class CompanionConfiguration
         50001,
         50002,
         50003,
+        50004,
     ];
 
     const QUEUE_CONSUMERS_MANUAL = [
@@ -66,5 +58,6 @@ class CompanionConfiguration
         55001,
         55002,
         55003,
+        55004,
     ];
 }
