@@ -29,12 +29,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneBanners()
     {
-        if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->lodestone()->banners();
-            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
-        }
-
-        return $this->json($data);
+        return $this->json(
+            (new Api())->lodestone()->banners()
+        );
     }
 
     /**
@@ -97,12 +94,9 @@ class LodestoneController extends Controller
      */
     public function lodestoneWorldStatus()
     {
-        if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->lodestone()->worldstatus();
-            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
-        }
-
-        return $this->json($data);
+        return $this->json(
+            (new Api())->lodestone()->worldstatus()
+        );
     }
 
     /**
