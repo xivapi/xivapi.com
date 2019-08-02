@@ -30,7 +30,7 @@ class LodestoneController extends Controller
     public function lodestoneBanners()
     {
         if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->getLodestoneBanners();
+            $data = (new Api())->lodestone()->banners();
             Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
@@ -43,12 +43,7 @@ class LodestoneController extends Controller
      */
     public function lodestoneNews()
     {
-        if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->getLodestoneNews();
-            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
-        }
-
-        return $this->json($data);
+        throw new \Exception("Not implemented (yet)");
     }
 
     /**
@@ -57,12 +52,7 @@ class LodestoneController extends Controller
      */
     public function lodestoneTopics()
     {
-        if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->getLodestoneTopics();
-            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
-        }
-
-        return $this->json($data);
+        throw new \Exception("Not implemented (yet)");
     }
 
     /**
@@ -71,12 +61,7 @@ class LodestoneController extends Controller
      */
     public function lodestoneNotices()
     {
-        if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->getLodestoneNotices();
-            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
-        }
-
-        return $this->json($data);
+        throw new \Exception("Not implemented (yet)");
     }
 
     /**
@@ -85,12 +70,7 @@ class LodestoneController extends Controller
      */
     public function lodestoneMaintenance()
     {
-        if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->getLodestoneMaintenance();
-            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
-        }
-
-        return $this->json($data);
+        throw new \Exception("Not implemented (yet)");
     }
 
     /**
@@ -99,12 +79,7 @@ class LodestoneController extends Controller
      */
     public function lodestoneUpdates()
     {
-        if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->getLodestoneUpdates();
-            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
-        }
-
-        return $this->json($data);
+        throw new \Exception("Not implemented (yet)");
     }
 
     /**
@@ -113,12 +88,7 @@ class LodestoneController extends Controller
      */
     public function lodestoneStatus()
     {
-        if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->getLodestoneStatus();
-            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
-        }
-
-        return $this->json($data);
+        throw new \Exception("Not implemented (yet)");
     }
 
     /**
@@ -128,7 +98,7 @@ class LodestoneController extends Controller
     public function lodestoneWorldStatus()
     {
         if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->getWorldStatus();
+            $data = (new Api())->lodestone()->worldstatus();
             Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
         }
 
@@ -141,12 +111,7 @@ class LodestoneController extends Controller
      */
     public function lodestoneDevBlog()
     {
-        if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->getDevBlog();
-            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
-        }
-
-        return $this->json($data);
+        throw new \Exception("Not implemented (yet)");
     }
 
     /**
@@ -155,12 +120,7 @@ class LodestoneController extends Controller
      */
     public function lodestoneDevPosts(Request $request)
     {
-        if (!$data = Redis::Cache()->get(__METHOD__)) {
-            $data = (new Api())->getDevPosts();
-            Redis::Cache()->set(__METHOD__, $data, self::CACHE_DURATION);
-        }
-
-        return $this->json($data);
+        throw new \Exception("Not implemented (yet)");
     }
 
     /**
@@ -169,10 +129,7 @@ class LodestoneController extends Controller
      */
     public function lodestoneFeats(Request $request)
     {
-        return $this->json((new Api())->getFeast(
-            $request->get('season'),
-            $request->request->all()
-        ));
+        throw new \Exception("Not implemented (yet)");
     }
 
     /**
@@ -181,9 +138,7 @@ class LodestoneController extends Controller
      */
     public function lodestoneDeepDungeon(Request $request)
     {
-        return $this->json((new Api())->getDeepDungeon(
-            $request->request->all()
-        ));
+        throw new \Exception("Not implemented (yet)");
     }
     
     /**
@@ -192,8 +147,5 @@ class LodestoneController extends Controller
      */
     public function lodestoneHeavenOnHigh(Request $request)
     {
-        return $this->json((new Api())->getHeavenOnHigh(
-            $request->request->all()
-        ));
-    }
+        throw new \Exception("Not implemented (yet)");
 }
