@@ -24,7 +24,7 @@ class LodestoneLinkshellController extends AbstractController
         }
         
         return $this->json(
-            (new Api())->linkshell->search(
+            (new Api())->linkshell()->search(
                 $request->get('name'),
                 ucwords($request->get('server')),
                 $request->get('page') ?: 1

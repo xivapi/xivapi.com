@@ -22,7 +22,7 @@ class LodestonePvPTeamController extends AbstractController
         }
         
         return $this->json(
-            (new Api())->pvpteam->search(
+            (new Api())->pvpteam()->search(
                 $request->get('name'),
                 ucwords($request->get('server')),
                 $request->get('page') ?: 1
