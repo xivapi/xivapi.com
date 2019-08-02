@@ -44,11 +44,6 @@ class ExceptionListener implements EventSubscriberInterface
     {
         $ex = $event->getException();
         
-        // ensure 500 default exception
-        $res = $event->getResponse();
-        $res->setStatusCode(500);
-        $event->setResponse($res);
-        
         // if config enabled to show errors and app env is prod.
         if (getenv('SITE_CONFIG_SHOW_ERRORS') == '1' && getenv('APP_ENV') == 'prod') {
             print_r([
