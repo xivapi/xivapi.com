@@ -126,7 +126,7 @@ class ExceptionListener implements EventSubscriberInterface
         /**
          * Return a JSON error to user
          */
-        $response = new JsonResponse($json, $json->Debug->Code);
+        $response = new JsonResponse($json, $code);
         $response->headers->set('Content-Type','application/json');
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Headers', '*');
