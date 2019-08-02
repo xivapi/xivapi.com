@@ -73,7 +73,7 @@ class ExceptionListener implements EventSubscriberInterface
         
         $code = $ex->getCode();
         $code = method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : $code;
-        $code = (int)$code;
+        $code = (int)$code > 0 ? (int)$code : 500;
         
         $json = (Object)[
             'Error'   => true,
@@ -130,7 +130,7 @@ class ExceptionListener implements EventSubscriberInterface
         $response->headers->set('Content-Type','application/json');
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Headers', '*');
-        $response->setStatusCode((int)$code > 0 ? $code : 500);
+        $response->setStatusCode($code);
         
         $event->setResponse($response);
     }
