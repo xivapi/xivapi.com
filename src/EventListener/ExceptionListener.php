@@ -78,6 +78,7 @@ class ExceptionListener implements EventSubscriberInterface
         
         $code = $ex->getCode();
         $code = method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : $code;
+        $code = (int)$code;
         
         $json = (Object)[
             'Error'   => true,
