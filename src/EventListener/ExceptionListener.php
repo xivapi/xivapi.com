@@ -129,10 +129,7 @@ class ExceptionListener implements EventSubscriberInterface
         $response->headers->set('Content-Type','application/json');
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Headers', '*');
-        
-        if ($code > 0) {
-            $response->setStatusCode($code);
-        }
+        $response->setStatusCode($code ?: 500);
         
         $event->setResponse($response);
     }
