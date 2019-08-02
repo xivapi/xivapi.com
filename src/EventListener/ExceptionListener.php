@@ -71,6 +71,9 @@ class ExceptionListener implements EventSubscriberInterface
         $file = str_ireplace('/home/dalamud/', '', $ex->getFile());
         $message = $ex->getMessage() ?: '(no-exception-message)';
         
+        $code = $ex->getCode();
+        $code = method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : $code;
+        
         $json = (Object)[
             'Error'   => true,
             'Subject' => 'XIVAPI ERROR',
@@ -78,6 +81,7 @@ class ExceptionListener implements EventSubscriberInterface
             'Message' => $message,
             'Hash'    => sha1($message),
             'Ex'      => get_class($ex),
+            'ExCode'  => $code,
             'Url'     => $event->getRequest()->getUri(),
             'Debug'   => (Object)[
                 'ID'      => Random::randomHumanUniqueCode() . date('ymdh'),
@@ -85,7 +89,7 @@ class ExceptionListener implements EventSubscriberInterface
                 'Method'  => $event->getRequest()->getMethod(),
                 'Path'    => $event->getRequest()->getPathInfo(),
                 'Action'  => $event->getRequest()->attributes->get('_controller'),
-                'Code'    => method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : 500,
+                'Code'    => $code,
                 'Date'    => date('Y-m-d H:i:s'),
                 'Env'     => defined(Environment::CONSTANT) ? constant(Environment::CONSTANT) : 'Prod(Assumed)',
             ],
@@ -125,6 +129,8 @@ class ExceptionListener implements EventSubscriberInterface
         $response->headers->set('Content-Type','application/json');
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Headers', '*');
+        $response->setStatusCode($code);
+        
         $event->setResponse($response);
     }
 }
