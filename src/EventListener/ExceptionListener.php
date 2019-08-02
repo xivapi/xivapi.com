@@ -44,6 +44,11 @@ class ExceptionListener implements EventSubscriberInterface
     {
         $ex = $event->getException();
         
+        // ensure 500 default exception
+        $res = $event->getResponse();
+        $res->setStatusCode(500);
+        $event->setResponse($res);
+        
         // if config enabled to show errors and app env is prod.
         if (getenv('SITE_CONFIG_SHOW_ERRORS') == '1' && getenv('APP_ENV') == 'prod') {
             print_r([
@@ -129,7 +134,7 @@ class ExceptionListener implements EventSubscriberInterface
         $response->headers->set('Content-Type','application/json');
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Headers', '*');
-        $response->setStatusCode($code ?: 500);
+        $response->setStatusCode((int)$code > 0 ? $code : 500);
         
         $event->setResponse($response);
     }
