@@ -148,4 +148,5 @@ class LodestoneController extends Controller
     public function lodestoneHeavenOnHigh(Request $request)
     {
         throw new \Exception("Not implemented (yet)");
+    }
 }
