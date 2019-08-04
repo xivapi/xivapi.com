@@ -184,6 +184,10 @@ class LodestoneIconsCommand extends Command
             /**
              * Download the icon if we don't have it.
              */
+            if (!is_dir(__DIR__."/../../../public/i2/ls_new/")) {
+                mkdir(__DIR__."/../../../public/i2/ls_new/");
+            }
+            
             $saveFilename    = __DIR__."/../../../public/i2/ls/{$itemId}.png";
             $saveFilenameNew = __DIR__."/../../../public/i2/ls_new/{$itemId}.png";
             if (file_exists($saveFilename) === false) {
