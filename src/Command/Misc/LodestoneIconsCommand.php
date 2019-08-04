@@ -135,6 +135,8 @@ class LodestoneIconsCommand extends Command
                         $this->em->flush();
                         continue;
                     }
+                } else {
+                    $entity->setLodestoneId($market->LodestoneID);
                 }
                 
                 /**
