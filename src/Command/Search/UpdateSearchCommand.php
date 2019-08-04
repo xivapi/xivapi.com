@@ -22,10 +22,9 @@ class UpdateSearchCommand extends Command
         $this
             ->setName('UpdateSearchCommand')
             ->setDescription('Deploy all search data to live!')
-            ->addArgument('environment',  InputArgument::OPTIONAL, 'prod OR dev')
+            ->addArgument('environment', InputArgument::OPTIONAL, 'prod OR dev')
             ->addArgument('content', InputArgument::OPTIONAL, 'Run a specific content')
-            ->addArgument('id', InputArgument::OPTIONAL, 'Run a specific content id')
-        ;
+            ->addArgument('id', InputArgument::OPTIONAL, 'Run a specific content id');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -35,7 +34,7 @@ class UpdateSearchCommand extends Command
             ->title('SEARCH')
             ->startClock();
 
-        $envAllowed  = in_array($input->getArgument('environment'), ['prod','staging']);
+        $envAllowed  = in_array($input->getArgument('environment'), ['prod', 'staging']);
         $environment = $envAllowed ? 'ELASTIC_SERVER_PROD' : 'ELASTIC_SERVER_LOCAL';
 
         if ($input->getArgument('environment') == 'prod') {
@@ -52,27 +51,31 @@ class UpdateSearchCommand extends Command
                     continue;
                 }
 
-                $index  = strtolower($contentName);
-                $ids    = (array)Redis::Cache()->get("ids_{$contentName}");
+                $index = strtolower($contentName);
+                $ids   = (array)Redis::Cache()->get("ids_{$contentName}");
 
                 if (empty($ids)) {
-                    $this->io->error('No IDs for content: '. $contentName);
+                    $this->io->error('No IDs for content: ' . $contentName);
                     continue;
                 }
 
-                $total  = count($ids);
-                $docs   = [];
+                $total = count($ids);
+                $docs  = [];
 
                 $this->io->text("<info>ElasticSearch import: {$total} {$contentName} documents to index: {$index}</info>");
 
-                // rebuild index
-                $elastic->deleteIndex($index);
-                // create index
-                $elastic->addIndexGameData($index);
+//                // rebuild index
+//                $elastic->deleteIndex($index);
+//                // create index
+//                $elastic->addIndexGameData($index);
+
+                if (!$elastic->hasIndex($index)) {
+                    $elastic->addIndexGameData($index);
+                }
 
                 $elastic->putSettings([
                     "index" => "$index",
-                    "body" => [
+                    "body"  => [
                         "settings" => [
                             "refresh_interval" => "-1"
                         ]
@@ -84,7 +87,7 @@ class UpdateSearchCommand extends Command
                 $this->io->progressStart($total);
                 foreach ($ids as $id) {
                     $count++;
-                    
+
                     if ($input->getArgument('id') &&
                         $input->getArgument('id') != $id) {
                         continue;
@@ -126,7 +129,7 @@ class UpdateSearchCommand extends Command
                     if ($count >= ElasticSearch::MAX_BULK_DOCUMENTS) {
                         $this->io->progressAdvance($count);
                         $elastic->bulkDocuments($index, 'search', $docs);
-                        $docs = [];
+                        $docs  = [];
                         $count = 0;
                     }
                 }
@@ -162,7 +165,7 @@ class UpdateSearchCommand extends Command
             //
             // Remove junk
             //
-            foreach(range(0,170) as $num) {
+            foreach (range(0, 170) as $num) {
                 unset(
                     $content["TextData_en"],
                     $content["TextData_de"],
@@ -221,7 +224,7 @@ class UpdateSearchCommand extends Command
 
             // append on female names
             if ($contentName == 'Title') {
-                $content["NameCombined_{$lang}"] .= " ". ($content["NameFemale_{$lang}"] ?? '');
+                $content["NameCombined_{$lang}"] .= " " . ($content["NameFemale_{$lang}"] ?? '');
             }
 
             $content["NameCombined_{$lang}"] = trim($content["NameCombined_{$lang}"]);
@@ -232,7 +235,7 @@ class UpdateSearchCommand extends Command
         //
         $content['NameLocale'] = '';
         foreach (Language::LANGUAGES as $lang) {
-            $content['NameLocale'] .= ' '. ($content["NameCombined_{$lang}"] ?? '');
+            $content['NameLocale'] .= ' ' . ($content["NameCombined_{$lang}"] ?? '');
         }
 
         $content['NameLocale'] = trim($content['NameLocale']);
