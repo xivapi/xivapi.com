@@ -187,28 +187,37 @@ class LodestoneIconsCommand extends Command
             $saveFilename    = __DIR__."/../../../public/i2/ls/{$itemId}.png";
             $saveFilenameNew = __DIR__."/../../../public/i2/ls_new/{$itemId}.png";
             if (file_exists($saveFilename) === false) {
-                $section->overwrite("[{$i}] {$itemId} - Download icon...");
+                $section->overwrite("[{$i}] {$itemId} - Download icon: ". $entity->getLodestoneIcon());
                 copy($entity->getLodestoneIcon() . "?t=" . time(), $saveFilename);
+                sleep(2);
                 
                 /**
                  * Add corners
                  */
+                /*
+                $section->overwrite("[{$i}] {$itemId} - Processing icon");
                 $item = Redis::Cache()->get("xiv_Item_{$itemId}");
                 $img = $manager->make($saveFilename);
+    
+                
+                $section->overwrite("[{$i}] {$itemId} - Inserting rarity");
                 $img->insert(
                     $manager->make(sprintf(__DIR__ .'/../../../public/i2/borders/rarity%s.png', $item->Rarity))
                 );
                 $img->save($saveFilename);
+                */
     
                 /**
                  * Compress image
                  */
+                $section->overwrite("[{$i}] {$itemId} - Saving");
                 $img = imagecreatefrompng($saveFilename);
                 imagejpeg($img, $saveFilename, 95);
                 
                 /**
                  * Copy the file to "new"
                  */
+                $section->overwrite("[{$i}] {$itemId} - Copying to new");
                 copy($saveFilename, $saveFilenameNew);
             }
     
