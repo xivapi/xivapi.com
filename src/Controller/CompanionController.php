@@ -33,51 +33,40 @@ class CompanionController extends AbstractController
         $this->api = new CompanionApi(ApiRequest::$idStatic);
     }
 
+    /**
+     * @param Request $request
+     * @throws ApiUnauthorizedAccessException
+     */
     private function setToken(Request $request)
     {
         $requestToken = trim($request->get('token'));
 
         if (empty($requestToken)) {
-            throw new ApiUnauthorizedAccessException();
+            throw new ApiUnauthorizedAccessException('Please provide your Companion Token: ?token=<TOKEN>');
         }
+
+        $requestRegion = trim($request->get('region'));
+
+        if (empty($requestToken)) {
+            throw new ApiUnauthorizedAccessException('Please provide your Account Region: ?region=<na|eu|jp>');
+        }
+
+        $regions = [
+            'eu' => self::REGION_EU,
+            'na' => self::REGION_NA,
+            'jp' => self::REGION_JP
+        ];
 
         // set token
         $token = new SightToken();
         $token->token = $requestToken;
+        $token->region = $regions[$requestRegion] ?? null;
+
+        if ($token->region === null) {
+            throw new ApiUnauthorizedAccessException('Invalid region provided, please provide: ?region=<na|eu|jp>');
+        }
+
         $this->api->Token()->set($token);
-    }
-
-    /**
-     * Will either return the cache result or set it if a response is provided
-     */
-    private function cache($method, $response = null)
-    {
-        if ($response) {
-            $key  = $method . ApiRequest::$idStatic;
-            Redis::Cache()->set($key, $response, self::CACHE_DURATION);
-            return null;
-        }
-
-        $key  = $method . ApiRequest::$idStatic;
-
-        if ($response = Redis::Cache()->get($key)) {
-            return $response;
-        }
-
-        return null;
-    }
-
-    /**
-     * Handle response
-     */
-    private function response($method, $response)
-    {
-        $response['Cached'] = time();
-        $response['CacheExpires'] = time() + self::CACHE_DURATION;
-
-        $this->cache($method, $response);
-
-        return $this->json($response);
     }
 
     /**
@@ -88,35 +77,96 @@ class CompanionController extends AbstractController
      */
     public function token()
     {
-        ApiPermissions::must(ApiPermissions::PERMISSION_COMPANION);
-
-        if ($response = $this->cache(__METHOD__)) {
-            return $this->json($response);
-        }
-
-        return $this->response(__METHOD__, [
+        return $this->json([
             'LoginUrl'     => $this->api->Account()->getLoginUrl(),
             'Token'        => $this->api->Token()->get(),
-            'Cached'       => time(),
-            'CacheExpires' => time() + 300,
         ]);
     }
 
     /**
      * @Route("/companion/characters")
+     * @throws ApiUnauthorizedAccessException
      */
-    public function characters(Request $request)
+    public function getCharacters(Request $request)
     {
-        ApiPermissions::must(ApiPermissions::PERMISSION_COMPANION);
-
-        if ($response = $this->cache(__METHOD__)) {
-            return $this->json($response);
-        }
-
         $this->setToken($request);
 
-        return $this->response(__METHOD__, [
+        return $this->json([
             'Characters' => $this->api->Login()->getCharacters(),
+        ]);
+    }
+
+    /**
+     * @Route("/companion/character/login")
+     * @throws ApiUnauthorizedAccessException
+     */
+    public function loginCharacter(Request $request)
+    {
+        $this->setToken($request);
+
+        $characterId = $request->get('character_id');
+
+        if (empty($characterId)) {
+            throw new ApiUnauthorizedAccessException('Please provide your Character ID to login with: ?character_id=<ID>');
+        }
+
+        $response = [
+            'CharacterLogin' => $this->api->Login()->loginCharacter($request->get('character_id')),
+            'CharacterWorlds' => $this->api->Login()->getCharacterWorlds()
+        ];
+
+        return $this->json($response);
+    }
+
+    /**
+     * @Route("/companion/market/item/prices")
+     * @throws ApiUnauthorizedAccessException
+     * @throws \Companion\Exceptions\CompanionServerException
+     */
+    public function getItemMarketPrices(Request $request)
+    {
+        $this->setToken($request);
+
+        $itemId = $request->get('item_id');
+
+        if (empty($itemId)) {
+            throw new ApiUnauthorizedAccessException('Please provide a Item ID: ?item_id=<ID>');
+        }
+
+        $server = $request->get('server');
+
+        if (empty($server)) {
+            throw new ApiUnauthorizedAccessException('Please provide a server: ?server=<name>');
+        }
+
+        return $this->json([
+            'Market' => $this->api->Market()->getItemMarketListings($itemId, $server)
+        ]);
+    }
+
+    /**
+     * @Route("/companion/market/item/history")
+     * @throws ApiUnauthorizedAccessException
+     * @throws \Companion\Exceptions\CompanionServerException
+     */
+    public function getItemMarketHistory(Request $request)
+    {
+        $this->setToken($request);
+
+        $itemId = $request->get('item_id');
+
+        if (empty($itemId)) {
+            throw new ApiUnauthorizedAccessException('Please provide a Item ID: ?item_id=<ID>');
+        }
+
+        $server = $request->get('server');
+
+        if (empty($server)) {
+            throw new ApiUnauthorizedAccessException('Please provide a server: ?server=<name>');
+        }
+
+        return $this->json([
+            'Market' => $this->api->Market()->getTransactionHistory($itemId, $server)
         ]);
     }
 }
