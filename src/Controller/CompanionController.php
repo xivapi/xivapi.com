@@ -84,6 +84,7 @@ class CompanionController extends AbstractController
      * @Route("/companion/login")
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws ApiUnauthorizedAccessException
+     * @throws \Exception
      */
     public function login(Request $request)
     {
@@ -99,8 +100,10 @@ class CompanionController extends AbstractController
             throw new ApiUnauthorizedAccessException('Please provide your username: ?password=<PASSWORD>');
         }
 
+        // login
+        $this->api->Account()->login($username, $password);
+
         return $this->json([
-            'Login' => $this->api->Account()->login($username, $password),
             'Token' => $this->api->Token()->get()
         ]);
     }
