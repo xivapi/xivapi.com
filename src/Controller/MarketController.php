@@ -8,6 +8,7 @@ use App\Common\Utils\Arrays;
 use App\Entity\CompanionItem;
 use App\Entity\CompanionToken;
 use App\Exception\InvalidCompanionMarketRequestException;
+use App\Exception\InvalidCompanionMarketRequestException;
 use App\Exception\InvalidCompanionMarketRequestServerSizeException;
 use App\Service\Companion\Companion;
 use App\Service\Companion\CompanionErrorHandler;
@@ -18,6 +19,7 @@ use App\Service\Companion\CompanionTokenManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Common\Exceptions\BasicException;
 
 /**
  * @package App\Controller
@@ -71,9 +73,7 @@ class MarketController extends AbstractController
      */
     public function statistics()
     {
-        return $this->json([
-            'Endpoint no longer supported'
-        ]);
+        throw new BasicException("Endpoint no longer available.");
     }
     
     /**
@@ -81,23 +81,7 @@ class MarketController extends AbstractController
      */
     public function online()
     {
-        $status  = [];
-        $online  = $this->companionTokenManager->getOnlineServers();
-        
-        /** @var CompanionToken $token */
-        foreach (GameServers::LIST as $serverId => $server) {
-            $status[] = [
-                'ID'         => $serverId,
-                'Server'     => $server,
-                'Online'     => in_array($serverId, $online),
-            ];
-        }
-        
-        return $this->json([
-            'Servers' => GameServers::LIST,
-            'Status'  => $status,
-            'Online'  => $online,
-        ]);
+        throw new BasicException("Endpoint no longer available.");
     }
     
     /**
@@ -105,9 +89,7 @@ class MarketController extends AbstractController
      */
     public function search(Request $request)
     {
-        return $this->json(
-            false //$this->companionMarket->search()
-        );
+        throw new BasicException("Endpoint no longer available.");
     }
 
     /**
@@ -115,9 +97,7 @@ class MarketController extends AbstractController
      */
     public function sellable()
     {
-        return $this->json(
-            $this->companionItemManager->getMarketItemIds()
-        );
+        throw new BasicException("Endpoint no longer available.");
     }
     
     /**
@@ -127,18 +107,7 @@ class MarketController extends AbstractController
      */
     public function itemMulti(Request $request)
     {
-        $itemIds = array_filter(explode(',', $request->get('ids')));
-        $results = [];
-        
-        if (count($itemIds) > 100) {
-            throw new \Exception("No, too many ids!");
-        }
-        
-        foreach ($itemIds as $id) {
-            $results[] = $this->item($request, $id, true);
-        }
-        
-        return $this->json($results);
+        throw new BasicException("Endpoint no longer available.");
     }
     
     /**
@@ -148,42 +117,7 @@ class MarketController extends AbstractController
      */
     public function item(Request $request, int $itemId, bool $isInternal = false)
     {
-        $servers = array_filter(explode(',', $request->get('servers')));
-        $dc      = ucwords($request->get('dc'));
-        
-        if (count($servers) > 15) {
-            throw new \Exception("No, too many servers!");
-        }
-        
-        // overwrite servers if a DC is provided
-        $servers = $dc ? GameServers::LIST_DC[$dc] : $servers;
-        
-        // server or dc is empty
-        if (empty($servers) && empty($dc)) {
-            throw new InvalidCompanionMarketRequestException();
-        }
-        
-        // too many servers
-        if (count($servers) > InvalidCompanionMarketRequestServerSizeException::MAX_SERVERS) {
-            throw new InvalidCompanionMarketRequestServerSizeException();
-        }
-        
-        // options
-        $maxHistory = $request->get('max_history') ?: self::DEFAULT_MAX_HISTORY;
-        $maxPrices  = $request->get('max_prices')  ?: self::DEFAULT_MAX_PRICES;
-        
-        // build response
-        $response = [];
-        foreach ($servers as $server) {
-            $serverId = is_string($server) ? GameServers::getServerId($server) : $server;
-            $response[$server] = $this->companionMarket->get($serverId, $itemId, $maxHistory, $maxPrices);
-        }
-        
-        if ($isInternal) {
-            return $response;
-        }
-        
-        return $this->json($response);
+        throw new BasicException("Endpoint no longer available.");
     }
     
     /**
@@ -194,15 +128,7 @@ class MarketController extends AbstractController
      */
     public function itemByServer(Request $request, string $server, int $itemId)
     {
-        // options
-        $maxHistory = $request->get('max_history') ?: self::DEFAULT_MAX_HISTORY;
-        $maxPrices  = $request->get('max_prices')  ?: self::DEFAULT_MAX_PRICES;
-        
-        // build response
-        $serverId = GameServers::getServerId($server);
-        $response = $this->companionMarket->get($serverId, $itemId, $maxHistory, $maxPrices);
-        
-        return $this->json($response);
+        throw new BasicException("Endpoint no longer available.");
     }
     
     /**
@@ -210,38 +136,6 @@ class MarketController extends AbstractController
      */
     public function itemsBeingTracked()
     {
-        $items = $this->companionMarket->getTrackedItems();
-        
-        $response = [
-            CompanionItem::STATE_UPDATING => [],
-            CompanionItem::STATE_BOUGHT_FROM_NPC => [],
-            CompanionItem::STATE_LOW_LEVEL => [],
-        ];
-        
-        foreach ($items as $itemRow) {
-            $itemId = $itemRow['item'];
-            $queue  = $itemRow['normal_queue'];
-            $state  = $itemRow['state'];
-            
-            $item = Redis::cache()->get("xiv_Item_{$itemId}");
-            
-            $response[$state][] = [
-                'ID' => $itemId,
-                'Queue' => $queue,
-                'Name' => $item->Name_en,
-                'ItemSearchCategory' => $item->ItemSearchCategory->Name_en,
-                'ItemKind' => $item->ItemKind->Name_en,
-                'LevelEquip' => $item->LevelEquip,
-                'LevelItem' => $item->LevelItem,
-            ];
-        }
-    
-        Arrays::sortBySubKey($response[CompanionItem::STATE_UPDATING], 'ItemSearchCategory', true);
-        Arrays::sortBySubKey($response[CompanionItem::STATE_BOUGHT_FROM_NPC], 'ItemSearchCategory', true);
-        Arrays::sortBySubKey($response[CompanionItem::STATE_LOW_LEVEL], 'ItemSearchCategory', true);
-        
-        return $this->render('_tracked.html.twig', [
-            'tracked_items' => $response
-        ]);
+        throw new BasicException("Endpoint no longer available.");
     }
 }
