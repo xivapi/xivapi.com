@@ -209,7 +209,6 @@ class LodestoneCharacterController extends AbstractController
             $members = $first ? array_merge($members, $first->Results) : $members;
 
             if ($first && $first->Pagination->PageTotal > 1) {
-
                 // parse the rest of pages
                 $api->config()->useAsync();
                 foreach (range(2, $first->Pagination->PageTotal) as $page) {

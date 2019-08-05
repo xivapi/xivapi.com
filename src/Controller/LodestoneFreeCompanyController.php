@@ -62,10 +62,9 @@ class LodestoneFreeCompanyController extends AbstractController
         
             // grab 1st page, so we know if there is more than 1 page
             $first = $api->freecompany()->members($lodestoneId, 1);
+            $members = $first ? array_merge($members, $first->Results) : $members;
         
             if ($first && $first->Pagination->PageTotal > 1) {
-                $members = array_merge($members, $first->Results);
-            
                 // parse the rest of pages
                 $api->config()->useAsync();
                 foreach (range(2, $first->Pagination->PageTotal) as $page) {
