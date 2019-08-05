@@ -70,9 +70,6 @@ class CompanionController extends AbstractController
     }
 
     /**
-     * Request a Companion "Sight" Token and build a Login URL using
-     * the provided UID for that token.
-     *
      * @Route("/companion/token")
      */
     public function token()
@@ -80,6 +77,31 @@ class CompanionController extends AbstractController
         return $this->json([
             'LoginUrl'     => $this->api->Account()->getLoginUrl(),
             'Token'        => $this->api->Token()->get(),
+        ]);
+    }
+
+    /**
+     * @Route("/companion/login")
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @throws ApiUnauthorizedAccessException
+     */
+    public function login(Request $request)
+    {
+        $username = $request->get('username');
+
+        if (empty($username)) {
+            throw new ApiUnauthorizedAccessException('Please provide your username: ?username=<USERNAME>');
+        }
+
+        $password = $request->get('password');
+
+        if (empty($password)) {
+            throw new ApiUnauthorizedAccessException('Please provide your username: ?password=<PASSWORD>');
+        }
+
+        return $this->json([
+            'Login' => $this->api->Account()->login($username, $password),
+            'Token' => $this->api->Token()->get()
         ]);
     }
 
