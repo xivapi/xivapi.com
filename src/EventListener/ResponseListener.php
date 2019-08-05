@@ -73,19 +73,11 @@ class ResponseListener
                                 $columns = Arrays::extractMultiLanguageColumns($columns);
                                 $json['Results'][$r] = Arrays::extractColumns($result, $columns);
                             }
-                        } else if ($controller == 'App\Controller\MarketController::item' || $controller == 'App\Controller\LodestoneCharacterController::characters') {
+                        } else if ($controller == 'App\Controller\LodestoneCharacterController::multi') {
                             foreach ($json as $a => $result) {
                                 $columns = Arrays::extractColumnsCount($result, $existingColumns);
                                 $columns = Arrays::extractMultiLanguageColumns($columns);
                                 $json[$a] = Arrays::extractColumns($result, $columns);
-                            }
-                        } else if ($controller == 'App\Controller\MarketController::itemMulti') {
-                            foreach ($json as $i => $serverResults) {
-                                foreach ($serverResults as $server => $result) {
-                                    $columns = Arrays::extractColumnsCount($result, $existingColumns);
-                                    $columns = Arrays::extractMultiLanguageColumns($columns);
-                                    $json[$i][$server] = Arrays::extractColumns($result, $columns);
-                                }
                             }
                         } else if (!isset($json['Pagination'])) {
                             $columns = Arrays::extractColumnsCount($json, $existingColumns);
@@ -165,15 +157,7 @@ class ResponseListener
                 case 'App\Controller\SearchController::search':
                 case 'App\Controller\SearchController::searchMapping':
                 case 'App\Controller\SearchController::lore':
-                    $expires = 3600 * 4;
-                    break;
-
-                case 'App\Controller\MarketController::itemByServer':
-                case 'App\Controller\MarketController::item':
-                case 'App\Controller\MarketController::itemMulti':
-                case 'App\Controller\MarketController::search':
-                case 'App\Controller\MarketController::categories':
-                    $expires = 30;
+                    $expires = 3600;
                     break;
             }
 
