@@ -8,7 +8,6 @@ use App\Common\Utils\Arrays;
 use App\Entity\CompanionItem;
 use App\Entity\CompanionToken;
 use App\Exception\InvalidCompanionMarketRequestException;
-use App\Exception\InvalidCompanionMarketRequestException;
 use App\Exception\InvalidCompanionMarketRequestServerSizeException;
 use App\Service\Companion\Companion;
 use App\Service\Companion\CompanionErrorHandler;
