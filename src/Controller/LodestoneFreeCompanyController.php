@@ -98,11 +98,11 @@ class LodestoneFreeCompanyController extends AbstractController
         
         // grab FC
         $freecompany = $api->freecompany()->get($lodestoneId);
-
+        
         /**
          * Filename for FC icon
          */
-        $filename = __DIR__.'/../../public/fc/'. $freecompany->ID .'.png';
+        $filename = __DIR__.'/../../public/fc/'. $lodestoneId .'.png';
 
         /**
          * Check if it exists, if so, spit it out
