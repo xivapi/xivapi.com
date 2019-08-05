@@ -78,7 +78,7 @@ class ExceptionListener implements EventSubscriberInterface
         $json = (Object)[
             'Error'   => true,
             'Subject' => 'XIVAPI ERROR',
-            'Note'    => "Get on discord: https://discord.gg/MFFVHWC and complain to @Miu :)",
+            'Note'    => "Get on discord: https://discord.gg/MFFVHWC",
             'Message' => $message,
             'Hash'    => sha1($message),
             'Ex'      => get_class($ex),
