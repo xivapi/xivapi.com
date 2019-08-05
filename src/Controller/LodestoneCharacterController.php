@@ -34,11 +34,31 @@ class LodestoneCharacterController extends AbstractController
     }
 
     /**
+     * @Route("/Characters")
+     * @Route("/characters")
+     * @throws \Exception
+     */
+    public function multi(Request $request)
+    {
+        $ids = explode(',', $request->get('ids'));
+        if (count($ids) > 512) {
+            throw new \Exception("Woah their calm down, 512+ characters wtf?");
+        }
+
+        $response = [];
+        foreach ($ids as $id) {
+            $response[] = $this->index($request, $id, true);
+        }
+
+        return $this->json($response);
+    }
+
+    /**
      * @Route("/Character/{lodestoneId}")
      * @Route("/character/{lodestoneId}")
      * @throws \Exception
      */
-    public function index(Request $request, $lodestoneId)
+    public function index(Request $request, $lodestoneId, $internal = false)
     {
         $lodestoneId = (int)strtolower(trim($lodestoneId));
 
@@ -221,6 +241,10 @@ class LodestoneCharacterController extends AbstractController
     
         if ($response->PvPTeam && $response->Character->PvPTeamId) {
             $response->PvPTeam->ID = (string)$response->Character->PvPTeamId;
+        }
+
+        if ($internal) {
+            return $response;
         }
         
         return $this->json($response);
