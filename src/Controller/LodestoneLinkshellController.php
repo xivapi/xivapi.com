@@ -2,12 +2,7 @@
 
 namespace App\Controller;
 
-use App\Exception\ContentGoneException;
-use App\Service\Lodestone\LinkshellService;
-use App\Service\Lodestone\ServiceQueues;
-use App\Service\LodestoneQueue\LinkshellQueue;
 use Lodestone\Api;
-use App\Common\Service\Redis\Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
@@ -18,14 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class LodestoneLinkshellController extends AbstractController
 {
-    /** @var LinkshellService */
-    private $service;
-    
-    public function __construct(LinkshellService $service)
-    {
-        $this->service = $service;
-    }
-    
     /**
      * @Route("/Linkshell/Search")
      * @Route("/linkshell/search")
@@ -37,7 +24,7 @@ class LodestoneLinkshellController extends AbstractController
         }
         
         return $this->json(
-            (new Api())->searchLinkshell(
+            (new Api())->linkshell()->search(
                 $request->get('name'),
                 ucwords($request->get('server')),
                 $request->get('page') ?: 1
@@ -52,44 +39,16 @@ class LodestoneLinkshellController extends AbstractController
     public function index($lodestoneId)
     {
         $lodestoneId = strtolower(trim($lodestoneId));
-        
+    
+        // initialise api
+        $api = new Api();
+    
         $response = (Object)[
-            'Linkshell'     => null,
-            'Info' => (Object)[
-                'Linkshell' => null,
-            ],
+            'Linkshell' => $api->linkshell()->get($lodestoneId),
         ];
-
-        $linkshell = $this->service->get($lodestoneId);
-        $response->Linkshell = $linkshell->data;
-        $response->Info->Linkshell = $linkshell->ent->getInfo();
+    
+        $response->Linkshell->ID = $lodestoneId;
     
         return $this->json($response);
-    }
-    
-    /**
-     * @Route("/Linkshell/{lodestoneId}/Update")
-     * @Route("/linkshell/{lodestoneId}/update")
-     */
-    public function update($lodestoneId)
-    {
-        $linkshell = $this->service->get($lodestoneId);
-    
-        if ($linkshell->ent->isBlackListed()) {
-            throw new ContentGoneException('Blacklisted');
-        }
-    
-        if ($linkshell->ent->isAdding()) {
-            throw new ContentGoneException('Not Added');
-        }
-    
-        if (Redis::Cache()->get(__METHOD__.$lodestoneId)) {
-            return $this->json(0);
-        }
-        
-        LinkshellQueue::request($lodestoneId, 'linkshell_update');
-
-        Redis::Cache()->set(__METHOD__.$lodestoneId, ServiceQueues::UPDATE_TIMEOUT);
-        return $this->json(1);
     }
 }

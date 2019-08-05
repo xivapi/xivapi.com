@@ -305,6 +305,12 @@
             "ref": "60ac64d0ec3f8e92bda67567eff5a313a359c94b"
         }
     },
+    "symfony/http-client": {
+        "version": "v4.3.2"
+    },
+    "symfony/http-client-contracts": {
+        "version": "v1.1.5"
+    },
     "symfony/http-foundation": {
         "version": "v4.0.6"
     },
@@ -444,7 +450,7 @@
         "version": "0.1"
     },
     "xivapi/lodestone-parser": {
-        "version": "dev-master"
+        "version": "dev-major-rewrite"
     },
     "xivapi/xivapi-php": {
         "version": "1.6.6"
