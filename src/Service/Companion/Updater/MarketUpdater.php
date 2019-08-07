@@ -358,7 +358,6 @@ class MarketUpdater
         $server = $item['server'];
     
         // grab market item document
-        $this->console(microtime(true) . " - Getting market doc");
         $marketItem = $this->getMarketItemDocument($server, $itemId);
     
         // record lodestone info
@@ -370,8 +369,6 @@ class MarketUpdater
         // set updated time
         $marketItem->Updated = time();
     
-        $this->console(microtime(true) . " - processing prices");
-
         // CURRENT PRICES
         if (isset($prices->error) === false && isset($prices->entries) && $prices->entries) {
             // append current prices
@@ -402,8 +399,6 @@ class MarketUpdater
                 return $first->PricePerUnit > $second->PricePerUnit;
             });
         }
-    
-        $this->console(microtime(true) . " - processing history");
 
         // CURRENT HISTORY
         if ($history && isset($history->error) === false && $history->history) {
@@ -447,8 +442,6 @@ class MarketUpdater
             });
         }
     
-        $this->console(microtime(true) . " - Storing...");
-        
         // save market item
         $this->market->set($marketItem);
         $this->marketItemEntryLog[$dbid] = "Set market data";
