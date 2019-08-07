@@ -45,9 +45,10 @@ class MigrateCompanionDataCommand extends Command
 
         foreach ($ids as $itemId) {
             $count++;
-            $console->overwrite("Convert item: {$itemId} - {$count}/{$total}");
 
             foreach (GameServers::LIST as $serverId => $serverName) {
+                $console->overwrite("Convert item: {$itemId} - {$count}/{$total} - {$serverName}");
+
                 $doc = $this->cm->get($serverId, $itemId, 9999, 9999, true);
                 $this->cmd->save($serverId, $itemId, $doc);
             }

@@ -55,10 +55,10 @@ class CompanionMarketDoc
     private function getFolder($serverId)
     {
         $folder = self::SAVE_DIRECTORY;
-        $folder = "{$folder}/item_{$serverId}";
+        $folder = "{$folder}/server_{$serverId}";
 
         if (is_dir($folder) == false) {
-            mkdir($folder, 0777, true);
+            mkdir($folder, 0775, true);
         }
 
         return $folder;
