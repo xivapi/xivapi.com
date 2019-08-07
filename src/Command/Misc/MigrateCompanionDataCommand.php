@@ -61,7 +61,7 @@ class MigrateCompanionDataCommand extends Command
 
                 $avg     = array_sum($etaArr) / count($etaArr);
                 $avgTime = $etaTot * $avg;
-                $finish  = date('Y-m-d H:i:s', $avgTime);
+                $finish  = date('Y-m-d H:i:s', time() + $avgTime);
 
                 $console->overwrite("Convert item: {$itemId} - {$count}/{$total} - {$finish} - {$serverName}");
 
