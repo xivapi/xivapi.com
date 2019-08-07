@@ -58,7 +58,7 @@ class CompanionMarket
     public function set(MarketItem $marketItem)
     {
         $marketItem->Updated = time();
-        $this->marketDoc->save($marketItem->Server, $marketItem->Item, $marketItem);
+        $this->marketDoc->save($marketItem->Server, $marketItem->ItemID, $marketItem);
     }
     
     /**
