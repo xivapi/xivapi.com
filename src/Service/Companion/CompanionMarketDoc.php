@@ -9,7 +9,7 @@ use App\Service\Companion\Models\MarketItem;
  */
 class CompanionMarketDoc
 {
-    const SAVE_DIRECTORY = __DIR__.'/../../../companion_data/';
+    const SAVE_DIRECTORY = __DIR__.'/../../../../companion_data/';
 
     public function __construct()
     {
@@ -44,7 +44,7 @@ class CompanionMarketDoc
     public function save($serverId, $itemId, MarketItem $item)
     {
         $folder   = $this->getFolder($serverId);
-        $filename = "{$folder}/{$itemId}.serialised";
+        $filename = "{$folder}/item_{$itemId}.serialised";
 
         file_put_contents($filename, serialize($item));
     }
@@ -55,7 +55,7 @@ class CompanionMarketDoc
     private function getFolder($serverId)
     {
         $folder = self::SAVE_DIRECTORY;
-        $folder = "{$folder}/{$serverId}";
+        $folder = "{$folder}/item_{$serverId}";
 
         if (is_dir($folder) == false) {
             mkdir($folder, 0777, true);
