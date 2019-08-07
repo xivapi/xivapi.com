@@ -53,6 +53,7 @@ class MigrateCompanionDataCommand extends Command
             foreach (GameServers::LIST as $serverId => $serverName) {
                 $doc = $this->cm->get($serverId, $itemId, 9999, 9999, true);
                 $this->cmd->save($serverId, $itemId, $doc);
+                $etaTot--;
 
                 $etaArr[] = time() - $start;
                 $start    = time();
