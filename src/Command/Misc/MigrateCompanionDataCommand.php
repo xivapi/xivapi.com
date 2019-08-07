@@ -57,7 +57,7 @@ class MigrateCompanionDataCommand extends Command
                 $etaArr[] = time() - $start;
                 $start    = time();
 
-                array_splice($etaArr, 100);
+                array_splice($etaArr, 200);
 
                 $avg     = array_sum($etaArr) / count($etaArr);
                 $avgTime = $etaTot * $avg;
