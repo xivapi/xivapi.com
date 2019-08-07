@@ -39,18 +39,17 @@ class MigrateCompanionDataCommand extends Command
         $console = new ConsoleOutput();
         $console = $console->section();
 
-        $ids = Redis::Cache()->get("ids_Item");
+        $ids     = Redis::Cache()->get("ids_Item");
+        $total   = count((array)$ids);
+        $count   = 0;
 
         foreach ($ids as $itemId) {
-            $console->overwrite("Item: {$itemId}");
+            $count++;
+            $console->overwrite("Convert item: {$itemId} - {$count}/{$total}");
 
             foreach (GameServers::LIST as $serverId => $serverName) {
                 $doc = $this->cm->get($serverId, $itemId, 9999, 9999, true);
-
-                // save
                 $this->cmd->save($serverId, $itemId, $doc);
-
-                die;
             }
         }
 
