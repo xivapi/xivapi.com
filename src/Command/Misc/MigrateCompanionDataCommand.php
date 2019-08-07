@@ -43,14 +43,28 @@ class MigrateCompanionDataCommand extends Command
         $total   = count((array)$ids);
         $count   = 0;
 
+        $etaTot  = $total * count(GameServers::LIST);
+        $etaArr  = [];
+
+        $start   = time();
         foreach ($ids as $itemId) {
             $count++;
 
             foreach (GameServers::LIST as $serverId => $serverName) {
-                $console->overwrite("Convert item: {$itemId} - {$count}/{$total} - {$serverName}");
-
                 $doc = $this->cm->get($serverId, $itemId, 9999, 9999, true);
                 $this->cmd->save($serverId, $itemId, $doc);
+
+                $etaArr[] = time() - $start;
+                $start    = time();
+
+                array_splice($etaArr, 100);
+
+                $avg     = array_sum($etaArr) / count($etaArr);
+                $avgTime = $etaTot * $avg;
+                $finish  = date('Y-m-d H:i:s', $avgTime);
+
+                $console->overwrite("Convert item: {$itemId} - {$count}/{$total} - {$finish} - {$serverName}");
+
             }
         }
 
