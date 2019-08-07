@@ -2,6 +2,8 @@
 
 namespace App\Service\Companion;
 
+use App\Service\Companion\Models\MarketItem;
+
 /**
  * Handles providing and save companion market data
  */
@@ -19,28 +21,46 @@ class CompanionMarketDoc
     /**
      * Get market doc
      */
-    public function get($serverId, $itemId)
+    public function get($serverId, $itemId): MarketItem
     {
-        $filename = self::SAVE_DIRECTORY . "doc_{$serverId}_{$itemId}.json";
+        $folder   = $this->getFolder($serverId);
+        $filename = "{$folder}/{$itemId}.serialised";
 
-        if (!file_exists($filename)) {
-            return null;
+        // default empty item
+        $item = new MarketItem($serverId, $itemId);
+
+        if (file_exists($filename) == false) {
+            return $item;
         }
 
-        $doc = file_get_contents($filename);
-        $doc = json_decode($doc);
-
-        return $doc;
+        $item = file_get_contents($filename);
+        $item = unserialize($item);
+        return $item;
     }
 
     /**
      * Save a market doc
      */
-    public function save($serverId, $itemId, $doc)
+    public function save($serverId, $itemId, MarketItem $item)
     {
-        file_put_contents(
-            self::SAVE_DIRECTORY . "doc_{$serverId}_{$itemId}.json",
-            json_encode($doc)
-        );
+        $folder   = $this->getFolder($serverId);
+        $filename = "{$folder}/{$itemId}.serialised";
+
+        file_put_contents($filename, serialize($item));
+    }
+
+    /**
+     * Get storage folder (also makes it if it dont exist)
+     */
+    private function getFolder($serverId)
+    {
+        $folder = self::SAVE_DIRECTORY;
+        $folder = "{$folder}/{$serverId}";
+
+        if (is_dir($folder) == false) {
+            mkdir($folder, 0777, true);
+        }
+
+        return $folder;
     }
 }
