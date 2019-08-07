@@ -3,6 +3,7 @@
 namespace App\Command\Misc;
 
 use App\Common\Game\GameServers;
+use App\Common\Service\Redis\Redis;
 use App\Service\Companion\CompanionMarket;
 use App\Service\Companion\CompanionMarketDoc;
 use Symfony\Component\Console\Command\Command;
