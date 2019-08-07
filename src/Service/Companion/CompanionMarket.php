@@ -33,6 +33,8 @@ class CompanionMarket
     private $em;
     /** @var ElasticSearch */
     private $elastic;
+    /** @var CompanionMarketDoc */
+    private $marketDoc;
     /** @var CompanionRetainerRepository */
     private $retainerRepository;
     /** @var CompanionCharacterRepository */
@@ -40,157 +42,42 @@ class CompanionMarket
     
     public function __construct(
         EntityManagerInterface $em,
+        CompanionMarketDoc $marketDoc,
         GameData $gamedata
     ) {
         $this->em = $em;
         $this->retainerRepository = $em->getRepository(CompanionRetainer::class);
         $this->characterRepository = $em->getRepository(CompanionCharacter::class);
+        $this->marketDoc = $marketDoc;
         $this->gamedata = $gamedata;
     }
-    
-    public function connect()
-    {
-        if ($this->elastic === null) {
-            $this->elastic  = new ElasticSearch('ELASTIC_SERVER_COMPANION');
-        }
-    }
 
-    /**
-     * Rebuilds the ElasticSearch index (this deletes everything inside the index)
-     * Should only be run during the initial build of the service.
-     */
-    public function rebuildIndex()
-    {
-        $this->connect();
-        $this->elastic->deleteIndex(self::INDEX);
-        $this->elastic->addIndexCompanion(self::INDEX);
-    }
-    
     /**
      * Set the current prices for an item
      */
     public function set(MarketItem $marketItem)
     {
-        $this->connect();
         $marketItem->Updated = time();
-    
-        $data = json_decode(json_encode($marketItem), true);
-        
-        try {
-            $this->elastic->addDocument(self::INDEX, self::INDEX, $marketItem->ID, $data);
-        } catch (\Exception $ex) {
-            file_put_contents(__DIR__.'/../../../companion_put_errors.txt', $ex->getMessage() . PHP_EOL, FILE_APPEND);
-        }
-        
-    }
-    
-    /**
-     * Set the current prices for multiple items
-     *
-     * @param $marketItems MarketItem[]
-     */
-    public function setBulk($marketItems)
-    {
-        $this->connect();
-        $documents = [];
-        foreach ($marketItems as $i => $marketItem) {
-            $marketItem->Updated = time();
-            $documents[$marketItem->ID] = json_decode(json_encode($marketItem), true);
-        }
-        
-        $this->elastic->bulkDocuments(self::INDEX, self::INDEX, $documents);
+        $this->marketDoc->save($marketItem->Server, $marketItem->Item, $marketItem);
     }
     
     /**
      * Get the current prices for an item
      */
-    public function get(int $server, int $itemId, int $maxHistory = null, int $maxPrices = null, bool $internal = false): ?MarketItem
+    public function get(int $server, int $itemId, bool $internal = false): ?MarketItem
     {
-        $this->connect();
-        $item = new MarketItem($server, $itemId);
-    
+        /** @var MarketItem $item */
+        $item = $this->marketDoc->get($server, $itemId);
+
         // if not internally called, append some more info
         if ($internal === false) {
             // append item information
             $item->Item = GameItem::build($item->ItemID);
-        
-            $key = __METHOD__ . $item->ID;
-            if (!$itemQueue = Redis::Cache()->get($key)) {
-                $sql = "SELECT normal_queue FROM companion_market_items WHERE item = {$item->ItemID} AND server = {$item->Server} LIMIT 1";
-                $stmt = $this->em->getConnection()->prepare($sql);
-                $stmt->execute();
-                $itemQueue = $stmt->fetch()['normal_queue'] ?? null;
-            
-                // cache for an hour
-                Redis::Cache()->set($key, $itemQueue);
-            }
-    
-            $item->IsTracked = $itemQueue > 0;
-            $item->UpdatePriority = $itemQueue;
-        }
-        
-        try {
-            $result = $this->elastic->getDocument(self::INDEX, self::INDEX, "{$server}_{$itemId}");
-        } catch (\Exception $ex) {
-            return $item;
+            $item->IsTracked = 0;
+            $item->UpdatePriority = 0;
         }
 
-        // just incase...
-        if ($result === null) {
-            return $item;
-        }
-    
-        // grab document source
-        $source = $result['_source'];
-    
-        // set some basic info
-        $item->Updated = $source['Updated'];
-        $item->LodestoneID = $source['LodestoneID'];
-    
-        // map out current prices
-        foreach ($source['Prices'] as $i => $price) {
-            // limit history
-            if ($maxPrices && $i >= $maxPrices) {
-                break;
-            }
-            
-            $obj = new MarketListing();
-        
-            // these fields map 1:1
-            foreach ($price as $key => $value) {
-                $obj->{$key} = $value;
-            }
-        
-            $item->Prices[] = $obj;
-        }
-    
-        // map out historic prices
-        foreach ($source['History'] as $i => $price) {
-            // limit history
-            if ($maxHistory && $i >= $maxHistory) {
-                break;
-            }
-        
-            $obj = new MarketHistory();
-        
-            // these fields map 1:1
-            foreach ($price as $key => $value) {
-                $obj->{$key} = $value;
-            }
-        
-            $item->History[] = $obj;
-        }
-    
         return $item;
-    }
-
-    /**
-     * Delete a document
-     */
-    public function delete(int $server, int $itemId)
-    {
-        $this->connect();
-        $this->elastic->deleteDocument(self::INDEX, self::INDEX, "{$server}_{$itemId}");
     }
     
     /**
@@ -289,8 +176,6 @@ class CompanionMarket
      */
     private function genericSearchEntry(string $nest, string $field, $value, $limit = 500)
     {
-        $this->connect();
-    
         /**
          * Build retainer query, limit to 30 results.
          */
@@ -303,30 +188,7 @@ class CompanionMarket
         
         return $this->elastic->search(self::INDEX, self::INDEX, $query2->getQuery());
     }
-    
-    /**
-     * Perform searches
-     */
-    public function search()
-    {
-        $this->connect();
-        $query1 = new ElasticQuery();
-        $query1->queryMatch('Prices.RetainerID', 'f935eac3-6560-4a4e-b07b-84ba4b37d60a');
-        #$query1->filterRange('Prices.PricePerUnit', 50000, 'gte');
-        
-        $query2 = new ElasticQuery();
-        $query2->nested('Prices', $query1->getQuery());
-        $query2->limit(0, 2);
-        $query2->sort([
-            [ 'Prices.PricePerUnit', 'desc' ]
-        ]);
-        
-        $results = $this->elastic->search(self::INDEX, self::INDEX, $query2->getQuery());
-        
-        print_r($results);
-        die;
-    }
-    
+
     /**
      * Get all companion items
      */

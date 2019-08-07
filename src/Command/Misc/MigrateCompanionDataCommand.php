@@ -56,7 +56,7 @@ class MigrateCompanionDataCommand extends Command
             $count++;
 
             foreach ($servers as $serverId => $serverName) {
-                $doc = $this->cm->get($serverId, $itemId, 9999, 9999, true);
+                $doc = $this->cm->get($serverId, $itemId, true);
                 $this->cmd->save($serverId, $itemId, $doc);
                 $etaTot--;
 

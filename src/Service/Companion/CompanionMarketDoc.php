@@ -24,7 +24,7 @@ class CompanionMarketDoc
     public function get($serverId, $itemId): MarketItem
     {
         $folder   = $this->getFolder($serverId);
-        $filename = "{$folder}/{$itemId}.serialised";
+        $filename = "{$folder}/item_{$itemId}.serialised";
 
         // default empty item
         $item = new MarketItem($serverId, $itemId);
