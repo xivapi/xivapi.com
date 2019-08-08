@@ -126,6 +126,7 @@ class ApiRequest
         
         // Track users key
         RedisTracking::increment('API_KEY_USAGE_'. $this->apikey);
+        RedisTracking::increment('API_ENDPOINT_'. $this->getRequestEndpoint());
 
         /** @var User $user */
         $this->user = $this->users->getUserByApiKey($this->apikey);
