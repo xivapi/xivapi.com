@@ -83,7 +83,7 @@ class ExceptionListener implements EventSubscriberInterface
             'Hash'    => sha1($message),
             'Ex'      => get_class($ex),
             'ExCode'  => $code,
-            'Url'     => $event->getRequest()->getUri(),
+            'Url'     => $event->getRequest()->getBasePath(),
             'Debug'   => (Object)[
                 'ID'      => Random::randomHumanUniqueCode() . date('ymdh'),
                 'File'    => "#{$ex->getLine()} {$file}",
