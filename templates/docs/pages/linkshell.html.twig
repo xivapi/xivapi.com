@@ -11,12 +11,6 @@
 
     {# Search #}
     {{ docs.api('/linkshell/search', '/linkshell/search?name=[name]&server=[server]', 'search') }}
-    <p>
-        Search for linkshells on The Lodestone. This parses the lodestone in real time so it will
-        be slow for uncached responses. All search queries are cached for 1 hour. This does not search
-        XIVAPI so linkshells found may not be on the service and will be added when requested by their
-        specified lodestone ID.
-    </p>
 
     {{ docs.commonParamsSearch() }}
 
@@ -24,10 +18,5 @@
 
     {# GET #}
     {{ docs.api('/linkshell/[lodestone_id]', '/linkshell/19984723346535274', 'linkshell') }}
-    <p>
-        Get Linkshell data, due to the nature of availability on the service this endpoint
-        will return either populated data or nothing, you will have to check the `Info`
-        response to see the current state.
-    </p>
 
 {% endblock %}

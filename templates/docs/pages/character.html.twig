@@ -17,11 +17,6 @@
 
     {# Search #}
     {{ docs.api('/character/search', '/character/search?name=[name]&server=[server]', 'search') }}
-    <p>
-        Search for a character on **The Lodestone**. This does not search XIVAPI but instead
-        it goes directly to lodestone so the response will be "real-time". Responses are cached for 1 hour,
-        it is important to know that Lodestone has a ~6 hour varnish and CDN cache.
-    </p>
 
     {{ docs.commonParamsSearch() }}
 
@@ -30,11 +25,8 @@
     {# GET #}
     {{ docs.api('/character/[lodestone_id]', '/character/730968', 'character') }}
     <p>
-        Get Character data, due to the nature of availability on the service this endpoint
-        will return either populated data or nothing, you will have to check the <code>Info</code> response to
-        see the current state. If the character does not exist on XIVAPI then this first request will
-        return the state value 1 and the character will be added within the next few minutes. Query
-        the endpoint again after a few minutes and it should contain data.
+        Get Character data, this is parsed straight from Lodestone in real-time. The more data you request
+        the slower the entire request will be. AC and FCM are done asynchronously.
     </p>
 
     <h4>Params</h4>
@@ -76,15 +68,15 @@
                     </tr>
                     <tr>
                         <td>FC</td>
-                        <td>Free Company (if added to the system)</td>
+                        <td>Free Company</td>
                     </tr>
                     <tr>
                         <td>FCM</td>
-                        <td>Free Company Members (if added to the system)</td>
+                        <td>Free Company Members</td>
                     </tr>
                     <tr>
                         <td>PVP</td>
-                        <td>PVP Team (if added to the system)</td>
+                        <td>PVP Team</td>
                     </tr>
                     </tbody>
                 </table>

@@ -14,11 +14,6 @@
 
     {# Search #}
     {{ docs.api('/freecompany/search', '/freecompany/search?name=[name]&server=[server]', 'search') }}
-    <p>
-        Search for a character on **The Lodestone**. This does not search XIVAPI but instead
-        it goes directly to lodestone so the response will be "real-time". Responses are cached for 1 hour,
-        it is important to know that Lodestone has a ~6 hour varnish and CDN cache.
-    </p>
 
     <h4>Params</h4>
 
@@ -52,10 +47,6 @@
 
     {# GET #}
     {{ docs.api('/freecompany/[lodestone_id]', '/freecompany/9231253336202687179', 'free-company') }}
-
-    <p>Get Free Company data, due to the nature of availability on the service this endpoint will
-        return either populated data or nothing, you will have to check the `Info` response to
-        see the current state.</p>
 
     <h4>Params</h4>
 
@@ -94,7 +85,7 @@
                     <tbody>
                     <tr>
                         <td>FCM</td>
-                        <td>Free Company Members (if added to the system)</td>
+                        <td>Free Company Members</td>
                     </tr>
                     </tbody>
                 </table>
