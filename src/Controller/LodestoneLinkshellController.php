@@ -44,11 +44,39 @@ class LodestoneLinkshellController extends AbstractController
         $api = new Api();
     
         $response = (Object)[
-            'Linkshell' => $api->linkshell()->get($lodestoneId),
+            'Linkshell' => null,
         ];
-    
-        $response->Linkshell->ID = $lodestoneId;
-    
+
+        $linkshell = $api->linkshell()->get($lodestoneId);
+        $linkshell->ID = $lodestoneId;
+
+        $members = $linkshell->Results;
+
+        if ($linkshell && $linkshell->Pagination->PageTotal > 1) {
+            // parse the rest of pages
+            $api->config()->useAsync();
+            foreach (range(2, $linkshell->Pagination->PageTotal) as $page) {
+                $api->linkshell()->get($lodestoneId, $page);
+            }
+
+            foreach ($api->http()->settle() as $res) {
+                $members = array_merge($members, $res->Results);
+            }
+            $api->config()->useSync();
+        }
+
+        $linkshell->Results = $members;
+
+        // reset this sicne we're getting all pages in 1 go
+        $linkshell->Pagination->Page = 1;
+        $linkshell->Pagination->PageNext = 1;
+        $linkshell->Pagination->PagePrev = null;
+        $linkshell->Pagination->PageTotal = 1;
+        $linkshell->Pagination->Results = count($members);
+        $linkshell->Pagination->ResultsPerPage = count($members);
+
+        $response->Linkshell = $linkshell;
+
         return $this->json($response);
     }
 }
