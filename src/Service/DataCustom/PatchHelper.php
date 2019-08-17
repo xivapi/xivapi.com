@@ -18,10 +18,14 @@ class PatchHelper extends ManualHelper
             $patchDataFile = file_get_contents("./data/ffxiv-datamining-patches/patchdata/" . $contentName . ".json");
             $patchData     = json_decode($patchDataFile);
             foreach (Redis::Cache()->get("ids_{$contentName}") as $id) {
-                $doc                = "xiv_{$contentName}_{$id}";
-                $content            = Redis::Cache()->get("xiv_{$contentName}_{$id}");
-                $content->Patch     = $patchData->{$id};
-                $content->GamePatch = $patchDb->getPatchAtID($id);
+                $doc            = "xiv_{$contentName}_{$id}";
+                $content        = Redis::Cache()->get("xiv_{$contentName}_{$id}");
+                $content->Patch = $patchData->{$id};
+                try {
+                    $content->GamePatch = $patchDb->getPatchAtID($id);
+                } catch (\Exception $exception) {
+                    // If there's no patch to find, whatever, just go ahead.
+                }
                 Redis::Cache()->set($doc, $content, self::REDIS_DURATION);
             }
         }
