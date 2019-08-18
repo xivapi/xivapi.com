@@ -22,7 +22,7 @@ class PatchHelper extends ManualHelper
                 $content        = Redis::Cache()->get("xiv_{$contentName}_{$id}");
                 $content->Patch = $patchData->{$id};
                 try {
-                    $content->GamePatch = $patchDb->getPatchAtID($id);
+                    $content->GamePatch = $patchDb->getPatchAtID($content->Patch);
                 } catch (\Exception $exception) {
                     // If there's no patch to find, whatever, just go ahead.
                 }
