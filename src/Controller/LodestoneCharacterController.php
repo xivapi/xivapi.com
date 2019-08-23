@@ -5,12 +5,10 @@ namespace App\Controller;
 use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterConverter;
 use Lodestone\Api;
-use Lodestone\Exceptions\LodestoneNotFoundException;
 use Lodestone\Exceptions\LodestonePrivateException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 
 class LodestoneCharacterController extends AbstractController
 {
@@ -66,14 +64,15 @@ class LodestoneCharacterController extends AbstractController
         $api = new Api();
 
         // choose which content you want
-        $data = $request->get('data') ? explode(',', strtoupper($request->get('data'))) : [];
+        $data       = $request->get('data') ? explode(',', strtoupper($request->get('data'))) : [];
         $isExtended = $request->get('extended');
-        $content = (object)[
-            'AC'  => in_array('AC', $data),
-            'FR'  => in_array('FR', $data),
-            'FC'  => in_array('FC', $data),
-            'FCM' => in_array('FCM', $data),
-            'PVP' => in_array('PVP', $data),
+        $content    = (object)[
+            'AC'   => in_array('AC', $data),
+            'FR'   => in_array('FR', $data),
+            'FC'   => in_array('FC', $data),
+            'FCM'  => in_array('FCM', $data),
+            'PVP'  => in_array('PVP', $data),
+            'MIMO' => in_array('MIMO', $data),
         ];
 
         // response model
@@ -87,11 +86,11 @@ class LodestoneCharacterController extends AbstractController
             'FreeCompanyMembers' => null,
             'PvPTeam'            => null,
         ];
-        
+
         // fc id + pvp team id
         $fcId  = $response->Character->FreeCompanyId;
         $pvpId = $response->Character->PvPTeamId;
-    
+
         // ensure bio is UT8
         $response->Character->Bio = mb_convert_encoding($response->Character->Bio, 'UTF-8', 'UTF-8');
 
@@ -103,9 +102,9 @@ class LodestoneCharacterController extends AbstractController
 
         // Achievements
         if ($content->AC) {
-            $achievements = [];
+            $achievements       = [];
             $achievementsPublic = true;
-            
+
             try {
                 // achievements might be private/public, can check on 1st one
                 $first = $api->character()->achievements($lodestoneId, 1);
@@ -114,7 +113,7 @@ class LodestoneCharacterController extends AbstractController
                 // even if achievements are private
                 $achievementsPublic = false;
             }
-    
+
             // add public status to response
             $response->AchievementsPublic = $achievementsPublic;
 
@@ -123,7 +122,7 @@ class LodestoneCharacterController extends AbstractController
 
                 // parse the rest of the pages
                 $api->config()->useAsync();
-                foreach([2,3,4,5,6,8,11,12,13] as $kindId) {
+                foreach ([2, 3, 4, 5, 6, 8, 11, 12, 13] as $kindId) {
                     $api->config()->setRequestId("kind_{$kindId}");
                     $api->character()->achievements($lodestoneId, $kindId);
                 }
@@ -138,18 +137,18 @@ class LodestoneCharacterController extends AbstractController
                         ($res && is_object($res)) ? $res->Achievements : []
                     );
                 }
-                
+
                 $api->config()->useSync();
             }
-    
+
             $response->Achievements = (Object)[
-                'List' => [],
+                'List'   => [],
                 'Points' => 0
             ];
-            
+
             // simplify achievements
             foreach ($achievements as $i => $achi) {
-                $response->Achievements->Points += $achi->Points;
+                $response->Achievements->Points   += $achi->Points;
                 $response->Achievements->List[$i] = (Object)[
                     'ID'   => $achi->ID,
                     'Date' => $achi->ObtainedTimestamp
@@ -163,7 +162,7 @@ class LodestoneCharacterController extends AbstractController
 
         // Friends
         if ($content->FR) {
-            $friends = [];
+            $friends       = [];
             $friendsPublic = true;
 
             // grab 1st page, so we know if there is more than 1 page
@@ -175,10 +174,10 @@ class LodestoneCharacterController extends AbstractController
                 // even if achievements are private
                 $friendsPublic = false;
             }
-    
+
             // add public status to response
             $response->FriendsPublic = $achievementsPublic;
-            
+
             if ($friendsPublic && $first && $first->Pagination->PageTotal > 1) {
                 // parse the rest of pages
                 $api->config()->useAsync();
@@ -198,6 +197,12 @@ class LodestoneCharacterController extends AbstractController
         // Free Company
         if ($content->FC && $fcId) {
             $response->FreeCompany = $api->freecompany()->get($fcId);
+        }
+
+        // Minions & Mounts
+        if ($content->MIMO) {
+            $response->Minions = $api->character()->minions($lodestoneId);
+            $response->Mounts  = $api->character()->mounts($lodestoneId);
         }
 
         // Free Company Members
@@ -226,18 +231,16 @@ class LodestoneCharacterController extends AbstractController
 
         // PVP Team
         if ($content->PVP && $pvpId) {
-            
             $response->PvPTeam = $api->pvpteam()->get($pvpId);
         }
-        
+
         // ensure IDs exist
         $response->Character->ID = $lodestoneId;
-        
+
         if ($response->FreeCompany && $response->Character->FreeCompanyId) {
             $response->FreeCompany->ID = $response->Character->FreeCompanyId;
         }
-        
-    
+
         if ($response->PvPTeam && $response->Character->PvPTeamId) {
             $response->PvPTeam->ID = (string)$response->Character->PvPTeamId;
         }
@@ -245,7 +248,7 @@ class LodestoneCharacterController extends AbstractController
         if ($internal) {
             return $response;
         }
-        
+
         return $this->json($response);
     }
 }
