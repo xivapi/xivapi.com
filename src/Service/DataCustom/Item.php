@@ -130,7 +130,7 @@ class Item extends ManualHelper
         if (isset($item->ItemAction) && in_array($item->ItemAction->Type, $bonusActions)) {
             $food          = Redis::cache()->get("xiv_ItemFood_{$item->ItemAction->Data1}");
             $item->Bonuses = new stdClass;
-            for ($i = 0; $i < 2; $i++) {
+            for ($i = 0; $i < 3; $i++) {
                 $bonusEntry    = new stdClass;
                 $baseParamKey  = "BaseParam{$i}";
                 $valueKey      = "Value{$i}";
