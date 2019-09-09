@@ -66,14 +66,14 @@ class LodestoneCharacterController extends AbstractController
         $api = new Api();
 
         // choose which content you want
-        $data = $request->get('data') ? explode(',', strtoupper($request->get('data'))) : [];
+        $data       = $request->get('data') ? explode(',', strtoupper($request->get('data'))) : [];
         $isExtended = $request->get('extended');
-        $content = (object)[
-            'AC'  => in_array('AC', $data),
-            'FR'  => in_array('FR', $data),
-            'FC'  => in_array('FC', $data),
-            'FCM' => in_array('FCM', $data),
-            'PVP' => in_array('PVP', $data),
+        $content    = (object)[
+            'AC'   => in_array('AC', $data),
+            'FR'   => in_array('FR', $data),
+            'FC'   => in_array('FC', $data),
+            'FCM'  => in_array('FCM', $data),
+            'PVP'  => in_array('PVP', $data),
             'MIMO' => in_array('MIMO', $data),
         ];
 
@@ -104,7 +104,7 @@ class LodestoneCharacterController extends AbstractController
 
         // Achievements
         if ($content->AC) {
-            $achievements = [];
+            $achievements       = [];
             $achievementsPublic = true;
 
             try {
@@ -124,7 +124,7 @@ class LodestoneCharacterController extends AbstractController
 
                 // parse the rest of the pages
                 $api->config()->useAsync();
-                foreach([2,3,4,5,6,8,11,12,13] as $kindId) {
+                foreach ([2, 3, 4, 5, 6, 8, 11, 12, 13] as $kindId) {
                     $api->config()->setRequestId("kind_{$kindId}");
                     $api->character()->achievements($lodestoneId, $kindId);
                 }
@@ -144,13 +144,13 @@ class LodestoneCharacterController extends AbstractController
             }
 
             $response->Achievements = (Object)[
-                'List' => [],
+                'List'   => [],
                 'Points' => 0
             ];
 
             // simplify achievements
             foreach ($achievements as $i => $achi) {
-                $response->Achievements->Points += $achi->Points;
+                $response->Achievements->Points   += $achi->Points;
                 $response->Achievements->List[$i] = (Object)[
                     'ID'   => $achi->ID,
                     'Date' => $achi->ObtainedTimestamp
@@ -164,7 +164,7 @@ class LodestoneCharacterController extends AbstractController
 
         // Friends
         if ($content->FR) {
-            $friends = [];
+            $friends       = [];
             $friendsPublic = true;
 
             // grab 1st page, so we know if there is more than 1 page
@@ -203,8 +203,13 @@ class LodestoneCharacterController extends AbstractController
 
         // Free Company
         if ($content->MIMO) {
-            $response->Minions = $api->character()->minions($lodestoneId);
-            $response->Mounts = $api->character()->mounts($lodestoneId);
+            try {
+                $response->Minions = $api->character()->minions($lodestoneId);
+                $response->Mounts  = $api->character()->mounts($lodestoneId);
+            } catch (\Exception $e) {
+                $response->Minions = [];
+                $response->Mounts  = [];
+            }
         }
 
         // Free Company Members
