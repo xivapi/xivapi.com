@@ -955,5 +955,24 @@
         "PatchNotes_ja": "",
         "ReleaseDate": 1567080000,
         "Version": "5.08"
+    },
+    {
+        "Banner": null,
+        "ID": 62,
+        "Url": "\/patch+5.1",
+        "ExVersion": 3,
+        "IsExpansion": false,
+        "Name_ja": "Patch 5.1",
+        "Name_en": "Patch 5.1",
+        "Name_fr": "Patch 5.1",
+        "Name_de": "Patch 5.1",
+        "Name_cn": "Patch 5.1",
+        "Name_kr": "Patch 5.1",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "",
+        "PatchNotes_fr": "",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1572346800,
+        "Version": "5.1"
     }
 ]
