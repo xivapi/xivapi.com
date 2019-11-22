@@ -82,15 +82,21 @@ class Search
 
         $this->performStringSearch($req);
         $this->performFilterSearch($req);
-        if(isset($req->excludeDated)) {
-            $this->query->excludeTerm('Name_en', 'Dated');
-        }
 
         $query = $this->query->getQuery($req->bool);
 
         try {
+            $results = $this->search->search($req->indexes, $req->type, $query) ?: [];
+            if(isset($req->excludeDated)) {
+
+                function isNotDated($element) {
+                    return substr($element->Name_en, 5) != "Dated";
+                }
+
+                $results = array_filter($results, "isNotDated");
+            }
             $res->setQuery($query)->setResults(
-                $this->search->search($req->indexes, $req->type, $query) ?: []
+                $results    
             );
         } catch (\Exception $ex) {
             // if this is an elastic exception, clean the error
