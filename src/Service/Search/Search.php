@@ -86,20 +86,9 @@ class Search
         $query = $this->query->getQuery($req->bool);
 
         try {
-            if(isset($req->excludeDated)) {
-                
-                function isNotDated($element) {
-                    return substr($element->Name_en, 5) != "Dated";
-                }
-
-                $res->setQuery($query)->setResults(
-                    array_filter( $this->search->search($req->indexes, $req->type, $query) ?: [], "isNotDated") 
-                );
-            } else {
-                $res->setQuery($query)->setResults(
-                    $this->search->search($req->indexes, $req->type, $query) ?: []  
-                );
-            }
+            $res->setQuery($query)->setResults(
+                $this->search->search($req->indexes, $req->type, $query) ?: []
+            );
         } catch (\Exception $ex) {
             // if this is an elastic exception, clean the error
             if (substr(get_class($ex), 0, 13) == 'Elasticsearch') {
