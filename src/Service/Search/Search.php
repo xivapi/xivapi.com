@@ -82,6 +82,9 @@ class Search
 
         $this->performStringSearch($req);
         $this->performFilterSearch($req);
+        if(isset($req->excludeDated)) {
+            $this->query->excludeTerm('Name_en', 'Dated');
+        }
 
         $query = $this->query->getQuery($req->bool);
 
