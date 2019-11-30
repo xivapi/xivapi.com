@@ -28,6 +28,7 @@ class SearchContent
         'Item', 'Recipe',
         'Fate',
         'Quest',
+        'ContentFinderCondition',
         
         // non default
         'Balloon',
