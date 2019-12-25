@@ -1012,5 +1012,24 @@
         "PatchNotes_ja": "",
         "ReleaseDate": 1576022400,
         "Version": "5.15"
+    },
+    {
+        "Banner": null,
+        "ID": 65,
+        "Url": "\/patch+5.18",
+        "ExVersion": 3,
+        "IsExpansion": false,
+        "Name_ja": "Patch 5.18",
+        "Name_en": "Patch 5.18",
+        "Name_fr": "Patch 5.18",
+        "Name_de": "Patch 5.18",
+        "Name_cn": "Patch 5.18",
+        "Name_kr": "Patch 5.18",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "",
+        "PatchNotes_fr": "",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1577185200,
+        "Version": "5.18"
     }
 ]
