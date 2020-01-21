@@ -117,7 +117,7 @@ class Item extends ManualHelper
                     foreach ($item as $specialKey => $baseParamSpecial) {
                         if (preg_match('/^BaseParamSpecial(\d+)$/', $specialKey, $specialMatches, PREG_OFFSET_CAPTURE)) {
                             $specialPropName = 'BaseParamSpecial' . $specialMatches[1][0];
-                            if($item->$specialPropName->ID == $statsEntry->ID) {
+                            if(isset($item->$specialPropName) && $item->$specialPropName->ID == $statsEntry->ID) {
                                 $hqStatBonusPropName = 'BaseParamValueSpecial' . $specialMatches[1][0];
                                 $hqStatValue         += $item->$hqStatBonusPropName;
                                 break;
