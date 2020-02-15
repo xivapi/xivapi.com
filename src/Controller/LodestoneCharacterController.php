@@ -27,7 +27,7 @@ class LodestoneCharacterController extends AbstractController
         return $this->json(
             (new Api())->character()->search(
                 $request->get('name'),
-                ucwords($request->get('server')),
+                ucwords(strtolower($request->get('server'))),
                 $request->get('page') ?: 1
             )
         );
@@ -42,7 +42,7 @@ class LodestoneCharacterController extends AbstractController
     {
         $ids = explode(',', $request->get('ids'));
         if (count($ids) > 512) {
-            throw new \Exception("Woah their calm down, 512+ characters wtf?");
+            throw new \Exception("Woah there calm down, 512+ characters wtf?");
         }
 
         $response = [];
