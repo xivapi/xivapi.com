@@ -28,7 +28,7 @@ class LodestoneFreeCompanyController extends AbstractController
         return $this->json(
             (new Api())->freecompany()->search(
                 $request->get('name'),
-                ucwords($request->get('server')),
+                ucwords(strtolower($request->get('server'))),
                 $request->get('page') ?: 1
             )
         );
