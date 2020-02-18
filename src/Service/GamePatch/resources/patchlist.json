@@ -1031,5 +1031,24 @@
         "PatchNotes_ja": "",
         "ReleaseDate": 1577185200,
         "Version": "5.18"
+    },
+    {
+        "Banner": "https://img.finalfantasyxiv.com/t/e6a6aeea3b4816a71340407bfae2acc01d1f73f3.png",
+        "ID": 66,
+        "Url": "\/patch+5.2",
+        "ExVersion": 3,
+        "IsExpansion": false,
+        "Name_ja": "Patch 5.2",
+        "Name_en": "Patch 5.2",
+        "Name_fr": "Patch 5.2",
+        "Name_de": "Patch 5.2",
+        "Name_cn": "Patch 5.2",
+        "Name_kr": "Patch 5.2",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "",
+        "PatchNotes_fr": "",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1582020000,
+        "Version": "5.2"
     }
 ]
