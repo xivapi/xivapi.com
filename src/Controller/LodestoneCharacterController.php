@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterConverter;
 use Lodestone\Api;
+use Lodestone\Entity\Character\ClassJob;
 use Lodestone\Exceptions\LodestoneNotFoundException;
 use Lodestone\Exceptions\LodestonePrivateException;
+use Lodestone\Game\ClassJobs;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
@@ -75,6 +77,7 @@ class LodestoneCharacterController extends AbstractController
             'FCM'  => in_array('FCM', $data),
             'PVP'  => in_array('PVP', $data),
             'MIMO' => in_array('MIMO', $data),
+            'CJ'   => in_array('CJ', $data)
         ];
 
         // response model
@@ -201,7 +204,7 @@ class LodestoneCharacterController extends AbstractController
             $response->FreeCompany = $api->freecompany()->get($fcId);
         }
 
-        // Free Company
+        // Minions / Mounts
         if ($content->MIMO) {
             try {
                 $response->Minions = $api->character()->minions($lodestoneId);
@@ -209,6 +212,32 @@ class LodestoneCharacterController extends AbstractController
             } catch (\Exception $e) {
                 $response->Minions = [];
                 $response->Mounts  = [];
+            }
+        }
+
+        // ClassJobs
+        if ($content->CJ) {
+            try {
+                $response->ClassJob = $api->character()->classjob($lodestoneId);
+
+                // look at this shit, pulled straight from lodestone parser :D
+                // thanks SE
+                $item = $response->Character->GearSet['Gear']['MainHand'];
+                $name = explode("'", $item->Category)[0];
+
+                // get class job id from the main-hand category name
+                $gd = ClassJobs::findGameData($name);
+
+                /** @var ClassJob $cj */
+                foreach ($response->ClassJob as $cj) {
+                    if ($cj->JobID === $gd->JobID) {
+                        $response->ActiveClassJob = clone $cj;
+                        break;
+                    }
+                }
+            } catch (\Exception $e) {
+                $response->ClassJob = [];
+                $response->ActiveClassJob = null;
             }
         }
 
