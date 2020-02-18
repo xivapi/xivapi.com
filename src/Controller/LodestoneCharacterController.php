@@ -212,7 +212,7 @@ class LodestoneCharacterController extends AbstractController
         // ClassJobs
         if ($content->CJ) {
             try {
-                $response->ClassJob = $api->character()->classjob($lodestoneId);
+                $response->ClassJob = $api->character()->classjobs($lodestoneId);
 
                 // look at this shit, pulled straight from lodestone parser :D
                 // thanks SE
