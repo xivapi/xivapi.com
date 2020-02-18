@@ -99,12 +99,6 @@ class LodestoneCharacterController extends AbstractController
         // ensure bio is UT8
         $response->Character->Bio = mb_convert_encoding($response->Character->Bio, 'UTF-8', 'UTF-8');
 
-        CharacterConverter::handle($response->Character);
-
-        if ($isExtended) {
-            LodestoneCharacter::extendCharacterData($response->Character);
-        }
-
         // Achievements
         if ($content->AC) {
             $achievements       = [];
@@ -269,6 +263,13 @@ class LodestoneCharacterController extends AbstractController
         if ($content->PVP && $pvpId) {
 
             $response->PvPTeam = $api->pvpteam()->get($pvpId);
+        }
+
+        // convert some shit
+        CharacterConverter::handle($response->Character);
+
+        if ($isExtended) {
+            LodestoneCharacter::extendCharacterData($response->Character);
         }
 
         // ensure IDs exist
