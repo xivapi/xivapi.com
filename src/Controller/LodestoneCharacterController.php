@@ -212,7 +212,7 @@ class LodestoneCharacterController extends AbstractController
         // ClassJobs
         if ($content->CJ) {
             try {
-                $response->ClassJob = $api->character()->classjobs($lodestoneId);
+                $response->Character->ClassJobs = $api->character()->classjobs($lodestoneId);
 
                 // look at this shit, pulled straight from lodestone parser :D
                 // thanks SE
@@ -223,15 +223,15 @@ class LodestoneCharacterController extends AbstractController
                 $gd = ClassJobs::findGameData($name);
 
                 /** @var ClassJob $cj */
-                foreach ($response->ClassJob as $cj) {
+                foreach ($response->Character->ClassJobs as $cj) {
                     if ($cj->JobID === $gd->JobID) {
-                        $response->ActiveClassJob = clone $cj;
+                        $response->Character->ActiveClassJob = clone $cj;
                         break;
                     }
                 }
             } catch (\Exception $e) {
-                $response->ClassJob = [];
-                $response->ActiveClassJob = null;
+                $response->Character->ClassJobs = [];
+                $response->Character->ActiveClassJob = null;
             }
         }
 
