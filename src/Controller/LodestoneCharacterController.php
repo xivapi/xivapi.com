@@ -119,9 +119,10 @@ class LodestoneCharacterController extends AbstractController
             if ($achievementsPublic && $first) {
                 $achievements = array_merge($achievements, $first->Achievements);
 
+                $api->config()->useAsync();
+
                 try {
                     // parse the rest of the pages
-                    $api->config()->useAsync();
                     foreach ([2, 3, 4, 5, 6, 8, 11, 12, 13] as $kindId) {
                         $api->config()->setRequestId("kind_{$kindId}");
                         $api->character()->achievements($lodestoneId, $kindId);
@@ -137,11 +138,11 @@ class LodestoneCharacterController extends AbstractController
                             ($res && is_object($res)) ? $res->Achievements : []
                         );
                     }
-
-                    $api->config()->useSync();
                 } catch (\Exception $ex) {
                     // ignore errors
                 }
+
+                $api->config()->useSync();
             }
 
             $response->Achievements = (Object)[
