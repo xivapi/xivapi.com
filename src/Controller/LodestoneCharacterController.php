@@ -119,25 +119,29 @@ class LodestoneCharacterController extends AbstractController
             if ($achievementsPublic && $first) {
                 $achievements = array_merge($achievements, $first->Achievements);
 
-                // parse the rest of the pages
-                $api->config()->useAsync();
-                foreach ([2, 3, 4, 5, 6, 8, 11, 12, 13] as $kindId) {
-                    $api->config()->setRequestId("kind_{$kindId}");
-                    $api->character()->achievements($lodestoneId, $kindId);
-                }
-
-                foreach ($api->http()->settle() as $res) {
-                    if (isset($res->Error)) {
-                        continue;
+                try {
+                    // parse the rest of the pages
+                    $api->config()->useAsync();
+                    foreach ([2, 3, 4, 5, 6, 8, 11, 12, 13] as $kindId) {
+                        $api->config()->setRequestId("kind_{$kindId}");
+                        $api->character()->achievements($lodestoneId, $kindId);
                     }
 
-                    $achievements = array_merge(
-                        $achievements,
-                        ($res && is_object($res)) ? $res->Achievements : []
-                    );
-                }
+                    foreach ($api->http()->settle() as $res) {
+                        if (isset($res->Error)) {
+                            continue;
+                        }
 
-                $api->config()->useSync();
+                        $achievements = array_merge(
+                            $achievements,
+                            ($res && is_object($res)) ? $res->Achievements : []
+                        );
+                    }
+
+                    $api->config()->useSync();
+                } catch (\Exception $ex) {
+                    // ignore errors
+                }
             }
 
             $response->Achievements = (Object)[
