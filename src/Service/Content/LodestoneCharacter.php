@@ -203,7 +203,7 @@ class LodestoneCharacter
         //
         // Active class job
         //
-        $data->ActiveClassJob->Class = $data->ActiveClassJob->ClassID ? self::extendCharacterDataHandlerSimple(
+        $data->ActiveClassJob->Class = $data->ActiveClassJob ? self::extendCharacterDataHandlerSimple(
             Redis::Cache()->get("xiv_ClassJob_{$data->ActiveClassJob->ClassID}"), [
                 'ID',
                 'Icon',
@@ -215,7 +215,7 @@ class LodestoneCharacter
             ]
         ) : null;
         
-        $data->ActiveClassJob->Job = $data->ActiveClassJob->JobID ? self::extendCharacterDataHandlerSimple(
+        $data->ActiveClassJob->Job = $data->ActiveClassJob ? self::extendCharacterDataHandlerSimple(
             Redis::Cache()->get("xiv_ClassJob_{$data->ActiveClassJob->JobID}"), [
                 'ID',
                 'Icon',
