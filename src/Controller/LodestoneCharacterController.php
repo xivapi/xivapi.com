@@ -123,7 +123,7 @@ class LodestoneCharacterController extends AbstractController
 
                 try {
                     // parse the rest of the pages
-                    foreach ([2, 3, 4, 5, 6, 8, 11, 12, 13] as $kindId) {
+                    foreach ([2, 3, 4, 5, 6, 8, 11, 12] as $kindId) {
                         $api->config()->setRequestId("kind_{$kindId}");
                         $api->character()->achievements($lodestoneId, $kindId);
                     }
@@ -143,6 +143,14 @@ class LodestoneCharacterController extends AbstractController
                 }
 
                 $api->config()->useSync();
+                
+                // Attempt for category 13
+                try {
+                    $cat13 = $api->character()->achievements($lodestoneId, 13);
+                    $achievements = array_merge($achievements, $cat13->Achievements);
+                } catch (\Exception $ex) {
+                    // ignore, might not have it
+                }
             }
 
             $response->Achievements = (Object)[
