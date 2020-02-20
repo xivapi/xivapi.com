@@ -203,27 +203,29 @@ class LodestoneCharacter
         //
         // Active class job
         //
-        $data->ActiveClassJob->Class = $data->ActiveClassJob ? self::extendCharacterDataHandlerSimple(
-            Redis::Cache()->get("xiv_ClassJob_{$data->ActiveClassJob->ClassID}"), [
-                'ID',
-                'Icon',
-                'Url',
-                'Name_[LANG]',
-                'Abbreviation_[LANG]',
-                'ClassJobCategory.ID',
-                'ClassJobCategory.Name_[LANG]',
-            ]
-        ) : null;
+        if ($data->ActiveClassJob) {
+            $data->ActiveClassJob->Class = self::extendCharacterDataHandlerSimple(
+                Redis::Cache()->get("xiv_ClassJob_{$data->ActiveClassJob->ClassID}"), [
+                    'ID',
+                    'Icon',
+                    'Url',
+                    'Name_[LANG]',
+                    'Abbreviation_[LANG]',
+                    'ClassJobCategory.ID',
+                    'ClassJobCategory.Name_[LANG]',
+                ]
+            );
+            $data->ActiveClassJob->Job = self::extendCharacterDataHandlerSimple(
+                Redis::Cache()->get("xiv_ClassJob_{$data->ActiveClassJob->JobID}"), [
+                    'ID',
+                    'Icon',
+                    'Url',
+                    'Name_[LANG]',
+                    'Abbreviation_[LANG]',
+                ]
+            );
+        }
         
-        $data->ActiveClassJob->Job = $data->ActiveClassJob ? self::extendCharacterDataHandlerSimple(
-            Redis::Cache()->get("xiv_ClassJob_{$data->ActiveClassJob->JobID}"), [
-                'ID',
-                'Icon',
-                'Url',
-                'Name_[LANG]',
-                'Abbreviation_[LANG]',
-            ]
-        ) : null;
         
         unset($data->ActiveClassJob->ClassID, $data->ActiveClassJob->JobID);
         
@@ -231,7 +233,7 @@ class LodestoneCharacter
         // Gear ClassJob
         //
         
-        $data->GearSet->Class = $data->GearSet->ClassID ? self::extendCharacterDataHandlerSimple(
+        $data->GearSet->Class = self::extendCharacterDataHandlerSimple(
             Redis::Cache()->get("xiv_ClassJob_{$data->GearSet->ClassID}"), [
                 'ID',
                 'Icon',
@@ -239,9 +241,8 @@ class LodestoneCharacter
                 'Name_[LANG]',
                 'Abbreviation_[LANG]',
             ]
-        ) : null;
-        
-        $data->GearSet->Job = $data->GearSet->JobID ? self::extendCharacterDataHandlerSimple(
+        );
+        $data->GearSet->Job = self::extendCharacterDataHandlerSimple(
             Redis::Cache()->get("xiv_ClassJob_{$data->GearSet->JobID}"), [
                 'ID',
                 'Icon',
@@ -249,8 +250,7 @@ class LodestoneCharacter
                 'Name_[LANG]',
                 'Abbreviation_[LANG]',
             ]
-        ) : null;
-        
+        );
         unset(
             $data->GearSet->ClassID,
             $data->GearSet->JobID
