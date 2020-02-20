@@ -203,7 +203,7 @@ class LodestoneCharacter
         //
         // Active class job
         //
-        $data->ActiveClassJob->Class = self::extendCharacterDataHandlerSimple(
+        $data->ActiveClassJob->Class = $data->ActiveClassJob->ClassID ? self::extendCharacterDataHandlerSimple(
             Redis::Cache()->get("xiv_ClassJob_{$data->ActiveClassJob->ClassID}"), [
                 'ID',
                 'Icon',
@@ -213,8 +213,9 @@ class LodestoneCharacter
                 'ClassJobCategory.ID',
                 'ClassJobCategory.Name_[LANG]',
             ]
-        );
-        $data->ActiveClassJob->Job = self::extendCharacterDataHandlerSimple(
+        ) : null;
+        
+        $data->ActiveClassJob->Job = $data->ActiveClassJob->JobID ? self::extendCharacterDataHandlerSimple(
             Redis::Cache()->get("xiv_ClassJob_{$data->ActiveClassJob->JobID}"), [
                 'ID',
                 'Icon',
@@ -222,7 +223,7 @@ class LodestoneCharacter
                 'Name_[LANG]',
                 'Abbreviation_[LANG]',
             ]
-        );
+        ) : null;
         
         unset($data->ActiveClassJob->ClassID, $data->ActiveClassJob->JobID);
         
@@ -230,7 +231,7 @@ class LodestoneCharacter
         // Gear ClassJob
         //
         
-        $data->GearSet->Class = self::extendCharacterDataHandlerSimple(
+        $data->GearSet->Class = $data->GearSet->ClassID ? self::extendCharacterDataHandlerSimple(
             Redis::Cache()->get("xiv_ClassJob_{$data->GearSet->ClassID}"), [
                 'ID',
                 'Icon',
@@ -238,8 +239,9 @@ class LodestoneCharacter
                 'Name_[LANG]',
                 'Abbreviation_[LANG]',
             ]
-        );
-        $data->GearSet->Job = self::extendCharacterDataHandlerSimple(
+        ) : null;
+        
+        $data->GearSet->Job = $data->GearSet->JobID ? self::extendCharacterDataHandlerSimple(
             Redis::Cache()->get("xiv_ClassJob_{$data->GearSet->JobID}"), [
                 'ID',
                 'Icon',
@@ -247,7 +249,8 @@ class LodestoneCharacter
                 'Name_[LANG]',
                 'Abbreviation_[LANG]',
             ]
-        );
+        ) : null;
+        
         unset(
             $data->GearSet->ClassID,
             $data->GearSet->JobID
