@@ -1050,5 +1050,24 @@
         "PatchNotes_ja": "",
         "ReleaseDate": 1582020000,
         "Version": "5.2"
+    },
+    {
+        "Banner": null,
+        "ID": 66,
+        "Url": "\/patch+5.21",
+        "ExVersion": 3,
+        "IsExpansion": false,
+        "Name_ja": "Patch 5.21",
+        "Name_en": "Patch 5.21",
+        "Name_fr": "Patch 5.21",
+        "Name_de": "Patch 5.21",
+        "Name_cn": "Patch 5.21",
+        "Name_kr": "Patch 5.21",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "",
+        "PatchNotes_fr": "",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1583798400,
+        "Version": "5.21"
     }
 ]
