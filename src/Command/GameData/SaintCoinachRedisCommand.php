@@ -80,6 +80,8 @@ class SaintCoinachRedisCommand extends Command
         $this->buildData();
         
         $this->endClock();
+
+        return 0;
     }
 
     /**
