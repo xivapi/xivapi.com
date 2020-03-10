@@ -24,8 +24,11 @@ class CharacterConverter
         //
         // ActiveClassJob
         //
-        unset($data->ActiveClassJob->ClassName);
-        unset($data->ActiveClassJob->JobName);
+        if ($data->ActiveClassJob) {
+            unset($data->ActiveClassJob->ClassName);
+            unset($data->ActiveClassJob->JobName);
+        }
+
     
         //
         // Misc
@@ -41,10 +44,11 @@ class CharacterConverter
         // Build gearset
         //
         $set = new \stdClass();
-        $set->GearKey    = "{$data->ActiveClassJob->ClassID}_{$data->ActiveClassJob->JobID}";
-        $set->ClassID    = $data->ActiveClassJob->ClassID;
-        $set->JobID      = $data->ActiveClassJob->JobID;
-        $set->Level      = $data->ActiveClassJob->Level;
+        $set->GearKey    = $data->ActiveClassJob ? "{$data->ActiveClassJob->ClassID}_{$data->ActiveClassJob->JobID}" : '';
+        $set->ClassID    = $data->ActiveClassJob->ClassID ?? null;
+        $set->JobID      = $data->ActiveClassJob->JobID ?? null;
+        $set->Level      = $data->ActiveClassJob->Level ?? null;
+
         $set->Gear       = new \stdClass();
         $set->Attributes = [];
     
@@ -92,11 +96,13 @@ class CharacterConverter
         //
         // ClassJobs
         //
-        foreach ($data->ClassJobs as $classJob) {
-            unset($classJob->ClassName);
-            unset($classJob->JobName);
+        if ($data->ClassJobs) {
+            foreach ($data->ClassJobs as $classJob) {
+                unset($classJob->ClassName);
+                unset($classJob->JobName);
+            }
         }
-    
+
         //
         // Grand Company
         //

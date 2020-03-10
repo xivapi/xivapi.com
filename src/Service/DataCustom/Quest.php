@@ -244,6 +244,12 @@ class Quest extends ManualHelper
         
         $paramGrow  = Redis::Cache()->get("xiv_ParamGrow_{$quest->ClassJobLevel0}");
         
+        $quest->ExperiencePoints = ($quest->ExpFactor * $paramGrow->ScaledQuestXP * $paramGrow->QuestExpModifier) / 100
+        
+        /*
+
+        ---Old---
+
         // CORE = Quest.ExpFactor * ParamGrow.QuestExpModifier * (45 + (5 * Quest.ClassJobLevel0)) / 100
         $EXP = $quest->ExpFactor * $paramGrow->QuestExpModifier * (45 + (5 * $quest->ClassJobLevel0)) / 100;
         
@@ -268,5 +274,6 @@ class Quest extends ManualHelper
         }
         
         $quest->ExperiencePoints = $EXP;
+        */
     }
 }

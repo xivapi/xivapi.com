@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterConverter;
 use Lodestone\Api;
+use Lodestone\Entity\Character\ClassJob;
 use Lodestone\Exceptions\LodestoneNotFoundException;
 use Lodestone\Exceptions\LodestonePrivateException;
+use Lodestone\Game\ClassJobs;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
@@ -75,6 +77,7 @@ class LodestoneCharacterController extends AbstractController
             'FCM'  => in_array('FCM', $data),
             'PVP'  => in_array('PVP', $data),
             'MIMO' => in_array('MIMO', $data),
+            'CJ'   => in_array('CJ', $data)
         ];
 
         // response model
@@ -96,12 +99,6 @@ class LodestoneCharacterController extends AbstractController
         // ensure bio is UT8
         $response->Character->Bio = mb_convert_encoding($response->Character->Bio, 'UTF-8', 'UTF-8');
 
-        CharacterConverter::handle($response->Character);
-
-        if ($isExtended) {
-            LodestoneCharacter::extendCharacterData($response->Character);
-        }
-
         // Achievements
         if ($content->AC) {
             $achievements       = [];
@@ -122,25 +119,35 @@ class LodestoneCharacterController extends AbstractController
             if ($achievementsPublic && $first) {
                 $achievements = array_merge($achievements, $first->Achievements);
 
-                // parse the rest of the pages
                 $api->config()->useAsync();
-                foreach ([2, 3, 4, 5, 6, 8, 11, 12, 13] as $kindId) {
-                    $api->config()->setRequestId("kind_{$kindId}");
-                    $api->character()->achievements($lodestoneId, $kindId);
-                }
 
-                foreach ($api->http()->settle() as $res) {
-                    if (isset($res->Error)) {
-                        continue;
+                try {
+                    // parse the rest of the pages
+                    foreach ([2, 3, 4, 5, 6, 8, 11, 12] as $kindId) {
+                        $api->config()->setRequestId("kind_{$kindId}");
+                        $api->character()->achievements($lodestoneId, $kindId);
                     }
 
-                    $achievements = array_merge(
-                        $achievements,
-                        ($res && is_object($res)) ? $res->Achievements : []
-                    );
+                    foreach ($api->http()->settle() as $res) {
+                        if (isset($res->Error)) {
+                            continue;
+                        }
+
+                        $achievements = array_merge($achievements, $res->Achievements);
+                    }
+                } catch (\Exception $ex) {
+                    // ignore errors
                 }
 
                 $api->config()->useSync();
+                
+                // Attempt for category 13
+                try {
+                    $cat13 = $api->character()->achievements($lodestoneId, 13);
+                    $achievements = array_merge($achievements, $cat13->Achievements);
+                } catch (\Exception $ex) {
+                    // ignore, might not have it
+                }
             }
 
             $response->Achievements = (Object)[
@@ -201,7 +208,7 @@ class LodestoneCharacterController extends AbstractController
             $response->FreeCompany = $api->freecompany()->get($fcId);
         }
 
-        // Free Company
+        // Minions / Mounts
         if ($content->MIMO) {
             try {
                 $response->Minions = $api->character()->minions($lodestoneId);
@@ -209,6 +216,32 @@ class LodestoneCharacterController extends AbstractController
             } catch (\Exception $e) {
                 $response->Minions = [];
                 $response->Mounts  = [];
+            }
+        }
+
+        // ClassJobs
+        if ($content->CJ) {
+            try {
+                $response->Character->ClassJobs = $api->character()->classjobs($lodestoneId);
+
+                // look at this shit, pulled straight from lodestone parser :D
+                // thanks SE
+                $item = $response->Character->GearSet['Gear']['MainHand'];
+                $name = explode("'", $item->Category)[0];
+
+                // get class job id from the main-hand category name
+                $gd = ClassJobs::findGameData($name);
+
+                /** @var ClassJob $cj */
+                foreach ($response->Character->ClassJobs as $cj) {
+                    if ($cj->JobID === $gd->JobID) {
+                        $response->Character->ActiveClassJob = clone $cj;
+                        break;
+                    }
+                }
+            } catch (\Exception $e) {
+                $response->Character->ClassJobs = [];
+                $response->Character->ActiveClassJob = null;
             }
         }
 
@@ -240,6 +273,13 @@ class LodestoneCharacterController extends AbstractController
         if ($content->PVP && $pvpId) {
 
             $response->PvPTeam = $api->pvpteam()->get($pvpId);
+        }
+
+        // convert some shit
+        CharacterConverter::handle($response->Character);
+
+        if ($isExtended) {
+            LodestoneCharacter::extendCharacterData($response->Character);
         }
 
         // ensure IDs exist

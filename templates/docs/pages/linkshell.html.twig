@@ -12,11 +12,17 @@
     {# Search #}
     {{ docs.api('/linkshell/search', '/linkshell/search?name=[name]&server=[server]', 'search') }}
 
+    {# Search Cross World #}
+    {{ docs.api('/linkshell/crossworld/search', '/linkshell/crossworld/search?name=[name]', 'search') }}
+
     {{ docs.commonParamsSearch() }}
 
     {{ docs.gap() }}
 
     {# GET #}
     {{ docs.api('/linkshell/[lodestone_id]', '/linkshell/19984723346535274', 'linkshell') }}
+
+    {# GET Cross World #}
+    {{ docs.api('/linkshell/crossworld/[lodestone_id]', '/linkshell/crossworld/6f6535dd4930828a64c5e0c663eebc5fc7feb2ba', 'linkshell') }}
 
 {% endblock %}
