@@ -134,6 +134,11 @@ class SaintCoinachRedisCommand extends Command
             if ($contentName == 'Level') {
                 continue;
             }
+            
+            // skip HWDIntroduction because somehow it doesn't get generated properly and nobody cares so whatever
+            if ($contentName == 'HWDIntroduction') {
+                continue;
+            }
     
             $this->maxDepth = $contentName == 'ENpcBase' ? 1 : self::MAX_DEPTH;
             
