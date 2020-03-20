@@ -5,7 +5,7 @@ namespace App\Service\DataCustom;
 use App\Service\Content\ManualHelper;
 use App\Common\Service\Redis\Redis;
 
-class Orchestrion extends ManualHelper
+class GatheringPoint extends ManualHelper
 {
     const PRIORITY = 21;
     
