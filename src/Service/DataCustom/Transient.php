@@ -29,7 +29,7 @@ class Transient extends ManualHelper
         #'PvPSelectTrait',
         'QuickChat',
         'Stain',
-        #'TerritoryType',
+        'TerritoryType',
         'Trait',
     ];
 
