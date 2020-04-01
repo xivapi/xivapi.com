@@ -54,7 +54,7 @@ class MappyController extends AbstractController
     /**
      * Gets data for an entire map inside Mappy and returns it as JSON
      *
-     * @Route("/mappy/map/{id}", name="mappy_data_map")
+     * @Route("/mappy/map/{mapId}", name="mappy_data_map")
      */   
     public function getMap(int $mapId) 
     {
