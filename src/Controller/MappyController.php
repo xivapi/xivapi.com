@@ -74,7 +74,7 @@ class MappyController extends AbstractController
             return $this->json($response);
         }
         
-        $response['saved'] = $this->mappy->save($json);
+        $response['output'] = $this->mappy->save($json);
         
         return $this->json($response);
     }

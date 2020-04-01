@@ -69,7 +69,9 @@ class Mappy
                 ->setPosY($pos->PosY)
                 ->setPosZ($pos->PosZ)
                 ->setPixelX($pos->PixelX)
-                ->setPixelY($pos->PixelY);
+                ->setPixelY($pos->PixelY)
+                ->setHP($pos->HP)
+                ->setLevel($pos->Level);
 
             try {
                 $this->em->persist($obj);
