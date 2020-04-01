@@ -24,9 +24,9 @@ class Mappy
         return $this->repository;
     }
 
-    public function getByMap(int $mapId) 
+    public function getByMap(int $mapId)
     {
-        return array_map('toArray', $this->repository->findBy(['MapID' => $mapId]));
+        return $this->repository->findBy(['MapID' => $mapId]);
     }
     
     /**

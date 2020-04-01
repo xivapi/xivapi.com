@@ -26,108 +26,108 @@ class MapPosition
      * @ORM\Id
      * @ORM\Column(type="guid")
      */
-    private $ID;
+    public $ID;
     /**
      * @var string
      * @ORM\Column(type="string", length=64, unique=true)
      */
-    private $Hash;
+    public $Hash;
     /**
      * @var int
      * @ORM\Column(type="integer")
      */
-    private $Added;
+    public $Added;
     /**
      * @var string
      * @ORM\Column(type="string", length=32)
      */
-    private $BNpcNameID;
+    public $BNpcNameID;
     /**
      * @var string
      * @ORM\Column(type="string", length=32)
      */
-    private $BNpcBaseID;
+    public $BNpcBaseID;
     /**
      * Possible values: Node, BNPC
      * @var string
      * @ORM\Column(type="string", length=32)
      */
-    private $Type;
+    public $Type;
     /**
      * @var int
      * @ORM\Column(type="integer", length=12)
      */
-    private $MapID;
+    public $MapID;
     /**
      * @var int
      * @ORM\Column(type="integer", length=12)
      */
-    private $FateID;
+    public $FateID;
     /**
      * @var int
      * @ORM\Column(type="integer", length=12)
      */
-    private $NodeID;
+    public $NodeID;
     /**
      * @var int
      * @ORM\Column(type="integer", length=12)
      */
-    private $MapTerritoryID;
+    public $MapTerritoryID;
     /**
      * @var int
      * @ORM\Column(type="integer", length=12)
      */
-    private $PlaceNameID;
+    public $PlaceNameID;
     /**
      * @var float
      * @ORM\Column(type="float")
      */
-    private $CoordinateX;
+    public $CoordinateX;
     /**
      * @var float
      * @ORM\Column(type="float")
      */
-    private $CoordinateY;
+    public $CoordinateY;
     /**
      * @var float
      * @ORM\Column(type="float")
      */
-    private $CoordinateZ;
+    public $CoordinateZ;
     /**
      * @var float
      * @ORM\Column(type="float")
      */
-    private $PosX;
+    public $PosX;
     /**
      * @var float
      * @ORM\Column(type="float")
      */
-    private $PosY;
+    public $PosY;
     /**
      * @var float
      * @ORM\Column(type="float")
      */
-    private $PosZ;
+    public $PosZ;
     /**
      * @var int
      * @ORM\Column(type="integer")
      */
-    private $PixelX;
+    public $PixelX;
     /**
      * @var int
      * @ORM\Column(type="integer")
      */
-    private $PixelY;
+    public $PixelY;
     /**
      * @var int
      * @ORM\Column(type="integer")
      */
-    private $HP;
+    public $HP;
     /**
      * @var int
      * @ORM\Column(type="integer")
      */
-    private $Level;
+    public $Level;
     
     public function __construct()
     {
