@@ -48,7 +48,7 @@ class Mappy
         }
         
         // Step 2
-        foreach ($positions as $i => $pos) {
+        foreach ($positions as $pos) {
             $hash = $this->getPositionHash($pos);
             
             $existingObj = $this->repository->findOneBy(['Hash' => $hash]);
