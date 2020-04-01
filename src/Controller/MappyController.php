@@ -52,6 +52,17 @@ class MappyController extends AbstractController
     }
 
     /**
+     * Gets data for an entire map inside Mappy and returns it as JSON
+     *
+     * @Route("/mappy/map/{id}", name="mappy_data_map")
+     */   
+    public function getMap(int $mapId) 
+    {
+        $entries = $this->repository->findBy(['MapID' => $mapId]);
+        return $this->json($entries);
+    }
+
+    /**
      * @Route("/mappy/submit", name="mappy_submit")
      */
     public function submit(Request $request)
@@ -89,10 +100,6 @@ class MappyController extends AbstractController
                 
             case 'map_data':
                 $repository = $this->mappy->getMapPositionRepository();
-                break;
-                
-            case 'memory_data':
-                $repository = $this->mappy->getMemoryDataRepository();
                 break;
         }
     

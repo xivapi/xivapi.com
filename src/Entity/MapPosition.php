@@ -11,11 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
  *     name="map_positions",
  *     indexes={
  *          @ORM\Index(name="map_id", columns={"map_id"}),
- *          @ORM\Index(name="map_index", columns={"map_index"}),
  *          @ORM\Index(name="map_territory_id", columns={"map_territory_id"}),
+ *          @ORM\Index(name="node_id", columns={"node_id"}),
  *          @ORM\Index(name="place_name_id", columns={"place_name_id"}),
- *          @ORM\Index(name="content_index", columns={"content_index"}),
- *          @ORM\Index(name="managed", columns={"managed"}),
  *          @ORM\Index(name="added", columns={"added"})
  *     }
  * )
@@ -41,16 +39,6 @@ class MapPosition
     private $Added;
     /**
      * @var string
-     * @ORM\Column(type="string", length=4)
-     */
-    private $ContentIndex;
-    /**
-     * @var string
-     * @ORM\Column(type="string", length=32)
-     */
-    private $ENpcResidentID;
-    /**
-     * @var string
      * @ORM\Column(type="string", length=32)
      */
     private $BNpcNameID;
@@ -60,11 +48,7 @@ class MapPosition
      */
     private $BNpcBaseID;
     /**
-     * @var string
-     * @ORM\Column(type="string", length=64)
-     */
-    private $Name;
-    /**
+     * Possible values: Node, BNPC
      * @var string
      * @ORM\Column(type="string", length=32)
      */
@@ -78,7 +62,12 @@ class MapPosition
      * @var int
      * @ORM\Column(type="integer", length=12)
      */
-    private $MapIndex;
+    private $FateID;
+    /**
+     * @var int
+     * @ORM\Column(type="integer", length=12)
+     */
+    private $NodeID;
     /**
      * @var int
      * @ORM\Column(type="integer", length=12)
@@ -115,6 +104,11 @@ class MapPosition
      */
     private $PosY;
     /**
+     * @var float
+     * @ORM\Column(type="float")
+     */
+    private $PosZ;
+    /**
      * @var int
      * @ORM\Column(type="integer")
      */
@@ -125,10 +119,15 @@ class MapPosition
      */
     private $PixelY;
     /**
-     * @var bool
-     * @ORM\Column(type="boolean", options={"default" : 0})
+     * @var int
+     * @ORM\Column(type="integer")
      */
-    private $Managed = false;
+    private $HP;
+    /**
+     * @var int
+     * @ORM\Column(type="integer")
+     */
+    private $Level;
     
     public function __construct()
     {
@@ -140,14 +139,14 @@ class MapPosition
     {
         return [
             'Hash'              => $this->Hash,
-            'ContentIndex'      => $this->ContentIndex,
-            'ENpcResidentID'    => $this->ENpcResidentID,
+            'NodeID'            => $this->NodeID,
             'BNpcNameID'        => $this->BNpcNameID,
             'BNpcBaseID'        => $this->BNpcBaseID,
-            'Name'              => $this->Name,
             'Type'              => $this->Type,
             'MapID'             => $this->MapID,
-            'MapIndex'          => $this->MapIndex,
+            'FateID'            => $this->FateID,
+            'HP'                => $this->HP,
+            'Level'             => $this->Level,
             'MapTerritoryID'    => $this->MapTerritoryID,
             'PlaceNameID'       => $this->PlaceNameID,
             'CoordinateX'       => $this->CoordinateX,
@@ -155,240 +154,513 @@ class MapPosition
             'CoordinateZ'       => $this->CoordinateZ,
             'PosX'              => $this->PosX,
             'PosY'              => $this->PosY,
+            'PosZ'              => $this->PosZ,
             'PixelX'            => $this->PixelX,
-            'PixelY'            => $this->PixelY,
-            'Managed'           => $this->Managed,
+            'PixelY'            => $this->PixelY
         ];
     }
-    
-    public function getID(): string
+
+    /**
+     * Get the value of ID
+     *
+     * @return  string
+     */ 
+    public function getID()
     {
         return $this->ID;
     }
-    
+
+    /**
+     * Set the value of ID
+     *
+     * @param  string  $ID
+     *
+     * @return  self
+     */ 
     public function setID(string $ID)
     {
         $this->ID = $ID;
+
         return $this;
     }
-    
-    public function getHash(): string
+
+    /**
+     * Get the value of Hash
+     *
+     * @return  string
+     */ 
+    public function getHash()
     {
         return $this->Hash;
     }
-    
+
+    /**
+     * Set the value of Hash
+     *
+     * @param  string  $Hash
+     *
+     * @return  self
+     */ 
     public function setHash(string $Hash)
     {
         $this->Hash = $Hash;
+
         return $this;
     }
-    
-    public function getAdded(): int
+
+    /**
+     * Get the value of Added
+     *
+     * @return  int
+     */ 
+    public function getAdded()
     {
         return $this->Added;
     }
-    
+
+    /**
+     * Set the value of Added
+     *
+     * @param  int  $Added
+     *
+     * @return  self
+     */ 
     public function setAdded(int $Added)
     {
         $this->Added = $Added;
+
         return $this;
     }
-    
-    public function getContentIndex(): string
-    {
-        return $this->ContentIndex;
-    }
-    
-    public function setContentIndex(string $ContentIndex)
-    {
-        $this->ContentIndex = $ContentIndex;
-        return $this;
-    }
-    
-    public function getENpcResidentID(): string
-    {
-        return $this->ENpcResidentID;
-    }
-    
-    public function setENpcResidentID(string $ENpcResidentID)
-    {
-        $this->ENpcResidentID = $ENpcResidentID;
-        return $this;
-    }
-    
-    public function getBNpcNameID(): string
+
+    /**
+     * Get the value of BNpcNameID
+     *
+     * @return  string
+     */ 
+    public function getBNpcNameID()
     {
         return $this->BNpcNameID;
     }
-    
+
+    /**
+     * Set the value of BNpcNameID
+     *
+     * @param  string  $BNpcNameID
+     *
+     * @return  self
+     */ 
     public function setBNpcNameID(string $BNpcNameID)
     {
         $this->BNpcNameID = $BNpcNameID;
+
         return $this;
     }
-    
-    public function getBNpcBaseID(): string
+
+    /**
+     * Get the value of BNpcBaseID
+     *
+     * @return  string
+     */ 
+    public function getBNpcBaseID()
     {
         return $this->BNpcBaseID;
     }
-    
+
+    /**
+     * Set the value of BNpcBaseID
+     *
+     * @param  string  $BNpcBaseID
+     *
+     * @return  self
+     */ 
     public function setBNpcBaseID(string $BNpcBaseID)
     {
         $this->BNpcBaseID = $BNpcBaseID;
+
         return $this;
     }
-    
-    public function getName(): string
-    {
-        return $this->Name;
-    }
-    
-    public function setName(string $Name)
-    {
-        $this->Name = $Name;
-        return $this;
-    }
-    
-    public function getType(): string
+
+    /**
+     * Get the value of Type
+     *
+     * @return  string
+     */ 
+    public function getType()
     {
         return $this->Type;
     }
-    
+
+    /**
+     * Set the value of Type
+     *
+     * @param  string  $Type
+     *
+     * @return  self
+     */ 
     public function setType(string $Type)
     {
         $this->Type = $Type;
+
         return $this;
     }
-    
-    public function getMapID(): int
+
+    /**
+     * Get the value of MapID
+     *
+     * @return  int
+     */ 
+    public function getMapID()
     {
         return $this->MapID;
     }
-    
+
+    /**
+     * Set the value of MapID
+     *
+     * @param  int  $MapID
+     *
+     * @return  self
+     */ 
     public function setMapID(int $MapID)
     {
         $this->MapID = $MapID;
+
         return $this;
     }
-    
-    public function getMapIndex(): int
+
+    /**
+     * Get the value of FateID
+     *
+     * @return  int
+     */ 
+    public function getFateID()
     {
-        return $this->MapIndex;
+        return $this->FateID;
     }
-    
-    public function setMapIndex(int $MapIndex)
+
+    /**
+     * Set the value of FateID
+     *
+     * @param  int  $FateID
+     *
+     * @return  self
+     */ 
+    public function setFateID(int $FateID)
     {
-        $this->MapIndex = $MapIndex;
+        $this->FateID = $FateID;
+
         return $this;
     }
-    
-    public function getMapTerritoryID(): int
+
+    /**
+     * Get the value of MapTerritoryID
+     *
+     * @return  int
+     */ 
+    public function getMapTerritoryID()
     {
         return $this->MapTerritoryID;
     }
-    
+
+    /**
+     * Set the value of MapTerritoryID
+     *
+     * @param  int  $MapTerritoryID
+     *
+     * @return  self
+     */ 
     public function setMapTerritoryID(int $MapTerritoryID)
     {
         $this->MapTerritoryID = $MapTerritoryID;
+
         return $this;
     }
-    
-    public function getPlaceNameID(): int
+
+    /**
+     * Get the value of PlaceNameID
+     *
+     * @return  int
+     */ 
+    public function getPlaceNameID()
     {
         return $this->PlaceNameID;
     }
-    
+
+    /**
+     * Set the value of PlaceNameID
+     *
+     * @param  int  $PlaceNameID
+     *
+     * @return  self
+     */ 
     public function setPlaceNameID(int $PlaceNameID)
     {
         $this->PlaceNameID = $PlaceNameID;
+
         return $this;
     }
-    
-    public function getCoordinateX(): float
+
+    /**
+     * Get the value of CoordinateX
+     *
+     * @return  float
+     */ 
+    public function getCoordinateX()
     {
         return $this->CoordinateX;
     }
-    
+
+    /**
+     * Set the value of CoordinateX
+     *
+     * @param  float  $CoordinateX
+     *
+     * @return  self
+     */ 
     public function setCoordinateX(float $CoordinateX)
     {
         $this->CoordinateX = $CoordinateX;
+
         return $this;
     }
-    
-    public function getCoordinateY(): float
+
+    /**
+     * Get the value of CoordinateY
+     *
+     * @return  float
+     */ 
+    public function getCoordinateY()
     {
         return $this->CoordinateY;
     }
-    
+
+    /**
+     * Set the value of CoordinateY
+     *
+     * @param  float  $CoordinateY
+     *
+     * @return  self
+     */ 
     public function setCoordinateY(float $CoordinateY)
     {
         $this->CoordinateY = $CoordinateY;
+
         return $this;
     }
-    
-    public function getCoordinateZ(): float
+
+    /**
+     * Get the value of CoordinateZ
+     *
+     * @return  float
+     */ 
+    public function getCoordinateZ()
     {
         return $this->CoordinateZ;
     }
-    
+
+    /**
+     * Set the value of CoordinateZ
+     *
+     * @param  float  $CoordinateZ
+     *
+     * @return  self
+     */ 
     public function setCoordinateZ(float $CoordinateZ)
     {
         $this->CoordinateZ = $CoordinateZ;
+
         return $this;
     }
-    
-    public function getPosX(): float
+
+    /**
+     * Get the value of PosX
+     *
+     * @return  float
+     */ 
+    public function getPosX()
     {
         return $this->PosX;
     }
-    
+
+    /**
+     * Set the value of PosX
+     *
+     * @param  float  $PosX
+     *
+     * @return  self
+     */ 
     public function setPosX(float $PosX)
     {
         $this->PosX = $PosX;
+
         return $this;
     }
-    
-    public function getPosY(): float
+
+    /**
+     * Get the value of PosY
+     *
+     * @return  float
+     */ 
+    public function getPosY()
     {
         return $this->PosY;
     }
-    
+
+    /**
+     * Set the value of PosY
+     *
+     * @param  float  $PosY
+     *
+     * @return  self
+     */ 
     public function setPosY(float $PosY)
     {
         $this->PosY = $PosY;
+
         return $this;
     }
-    
-    public function getPixelX(): int
+
+    /**
+     * Get the value of PosZ
+     *
+     * @return  float
+     */ 
+    public function getPosZ()
+    {
+        return $this->PosZ;
+    }
+
+    /**
+     * Set the value of PosZ
+     *
+     * @param  float  $PosZ
+     *
+     * @return  self
+     */ 
+    public function setPosZ(float $PosZ)
+    {
+        $this->PosZ = $PosZ;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of PixelX
+     *
+     * @return  int
+     */ 
+    public function getPixelX()
     {
         return $this->PixelX;
     }
-    
+
+    /**
+     * Set the value of PixelX
+     *
+     * @param  int  $PixelX
+     *
+     * @return  self
+     */ 
     public function setPixelX(int $PixelX)
     {
         $this->PixelX = $PixelX;
+
         return $this;
     }
-    
-    public function getPixelY(): int
+
+    /**
+     * Get the value of PixelY
+     *
+     * @return  int
+     */ 
+    public function getPixelY()
     {
         return $this->PixelY;
     }
-    
+
+    /**
+     * Set the value of PixelY
+     *
+     * @param  int  $PixelY
+     *
+     * @return  self
+     */ 
     public function setPixelY(int $PixelY)
     {
         $this->PixelY = $PixelY;
+
         return $this;
     }
 
-    public function getManaged()
+    /**
+     * Get the value of HP
+     *
+     * @return  int
+     */ 
+    public function getHP()
     {
-        return $this->Managed;
+        return $this->HP;
     }
 
-    public function setManaged($Managed)
+    /**
+     * Set the value of HP
+     *
+     * @param  int  $HP
+     *
+     * @return  self
+     */ 
+    public function setHP(int $HP)
     {
-        $this->Managed = $Managed;
+        $this->HP = $HP;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of Level
+     *
+     * @return  int
+     */ 
+    public function getLevel()
+    {
+        return $this->Level;
+    }
+
+    /**
+     * Set the value of Level
+     *
+     * @param  int  $Level
+     *
+     * @return  self
+     */ 
+    public function setLevel(int $Level)
+    {
+        $this->Level = $Level;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of NodeID
+     *
+     * @return  int
+     */ 
+    public function getNodeID()
+    {
+        return $this->NodeID;
+    }
+
+    /**
+     * Set the value of NodeID
+     *
+     * @param  int  $NodeID
+     *
+     * @return  self
+     */ 
+    public function setNodeID(int $NodeID)
+    {
+        $this->NodeID = $NodeID;
+
         return $this;
     }
 }
