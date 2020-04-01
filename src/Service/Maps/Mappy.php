@@ -34,15 +34,6 @@ class Mappy
      */
     public function save(array $positions)
     {
-        // remove some entries
-        foreach ($positions as $i => $pos) {
-            if ($pos->MapID == 0) {
-                unset($positions[$i]);
-            }
-        }
-
-        $positions = array_values($positions);
-
         if (empty($positions)) {
             return;
         }
