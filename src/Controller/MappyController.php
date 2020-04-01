@@ -58,7 +58,7 @@ class MappyController extends AbstractController
      */   
     public function getMap(int $mapId) 
     {
-        $entries = $this->repository->findBy(['MapID' => $mapId]);
+        $entries = $this->mappy->getByMap($mapId);
         return $this->json($entries);
     }
 

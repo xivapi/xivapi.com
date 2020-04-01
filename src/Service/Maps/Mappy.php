@@ -23,6 +23,11 @@ class Mappy
     {
         return $this->repository;
     }
+
+    public function getByMap(int $mapId) 
+    {
+        return $this->repository->findBy(['MapID' => $mapId]);
+    }
     
     /**
      * Save some positions
