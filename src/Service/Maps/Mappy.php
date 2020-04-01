@@ -118,7 +118,6 @@ class Mappy
         $yPos = implode('', $yPos);
         
         return sha1(implode('',[
-            $pos->Index,
             $pos->NodeID,
             $pos->BNpcNameID,
             $pos->BNpcBaseID,
