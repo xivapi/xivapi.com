@@ -63,6 +63,17 @@ class MappyController extends AbstractController
     }
 
     /**
+     * Gets all mappy data as a giant json array
+     *
+     * @Route("/mappy/json", name="mappy_data_full_json")
+     */   
+    public function getFullData() 
+    {
+        $entries = $this->mappy->getFullData();
+        return $this->json($entries);
+    }
+
+    /**
      * @Route("/mappy/submit", name="mappy_submit")
      */
     public function submit(Request $request)

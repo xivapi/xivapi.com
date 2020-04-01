@@ -28,6 +28,11 @@ class Mappy
     {
         return $this->repository->findBy(['MapID' => $mapId]);
     }
+
+    public function getFullData()
+    {
+        return $this->repository->findAll();
+    }
     
     /**
      * Save some positions
