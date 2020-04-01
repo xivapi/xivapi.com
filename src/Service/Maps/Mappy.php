@@ -37,6 +37,8 @@ class Mappy
         if (empty($positions)) {
             return;
         }
+
+        $saved = 0;
         
         // Step 2
         foreach ($positions as $pos) {
@@ -72,12 +74,14 @@ class Mappy
             try {
                 $this->em->persist($obj);
                 $this->em->flush();
+                $saved++;
             } catch (\Exception $e) {
                 // ignore
                 return $e->getMessage();
             }
 
         }
+        return $saved;
     }
     
     private function getPositionHash($pos)
