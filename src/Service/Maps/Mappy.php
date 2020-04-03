@@ -92,32 +92,12 @@ class Mappy
     }
     
     private function getPositionHash($pos)
-    {
-        // this makes sure positions are spaced around that are close to each other
-        $decimalToSpacer = [
-            0 => 0,
-            1 => 0,
-            2 => 1,
-            3 => 1,
-            4 => 2,
-            5 => 2,
-            6 => 3,
-            7 => 3,
-            8 => 4,
-            9 => 4,
-        ];
-        
+    {        
         $xPos = 1;
         $yPos = 1;
 
-        $xPos = explode('.', $pos->PosX);
-        $xPos[1] = $decimalToSpacer[$xPos[1][0] ?? 0];
-
-        $xPos = implode('', $xPos);
-        $yPos = explode('.', $pos->PosY);
-
-        $yPos[1] = $decimalToSpacer[$yPos[1][0] ?? 0];
-        $yPos = implode('', $yPos);
+        $xPos = explode('.', $pos->PosX)[0];
+        $yPos = explode('.', $pos->PosY)[0];
         
         return sha1(implode('',[
             $pos->NodeID,
