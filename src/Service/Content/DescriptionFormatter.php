@@ -274,7 +274,7 @@ class DescriptionFormatter
         // if node type an inline html, use that value
         else if ($stmt->nodeType == 'Stmt_InlineHTML')
         {
-            $stmt = trim($stmt->value);
+            $stmt = nl2br($stmt->value);
         }
         // if no statements, return empty
         else if (empty($stmt->stmts))
