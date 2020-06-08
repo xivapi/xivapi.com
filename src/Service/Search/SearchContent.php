@@ -35,6 +35,7 @@ class SearchContent
         'BuddyEquip',
         'Orchestrion',
         'PlaceName',
+        'Map',
         'Weather',
         'World',
         
