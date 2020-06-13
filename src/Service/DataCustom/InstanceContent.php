@@ -88,6 +88,12 @@ class InstanceContent extends ManualHelper
         $instanceContent->Description_ja = $descriptions->Description_ja;
         $instanceContent->Description_de = $descriptions->Description_de;
         $instanceContent->Description_fr = $descriptions->Description_fr;
+
+        // Names
+        $instanceContent->Name_en = $instanceContent->ContentFinderCondition->Name_en;
+        $instanceContent->Name_ja = $instanceContent->ContentFinderCondition->Name_ja;
+        $instanceContent->Name_de = $instanceContent->ContentFinderCondition->Name_de;
+        $instanceContent->Name_fr = $instanceContent->ContentFinderCondition->Name_fr;
         
         // Content Member Type
         $instanceContent->ContentMemberType = $instanceContent->ContentFinderCondition->ContentMemberType;
