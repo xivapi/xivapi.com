@@ -222,8 +222,12 @@ class LodestoneCharacterController extends AbstractController
         // ClassJobs
         if ($content->CJ) {
             try {
-                $response->Character->ClassJobs = $api->character()->classjobs($lodestoneId);
-
+                $classjobs = $api->character()->classjobs($lodestoneId);
+    
+                $response->Character->ClassJobs = $classjobs['classjobs'];
+                $response->Character->ClassJobsElemental = $classjobs['elemental'];
+                
+                
                 // look at this shit, pulled straight from lodestone parser :D
                 // thanks SE
                 $item = $response->Character->GearSet['Gear']['MainHand'];
