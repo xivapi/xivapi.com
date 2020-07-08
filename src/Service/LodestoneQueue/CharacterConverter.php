@@ -124,7 +124,14 @@ class CharacterConverter
             unset($data->GrandCompany->Rank);
             unset($data->GrandCompany->Icon);
         }
+    }
     
+    /**
+     * This isn't in use but could be good to reduce payload
+     */
+    public static function handleMinionMounts($data)
+    {
+        /*
         //
         // Minions and Mounts
         //
@@ -154,5 +161,6 @@ class CharacterConverter
     
         $data->Minions = array_values(array_unique($data->Minions));
         $data->Mounts = array_values(array_unique($data->Mounts));
+        */
     }
 }
