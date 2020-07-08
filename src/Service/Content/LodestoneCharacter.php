@@ -331,63 +331,6 @@ class LodestoneCharacter
             
             unset($gear->ID);
         }
-        
-        //
-        // Minions and Mounts
-        //
-        foreach ($data->Minions as $i => $minionId) {
-            $data->Minions[$i] = self::extendCharacterDataHandlerSimple(
-                Redis::Cache()->get("xiv_Companion_{$minionId}"), [
-                    'ID',
-                    'Icon',
-                    'IconSmall',
-                    'Url',
-                    'Name_[LANG]',
-                ]
-            );
-        }
-        foreach ($data->Mounts as $i => $mountsId) {
-            $data->Mounts[$i] = self::extendCharacterDataHandlerSimple(
-                Redis::Cache()->get("xiv_Mount_{$mountsId}"), [
-                    'ID',
-                    'Icon',
-                    'IconSmall',
-                    'Url',
-                    'Name_[LANG]',
-                ]
-            );
-        }
-        
-        //
-        // STATZ
-        //
-        
-        if (!$totals = Redis::Cache()->get(__METHOD__.'_MIN_MNT_COUNT')) {
-            $totalMinions = 0;
-            $totalMounts  = 0;
-            foreach (Redis::Cache()->get("ids_Companion") as $id) {
-                $content = Redis::Cache()->get("xiv_Companion_{$id}");
-                if ($content->IconID > 0) {
-                    $totalMinions++;
-                }
-            }
-            foreach (Redis::Cache()->get("ids_Mount") as $id) {
-                $content = Redis::Cache()->get("xiv_Mount_{$id}");
-                if ($content->IconID > 0) {
-                    $totalMounts++;
-                }
-            }
-            
-            $totals = [$totalMinions, $totalMounts];
-            Redis::Cache()->set(__METHOD__.'_MIN_MNT_COUNT', $totals, (60*60*24));
-        }
-        
-        $data->MinionsTotal    = $totals[0];
-        $data->MinionsCount    = count($data->Minions);
-        $data->MinionsProgress = $data->MinionsCount > 0 ? round($data->MinionsCount / $data->MinionsTotal, 3) * 100 : 0;
-        $data->MountsTotal     = $totals[1];
-        $data->MountsCount     = count($data->Mounts);
-        $data->MountsProgress  = $data->MountsCount > 0 ? round($data->MountsCount / $data->MountsTotal, 3) * 100 : 0;
     }
     
     public static function extendAchievementData($achievements)
