@@ -12,6 +12,7 @@ use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
 use Companion\Http\Cookies;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CompanionTokenManager
@@ -20,7 +21,8 @@ class CompanionTokenManager
      * Current servers that are offline due to character restrictions
      */
     const SERVERS_OFFLINE = [
-        1,2,3,4,5,6,9,12,14,17,22,23,26,27,29,30,32,38,39,45,48,49,51,54,55,56,57,58,60,61,62,64,
+        // JP Servers
+        1,2,3,4,5,6,9,12,14,17,22,23,26,27,29,30,32,38,39,45,48,49,51,54,55,56,57,58,60,61,62,64
     ];
     
     /**
@@ -63,42 +65,42 @@ class CompanionTokenManager
         */
 
         // US Servers
-        'Balmung'       => 'MB1',
-        'Adamantoise'   => 'MB1',
-        'Cactuar'       => 'MB1',
-        'Coeurl'        => 'MB2',
-        'Faerie'        => 'MB1',
-        'Gilgamesh'     => 'MB1',
-        'Goblin'        => 'MB2',
-        'Jenova'        => 'MB1',
-        'Mateus'        => '',      # congested
-        'Midgardsormr'  => 'MB1',
-        'Sargatanas'    => 'MB1',
-        'Siren'         => 'MB1',
-        'Zalera'        => 'MB2',
-        'Behemoth'      => 'MB1',
-        'Brynhildr'     => 'MB2',
-        'Diabolos'      => 'MB2',
-        'Excalibur'     => 'MB1',
-        'Exodus'        => 'MB1',
-        'Famfrit'       => 'MB1',
-        'Hyperion'      => 'MB1',
-        'Lamia'         => 'MB1',
-        'Leviathan'     => 'MB1',
-        'Malboro'       => 'MB2',
-        'Ultros'        => 'MB1',
+        'Balmung'       => '',
+        'Adamantoise'   => '',
+        'Cactuar'       => '',
+        'Coeurl'        => '',
+        'Faerie'        => '',
+        'Gilgamesh'     => '',
+        'Goblin'        => '',
+        'Jenova'        => '',
+        'Mateus'        => '',
+        'Midgardsormr'  => '',
+        'Sargatanas'    => '',
+        'Siren'         => '',
+        'Zalera'        => '',
+        'Behemoth'      => '',
+        'Brynhildr'     => '',
+        'Diabolos'      => '',
+        'Excalibur'     => '',
+        'Exodus'        => '',
+        'Famfrit'       => '',
+        'Hyperion'      => '',
+        'Lamia'         => '',
+        'Leviathan'     => '',
+        'Malboro'       => '',
+        'Ultros'        => '',
 
         // EU Servers
         'Cerberus'      => '',
-        'Lich'          => 'MB3',
-        'Louisoix'      => 'MB3',
+        'Lich'          => '',
+        'Louisoix'      => '',
         'Moogle'        => '',
         'Odin'          => '',
-        'Omega'         => 'MB3',
+        'Omega'         => '',
         'Phoenix'       => '',
         'Ragnarok'      => '',
         'Shiva'         => '',
-        'Zodiark'       => 'MB3',
+        'Zodiark'       => '',
     ];
 
     /** @var EntityManagerInterface em */
@@ -159,11 +161,15 @@ class CompanionTokenManager
                 $this->console->writeln("- Account: {$account} {$username}");
                 $api = new CompanionApi("{$account}_{$username}");
                 $api->Account()->login($username, $password);
+                
+                $tabledata = [];
     
                 // Get a list of characters
                 echo "Getting a list of characters\n";
-                foreach ($api->Login()->getCharacters()->accounts[0]->characters as $character) {
-                    $this->console->writeln("Detected Character: {$character->name} {$character->world}");
+                foreach ($api->Login()->getCharacters()->accounts[0]->characters as $i => $character) {
+                    $tabledata[] = [
+                        ($i + 1), $character->name, $character->world
+                    ];
                     
                     /** @var CompanionToken $token */
                     $token = $repo->findOneBy([ 'characterId' => $character->cid ]);
@@ -182,6 +188,17 @@ class CompanionTokenManager
                     $this->em->persist($token);
                     $this->em->flush();
                 }
+                
+                $this->console->writeln("Total Servers: ". count($tabledata));
+    
+                // print table
+                $table = new Table($this->console);
+                $table
+                    ->setHeaders(['#', 'Name', 'Server'])
+                    ->setRows($tabledata);
+                
+                $table->render();
+                
             } catch (\Exception $ex) {
                 $this->console->writeln('-- EXCEPTION --');
                 $this->console->writeln($ex->getMessage());
