@@ -168,7 +168,7 @@ class CompanionTokenManager
                 echo "Getting a list of characters\n";
                 foreach ($api->Login()->getCharacters()->accounts[0]->characters as $i => $character) {
                     $tabledata[] = [
-                        ($i + 1), $character->name, $character->world
+                        ($i + 1), $character->cid, $character->name, $character->world
                     ];
                     
                     /** @var CompanionToken $token */
@@ -194,7 +194,7 @@ class CompanionTokenManager
                 // print table
                 $table = new Table($this->console);
                 $table
-                    ->setHeaders(['#', 'Name', 'Server'])
+                    ->setHeaders(['#', 'ID', 'Name', 'Server'])
                     ->setRows($tabledata);
                 
                 $table->render();
