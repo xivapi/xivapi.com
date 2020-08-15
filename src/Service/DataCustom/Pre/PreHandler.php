@@ -17,6 +17,7 @@ class PreHandler
         [ 'ClassJob', Icons::class, 'setClassJobIcon' ],
         [ 'Companion', Icons::class, 'setCompanionIcon' ],
         [ 'Mount', Icons::class, 'setMountIcon' ],
+        [ 'Ornament', Icons::class, 'setOrnamentIcon' ],
         
         // Maps
         [ 'Map', Icons::class, 'setMapFilename' ],
