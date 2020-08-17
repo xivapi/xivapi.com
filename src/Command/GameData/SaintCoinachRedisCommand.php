@@ -486,7 +486,7 @@ class SaintCoinachRedisCommand extends Command
     {
         // linkId is 0 and linkTarget is not in our zero content list
         if ($linkId == 0 && in_array($linkTarget, self::ZERO_CONTENT) == false) {
-            return null;
+            return $linkId;
         }
     
         $targetContent = FileSystemCache::get($linkTarget, $linkId);
@@ -494,7 +494,7 @@ class SaintCoinachRedisCommand extends Command
         
         // no content? return null
         if (!$targetContent) {
-            return null;
+            return $linkId;
         }
         
         // if no schema, return just the value
