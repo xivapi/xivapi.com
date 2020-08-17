@@ -131,7 +131,7 @@ class SaintCoinachRedisCommand extends Command
             }
             
             // skip level as it takes about 50 years
-            if ($contentName == 'Level') {
+            if ($contentName == 'Level' && $focusName != 'Level') {
                 continue;
             }
             
@@ -387,12 +387,12 @@ class SaintCoinachRedisCommand extends Command
         
         // if definition is set, ignore it
         if (isset($content->{$definition->name}) && is_object($content->{$definition->name})) {
-            return null;
+            return $contentId;
         }
         
         // special one because SE is crazy and link level_item id by the ACTUAL level...
         if ($contentName == 'Item' && isset($definition->name) && $definition->name == 'LevelItem') {
-            return null;
+            return $contentId;
         }
         
         // handle link type definition
@@ -446,19 +446,19 @@ class SaintCoinachRedisCommand extends Command
             
             // depth reached
             if ($depth > $this->maxDepth) {
-                return null;
+                return $contentId;
             }
             
             // linkId is 0 and linkTarget is not in our zero content list
             if ($linkId == 0 && in_array($linkTarget, self::ZERO_CONTENT) == false) {
-                return null;
+                return $contentId;
             }
             
             # $this->io->text("<info>[LINK {$depth}]</info> {$contentId} {$contentName} : {$definition->name} ---> {$linkId} {$linkTarget}");
             
             // if the content links to itself, then return back
             if ($contentName == $linkTarget && (int)$contentId == (int)$linkId) {
-                return null;
+                return $contentId;
             }
             
             // grab linked data
@@ -473,10 +473,10 @@ class SaintCoinachRedisCommand extends Command
             }
 
             unset($linkData);
-            return null;
+            return $contentId;
         }
         
-        return null;
+        return $contentId;
     }
     
     /**
@@ -486,7 +486,7 @@ class SaintCoinachRedisCommand extends Command
     {
         // linkId is 0 and linkTarget is not in our zero content list
         if ($linkId == 0 && in_array($linkTarget, self::ZERO_CONTENT) == false) {
-            return null;
+            return $linkId;
         }
     
         $targetContent = FileSystemCache::get($linkTarget, $linkId);
