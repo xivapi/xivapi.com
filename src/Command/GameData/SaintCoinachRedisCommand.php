@@ -131,7 +131,7 @@ class SaintCoinachRedisCommand extends Command
             }
             
             // skip level as it takes about 50 years
-            if ($contentName == 'Level') {
+            if ($contentName == 'Level' && $focusName != 'Level') {
                 continue;
             }
             
