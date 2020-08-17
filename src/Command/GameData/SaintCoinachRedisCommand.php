@@ -490,11 +490,11 @@ class SaintCoinachRedisCommand extends Command
         }
     
         $targetContent = FileSystemCache::get($linkTarget, $linkId);
-        $targetSchema  = $this->schema[$linkTarget] ?? $contentId;
+        $targetSchema  = $this->schema[$linkTarget] ?? null;
         
         // no content? return null
         if (!$targetContent) {
-            return $linkId;
+            return null;
         }
         
         // if no schema, return just the value
