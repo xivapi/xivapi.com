@@ -537,7 +537,7 @@ class SaintCoinachRedisCommand extends Command
             $this->ids[$contentName] = [];
         }
     
-        if (!in_array($contentId, $this->ids[$contentName])) {
+        if (!in_array($contentId, $this->ids[$contentName], true)) {
             $this->ids[$contentName][] = $contentId;
         }
     }
