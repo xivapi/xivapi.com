@@ -65,6 +65,17 @@ class Icons extends ManualHelper
         $content->Icon = str_ireplace(array_keys($rep), $rep, $content->Icon);
     }
     
+    public static function setOrnamentIcon($content)
+    {
+        $content->IconSmall = $content->Icon;
+
+        $rep = [
+            '/008' => '/067'
+        ];
+
+        $content->Icon = str_ireplace(array_keys($rep), $rep, $content->Icon);
+    }
+
     public static function setMapFilename($content)
     {
         if (!isset($content->Id_en)) {
