@@ -64,6 +64,11 @@ class SaintCoinach
         $this->generateBatScript($extractFolder, 'bgm');
         $this->generateBatScript($extractFolder, 'maps');
         
+        // ensure unix line endings
+        $this->console->writeln("Fixing line endings...");
+        shell_exec('dos2unix '. self::SCHEMA_DIRECTORY . '/Definitions/*');
+        $this->console->writeln("Complete");
+        
         // build schema into 1 file
         $this->console->writeln("Building single schema");
         $schema = [];
@@ -71,7 +76,12 @@ class SaintCoinach
             $fileinfo = pathinfo($file);
             
             if ($fileinfo['extension'] === 'json') {
+                $this->console->writeln($file);
                 $schema[] = json_decode(file_get_contents(self::SCHEMA_DIRECTORY . '/Definitions/'. $file), true);
+                
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    $this->console->writeln("! There was a JSON_DECODE error with: {$file} -- code: ". json_last_error() . " -- msg: ". json_last_error_msg());
+                }
             }
         }
     
