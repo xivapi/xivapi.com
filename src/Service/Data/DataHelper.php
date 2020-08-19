@@ -60,6 +60,9 @@ class DataHelper
         'GCRankUldahMaleText' => [
             'Singular' => 'Name'
         ],
+        'Ornament' => [
+            'Singular' => 'Name'
+        ]
     ];
 
     /**
