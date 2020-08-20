@@ -2,10 +2,12 @@
 
 echo "Updating Common ..."
 cd src/Common
+git checkout -- .
 git pull
 cd -
 
 echo "Updating main repo ..."
+git checkout -- .
 git pull
 
 echo "Clearing cache"
