@@ -93,7 +93,7 @@ class SaintCoinach
         // store content names
         $contentNames = array_values(array_filter($contentNames));
         Redis::Cache()->set('content', $contentNames, SaintCoinach::REDIS_DURATION);
-    
+        $this->console->writeln("Content definition list updated");
         
         // store schema
         $schema  = array_values(array_filter($schema));
@@ -102,6 +102,7 @@ class SaintCoinach
             'version' => $version,
             'sheets' => $schema
         ], JSON_PRETTY_PRINT));
+        $this->console->writeln("Defintion ex.json file rebuilt");
 
         $this->console->writeln('Finished');
     }
