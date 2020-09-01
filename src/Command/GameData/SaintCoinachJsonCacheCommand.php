@@ -41,8 +41,6 @@ class SaintCoinachJsonCacheCommand extends Command
   
         // save content
         asort($content);
-        $content = array_values(array_filter($content));
-        Redis::Cache()->set('content', $content, SaintCoinach::REDIS_DURATION);
 
         $console->writeln('Saving content to Serialised Documents');
         $single = $input->getArgument('content');
