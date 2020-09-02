@@ -2,6 +2,7 @@
 
 namespace App\Service\SaintCoinach;
 
+use App\Common\Service\Redis\Redis;
 use App\Common\Utils\Downloader;
 use App\Service\Data\FileSystem;
 use Github\Client;
@@ -72,6 +73,8 @@ class SaintCoinach
         // build schema into 1 file
         $this->console->writeln("Building single schema");
         $schema = [];
+        $contentNames = [];
+        
         foreach (scandir(self::SCHEMA_DIRECTORY . '/Definitions') as $file) {
             $fileinfo = pathinfo($file);
             
@@ -82,17 +85,24 @@ class SaintCoinach
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     $this->console->writeln("! There was a JSON_DECODE error with: {$file} -- code: ". json_last_error() . " -- msg: ". json_last_error_msg());
                 }
+    
+                $contentNames[] = pathinfo($file)['filename'];
             }
         }
-    
-        $schema = array_values(array_filter($schema));
         
-        // save schema
+        // store content names
+        $contentNames = array_values(array_filter($contentNames));
+        Redis::Cache()->set('content', $contentNames, SaintCoinach::REDIS_DURATION);
+        $this->console->writeln("Content definition list updated");
+        
+        // store schema
+        $schema  = array_values(array_filter($schema));
         $version = trim(file_get_contents(self::SCHEMA_DIRECTORY . '/Definitions/game.ver'));
         file_put_contents(self::SCHEMA_FILENAME, json_encode([
             'version' => $version,
             'sheets' => $schema
         ], JSON_PRETTY_PRINT));
+        $this->console->writeln("Defintion ex.json file rebuilt");
 
         $this->console->writeln('Finished');
     }
