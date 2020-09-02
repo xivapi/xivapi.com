@@ -15,15 +15,46 @@ class ItemAction extends ManualHelper
     public function handle()
     {
         $ids = $this->getContentIds('ItemAction');
+
+        $this->io->writeln(" -- Updating ItemActions");
         
         foreach ($ids as $id) {
             $key = "xiv_ItemAction_{$id}";
             $itemAction = Redis::Cache()->get($key);
             
-            // todo ---
+            // 20086 == Ornament
+            if ($itemAction->Type == 20086) {
+                $itemAction->Ornament = Redis::Cache()->get("xiv_Ornament_". $itemAction->Data0);
+            }
             
             // save
             Redis::Cache()->set($key, $itemAction, self::REDIS_DURATION);
+        }
+    
+    
+    
+        $this->io->writeln(" -- Updating all Item entries with new Item Action info (will take a minute)");
+        
+        // We need to update all items
+        $ids = $this->getContentIds('Item');
+        
+        foreach ($ids as $id) {
+            $key = "xiv_Item_{$id}";
+            $item = Redis::Cache()->get($key);
+            
+            // update the ItemAction entry
+            $item->ItemAction = Redis::Cache()->get("xiv_ItemAction_{$item->ItemAction->ID}");
+            
+            // if the ItemAction has an Ornament we will append this item onto the Ornament entry
+            if (!empty($item->ItemAction->Ornament)) {
+                $ornamentKey    = "xiv_Ornament_{$item->ItemAction->Ornament->ID}";
+                $ornament       = Redis::Cache()->get($ornamentKey);
+                $ornament->Item = $item;
+                Redis::Cache()->set($ornamentKey, $ornament, self::REDIS_DURATION);
+            }
+    
+            // save
+            Redis::Cache()->set($key, $item, self::REDIS_DURATION);
         }
     }
 }
