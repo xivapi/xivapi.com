@@ -41,11 +41,8 @@ class SaintCoinachJsonCacheCommand extends Command
   
         // save content
         asort($content);
-        $content = array_values(array_filter($content));
-        Redis::Cache()->set('content', $content, SaintCoinach::REDIS_DURATION);
 
-        $section = $console->section();
-        $section->overwrite('Saving content to Serialised Documents');
+        $console->writeln('Saving content to Serialised Documents');
         $single = $input->getArgument('content');
         
         $total = count($files->gamedata) + count($files->raw);
@@ -61,7 +58,7 @@ class SaintCoinachJsonCacheCommand extends Command
                 }
 
                 // save
-                $section->overwrite("- {$type} {$count}/{$total} :: {$filename}");
+                $console->writeln("- {$type} {$count}/{$total} :: {$filename}");
 
                 $data = FileReader::open($filename, $type === 'raw');
                 FileSystem::save($filename, 'json', $data);
