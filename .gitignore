@@ -6,6 +6,7 @@ exceptions\.log
 vm/ssh\.exe\.stackdump
 SaintCoinach\.Cmd\.lnk
 api_logs.txt
+public/fc/*
 
 /data
 !/data/.gitkeep
