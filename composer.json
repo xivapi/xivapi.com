@@ -20,6 +20,7 @@
         "symfony/console": "^4.2",
         "symfony/flex": "^1.0",
         "symfony/framework-bundle": "^4.2",
+        "symfony/http-client": "^4.2",
         "symfony/maker-bundle": "^1.11",
         "symfony/orm-pack": "^1.0",
         "symfony/property-access": "^4.2",
@@ -31,7 +32,7 @@
         "wildbit/postmark-php": "^2.6",
         "wohali/oauth2-discord-new": "^1.0",
         "xivapi/companion-php": "^1.2.9",
-        "xivapi/lodestone-parser": "dev-major-rewrite",
+        "xivapi/lodestone-parser": "^2.0.0",
         "xivapi/xivapi-php": "^1.6.10"
     },
     "require-dev": {
