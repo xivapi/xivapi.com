@@ -32,7 +32,7 @@
         "wildbit/postmark-php": "^2.6",
         "wohali/oauth2-discord-new": "^1.0",
         "xivapi/companion-php": "^1.2.10",
-        "xivapi/lodestone-parser": "^2.0.0",
+        "xivapi/lodestone-parser": "^2.0.2",
         "xivapi/xivapi-php": "^1.6.10"
     },
     "require-dev": {

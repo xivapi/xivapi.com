@@ -65,7 +65,7 @@ class UpdateSearchCommand extends Command
                 $this->io->text("<info>ElasticSearch import: {$total} {$contentName} documents to index: {$index}</info>");
 
 //                // rebuild index
-//                $elastic->deleteIndex($index);
+                $elastic->deleteIndex($index);
 //                // create index
 //                $elastic->addIndexGameData($index);
 
@@ -123,7 +123,7 @@ class UpdateSearchCommand extends Command
                     // append to docs
                     $docs[$id] = $content;
 
-                    //$elastic->addDocument($index, 'search', $id, $content);
+//                    $elastic->addDocument($index, 'search', $id, $content);
 
                     // insert docs
                     if ($count >= ElasticSearch::MAX_BULK_DOCUMENTS) {
