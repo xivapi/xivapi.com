@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1cc337e64d6eb0ee30102a9d46ffd731",
+    "content-hash": "b2b1e94c1a1fba084a9b5a81af312b4b",
     "packages": [
         {
             "name": "cboden/ratchet",
@@ -7669,16 +7669,16 @@
         },
         {
             "name": "xivapi/lodestone-parser",
-            "version": "dev-major-rewrite",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/xivapi/lodestone-parser.git",
-                "reference": "d08b6d99a984b4b2c445cbebfcf6695ebcefea7f"
+                "reference": "2827b7a00ef6712ead377203c2710386d91266a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/xivapi/lodestone-parser/zipball/d08b6d99a984b4b2c445cbebfcf6695ebcefea7f",
-                "reference": "d08b6d99a984b4b2c445cbebfcf6695ebcefea7f",
+                "url": "https://api.github.com/repos/xivapi/lodestone-parser/zipball/2827b7a00ef6712ead377203c2710386d91266a8",
+                "reference": "2827b7a00ef6712ead377203c2710386d91266a8",
                 "shasum": ""
             },
             "require": {
@@ -7718,7 +7718,7 @@
                 "parser",
                 "php"
             ],
-            "time": "2020-07-15T14:51:14+00:00"
+            "time": "2020-10-15T20:58:52+00:00"
         },
         {
             "name": "xivapi/xivapi-php",
@@ -8003,9 +8003,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "xivapi/lodestone-parser": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
