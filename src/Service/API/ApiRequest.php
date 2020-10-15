@@ -143,19 +143,6 @@ class ApiRequest
 
         // log daily limits
         $this->recordDailyLimit();
-        
-        file_put_contents(
-            __DIR__.'/../../../api_logs.txt',
-            sprintf(
-                "[%s] %s (%s %s) - %s\n",
-                date('Y-m-d H:i:s'),
-                $this->apikey,
-                $this->user->getSsoDiscordId(),
-                $this->user->getUsername(),
-                $this->request->getUri()
-            ),
-            FILE_APPEND
-        );
     }
 
     /**
