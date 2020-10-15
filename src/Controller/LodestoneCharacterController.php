@@ -226,7 +226,7 @@ class LodestoneCharacterController extends AbstractController
     
                 $response->Character->ClassJobs = $classjobs['classjobs'];
                 $response->Character->ClassJobsElemental = $classjobs['elemental'];
-                
+                $response->Character->ClassJobsBozjan = $classjobs['bozjan'];
                 
                 // look at this shit, pulled straight from lodestone parser :D
                 // thanks SE
