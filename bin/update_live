@@ -12,10 +12,10 @@ START_TIME=$SECONDS
 
 sleep 5
 
-for (( i = 0; i <= 20; ++i )); do
+for (( i = 0; i <= 22; ++i )); do
     start_point=$(( $i * 25 ))
 
-    echo " --------- Loop: $i / 20 - chunk: $start_point ------------------------------------"
+    echo " --------- Loop: $i / 22 - chunk: $start_point ------------------------------------"
 
     /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand $start_point 25 1 -q
 
@@ -24,7 +24,7 @@ done
 
 # Populate market items
 sleep 3
-/usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoPopulateItemsCommand
+#/usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoPopulateItemsCommand
 
 sleep 3
 /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCustomCommand Quest
@@ -39,11 +39,11 @@ sleep 3
 
 # Add on patch info
 sleep 3
-# /usr/bin/php /home/dalamud/xivapi.com/bin/console UpdatePatchCommand 1
+#/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdatePatchCommand 1
 
 # Update search
 sleep 3
-/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdateSearchCommand dev
+/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdateSearchCommand prod
 
 # Update lore search
 sleep 3

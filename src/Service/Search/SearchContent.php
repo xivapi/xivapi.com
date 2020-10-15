@@ -35,9 +35,9 @@ class SearchContent
         'BuddyEquip',
         'Orchestrion',
         'PlaceName',
-        'Map',
         'Weather',
         'World',
+	'Map',
         
         // allowed
         'lore_finder',
