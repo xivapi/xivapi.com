@@ -79,10 +79,31 @@ class LodestoneCharacterController extends AbstractController
             'MIMO' => in_array('MIMO', $data),
             'CJ'   => in_array('CJ', $data)
         ];
-
+    
+        // -------------------------------------------
+        // Mandatory
+        // -------------------------------------------
+        
+        $api->config()->useAsync();
+        
+        // parse mandatory pages
+        $api->requestId('profile')->character()->get($lodestoneId);
+        $api->requestId('classjobs')->character()->classjobs($lodestoneId);
+        $api->requestId('minions')->character()->minions($lodestoneId);
+        $api->requestId('mounts')->character()->mounts($lodestoneId);
+    
+        $lsdata = $api->http()->settle();
+    
+        // reset back to sync
+        $api->config()->useSync();
+    
         // response model
         $response = (Object)[
-            'Character'          => $api->character()->get($lodestoneId),
+            'Character'          => $lsdata['profile'],
+            'Minions'            => $lsdata['minions'],
+            'Mounts'             => $lsdata['mounts'],
+            
+            // optional
             'Achievements'       => null,
             'AchievementsPublic' => null,
             'Friends'            => null,
@@ -91,6 +112,39 @@ class LodestoneCharacterController extends AbstractController
             'FreeCompanyMembers' => null,
             'PvPTeam'            => null,
         ];
+    
+        try {
+            $classjobs = $lsdata['classjobs'];
+        
+            // set some root data
+            $response->Character->ClassJobs          = $classjobs['classjobs'];
+            $response->Character->ClassJobsElemental = $classjobs['elemental'];
+            $response->Character->ClassJobsBozjan    = $classjobs['bozjan'];
+        
+            // ---------------------- ACTIVE CLASS JOB ----------------------
+            // look at this shit, pulled straight from lodestone parser :D
+            // thanks SE
+            $item = $response->Character->GearSet['Gear']['MainHand'];
+            $name = explode("'", $item->Category)[0];
+        
+            // get class job id from the main-hand category name
+            $gd = ClassJobs::findGameData($name);
+        
+            /** @var ClassJob $cj */
+            foreach ($response->Character->ClassJobs as $cj) {
+                if ($cj->JobID === $gd->JobID) {
+                    $response->Character->ActiveClassJob = clone $cj;
+                    break;
+                }
+            }
+        } catch (\Exception $e) {
+            $response->Character->ClassJobs = [];
+            $response->Character->ActiveClassJob = null;
+        }
+        
+        // ---------------------------------
+        // Optional
+        // ---------------------------------
 
         // fc id + pvp team id
         $fcId  = $response->Character->FreeCompanyId;
@@ -208,47 +262,6 @@ class LodestoneCharacterController extends AbstractController
             $response->FreeCompany = $api->freecompany()->get($fcId);
         }
 
-        // Minions / Mounts
-        if ($content->MIMO) {
-            try {
-                $response->Minions = $api->character()->minions($lodestoneId);
-                $response->Mounts  = $api->character()->mounts($lodestoneId);
-            } catch (\Exception $e) {
-                $response->Minions = [];
-                $response->Mounts  = [];
-            }
-        }
-
-        // ClassJobs
-        if ($content->CJ) {
-            try {
-                $classjobs = $api->character()->classjobs($lodestoneId);
-    
-                $response->Character->ClassJobs = $classjobs['classjobs'];
-                $response->Character->ClassJobsElemental = $classjobs['elemental'];
-                $response->Character->ClassJobsBozjan = $classjobs['bozjan'];
-                
-                // look at this shit, pulled straight from lodestone parser :D
-                // thanks SE
-                $item = $response->Character->GearSet['Gear']['MainHand'];
-                $name = explode("'", $item->Category)[0];
-
-                // get class job id from the main-hand category name
-                $gd = ClassJobs::findGameData($name);
-
-                /** @var ClassJob $cj */
-                foreach ($response->Character->ClassJobs as $cj) {
-                    if ($cj->JobID === $gd->JobID) {
-                        $response->Character->ActiveClassJob = clone $cj;
-                        break;
-                    }
-                }
-            } catch (\Exception $e) {
-                $response->Character->ClassJobs = [];
-                $response->Character->ActiveClassJob = null;
-            }
-        }
-
         // Free Company Members
         if ($content->FCM && $fcId) {
             $members = [];
@@ -275,9 +288,12 @@ class LodestoneCharacterController extends AbstractController
 
         // PVP Team
         if ($content->PVP && $pvpId) {
-
             $response->PvPTeam = $api->pvpteam()->get($pvpId);
         }
+    
+        // ---------------------------------
+        // Finish up (data cleaning, converting, etc)
+        // ---------------------------------
 
         // convert some shit
         CharacterConverter::handle($response->Character);
