@@ -9,6 +9,7 @@ use Lodestone\Entity\Character\ClassJob;
 use Lodestone\Exceptions\LodestoneNotFoundException;
 use Lodestone\Exceptions\LodestonePrivateException;
 use Lodestone\Game\ClassJobs;
+use Lodestone\Http\AsyncHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
@@ -95,6 +96,7 @@ class LodestoneCharacterController extends AbstractController
         $lsdata = $api->http()->settle();
     
         // reset back to sync
+        AsyncHandler::$requestId = null;
         $api->config()->useSync();
     
         // response model
