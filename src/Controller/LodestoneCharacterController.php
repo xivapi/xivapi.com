@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Common\Service\Redis\Redis;
 use App\Service\API\ApiPermissions;
 use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterConverter;
@@ -69,7 +70,7 @@ class LodestoneCharacterController extends AbstractController
         }
         
         $lodestoneId = (int)strtolower(trim($lodestoneId));
-
+        
         // initialise api
         $api = new Api();
 
@@ -89,20 +90,23 @@ class LodestoneCharacterController extends AbstractController
         // -------------------------------------------
         // Mandatory
         // -------------------------------------------
-        
-        $api->config()->useAsync();
-        
-        // parse mandatory pages
-        $api->requestId('profile')->character()->get($lodestoneId);
-        $api->requestId('classjobs')->character()->classjobs($lodestoneId);
-        $api->requestId('minions')->character()->minions($lodestoneId);
-        $api->requestId('mounts')->character()->mounts($lodestoneId);
     
-        $lsdata = $api->http()->settle();
-    
-        // reset back to sync
-        AsyncHandler::$requestId = null;
-        $api->config()->useSync();
+        $rediskey = "lodestone_json_response_" . $lodestoneId;
+        $lsdata   = Redis::Cache()->get($rediskey);
+        
+        if (!$lsdata) {
+            $api->config()->useAsync();
+            $api->requestId('profile')->character()->get($lodestoneId);
+            $api->requestId('classjobs')->character()->classjobs($lodestoneId);
+            $api->requestId('minions')->character()->minions($lodestoneId);
+            $api->requestId('mounts')->character()->mounts($lodestoneId);
+            $lsdata = $api->http()->settle();
+            AsyncHandler::$requestId = null;
+            $api->config()->useSync();
+            
+            Redis::cache()->set($rediskey, $lsdata, 60);
+        }
+        
     
         // response model
         $response = (Object)[
