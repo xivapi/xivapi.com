@@ -103,10 +103,12 @@ class LodestoneCharacterController extends AbstractController
             $lsdata = $api->http()->settle();
             AsyncHandler::$requestId = null;
             $api->config()->useSync();
-            
+    
+            $lsdata = json_encode($lsdata);
             Redis::cache()->set($rediskey, $lsdata, 60);
         }
-        
+    
+        $lsdata = json_decode($lsdata, true);
     
         // response model
         $response = (Object)[
