@@ -91,7 +91,7 @@ class LodestoneCharacterController extends AbstractController
         // Mandatory
         // -------------------------------------------
     
-        $rediskey = "lodestone_json_response_" . $lodestoneId;
+        $rediskey = "lodestone_json_response_v2_" . $lodestoneId;
         $lsdata   = Redis::Cache()->get($rediskey);
         
         if (!$lsdata) {
