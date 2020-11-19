@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Common\Service\Redis\Redis;
+use App\Service\API\ApiPermissions;
 use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterConverter;
 use Lodestone\Api;
@@ -9,6 +11,7 @@ use Lodestone\Entity\Character\ClassJob;
 use Lodestone\Exceptions\LodestoneNotFoundException;
 use Lodestone\Exceptions\LodestonePrivateException;
 use Lodestone\Game\ClassJobs;
+use Lodestone\Http\AsyncHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
@@ -62,8 +65,12 @@ class LodestoneCharacterController extends AbstractController
      */
     public function index(Request $request, $lodestoneId, $internal = false)
     {
+        if (ApiPermissions::has(ApiPermissions::PERMISSION_KING) === false) {
+            usleep(mt_rand(250000, 1000000));
+        }
+        
         $lodestoneId = (int)strtolower(trim($lodestoneId));
-
+        
         // initialise api
         $api = new Api();
 
@@ -79,18 +86,80 @@ class LodestoneCharacterController extends AbstractController
             'MIMO' => in_array('MIMO', $data),
             'CJ'   => in_array('CJ', $data)
         ];
-
-        // response model
-        $response = (Object)[
-            'Character'          => $api->character()->get($lodestoneId),
-            'Achievements'       => null,
-            'AchievementsPublic' => null,
-            'Friends'            => null,
-            'FriendsPublic'      => null,
-            'FreeCompany'        => null,
-            'FreeCompanyMembers' => null,
-            'PvPTeam'            => null,
-        ];
+    
+        // -------------------------------------------
+        // Mandatory
+        // -------------------------------------------
+    
+        $rediskey = "lodestone_json_response_v6_" . $lodestoneId;
+        $response = Redis::Cache()->get($rediskey, true);
+        
+        if (!$response) {
+            $api->config()->useAsync();
+            
+            $api->requestId('profile')->character()->get($lodestoneId);
+            $api->requestId('classjobs')->character()->classjobs($lodestoneId);
+            $api->requestId('minions')->character()->minions($lodestoneId);
+            $api->requestId('mounts')->character()->mounts($lodestoneId);
+            
+            $lsdata = $api->http()->settle();
+            
+            AsyncHandler::$requestId = null;
+            $api->config()->useSync();
+    
+            // response model
+            $response = (Object)[
+                'Character'          => $lsdata['profile'],
+                'Minions'            => isset($lsdata['minions']->Error) ? [] : $lsdata['minions'],
+                'Mounts'             => isset($lsdata['mounts']->Error) ? [] : $lsdata['mounts'],
+        
+                // optional
+                'Achievements'       => null,
+                'AchievementsPublic' => null,
+                'Friends'            => null,
+                'FriendsPublic'      => null,
+                'FreeCompany'        => null,
+                'FreeCompanyMembers' => null,
+                'PvPTeam'            => null,
+            ];
+    
+            try {
+                $classjobs = $lsdata['classjobs'];
+        
+                // set some root data
+                $response->Character->ClassJobs          = $classjobs['classjobs'];
+                $response->Character->ClassJobsElemental = $classjobs['elemental'];
+                $response->Character->ClassJobsBozjan    = $classjobs['bozjan'];
+        
+                // ---------------------- ACTIVE CLASS JOB ----------------------
+                // look at this shit, pulled straight from lodestone parser :D
+                // thanks SE
+                $item = $response->Character->GearSet['Gear']['MainHand'];
+                $name = explode("'", $item->Category)[0];
+        
+                // get class job id from the main-hand category name
+                $gd = ClassJobs::findGameData($name);
+        
+                /** @var ClassJob $cj */
+                foreach ($response->Character->ClassJobs as $cj) {
+                    if ($cj->JobID === $gd->JobID) {
+                        $response->Character->ActiveClassJob = clone $cj;
+                        break;
+                    }
+                }
+            } catch (\Exception $e) {
+                $response->Character->ClassJobs = [];
+                $response->Character->ActiveClassJob = null;
+            }
+            
+            Redis::cache()->set($rediskey, $response, 60, true);
+        } else {
+            $response = (Object)$response;
+        }
+        
+        // ---------------------------------
+        // Optional
+        // ---------------------------------
 
         // fc id + pvp team id
         $fcId  = $response->Character->FreeCompanyId;
@@ -208,47 +277,6 @@ class LodestoneCharacterController extends AbstractController
             $response->FreeCompany = $api->freecompany()->get($fcId);
         }
 
-        // Minions / Mounts
-        if ($content->MIMO) {
-            try {
-                $response->Minions = $api->character()->minions($lodestoneId);
-                $response->Mounts  = $api->character()->mounts($lodestoneId);
-            } catch (\Exception $e) {
-                $response->Minions = [];
-                $response->Mounts  = [];
-            }
-        }
-
-        // ClassJobs
-        if ($content->CJ) {
-            try {
-                $classjobs = $api->character()->classjobs($lodestoneId);
-    
-                $response->Character->ClassJobs = $classjobs['classjobs'];
-                $response->Character->ClassJobsElemental = $classjobs['elemental'];
-                $response->Character->ClassJobsBozjan = $classjobs['bozjan'];
-                
-                // look at this shit, pulled straight from lodestone parser :D
-                // thanks SE
-                $item = $response->Character->GearSet['Gear']['MainHand'];
-                $name = explode("'", $item->Category)[0];
-
-                // get class job id from the main-hand category name
-                $gd = ClassJobs::findGameData($name);
-
-                /** @var ClassJob $cj */
-                foreach ($response->Character->ClassJobs as $cj) {
-                    if ($cj->JobID === $gd->JobID) {
-                        $response->Character->ActiveClassJob = clone $cj;
-                        break;
-                    }
-                }
-            } catch (\Exception $e) {
-                $response->Character->ClassJobs = [];
-                $response->Character->ActiveClassJob = null;
-            }
-        }
-
         // Free Company Members
         if ($content->FCM && $fcId) {
             $members = [];
@@ -275,9 +303,12 @@ class LodestoneCharacterController extends AbstractController
 
         // PVP Team
         if ($content->PVP && $pvpId) {
-
             $response->PvPTeam = $api->pvpteam()->get($pvpId);
         }
+    
+        // ---------------------------------
+        // Finish up (data cleaning, converting, etc)
+        // ---------------------------------
 
         // convert some shit
         CharacterConverter::handle($response->Character);
