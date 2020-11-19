@@ -91,65 +91,70 @@ class LodestoneCharacterController extends AbstractController
         // Mandatory
         // -------------------------------------------
     
-        $rediskey = "lodestone_json_response_v4_" . $lodestoneId;
-        $lsdata   = Redis::Cache()->get($rediskey);
+        $rediskey = "lodestone_json_response_v5_" . $lodestoneId;
+        $response = Redis::Cache()->get($rediskey);
         
-        if (!$lsdata) {
+        if (!$response) {
             $api->config()->useAsync();
+            
             $api->requestId('profile')->character()->get($lodestoneId);
             $api->requestId('classjobs')->character()->classjobs($lodestoneId);
             $api->requestId('minions')->character()->minions($lodestoneId);
             $api->requestId('mounts')->character()->mounts($lodestoneId);
+            
             $lsdata = $api->http()->settle();
+            
             AsyncHandler::$requestId = null;
             $api->config()->useSync();
     
-            Redis::cache()->set($rediskey, $lsdata, 60, true);
-        }
+            // response model
+            $response = (Object)[
+                'Character'          => $lsdata['profile'],
+                'Minions'            => $lsdata['minions'],
+                'Mounts'             => $lsdata['mounts'],
+        
+                // optional
+                'Achievements'       => null,
+                'AchievementsPublic' => null,
+                'Friends'            => null,
+                'FriendsPublic'      => null,
+                'FreeCompany'        => null,
+                'FreeCompanyMembers' => null,
+                'PvPTeam'            => null,
+            ];
     
-        // response model
-        $response = (Object)[
-            'Character'          => $lsdata->profile,
-            'Minions'            => $lsdata->minions,
-            'Mounts'             => $lsdata->mounts,
-            
-            // optional
-            'Achievements'       => null,
-            'AchievementsPublic' => null,
-            'Friends'            => null,
-            'FriendsPublic'      => null,
-            'FreeCompany'        => null,
-            'FreeCompanyMembers' => null,
-            'PvPTeam'            => null,
-        ];
-    
-        try {
-            $classjobs = $lsdata->classjobs;
+            try {
+                $classjobs = $lsdata['classjobs'];
         
-            // set some root data
-            $response->Character->ClassJobs          = $classjobs['classjobs'];
-            $response->Character->ClassJobsElemental = $classjobs['elemental'];
-            $response->Character->ClassJobsBozjan    = $classjobs['bozjan'];
+                // set some root data
+                $response->Character->ClassJobs          = $classjobs['classjobs'];
+                $response->Character->ClassJobsElemental = $classjobs['elemental'];
+                $response->Character->ClassJobsBozjan    = $classjobs['bozjan'];
         
-            // ---------------------- ACTIVE CLASS JOB ----------------------
-            // look at this shit, pulled straight from lodestone parser :D
-            // thanks SE
-            $item = $response->Character->GearSet['Gear']['MainHand'];
-            $name = explode("'", $item->Category)[0];
+                // ---------------------- ACTIVE CLASS JOB ----------------------
+                // look at this shit, pulled straight from lodestone parser :D
+                // thanks SE
+                $item = $response->Character->GearSet['Gear']['MainHand'];
+                $name = explode("'", $item->Category)[0];
         
-            // get class job id from the main-hand category name
-            $gd = ClassJobs::findGameData($name);
+                // get class job id from the main-hand category name
+                $gd = ClassJobs::findGameData($name);
         
-            /** @var ClassJob $cj */
-            foreach ($response->Character->ClassJobs as $cj) {
-                if ($cj->JobID === $gd->JobID) {
-                    $response->Character->ActiveClassJob = clone $cj;
-                    break;
+                /** @var ClassJob $cj */
+                foreach ($response->Character->ClassJobs as $cj) {
+                    if ($cj->JobID === $gd->JobID) {
+                        $response->Character->ActiveClassJob = clone $cj;
+                        break;
+                    }
                 }
+            } catch (\Exception $e) {
+                $response->Character->ClassJobs = [];
+                $response->Character->ActiveClassJob = null;
             }
-        } catch (\Exception $e) {
-            $response->Character->ClassJobs = [];
-            $response->Character->ActiveClassJob = null;
+            
+            Redis::cache()->set($rediskey, $response);
+        } else {
+            $response = (Object)$response;
         }
         
         // ---------------------------------
