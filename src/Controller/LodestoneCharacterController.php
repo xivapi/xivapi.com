@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\API\ApiPermissions;
 use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterConverter;
 use Lodestone\Api;
@@ -63,6 +64,10 @@ class LodestoneCharacterController extends AbstractController
      */
     public function index(Request $request, $lodestoneId, $internal = false)
     {
+        if (ApiPermissions::has(ApiPermissions::PERMISSION_KING) === false) {
+            usleep(mt_rand(250000, 1000000));
+        }
+        
         $lodestoneId = (int)strtolower(trim($lodestoneId));
 
         // initialise api
