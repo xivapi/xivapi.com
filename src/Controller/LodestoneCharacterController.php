@@ -91,7 +91,7 @@ class LodestoneCharacterController extends AbstractController
         // Mandatory
         // -------------------------------------------
     
-        $rediskey = "lodestone_json_response_v2_" . $lodestoneId;
+        $rediskey = "lodestone_json_response_v4_" . $lodestoneId;
         $lsdata   = Redis::Cache()->get($rediskey);
         
         if (!$lsdata) {
@@ -104,11 +104,8 @@ class LodestoneCharacterController extends AbstractController
             AsyncHandler::$requestId = null;
             $api->config()->useSync();
     
-            $lsdata = json_encode($lsdata);
-            Redis::cache()->set($rediskey, $lsdata, 60);
+            Redis::cache()->set($rediskey, $lsdata, 60, true);
         }
-    
-        $lsdata = json_decode($lsdata);
     
         // response model
         $response = (Object)[
