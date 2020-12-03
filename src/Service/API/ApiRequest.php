@@ -262,6 +262,18 @@ class ApiRequest
         
         // throw exception if hit count too high
         if ($count > $limit) {
+            file_put_contents(
+            __DIR__.'/../../../../api_rate_limited.txt',
+                sprintf(
+                    "[%s] (RATE LIMIT HIT) Hits: %s -- %s --> %s\n",
+                    date('Y-m-d H:i:s'),
+                    $count,
+                    $this->request->attributes->get('_controller'),
+                    $this->apikey
+                ),
+                FILE_APPEND
+            );
+
             throw new ApiRateLimitException(
                 ApiRateLimitException::MESSAGE . " -- " . self::$idStatic
             );
