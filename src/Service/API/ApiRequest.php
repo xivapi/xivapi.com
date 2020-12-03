@@ -90,6 +90,8 @@ class ApiRequest
      * @var string
      */
     private $apikey;
+    
+    private $clientHash;
 
     public function __construct(Users $users)
     {
@@ -108,17 +110,9 @@ class ApiRequest
      */
     public function handle(Request $request)
     {
-        $iphash = md5($request->getClientIp());
-        
-        // stop spam from this user
-        if ($iphash == '6eb1b1332a4d9816c2c236fc06f9b7f9') {
-            $goto = long2ip(rand(0, "4294967295"));
-            header("Location: http://{$goto}/");
-            exit;
-        }
-        
-        $this->request = $request;
-        $this->apikey  = trim($this->request->get(self::KEY_FIELD));
+        $this->request    = $request;
+        $this->apikey     = trim($this->request->get(self::KEY_FIELD));
+        $this->clientHash = sha1($request->getClientIp());
         
         $endpoint = $this->request->attributes->get('_controller');
         $endpoint = explode("::", $endpoint)[0];
@@ -133,10 +127,11 @@ class ApiRequest
         file_put_contents(
             __DIR__.'/../../../../api_logs.txt',
             sprintf(
-                "[%s] %s --> %s\n",
+                "[%s] %s --> (%s) %s\n",
                 date('Y-m-d H:i:s'),
                 $this->request->attributes->get('_controller'),
-                $this->apikey
+                $this->clientHash,
+                $this->apikey ?: "(no-api-key)"
             ),
             FILE_APPEND
         );
@@ -265,11 +260,12 @@ class ApiRequest
             file_put_contents(
             __DIR__.'/../../../../api_rate_limited.txt',
                 sprintf(
-                    "[%s] (RATE LIMIT HIT) Hits: %s -- %s --> %s\n",
+                    "[%s] (RATE LIMIT HIT) Hits: %s -- %s --> (%s) %s\n",
                     date('Y-m-d H:i:s'),
                     $count,
                     $this->request->attributes->get('_controller'),
-                    $this->apikey
+                    $this->clientHash,
+                    $this->apikey ?: "(no-api-key)"
                 ),
                 FILE_APPEND
             );
