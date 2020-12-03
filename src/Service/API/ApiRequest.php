@@ -33,6 +33,16 @@ class ApiRequest
     const KEY_FIELD             = 'private_key';
     const MAX_RATE_LIMIT_KEY    = 30;
     const MAX_RATE_LIMIT_GLOBAL = 12;
+    const MAX_RATE_LIMIT_LODE   = 1;
+    
+    private $isLodestoneRequest = false;
+    
+    const LODESTONE_CONTROLLERS = [
+        'App\Controller\LodestoneCharacterController',
+        'App\Controller\LodestoneFreeCompanyController',
+        'App\Controller\LodestoneLinkshellController',
+        'App\Controller\LodestonePvPTeamController'
+    ];
     
     /**
      * List of controllers that require a API Key
@@ -109,6 +119,13 @@ class ApiRequest
         
         $this->request = $request;
         $this->apikey  = trim($this->request->get(self::KEY_FIELD));
+        
+        $endpoint = $this->request->attributes->get('_controller');
+        $endpoint = explode("::", $endpoint)[0];
+        
+        if (in_array($endpoint, self::LODESTONE_CONTROLLERS)) {
+            $this->isLodestoneRequest = true;  
+        }
 
         // set request ids
         $this->setApiRequestIds();
@@ -212,7 +229,10 @@ class ApiRequest
         $ip  = md5($this->request->getClientIp());
         $key = "api_rate_limit_client_{$ip}";
         
-        $this->handleRateLimit($key);
+        
+        $ratelimit = $this->isLodestoneRequest ? self::MAX_RATE_LIMIT_LODE : self::MAX_RATE_LIMIT_GLOBAL;
+        
+        $this->handleRateLimit($key, $ratelimit);
     }
     
     /**
