@@ -111,10 +111,10 @@ class LodestoneCharacterController extends AbstractController
             $responseCode = $lsdata['profile']->StatusCode ?? null;
             if ($responseCode) {
                 if ($responseCode === 404) {
-                    throw new LodestoneNotFoundException();   
+                    throw new LodestoneNotFoundException("No character for id: {$lodestoneId} was found", $responseCode);   
                 }
                 
-                throw new \Exception("Lodestone response error, code: {$responseCode}");
+                throw new \Exception("Lodestone response error, code: {$responseCode}", $responseCode);
             }
     
             // response model
