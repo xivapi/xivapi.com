@@ -2,45 +2,19 @@
 # xivapi
 #
 server {
-    server_name
-        xivapi.local
-        staging.xivapi.local;
-
+    server_name xivapi.local staging.xivapi.local;
     listen 80;
     root /vagrant/public;
     include /etc/nginx/sites-available/common;
 }
 
-server {
-    server_name mogboard.local;
-    root /vagrant/sites/mogboard/public;
-    include /etc/nginx/sites-available/common;
-}
-
 #
 # adminer
-# todo - move this to use common nginx config
 #
 server
 {
+    server_name xivapi.sql;
     listen 80;
-    server_name xivapi.adminer;
-    root /vagrant/sysops/;
-    index adminer.php;
-    sendfile off;
-
-    # Normal directory
-    location / {
-        try_files $uri $uri/ /adminer.php$is_args$args;
-    }
-
-    # PHP Specifics
-    location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
-        fastcgi_split_path_info ^(.+\.php)(/.*)$;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param HTTPS off;
-        fastcgi_read_timeout 600;
-    }
+    root /vagrant/public;
+    include /etc/nginx/sites-available/common;
 }

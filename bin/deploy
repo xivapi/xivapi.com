@@ -9,11 +9,11 @@ START_TIME=$SECONDS
 
 # Deploy search
 sleep 5
-#/usr/bin/php /vagrant/bin/console UpdateSearchCommand prod
+#/usr/bin/php /adminer/bin/console UpdateSearchCommand prod
 
 # Deploy lore search
 sleep 5
-#/usr/bin/php /vagrant/bin/console UpdateSearchLoreCommand prod
+#/usr/bin/php /adminer/bin/console UpdateSearchLoreCommand prod
 
 ## -------------------------------------------------------------------------------------
 
