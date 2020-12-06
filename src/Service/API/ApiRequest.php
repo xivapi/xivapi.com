@@ -33,6 +33,16 @@ class ApiRequest
     const KEY_FIELD             = 'private_key';
     const MAX_RATE_LIMIT_KEY    = 30;
     const MAX_RATE_LIMIT_GLOBAL = 12;
+    const MAX_RATE_LIMIT_LODE   = 1;
+    
+    private $isLodestoneRequest = false;
+    
+    const LODESTONE_CONTROLLERS = [
+        'App\Controller\LodestoneCharacterController',
+        'App\Controller\LodestoneFreeCompanyController',
+        'App\Controller\LodestoneLinkshellController',
+        'App\Controller\LodestonePvPTeamController'
+    ];
     
     /**
      * List of controllers that require a API Key
@@ -80,6 +90,8 @@ class ApiRequest
      * @var string
      */
     private $apikey;
+    
+    private $clientHash;
 
     public function __construct(Users $users)
     {
@@ -98,20 +110,32 @@ class ApiRequest
      */
     public function handle(Request $request)
     {
-        $iphash = md5($request->getClientIp());
+        $this->request    = $request;
+        $this->apikey     = trim($this->request->get(self::KEY_FIELD));
+        $this->clientHash = sha1($request->getClientIp());
         
-        // stop spam from this user
-        if ($iphash == '6eb1b1332a4d9816c2c236fc06f9b7f9') {
-            $goto = long2ip(rand(0, "4294967295"));
-            header("Location: http://{$goto}/");
-            exit;
+        $endpoint = $this->request->attributes->get('_controller');
+        $endpoint = explode("::", $endpoint)[0];
+        
+        if (in_array($endpoint, self::LODESTONE_CONTROLLERS)) {
+            $this->isLodestoneRequest = true;  
         }
-        
-        $this->request = $request;
-        $this->apikey  = trim($this->request->get(self::KEY_FIELD));
 
         // set request ids
         $this->setApiRequestIds();
+        
+        file_put_contents(
+            __DIR__.'/../../../../api_logs.txt',
+            sprintf(
+                "[%s] %s --> (%s) %s\n",
+                date('Y-m-d H:i:s'),
+                $this->request->attributes->get('_controller'),
+                $this->clientHash,
+                $this->apikey ?: "(no-api-key)"
+            ),
+            FILE_APPEND
+        );
+
 
         // if this request is not against an API controller, we don't need to do anything.
         if ($this->isApiController() === false) {
@@ -212,7 +236,10 @@ class ApiRequest
         $ip  = md5($this->request->getClientIp());
         $key = "api_rate_limit_client_{$ip}";
         
-        $this->handleRateLimit($key);
+        
+        $ratelimit = $this->isLodestoneRequest ? self::MAX_RATE_LIMIT_LODE : self::MAX_RATE_LIMIT_GLOBAL;
+        
+        $this->handleRateLimit($key, $ratelimit);
     }
     
     /**
@@ -230,6 +257,19 @@ class ApiRequest
         
         // throw exception if hit count too high
         if ($count > $limit) {
+            file_put_contents(
+            __DIR__.'/../../../../api_rate_limited.txt',
+                sprintf(
+                    "[%s] (RATE LIMIT HIT) Hits: %s -- %s --> (%s) %s\n",
+                    date('Y-m-d H:i:s'),
+                    $count,
+                    $this->request->attributes->get('_controller'),
+                    $this->clientHash,
+                    $this->apikey ?: "(no-api-key)"
+                ),
+                FILE_APPEND
+            );
+
             throw new ApiRateLimitException(
                 ApiRateLimitException::MESSAGE . " -- " . self::$idStatic
             );

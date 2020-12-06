@@ -106,6 +106,16 @@ class LodestoneCharacterController extends AbstractController
             
             AsyncHandler::$requestId = null;
             $api->config()->useSync();
+            
+            // check our response
+            $responseCode = $lsdata['profile']->StatusCode ?? null;
+            if ($responseCode) {
+                if ($responseCode === 404) {
+                    throw new LodestoneNotFoundException("No character for id: {$lodestoneId} was found", $responseCode);   
+                }
+                
+                throw new \Exception("Lodestone response error, code: {$responseCode}", $responseCode);
+            }
     
             // response model
             $response = (Object)[
