@@ -225,7 +225,7 @@ class ApiRequest
     private function checkDeveloperRateLimit()
     {
         $key = "api_rate_limit_user_{$this->user->getId()}";
-        $this->handleRateLimit($key, $this->user->getApiRateLimit());
+        $this->handleRateLimit($key, $this->user->getApiRateLimit(), "Developer");
     }
     
     /**
@@ -235,20 +235,19 @@ class ApiRequest
     {
         $ip  = md5($this->request->getClientIp());
         $key = "api_rate_limit_client_{$ip}";
-        
-        
+
         $ratelimit = $this->isLodestoneRequest ? self::MAX_RATE_LIMIT_LODE : self::MAX_RATE_LIMIT_GLOBAL;
         
-        $this->handleRateLimit($key, $ratelimit);
+        $this->handleRateLimit($key, $ratelimit, "WebBased");
     }
     
     /**
      * Handle rate limit tracking
      */
-    private function handleRateLimit($key, $limit = self::MAX_RATE_LIMIT_GLOBAL)
+    private function handleRateLimit($key, $limit = self::MAX_RATE_LIMIT_GLOBAL, $type = 'unknown')
     {
         // current and last second
-        $key = $key .'_v3_'. (int)date('s');
+        $key = $key .'_v4_'. (int)date('s');
         
         // increment
         $count = (int)Redis::Cache()->get($key);
@@ -260,19 +259,26 @@ class ApiRequest
             file_put_contents(
             __DIR__.'/../../../../api_rate_limited.txt',
                 sprintf(
-                    "[%s] (RATE LIMIT HIT) Hits: %s -- %s --> (%s) %s\n",
+                    "[%s] (RATE LIMIT HIT) Hits: %s -- %s --> (%s) %s \n",
                     date('Y-m-d H:i:s'),
                     $count,
                     $this->request->attributes->get('_controller'),
-                    $this->clientHash,
+                    ApiRequest::$idStatic,
                     $this->apikey ?: "(no-api-key)"
                 ),
                 FILE_APPEND
             );
 
-            throw new ApiRateLimitException(
-                ApiRateLimitException::MESSAGE . " -- " . self::$idStatic
+            $message = "(RateLimit @ %s) %s - ID: %s - Type: %s";
+            $message = sprintf(
+                $message,
+                $limit,
+                ApiRateLimitException::MESSAGE,
+                ApiRequest::$idStatic,
+                $type
             );
+
+            throw new ApiRateLimitException($message);
         }
     }
     
