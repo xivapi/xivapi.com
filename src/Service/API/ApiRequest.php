@@ -130,8 +130,8 @@ class ApiRequest
                 "[%s] %s --> (%s) %s\n",
                 date('Y-m-d H:i:s'),
                 $this->request->attributes->get('_controller'),
-                $this->clientHash,
-                $this->apikey ?: "(no-api-key)"
+                $this->apikey ? "(key: 1)" : "(key: 0)",
+                ApiRequest::$idStatic,
             ),
             FILE_APPEND
         );
@@ -256,19 +256,23 @@ class ApiRequest
         
         // throw exception if hit count too high
         if ($count > $limit) {
+            // private error message
             file_put_contents(
             __DIR__.'/../../../../api_rate_limited.txt',
                 sprintf(
-                    "[%s] (RATE LIMIT HIT) Hits: %s -- %s --> (%s) %s \n",
+                    "[%s] (RATE-LIMITED) Hits: %s/%s -- %s == (%s) (%s) %s \n",
                     date('Y-m-d H:i:s'),
                     $count,
+                    $limit,
                     $this->request->attributes->get('_controller'),
                     ApiRequest::$idStatic,
+                    $type,
                     $this->apikey ?: "(no-api-key)"
                 ),
                 FILE_APPEND
             );
 
+            // public error message
             $message = "(RateLimit @ %s) %s - ID: %s - Type: %s";
             $message = sprintf(
                 $message,
