@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Common\Service\Redis\Redis;
 use App\Common\Utils\SiteVersion;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -66,6 +67,18 @@ class HomeController extends AbstractController
             'Version'   => $ver->version,
             'Hash'      => $ver->hash,
             'Timestamp' => $ver->time
+        ]);
+    }
+
+    /**
+     * @Route("/requests/stats")
+     */
+    public function stats()
+    {
+        return $this->json([
+            'date' => Redis::cache()->get('stat_date'),
+            'key' => Redis::cache()->get('stat_haskey'),
+            'nokey' => Redis::cache()->get('stat_nokey'),
         ]);
     }
 }

@@ -121,6 +121,8 @@ class ApiRequest
             $this->isLodestoneRequest = true;  
         }
 
+        $this->statRequestCount();
+
         // set request ids
         $this->setApiRequestIds();
         
@@ -131,7 +133,7 @@ class ApiRequest
                 date('Y-m-d H:i:s'),
                 $this->request->attributes->get('_controller'),
                 $this->apikey ? "(key: 1)" : "(key: 0)",
-                ApiRequest::$idStatic,
+                ApiRequest::$idStatic
             ),
             FILE_APPEND
         );
@@ -167,6 +169,18 @@ class ApiRequest
 
         // log daily limits
         $this->recordDailyLimit();
+    }
+
+    private function statRequestCount()
+    {
+        $date = Redis::cache()->get('stat_date');
+
+        if (empty($date)) {
+            Redis::cache()->set('stat_date', date('Y-m-d H:i:s') ." UTC");
+        }
+
+        $key = $this->apikey ? 'stat_haskey' : 'stat_nokey';
+        Redis::cache()->increment('stat_count', $key);
     }
 
     /**
