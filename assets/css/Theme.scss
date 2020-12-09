@@ -408,14 +408,6 @@ main .docs {
         p {
             line-height: 24px;
             margin-bottom: 20px;
-
-            &.note {
-                background-color: var(--background3);
-                color: var(--background4);
-                line-height: 18px;
-                padding: 20px;
-                font-size: 13px;
-            }
         }
 
         hr {
@@ -423,6 +415,14 @@ main .docs {
             background-color: var(--background);
             height: 2px;
             margin: 40px 0;
+        }
+
+        .note {
+            background-color: var(--background3);
+            color: var(--background4);
+            line-height: 18px;
+            padding: 20px;
+            font-size: 13px;
         }
 
         .route {
