@@ -46,13 +46,16 @@ class LodestoneCharacterController extends AbstractController
     public function multi(Request $request)
     {
         $ids = explode(',', $request->get('ids'));
-        if (count($ids) > 512) {
-            throw new \Exception("Woah there calm down, 512+ characters wtf?");
+        if (count($ids) > 200) {
+            throw new \Exception("Woah there calm down, 200+ characters wtf?");
         }
 
         $response = [];
         foreach ($ids as $id) {
             $response[] = $this->index($request, $id, true);
+
+            // sleep for .3s
+            usleep(300000);
         }
 
         return $this->json($response);
