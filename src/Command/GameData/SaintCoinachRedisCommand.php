@@ -156,7 +156,7 @@ class SaintCoinachRedisCommand extends Command
 
             // Grab the current ID list and then store it for elastic search as this list will be updated
             // before elastic search gets to use it.
-            $currentIds = Redis::cache()->get("ids_{$contentName}");
+            $currentIds = (array)Redis::cache()->get("ids_{$contentName}");
             Redis::cache()->set("ids_{$contentName}_es", $currentIds , self::REDIS_DURATION);
             
             foreach ($allContentData as $contentId => $contentData) {
