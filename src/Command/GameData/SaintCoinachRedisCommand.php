@@ -124,22 +124,25 @@ class SaintCoinachRedisCommand extends Command
             $count++;
             
             if ($focusName && $focusName != $contentName) {
-                # $this->io->text("Sheet: {$count}/{$total}    <info>SKIPPED {$contentName}</info>");
+                $this->io->text("Sheet: {$count}/{$total}    <info>SKIPPED {$contentName}</info>");
                 continue;
             }
             
             // skip ENpcBase, will do it on its own...
             if (!$focusName && $contentName == 'ENpcBase') {
+                $this->io->writeln("Skipping ENpcBase");
                 continue;
             }
             
             // skip level as it takes about 50 years
             if ($contentName == 'Level' && $focusName != 'Level') {
+                $this->io->writeln("Skipping Level");
                 continue;
             }
             
             // skip HWDIntroduction because somehow it doesn't get generated properly and nobody cares so whatever
             if ($contentName == 'HWDIntroduction') {
+                $this->io->writeln("Skipping HWDIntroduction");
                 continue;
             }
     
@@ -161,13 +164,17 @@ class SaintCoinachRedisCommand extends Command
             
             foreach ($allContentData as $contentId => $contentData) {
                 if ($focusId && $focusId != $contentId) {
+                    $this->io->writeln("Skipping focus id: {$focusId}");
                     continue;
                 }
 
                 // if this is a full run or this ID is not in our current saved, then process it.
                 if ($isFullRun == true || in_array($contentId, $currentIds) === false) {
                     // build the game content
+                    $this->io->writeln("Building");
                     $this->buildContent($contentId, $contentName, $contentSchema, clone $contentData, 0, true);
+                } else {
+                    $this->io->writeln("Not building");
                 }
 
                 // store the content ids
