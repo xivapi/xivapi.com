@@ -75,10 +75,16 @@ class HomeController extends AbstractController
      */
     public function stats()
     {
+        $requests = 0;
+
+        foreach (range(0, 23) as $hour) {
+            $requests += (int)Redis::cache()->getCount('stat_requests_'. $hour);
+        }
+
         return $this->json([
-            'date'  => Redis::cache()->get('stat_date'),
-            'key'   => Redis::cache()->getCount('stat_haskey'),
-            'nokey' => Redis::cache()->getCount('stat_nokey'),
+            'date'    => Redis::cache()->get('stat_date'),
+            'total'   => Redis::cache()->getCount('stats_total'),
+            'tfhour'  => $requests,
         ]);
     }
 }

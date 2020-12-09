@@ -179,8 +179,12 @@ class ApiRequest
             Redis::cache()->set('stat_date', date('Y-m-d H:i:s') ." UTC");
         }
 
-        $key = $this->apikey ? 'stat_haskey' : 'stat_nokey';
-        Redis::cache()->increment($key);
+        $hour = date('G');
+        $key1 = "stat_requests_". $hour;
+        $key2 = "stats_total";
+
+        Redis::cache()->increment($key1);
+        Redis::cache()->increment($key2);
     }
 
     /**
