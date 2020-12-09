@@ -124,7 +124,7 @@ class SaintCoinachRedisCommand extends Command
             $count++;
             
             if ($focusName && $focusName != $contentName) {
-                $this->io->text("Sheet: {$count}/{$total}    <info>SKIPPED {$contentName}</info>");
+                # $this->io->text("Sheet: {$count}/{$total}    <info>SKIPPED {$contentName}</info>");
                 continue;
             }
             
@@ -171,10 +171,7 @@ class SaintCoinachRedisCommand extends Command
                 // if this is a full run or this ID is not in our current saved, then process it.
                 if ($isFullRun == true || in_array($contentId, $currentIds) === false) {
                     // build the game content
-                    $this->io->writeln("Building");
                     $this->buildContent($contentId, $contentName, $contentSchema, clone $contentData, 0, true);
-                } else {
-                    $this->io->writeln("Not building");
                 }
 
                 // store the content ids
