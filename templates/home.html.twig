@@ -147,30 +147,25 @@
 
 {% block javascripts %}
 <script>
-    var field = $("#served"),
-        count = 0;
+    var field = $("#served");
 
     function getRequestStats() {
         $.ajax({
             url: "/requests/stats",
             success: function(response) {
                 var amount = String(response.tfhour).replace(/(.)(?=(\d{3})+$)/g,'$1,');
-                field.text(amount)
+                field.text(amount);
+
+                // self call
+                setTimeout(function() {
+                    getRequestStats
+                }, 1000)
             }
         })
     }
 
     // run
     getRequestStats();
-    var counter = setInterval(function() {
-        getRequestStats();
-        count++;
-
-        if (count === 1500) {
-            clearInterval(counter);
-        }
-    }, 1000);
-
 
 </script>
 {% endblock %}

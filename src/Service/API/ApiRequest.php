@@ -140,7 +140,7 @@ class ApiRequest
                 $this->request->attributes->get('_controller'),
                 $this->apikey ? "1" : "0",
                 ApiRequest::$idStatic
-            ]),
+            ]) . "\n",
             FILE_APPEND
         );
 
@@ -290,7 +290,7 @@ class ApiRequest
                     ApiRequest::$idStatic,
                     $type,
                     $this->apikey ?: "nokey"
-                ]),
+                ]) . "\n",
                 FILE_APPEND
             );
 
