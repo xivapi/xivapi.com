@@ -161,6 +161,10 @@ class SaintCoinachRedisCommand extends Command
             // before elastic search gets to use it.
             $currentIds = (array)Redis::cache()->get("ids_{$contentName}");
             Redis::cache()->set("ids_{$contentName}_es", $currentIds , self::REDIS_DURATION);
+
+            $section = new ConsoleOutput();
+            $section = $section->section();
+            $section->writeln(">> starting: {$contentName}");
             
             foreach ($allContentData as $contentId => $contentData) {
                 if ($focusId && $focusId != $contentId) {
@@ -176,7 +180,10 @@ class SaintCoinachRedisCommand extends Command
 
                 // store the content ids
                 $this->saveContentId($contentId, $contentName);
+                $section->overwrite(">> id: {$contentId}");
             }
+
+            $section->clear();
             
             unset($allContentData);
             
