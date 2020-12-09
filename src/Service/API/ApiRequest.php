@@ -180,7 +180,7 @@ class ApiRequest
         }
 
         $key = $this->apikey ? 'stat_haskey' : 'stat_nokey';
-        Redis::cache()->increment('stat_count', $key);
+        Redis::cache()->increment($key);
     }
 
     /**
