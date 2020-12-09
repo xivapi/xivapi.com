@@ -147,9 +147,10 @@
 
 {% block javascripts %}
 <script>
-    var field = $("#served");
+    var field = $("#served"),
+        count = 0;
 
-    setTimeout(function() {
+    function getRequestStats() {
         $.ajax({
             url: "/requests/stats",
             success: function(response) {
@@ -157,6 +158,19 @@
                 field.text(amount)
             }
         })
-    }, 2000);
+    }
+
+    // run
+    getRequestStats();
+    var counter = setInterval(function() {
+        getRequestStats();
+        count++;
+
+        if (count === 1500) {
+            clearInterval(counter);
+        }
+    }, 1000);
+
+
 </script>
 {% endblock %}
