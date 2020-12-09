@@ -113,15 +113,13 @@ class LodestoneCharacterController extends AbstractController
             // check our response
             $resCodes = [
                 $lsdata['profile']->StatusCode ?? 0,
-                $lsdata['classjobs']->StatusCode ?? 0,
-                $lsdata['minions']->StatusCode ?? 0,
-                $lsdata['mounts']->StatusCode ?? 0
+                $lsdata['classjobs']->StatusCode ?? 0
             ];
 
             $resCodesTotal = array_sum($resCodes);
 
             if ($resCodesTotal > 0) {
-                throw new \Exception("Lodestone response error, codes: ". implode(",", $resCodes));
+                throw new \Exception("Lodestone response error, codes: ". implode(",", $resCodes) ." -- Please note, these codes are from Lodestone and NOT from xivapi, 404 means not found, 429 means rate limit.");
             }
     
             // response model
