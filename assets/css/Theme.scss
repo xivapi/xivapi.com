@@ -417,14 +417,6 @@ main .docs {
             margin: 40px 0;
         }
 
-        .note {
-            background-color: var(--background3);
-            color: var(--background4);
-            line-height: 18px;
-            padding: 20px;
-            font-size: 13px;
-        }
-
         .route {
             border-left: solid 3px var(--light-blue-opacity);
             padding-left: 30px;
@@ -471,6 +463,14 @@ main .docs {
                     opacity: 1;
                 }
             }
+        }
+
+        .note {
+            background-color: var(--background3);
+            color: var(--background4);
+            line-height: 18px;
+            padding: 20px;
+            font-size: 13px;
         }
 
         .gap {
