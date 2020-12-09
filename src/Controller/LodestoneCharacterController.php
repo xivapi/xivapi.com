@@ -121,7 +121,7 @@ class LodestoneCharacterController extends AbstractController
             $resCodesTotal = array_sum($resCodes);
 
             if ($resCodesTotal > 0) {
-                throw new \Exception("Lodestone response error, code size: {$resCodesTotal}");
+                throw new \Exception("Lodestone response error, codes: ". implode(",", $resCodes));
             }
     
             // response model
