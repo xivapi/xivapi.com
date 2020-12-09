@@ -108,13 +108,17 @@ class LodestoneCharacterController extends AbstractController
             $api->config()->useSync();
             
             // check our response
-            $responseCode = $lsdata['profile']->StatusCode ?? null;
-            if ($responseCode) {
-                if ($responseCode === 404) {
-                    throw new LodestoneNotFoundException("No character for id: {$lodestoneId} was found", $responseCode);   
-                }
-                
-                throw new \Exception("Lodestone response error, code: {$responseCode}", $responseCode);
+            $resCodes = [
+                $lsdata['profile']->StatusCode ?? 0,
+                $lsdata['classjobs']->StatusCode ?? 0,
+                $lsdata['minions']->StatusCode ?? 0,
+                $lsdata['mounts']->StatusCode ?? 0
+            ];
+
+            $resCodesTotal = array_sum($resCodes);
+
+            if ($resCodesTotal > 0) {
+                throw new \Exception("Lodestone response error, code size: {$resCodesTotal}");
             }
     
             // response model
@@ -137,9 +141,9 @@ class LodestoneCharacterController extends AbstractController
                 $classjobs = $lsdata['classjobs'];
         
                 // set some root data
-                $response->Character->ClassJobs          = $classjobs['classjobs'];
-                $response->Character->ClassJobsElemental = $classjobs['elemental'];
-                $response->Character->ClassJobsBozjan    = $classjobs['bozjan'];
+                $response->Character->ClassJobs          = $classjobs['classjobs'] ?? null;
+                $response->Character->ClassJobsElemental = $classjobs['elemental'] ?? null;
+                $response->Character->ClassJobsBozjan    = $classjobs['bozjan'] ?? null;
         
                 // ---------------------- ACTIVE CLASS JOB ----------------------
                 // look at this shit, pulled straight from lodestone parser :D
