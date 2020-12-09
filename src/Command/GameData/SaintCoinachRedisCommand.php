@@ -39,7 +39,7 @@ class SaintCoinachRedisCommand extends Command
     /** @var Patch */
     protected $patch;
     /** @var array */
-    protected $save;
+    protected $save = [];
     /** @var array */
     protected $links = [];
     /** @var array */
@@ -214,8 +214,8 @@ class SaintCoinachRedisCommand extends Command
                     }
                 }
                 Redis::Cache()->executePipeline();
-                
-                unset($this->save);
+
+                $this->save = [];
             }
             
             unset($section);
