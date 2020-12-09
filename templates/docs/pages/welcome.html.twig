@@ -110,6 +110,9 @@
                 <td>{{ max_rate_limit_key }} / req / sec (*)</td>
                 <td>{{ max_rate_limit_global }} / req / sec</td>
             </tr>
+            <tr>
+                <td colspan="">Lodestone endpoints are limited to 1/second. Lodestone has its own rate limit that is out of XIVAPI's control, you can read more about that on their relative documentation pages.</td>
+            </tr>
         </tbody>
     </table>
     <small>
@@ -127,6 +130,15 @@
         <br><br>
         Game Content is very static and real-time data (e.g. Characters) makes requests directly to the Lodestone.
         Be wise with regards to your usage.
+    </p>
+
+    <br/>
+
+    <p class="note">
+        <h6>Automated Bans Notice</h6>
+
+        XIVAPI will automatically ban request sources if they reach a high threshold. This lasts for 1 hour, this is very obvious
+        to the creators of the API so if you hit this, know we're watching and we may perma ban either a request source or API key.
     </p>
 
     <small>

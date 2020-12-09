@@ -26,14 +26,11 @@ use App\Exception\ApiTempBanException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * todo - exceptions in this class should be unique
- */
 class ApiRequest
 {
     const KEY_FIELD             = 'private_key';
-    const MAX_RATE_LIMIT_KEY    = 30;
-    const MAX_RATE_LIMIT_GLOBAL = 12;
+    const MAX_RATE_LIMIT_KEY    = 20;
+    const MAX_RATE_LIMIT_GLOBAL = 8;
     const MAX_RATE_LIMIT_LODE   = 1;
     
     private $isLodestoneRequest = false;
