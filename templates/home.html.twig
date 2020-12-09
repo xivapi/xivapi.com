@@ -19,7 +19,7 @@
 <div class="home-top">
     <div class="heading">
         <h1>A FINAL FANTASY XIV: Online REST API</h1>
-        <div>Serving <strong id="served">a lot</strong> of requests in the past day.</div>
+        <div style="font-size: 20px;">Throwing out <strong id="served" style="color: #f1ff35;">a lot</strong> requests in the past day.</div>
     </div>
 
     <div class="fake-browser">
@@ -149,12 +149,14 @@
 <script>
     var field = $("#served");
 
-    $.ajax({
-        url: "/requests/stats",
-        success: function(response) {
-            var amount = String(response.tfhour).replace(/(.)(?=(\d{3})+$)/g,'$1,');
-            field.text(amount)
-        }
-    })
+    setTimeout(function() {
+        $.ajax({
+            url: "/requests/stats",
+            success: function(response) {
+                var amount = String(response.tfhour).replace(/(.)(?=(\d{3})+$)/g,'$1,');
+                field.text(amount)
+            }
+        })
+    }, 2000);
 </script>
 {% endblock %}
