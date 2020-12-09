@@ -47,7 +47,7 @@ sleep 3
 
 # Update lore search
 sleep 3
-/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdateSearchLoreCommand --environment=prod
+/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdateSearchLoreCommand
 
 ## -------------------------------------------------------------------------------------
 
