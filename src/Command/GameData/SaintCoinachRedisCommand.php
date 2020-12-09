@@ -8,6 +8,7 @@ use App\Common\Utils\System;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Service\Data\FileSystemCache;
@@ -51,12 +52,12 @@ class SaintCoinachRedisCommand extends Command
         $this
             ->setName('SaintCoinachRedisCommand')
             ->setDescription('Build content data from the CSV files and detect content links')
-            ->addArgument('start', InputArgument::REQUIRED, 'The required starting position for the data')
-            ->addArgument('count', InputArgument::REQUIRED, 'The amount of files to process in 1 go')
-            ->addArgument('fast', InputArgument::OPTIONAL, 'Skip all questions and use default values', true)
-            ->addArgument('full', InputArgument::OPTIONAL, 'Perform a full import, regardless of existing entries', false)
-            ->addArgument('content', InputArgument::OPTIONAL, 'Forced content name', null)
-            ->addArgument('id', InputArgument::OPTIONAL, 'Forced content name', null);
+            ->addOption('start', null, InputOption::VALUE_OPTIONAL, 'The required starting position for the data', 0)
+            ->addOption('count', null, InputOption::VALUE_OPTIONAL, 'The amount of files to process in 1 go', 1000)
+            ->addOption('fast', null, InputOption::VALUE_OPTIONAL, 'Skip all questions and use default values', true)
+            ->addOption('full', null, InputOption::VALUE_OPTIONAL, 'Perform a full import, regardless of existing entries', false)
+            ->addOption('content', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null)
+            ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null);
     }
     
     protected function execute(InputInterface $input, OutputInterface $output)

@@ -12,6 +12,7 @@ use App\Common\Service\ElasticSearch\ElasticSearch;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateSearchCommand extends Command
@@ -23,10 +24,10 @@ class UpdateSearchCommand extends Command
         $this
             ->setName('UpdateSearchCommand')
             ->setDescription('Deploy all search data to live!')
-            ->addArgument('environment', InputArgument::OPTIONAL, 'prod OR dev', 'prod')
-            ->addArgument('full', InputArgument::OPTIONAL, 'Perform a full import, regardless of existing entries', false)
-            ->addArgument('content', InputArgument::OPTIONAL, 'Run a specific content', null)
-            ->addArgument('id', InputArgument::OPTIONAL, 'Run a specific content id', null);
+            ->addOption('environment', null, InputOption::VALUE_OPTIONAL, 'prod OR dev', 'prod')
+            ->addOption('full', null, InputOption::VALUE_OPTIONAL, 'Perform a full import, regardless of existing entries', false)
+            ->addOption('content', null, InputOption::VALUE_OPTIONAL, 'Run a specific content', null)
+            ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Run a specific content id', null);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
