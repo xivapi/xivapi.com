@@ -22,6 +22,7 @@ use App\Exception\ApiAppBannedException;
 use App\Exception\ApiRateLimitException;
 use App\Common\Service\Redis\Redis;
 use App\Common\User\Users;
+use App\Exception\ApiTempBanException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -121,6 +122,12 @@ class ApiRequest
             $this->isLodestoneRequest = true;  
         }
 
+        // check tempban
+        $tempban = Redis::cache()->get('temp_ban_'. ApiRequest::$idStatic);
+        if ($tempban) {
+            throw new ApiTempBanException();
+        }
+
         $this->statRequestCount();
 
         // set request ids
@@ -128,16 +135,14 @@ class ApiRequest
         
         file_put_contents(
             __DIR__.'/../../../../api_logs.txt',
-            sprintf(
-                "[%s] %s --> (%s) %s\n",
+            implode("|", [
                 date('Y-m-d H:i:s'),
                 $this->request->attributes->get('_controller'),
-                $this->apikey ? "(key: 1)" : "(key: 0)",
+                $this->apikey ? "1" : "0",
                 ApiRequest::$idStatic
-            ),
+            ]),
             FILE_APPEND
         );
-
 
         // if this request is not against an API controller, we don't need to do anything.
         if ($this->isApiController() === false) {
@@ -277,21 +282,20 @@ class ApiRequest
             // private error message
             file_put_contents(
             __DIR__.'/../../../../api_rate_limited.txt',
-                sprintf(
-                    "[%s] (RATE-LIMITED) Hits: %s/%s -- %s == (%s) (%s) %s \n",
+                implode("|", [
                     date('Y-m-d H:i:s'),
                     $count,
                     $limit,
                     $this->request->attributes->get('_controller'),
                     ApiRequest::$idStatic,
                     $type,
-                    $this->apikey ?: "(no-api-key)"
-                ),
+                    $this->apikey ?: "nokey"
+                ]),
                 FILE_APPEND
             );
 
             // public error message
-            $message = "(RateLimit @ %s) %s - ID: %s - Type: %s";
+            $message = "(RateLimit @ %s) %s - ID: %s - Type: %s - Stop Spamming";
             $message = sprintf(
                 $message,
                 $limit,
@@ -299,6 +303,12 @@ class ApiRequest
                 ApiRequest::$idStatic,
                 $type
             );
+
+
+            if ($count > 100) {
+                Discord::mog()->sendMessage(null, "Temp Banned static ID: ". ApiRequest::$idStatic ." for 1 hour as 100+ requests were sent within the past 1 second. -- Key: ". ($this->apikey ?: "[nokey]"));
+                Redis::cache()->set('temp_ban_'. ApiRequest::$idStatic, 3600);
+            }
 
             throw new ApiRateLimitException($message);
         }
@@ -362,7 +372,7 @@ class ApiRequest
         }
 
         $cap  = 1000;
-        $timestamp = date('zHi');
+        $timestamp = date('zHi'); // 1 minute
         $key  = "apikey_request_count_{$this->apikey}_{$timestamp}";
 
         $count = Redis::Cache()->get($key) ?: 0;
