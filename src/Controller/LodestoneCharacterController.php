@@ -55,7 +55,7 @@ class LodestoneCharacterController extends AbstractController
             $response[] = $this->index($request, $id, true);
 
             // sleep for .3s
-            usleep(300000);
+            usleep(500000);
         }
 
         return $this->json($response);
