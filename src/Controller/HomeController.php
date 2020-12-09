@@ -76,9 +76,9 @@ class HomeController extends AbstractController
     public function stats()
     {
         return $this->json([
-            'date' => Redis::cache()->get('stat_date'),
-            'key' => Redis::cache()->get('stat_haskey'),
-            'nokey' => Redis::cache()->get('stat_nokey'),
+            'date'  => Redis::cache()->get('stat_date'),
+            'key'   => Redis::cache()->getCount('stat_haskey'),
+            'nokey' => Redis::cache()->getCount('stat_nokey'),
         ]);
     }
 }
