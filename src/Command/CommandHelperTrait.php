@@ -10,13 +10,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use App\Service\Data\FileSystem;
 use App\Service\Data\FileSystemCache;
 
-/**
- * @deprecated
- *
- * todo - deprecate
- * This is deprecate, use CommandConfigureTrait for auto command setup,
- * the rest (saint, game data specific) should be in its own classes
- */
 trait CommandHelperTrait
 {
     public $schemaFilename = __DIR__ . '/../../data/gametools/SaintCoinach.Cmd/ex.json';
@@ -32,8 +25,6 @@ trait CommandHelperTrait
     protected $version;
     /** @var Carbon */
     protected $startTime;
-    /** @var array */
-    protected $filenames = [];
     /** @var array */
     protected $schema = [];
 
@@ -126,26 +117,6 @@ trait CommandHelperTrait
     {
         $this->version = SaintCoinach::version();
         $this->io->text([ "Version: <comment>{$this->version}</comment>", "" ]);
-        return $this;
-    }
-
-    /**
-     * Checks the cache is built
-     */
-    protected function checkCache(): self
-    {
-        $this->io->text("<fg=cyan>Building memory cache ...</>");
-        foreach (FileSystem::list() as $type => $files) {
-            foreach ($files as $filename) {
-                $this->filenames[] = $filename;
-
-                FileSystemCache::add(
-                    $filename,
-                    FileSystem::load($filename, 'json')
-                );
-            }
-        }
-        
         return $this;
     }
 }

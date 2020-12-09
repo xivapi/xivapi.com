@@ -2,13 +2,15 @@
 
 START_TIME=$SECONDS
 
+run_full_import="${1:-0}"
+
 ## -------------------------------------------------------------------------------------
 
 # Convert data from CSV to Json
 /usr/bin/php /vagrant/bin/console SaintCoinachJsonCacheCommand
 
 # run ENpcBase on its own
-/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand 0 500 1 -q ENpcBase
+/usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand --start=0 --count=500 --full=$run_full_import --content=ENpcBase -q
 
 sleep 5
 
@@ -18,7 +20,7 @@ do
 
     echo " --------- Loop: $i / 20 - chunk: $start_point ------------------------------------"
 
-    /usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand $start_point 25 1 -q
+    /usr/bin/php /vagrant/bin/console SaintCoinachRedisCommand --start=$start_point --count=25 --full=$run_full_import -q
 
     sleep 3
 done

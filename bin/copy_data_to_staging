@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+echo "Copying from: /home/dalamud/xivapi.com/data --> /home/dalamud/xivapi.com.beta/data"
+echo "This will take a minute..."
+
+cp -r /home/dalamud/xivapi.com/data /home/dalamud/xivapi.com.beta/data
+
+echo "Copy complete"

@@ -2,13 +2,15 @@
 
 START_TIME=$SECONDS
 
+run_full_import="${1:-0}"
+
 ## -------------------------------------------------------------------------------------
 
 # Convert data from CSV to Json
 /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachJsonCacheCommand
 
 # run ENpcBase on its own
-/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand 0 500 1 -q ENpcBase
+/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand --start=0 --count=500 --full=$run_full_import --content=ENpcBase -q
 
 sleep 5
 
@@ -17,7 +19,7 @@ for (( i = 0; i <= 22; ++i )); do
 
     echo " --------- Loop: $i / 22 - chunk: $start_point ------------------------------------"
 
-    /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand $start_point 25 1 -q
+    /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand --start=$start_point --count=25 --full=$run_full_import -q
 
     sleep 3
 done
@@ -43,11 +45,11 @@ sleep 3
 
 # Update search
 sleep 3
-/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdateSearchCommand prod
+/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdateSearchCommand --environment=prod --full=$run_full_import
 
 # Update lore search
 sleep 3
-/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdateSearchLoreCommand dev
+/usr/bin/php /home/dalamud/xivapi.com/bin/console UpdateSearchLoreCommand --environment=prod
 
 ## -------------------------------------------------------------------------------------
 

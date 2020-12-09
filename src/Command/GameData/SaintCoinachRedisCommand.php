@@ -24,6 +24,7 @@ class SaintCoinachRedisCommand extends Command
     
     const MAX_DEPTH = 3;
     const SAVE_TO_REDIS = true;
+    const REDIS_PIPESIZE = 250;
     const REDIS_DURATION = (60 * 60 * 24 * 365 * 10); // 10 years
     const ZERO_CONTENT = [
         'ExVersion',
@@ -50,11 +51,12 @@ class SaintCoinachRedisCommand extends Command
         $this
             ->setName('SaintCoinachRedisCommand')
             ->setDescription('Build content data from the CSV files and detect content links')
-            ->addArgument('file_start', InputArgument::REQUIRED, 'The required starting position for the data')
-            ->addArgument('file_count', InputArgument::REQUIRED, 'The amount of files to process in 1 go')
-            ->addArgument('fast', InputArgument::OPTIONAL, 'Skip all questions and use default values')
-            ->addArgument('force_content_name', InputArgument::OPTIONAL, 'Forced content name')
-            ->addArgument('force_content_id', InputArgument::OPTIONAL, 'Forced content name');
+            ->addArgument('start', InputArgument::REQUIRED, 'The required starting position for the data')
+            ->addArgument('count', InputArgument::REQUIRED, 'The amount of files to process in 1 go')
+            ->addArgument('fast', InputArgument::OPTIONAL, 'Skip all questions and use default values', true)
+            ->addArgument('full', InputArgument::OPTIONAL, 'Perform a full import, regardless of existing entries', false)
+            ->addArgument('content', InputArgument::OPTIONAL, 'Forced content name', null)
+            ->addArgument('id', InputArgument::OPTIONAL, 'Forced content name', null);
     }
     
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -62,15 +64,14 @@ class SaintCoinachRedisCommand extends Command
         $this->patch = new Patch();
         
         $this->setSymfonyStyle($input, $output);
-        $start = $this->input->getArgument('file_start');
-        $end   = $start + $this->input->getArgument('file_count');
+        $start = $this->input->getArgument('start');
+        $end   = $start + $this->input->getArgument('count');
         
         $this->title("CONTENT UPDATE: {$start} --> {$end}");
         $this->startClock();
     
         $this->checkSchema();
         $this->checkVersion();
-        #$this->checkCache();
     
         // this forces exceptions to be thrown
         set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
@@ -79,7 +80,6 @@ class SaintCoinachRedisCommand extends Command
         });
     
         $this->buildData();
-        
         $this->endClock();
 
         return 0;
@@ -90,8 +90,9 @@ class SaintCoinachRedisCommand extends Command
      */
     private function buildData()
     {
-        $focusName  = $this->input->getArgument('force_content_name');
-        $focusId    = $this->input->getArgument('force_content_id');
+        $focusName  = $this->input->getArgument('content');
+        $focusId    = $this->input->getArgument('id');
+        $isFullRun  = $this->input->getArgument('full');
         
         if ($focusName || $focusId) {
             $this->io->table(
@@ -104,8 +105,8 @@ class SaintCoinachRedisCommand extends Command
         $chunkySchema = $this->schema;
         $chunkySchema = array_splice(
             $chunkySchema,
-            $this->input->getArgument('file_start'),
-            $this->input->getArgument('file_count')
+            $this->input->getArgument('start'),
+            $this->input->getArgument('count')
         );
     
         if (!$chunkySchema) {
@@ -151,13 +152,25 @@ class SaintCoinachRedisCommand extends Command
     
             $memory   = number_format(System::memory());
             $section->writeln("[{$memory}MB memory] Sheet: {$count}/{$total} <info>{$contentName}</info>");
+
+            // Grab the current ID list and then store it for elastic search as this list will be updated
+            // before elastic search gets to use it.
+            $currentIds = Redis::cache()->get("ids_{$contentName}");
+            Redis::cache()->set("ids_{$contentName}_es", $currentIds , self::REDIS_DURATION);
             
             foreach ($allContentData as $contentId => $contentData) {
                 if ($focusId && $focusId != $contentId) {
                     continue;
                 }
-   
-                $this->buildContent($contentId, $contentName, $contentSchema, clone $contentData, 0, true);
+
+                // if this is a full run or this ID is not in our current saved, then process it.
+                if ($isFullRun == true || in_array($contentId, $currentIds) === false) {
+                    // build the game content
+                    $this->buildContent($contentId, $contentName, $contentSchema, clone $contentData, 0, true);
+                }
+
+                // store the content ids
+                $this->saveContentId($contentId, $contentName);
             }
             
             unset($allContentData);
@@ -180,10 +193,9 @@ class SaintCoinachRedisCommand extends Command
                     $data->GameContentLinks = null;
                     
                     // save
-                    $this->saveContentId($data->ID, $contentName);
                     Redis::Cache()->set($key, $data, self::REDIS_DURATION);
                     
-                    if ($idCount % 250 == 0) {
+                    if ($idCount % self::REDIS_PIPESIZE == 0) {
                         $saveCount++;
                         Redis::Cache()->executePipeline();
                         Redis::Cache()->startPipeline();
@@ -200,7 +212,6 @@ class SaintCoinachRedisCommand extends Command
         //
         // save the ids
         //
-        
         $this->io->text('<fg=cyan>Caching content ID lists</>');
         Redis::Cache()->startPipeline();
         foreach ($this->ids as $contentName => $idList) {
@@ -218,7 +229,6 @@ class SaintCoinachRedisCommand extends Command
         //
         // Save links
         //
-        
         $this->io->text('<fg=cyan>Building content connection links</>');
         $this->io->progressStart(count($this->links));
         foreach ($this->links as $linkTarget => $contentData) {

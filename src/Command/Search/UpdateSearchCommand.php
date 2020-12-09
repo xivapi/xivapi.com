@@ -3,6 +3,7 @@
 namespace App\Command\Search;
 
 use App\Command\CommandHelperTrait;
+use App\Command\GameData\SaintCoinachRedisCommand;
 use App\Common\Service\Redis\Redis;
 use App\Common\Utils\Arrays;
 use App\Common\Utils\Language;
@@ -22,9 +23,10 @@ class UpdateSearchCommand extends Command
         $this
             ->setName('UpdateSearchCommand')
             ->setDescription('Deploy all search data to live!')
-            ->addArgument('environment', InputArgument::OPTIONAL, 'prod OR dev')
-            ->addArgument('content', InputArgument::OPTIONAL, 'Run a specific content')
-            ->addArgument('id', InputArgument::OPTIONAL, 'Run a specific content id');
+            ->addArgument('environment', InputArgument::OPTIONAL, 'prod OR dev', 'prod')
+            ->addArgument('full', InputArgument::OPTIONAL, 'Perform a full import, regardless of existing entries', false)
+            ->addArgument('content', InputArgument::OPTIONAL, 'Run a specific content', null)
+            ->addArgument('id', InputArgument::OPTIONAL, 'Run a specific content id', null);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -36,6 +38,7 @@ class UpdateSearchCommand extends Command
 
         $envAllowed  = in_array($input->getArgument('environment'), ['prod', 'staging']);
         $environment = $envAllowed ? 'ELASTIC_SERVER_PROD' : 'ELASTIC_SERVER_LOCAL';
+        $isFullRun   = $this->input->getArgument('full') == 1;
 
         if ($input->getArgument('environment') == 'prod') {
             $this->io->success('DEPLOYING TO PRODUCTION');
@@ -53,6 +56,7 @@ class UpdateSearchCommand extends Command
 
                 $index = strtolower($contentName);
                 $ids   = (array)Redis::Cache()->get("ids_{$contentName}");
+                $idsEs = (array)Redis::cache()->get("ids_{$contentName}_es");
 
                 if (empty($ids)) {
                     $this->io->error('No IDs for content: ' . $contentName);
@@ -64,18 +68,18 @@ class UpdateSearchCommand extends Command
 
                 $this->io->text("<info>ElasticSearch import: {$total} {$contentName} documents to index: {$index}</info>");
 
-//                // rebuild index
-                $elastic->deleteIndex($index);
-//                // create index
-//                $elastic->addIndexGameData($index);
+                if ($isFullRun) {
+                    // delete index for a clean slate
+                    $elastic->deleteIndex($index);
 
-                if (!$elastic->hasIndex($index)) {
+                    // create index
                     $elastic->addIndexGameData($index);
                 }
 
+                // temporarily -1 the refresh interval for this index
                 $elastic->putSettings([
                     "index" => "$index",
-                    "body"  => [
+                    "body" => [
                         "settings" => [
                             "refresh_interval" => "-1"
                         ]
@@ -92,6 +96,14 @@ class UpdateSearchCommand extends Command
                         $input->getArgument('id') != $id) {
                         continue;
                     }
+
+                    // if this is not a full run and the id is already in the array, skip!
+                    if ($isFullRun === false && in_array($id, $idsEs) === true) {
+                        $this->io->progressAdvance($count);
+                        $count = 0;
+                        continue;
+                    }
+
 
                     // grab content
                     $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
@@ -123,7 +135,8 @@ class UpdateSearchCommand extends Command
                     // append to docs
                     $docs[$id] = $content;
 
-//                    $elastic->addDocument($index, 'search', $id, $content);
+                    // un comment to debug insert issues
+                    // $elastic->addDocument($index, 'search', $id, $content);
 
                     // insert docs
                     if ($count >= ElasticSearch::MAX_BULK_DOCUMENTS) {
@@ -138,6 +151,7 @@ class UpdateSearchCommand extends Command
                 if (count($docs) > 0) {
                     $elastic->bulkDocuments($index, 'search', $docs);
                 }
+
                 $this->io->progressFinish();
 
                 $elastic->putSettings([
@@ -148,9 +162,11 @@ class UpdateSearchCommand extends Command
                         ]
                     ]
                 ]);
+
+                // save new id list
+                Redis::Cache()->set("ids_{$contentName}_es", $idsEs, SaintCoinachRedisCommand::REDIS_DURATION);
             }
         } catch (\Exception $ex) {
-            //print_r($content ?? ['no content']);
             print_r($ex->getMessage());
             throw $ex;
         }
