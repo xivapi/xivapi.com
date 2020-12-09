@@ -37,11 +37,11 @@ class UpdateSearchCommand extends Command
             ->title('SEARCH')
             ->startClock();
 
-        $envAllowed  = in_array($input->getArgument('environment'), ['prod', 'staging']);
+        $envAllowed  = in_array($input->getOption('environment'), ['prod', 'staging']);
         $environment = $envAllowed ? 'ELASTIC_SERVER_PROD' : 'ELASTIC_SERVER_LOCAL';
-        $isFullRun   = $this->input->getArgument('full') == 1;
+        $isFullRun   = $this->input->getOption('full') == 1;
 
-        if ($input->getArgument('environment') == 'prod') {
+        if ($input->getOption('environment') == 'prod') {
             $this->io->success('DEPLOYING TO PRODUCTION');
         }
 
@@ -50,8 +50,8 @@ class UpdateSearchCommand extends Command
         // import documents to ElasticSearch
         try {
             foreach (SearchContent::LIST as $contentName) {
-                if ($input->getArgument('content') &&
-                    $input->getArgument('content') != $contentName) {
+                if ($input->getOption('content') &&
+                    $input->getOption('content') != $contentName) {
                     continue;
                 }
 
@@ -93,8 +93,8 @@ class UpdateSearchCommand extends Command
                 foreach ($ids as $id) {
                     $count++;
 
-                    if ($input->getArgument('id') &&
-                        $input->getArgument('id') != $id) {
+                    if ($input->getOption('id') &&
+                        $input->getOption('id') != $id) {
                         continue;
                     }
 

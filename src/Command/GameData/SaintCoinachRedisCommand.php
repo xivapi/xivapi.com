@@ -65,8 +65,8 @@ class SaintCoinachRedisCommand extends Command
         $this->patch = new Patch();
         
         $this->setSymfonyStyle($input, $output);
-        $start = $this->input->getArgument('start');
-        $end   = $start + $this->input->getArgument('count');
+        $start = $this->input->getOption('start');
+        $end   = $start + $this->input->getOption('count');
         
         $this->title("CONTENT UPDATE: {$start} --> {$end}");
         $this->startClock();
@@ -91,9 +91,9 @@ class SaintCoinachRedisCommand extends Command
      */
     private function buildData()
     {
-        $focusName  = $this->input->getArgument('content');
-        $focusId    = $this->input->getArgument('id');
-        $isFullRun  = $this->input->getArgument('full');
+        $focusName  = $this->input->getOption('content');
+        $focusId    = $this->input->getOption('id');
+        $isFullRun  = $this->input->getOption('full');
         
         if ($focusName || $focusId) {
             $this->io->table(
@@ -106,8 +106,8 @@ class SaintCoinachRedisCommand extends Command
         $chunkySchema = $this->schema;
         $chunkySchema = array_splice(
             $chunkySchema,
-            $this->input->getArgument('start'),
-            $this->input->getArgument('count')
+            $this->input->getOption('start'),
+            $this->input->getOption('count')
         );
     
         if (!$chunkySchema) {
