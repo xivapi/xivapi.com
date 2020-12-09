@@ -151,7 +151,7 @@
 
     function getRequestStats() {
         $.ajax({
-            url: "/requests/stats",
+            url: "/requests/stats?r=" + Math.floor(Math.random() * 99999999),
             success: function(response) {
                 var amount = String(response.tfhour).replace(/(.)(?=(\d{3})+$)/g,'$1,');
                 field.text(amount);
@@ -159,7 +159,7 @@
                 // self call
                 setTimeout(function() {
                     getRequestStats();
-                }, 1000)
+                }, 2000)
             }
         })
     }
