@@ -8,12 +8,16 @@
 
     <p>Welcome</p>
 
-    <div id="chart" style="height: 400px;"></div>
+    <div id="chart"></div>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
         var options = {
             chart: {
-                type: 'line'
+                type: 'line',
+                height: '400px'
+            },
+            toolbar: {
+                show: false
             },
             series: [{
                 name: 'Daily Hits',
