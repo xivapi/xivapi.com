@@ -64,11 +64,13 @@
                 },
             },
             fill: {
-                colors: ['#F44336', '#E91E63', '#9C27B0']
+                colors: ['#F44336']
             },
+            colors:['#F44336'],
             series: [{
                 name: 'Daily Hits',
                 data: {{ errorGraph.values|json_encode|raw }},
+
             }],
             xaxis: {
                 categories: {{ errorGraph.keys|json_encode|raw  }}
