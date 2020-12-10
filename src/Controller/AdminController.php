@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Common\Entity\User;
 use App\Common\Game\GameServers;
+use App\Common\Service\Redis\Redis;
 use App\Common\User\Users;
 use App\Entity\CompanionToken;
 use App\Service\API\ApiPermissions;
@@ -45,8 +46,16 @@ class AdminController extends AbstractController
     public function admin()
     {
         $this->authenticate();
+
+        $dailyhits = [];
+
+        foreach (range(0, 23) as $hour) {
+            $dailyhits[$hour] = (int)Redis::cache()->getCount('stat_requests_'. $hour);
+        }
         
-        return $this->render('admin/home.html.twig');
+        return $this->render('admin/home.html.twig', [
+            'daily_hits' => $dailyhits,
+        ]);
     }
     
     /**
