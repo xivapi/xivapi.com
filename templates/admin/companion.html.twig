@@ -12,82 +12,34 @@
             <br/>
 
             <div id="chart"></div>
-        </div>
-    </div>
+            <script>
+                var options = {
+                    chart: {
+                        type: 'area',
+                        height: '400px',
+                        toolbar: {
+                            show: false
+                        },
+                    },
+                    fill: {
+                        colors: ['#F44336']
+                    },
+                    colors:['#F44336'],
+                    series: [{
+                        name: 'Exceptions Thrown',
+                        data: {{ errorGraph.values|json_encode|raw }},
 
-    <script>
-        // var options = {
-        //     series: [{
-        //         name: "STOCK ABC",
-        //         data: series.monthDataSeries1.prices
-        //     }],
-        //     chart: {
-        //         type: 'area',
-        //         height: 350,
-        //         zoom: {
-        //             enabled: false
-        //         }
-        //     },
-        //     dataLabels: {
-        //         enabled: false
-        //     },
-        //     stroke: {
-        //         curve: 'straight'
-        //     },
-        //
-        //     title: {
-        //         text: 'Fundamental Analysis of Stocks',
-        //         align: 'left'
-        //     },
-        //     subtitle: {
-        //         text: 'Price Movements',
-        //         align: 'left'
-        //     },
-        //     labels: series.monthDataSeries1.dates,
-        //     xaxis: {
-        //         type: 'datetime',
-        //     },
-        //     yaxis: {
-        //         opposite: true
-        //     },
-        //     legend: {
-        //         horizontalAlign: 'left'
-        //     }
-        // };
+                    }],
+                    xaxis: {
+                        categories: {{ errorGraph.keys|json_encode|raw  }}
+                    }
+                }
 
-        var options = {
-            chart: {
-                type: 'area',
-                height: '400px',
-                toolbar: {
-                    show: false
-                },
-            },
-            fill: {
-                colors: ['#F44336']
-            },
-            colors:['#F44336'],
-            series: [{
-                name: 'Exceptions Thrown',
-                data: {{ errorGraph.values|json_encode|raw }},
+                var chart = (new ApexCharts(document.querySelector("#chart"), options));
+                chart.render();
+            </script>
 
-            }],
-            xaxis: {
-                categories: {{ errorGraph.keys|json_encode|raw  }}
-            }
-        }
-
-        var chart = (new ApexCharts(document.querySelector("#chart"), options));
-        chart.render();
-
-    </script>
-
-    <br/><br/>
-
-    <div class="card">
-        <div class="card-body">
-            <h3 class="card-title">Companion API Errors</h3>
-
+            <br/><br/>
             <table class="table">
                 <thead>
                 <tr>
@@ -104,10 +56,6 @@
                 {% endfor %}
                 </tbody>
             </table>
-
-            <br/>
-
-            <div id="chart"></div>
         </div>
     </div>
 
@@ -115,24 +63,18 @@
 
     <div class="card">
         <div class="card-body">
-            {% for account, accountServers in token_servers %}
-                <h3>{{ account }}</h3>
-                <table class="table table-bordered table-striped">
+            <h3 class="card-title">Account Status</h3>
+            <p class="card-text">Shown is the online/offline status of accounts.</p>
+
+            <div class="d-flex flex-row">
+                {% for account, accountServers in token_servers %}
                     {% for server in valid_servers %}
-                        <tr>
-                            <td width="30%">{{ server }}</td>
-                            <td width="30%" class="{{ server in accountServers ? 'text-success' : 'text-danger' }}">
-                                <strong>{{ server in accountServers ? 'OK' : 'NO CHARACTER' }}</strong>
-                            </td>
-                            <td>
-                                {% for dcName, dcServers in datacenter %}
-                                    {% if server in dcServers %}{{ dcName }}{% endif %}
-                                {% endfor %}
-                            </td>
-                        </tr>
+                        <div class="p-2" class="{{ server in accountServers ? 'text-success' : 'text-danger' }}">
+                            {{ server }} <strong>{{ server in accountServers ? 'OK' : 'NO CHARACTER' }}</strong>
+                        </div>
                     {% endfor %}
-                </table>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 
