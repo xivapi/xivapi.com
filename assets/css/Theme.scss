@@ -922,16 +922,11 @@ main .account {
         }
 
         .rate-limits {
-            display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 5px;
             font-size: 18px;
 
             em {
-                color: var(--light-green);
-            }
-
-            > div {
-                flex: 0 1 25%;
+                color: var(--red);
             }
         }
     }
