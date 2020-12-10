@@ -26,7 +26,7 @@
             },
             series: [{
                 name: 'Daily Hits',
-                data: {{ errorGraph.keys|json_encode|raw }}
+                data: {{ errorGraph.values|json_encode|raw }}
             }],
             xaxis: {
                 categories: {{ errorGraph.keys|json_encode|raw  }}
