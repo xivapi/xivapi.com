@@ -55,6 +55,7 @@ class AdminController extends AbstractController
         
         return $this->render('admin/home.html.twig', [
             'daily_hits' => $dailyhits,
+            'daily_total' => array_sum($dailyhits),
             'total_hits' => Redis::cache()->getCount('stats_total'),
             'total_date' => Redis::cache()->get('stat_date')
         ]);
