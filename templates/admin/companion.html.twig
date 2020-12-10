@@ -66,10 +66,10 @@
             <h3 class="card-title">Account Status</h3>
             <p class="card-text">Shown is the online/offline status of accounts.</p>
 
-            <div class="d-flex flex-row">
+            <div class="d-flex flex-wrap">
                 {% for account, accountServers in token_servers %}
                     {% for server in valid_servers %}
-                        <div class="p-2" class="{{ server in accountServers ? 'text-success' : 'text-danger' }}">
+                        <div class="p-2 {{ server in accountServers ? 'text-success' : 'text-danger' }}">
                             {{ server }} <strong>{{ server in accountServers ? 'OK' : 'NO CHARACTER' }}</strong>
                         </div>
                     {% endfor %}
