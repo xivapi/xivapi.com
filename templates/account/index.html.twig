@@ -104,11 +104,13 @@
                         <td>Rate Limits</td>
                         <td>
                             <div class="rate-limits">
-                                <ul>
-                                    <li>WEB IP BASED: <em>{{ api_key_limits.MAX_RATE_LIMIT_GLOBAL }}</em>/second</li>
-                                    <li>WERB LODESTONE: <em>1/second/</em></li>
-                                    <li>API KEY: <em>{{ auth.user.apiRateLimit }}/second</em></li>
-                                </ul>
+                                <table>
+                                    <tr>
+                                        <td>User IP <em>{{ api_key_limits.MAX_RATE_LIMIT_GLOBAL }}</em>/sec</td>
+                                        <td>Lodestone: <em>1</em>/sec</td>
+                                        <td>API Key: <em>{{ auth.user.apiRateLimit }}</em>/sec</td>
+                                    </tr>
+                                </table>
                             </div>
 
                             <p>Your rate limit is specific to your and may be adjusted automatically based on usage.</p>
