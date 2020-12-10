@@ -39,21 +39,22 @@
                 chart.render();
             </script>
 
-            <br/><br/>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th width="30%">Exception</th>
-                    <th>Count</th>
-                </tr>
+            <br/>
+
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th width="30%">Exception</th>
+                        <th>Count</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {% for ex, count in errors.exceptions %}
-                    <tr>
-                        <td><strong>{{ ex }}</strong></td>
-                        <td>{{ count|number_format }}</td>
-                    </tr>
-                {% endfor %}
+                    {% for ex, count in errors.exceptions %}
+                        <tr>
+                            <td><strong>{{ ex }}</strong></td>
+                            <td>{{ count|number_format }}</td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
