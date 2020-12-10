@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Common\Service\Redis\Redis;
+use App\Exception\LodestoneResponseErrorException;
 use App\Service\API\ApiPermissions;
 use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterConverter;
@@ -119,7 +120,8 @@ class LodestoneCharacterController extends AbstractController
             $resCodesTotal = array_sum($resCodes);
 
             if ($resCodesTotal > 0) {
-                throw new \Exception("Lodestone response error, codes: ". implode(",", $resCodes) ." -- Please note, these codes are from Lodestone and NOT from xivapi, 404 means not found, 429 means rate limit.");
+                $error = sprintf(LodestoneResponseErrorException::MESSAGE, implode(",", $resCodes));
+                throw new LodestoneResponseErrorException($error);
             }
     
             // response model

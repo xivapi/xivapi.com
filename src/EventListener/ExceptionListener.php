@@ -6,9 +6,12 @@ use App\Common\Exceptions\ApiUnknownPrivateKeyException;
 use App\Common\Exceptions\BasicException;
 use App\Common\Exceptions\CompanionMarketServerException;
 use App\Common\Exceptions\SearchException;
+use App\Exception\ApiPermaBanException;
 use App\Exception\ApiRateLimitException;
+use App\Exception\ApiTempBanException;
 use App\Exception\ContentGoneException;
 use App\Exception\InvalidCompanionMarketRequestException;
+use App\Exception\LodestoneResponseErrorException;
 use Lodestone\Exceptions\GenericException;
 use Lodestone\Exceptions\LodestoneMaintenanceException;
 use Lodestone\Exceptions\LodestoneNotFoundException;
@@ -112,7 +115,10 @@ class ExceptionListener implements EventSubscriberInterface
             ApiRateLimitException::class,
             ApiUnknownPrivateKeyException::class,
             InvalidCompanionMarketRequestException::class,
-            SearchException::class
+            SearchException::class,
+            ApiPermaBanException::class,
+            ApiTempBanException::class,
+            LodestoneResponseErrorException::class
         ];
         
         if (Redis::Cache()->get(__METHOD__ . $json->Hash) == null && !in_array($json->Ex, $validExceptions) && $json->Debug->Env != 'local') {

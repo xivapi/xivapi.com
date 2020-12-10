@@ -19,6 +19,7 @@ use App\Controller\SearchController;
 use App\Controller\XivGameContentController;
 use App\Common\Entity\User;
 use App\Exception\ApiAppBannedException;
+use App\Exception\ApiPermaBanException;
 use App\Exception\ApiRateLimitException;
 use App\Common\Service\Redis\Redis;
 use App\Common\User\Users;
@@ -123,6 +124,11 @@ class ApiRequest
         $tempban = Redis::cache()->get('temp_ban_'. ApiRequest::$idStatic);
         if ($tempban) {
             throw new ApiTempBanException();
+        }
+
+        $permaan = Redis::cache()->getCount('perma_ban_'. ApiRequest::$idStatic);
+        if ($permaan > 30) {
+            throw new ApiPermaBanException();
         }
 
         $this->statRequestCount();
@@ -304,8 +310,9 @@ class ApiRequest
             $tempban = Redis::cache()->get('temp_ban_'. ApiRequest::$idStatic);
 
             if ($count > 100 && !$tempban) {
-                Discord::mog()->sendMessage(null, "[1hr TempBan = 100+/sec/requests] `". ApiRequest::$idStatic ."` -- `". ($this->apikey ?: "--nokey--") ."`");
+                //Discord::mog()->sendMessage(null, "[1hr TempBan = 100+/sec/requests] `". ApiRequest::$idStatic ."` -- `". ($this->apikey ?: "--nokey--") ."`");
                 Redis::cache()->set('temp_ban_'. ApiRequest::$idStatic, 3600);
+                Redis::cache()->increment('perma_ban_'. ApiRequest::$idStatic);
             }
 
             throw new ApiRateLimitException($message);
