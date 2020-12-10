@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Common\Entity\User;
 use App\Common\Game\GameServers;
-use App\Common\Service\Redis\RedisTracking;
 use App\Common\User\Users;
 use App\Entity\CompanionToken;
 use App\Service\API\ApiPermissions;
@@ -134,42 +133,5 @@ class AdminController extends AbstractController
                 'values' => array_values($errorGraph),
             ],
         ]);
-    }
-    
-    /**
-     * @Route("/admin/tracking", name="admin_tracking")
-     */
-    public function tracking()
-    {
-        $this->authenticate();
-        
-        return $this->render('admin/statistics.html.twig');
-    }
-    
-    /**
-     * @Route("/admin/tracking_stats")
-     */
-    public function trackingStats()
-    {
-        $this->authenticate();
-        
-        $report = RedisTracking::get();
-        $report = (Array)$report;
-        ksort($report);
-        
-        return new Response(
-            json_encode($report, JSON_PRETTY_PRINT)
-        );
-    }
-    
-    /**
-     * @Route("/admin/tracking_stats_reset")
-     */
-    public function trackingStatsReset()
-    {
-        $this->authenticate();
-        
-        RedisTracking::reset();
-        return $this->json(true);
     }
 }

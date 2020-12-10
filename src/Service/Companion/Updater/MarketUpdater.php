@@ -3,7 +3,6 @@
 namespace App\Service\Companion\Updater;
 
 use App\Common\Game\GameServers;
-use App\Common\Service\Redis\Redis;
 use App\Common\ServicesThirdParty\Discord\Discord;
 use App\Entity\CompanionCharacter;
 use App\Entity\CompanionItem;
@@ -17,12 +16,9 @@ use App\Service\Companion\CompanionMarket;
 use App\Service\Companion\Models\MarketHistory;
 use App\Service\Companion\Models\MarketItem;
 use App\Service\Companion\Models\MarketListing;
-use App\Common\Service\Redis\RedisTracking;
 use Companion\CompanionApi;
 use Companion\Config\CompanionSight;
-use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
@@ -81,10 +77,6 @@ class MarketUpdater
         sleep(mt_rand(0,99) > 50 ? 1 : 2);
         
         $this->perMinuteTrackingKey = "ITEM_UPDATE_PER_MINUTE_". date('i');
-
-        if ($queue === 100) {
-            RedisTracking::delete($this->perMinuteTrackingKey);
-        }
 
         // init
         $this->startTime = microtime(true);
@@ -246,14 +238,12 @@ class MarketUpdater
         
         if (isset($response->state) && $response->state == "rejected") {
             $this->console("Response Rejected");
-            RedisTracking::increment('COMPANION_RESPONSE_REJECTED');
             $this->errorHandler->exception("Rejected", "RESPONSE REJECTED: {$itemId} : ({$serverId}) {$serverName} - {$serverDc}");
             return true;
         }
     
         if (isset($response->error) || isset($response->error)) {
             $this->console("Response Error");
-            RedisTracking::increment('COMPANION_RESPONSE_ERROR');
             $this->errorHandler->exception($response->reason, "RESPONSE ERROR: {$itemId} : ({$serverId}) {$serverName} - {$serverDc}");
             return true;
         }
@@ -261,7 +251,6 @@ class MarketUpdater
         // if responses are null
         if ($response == null) {
             $this->console("Response Empty");
-            RedisTracking::increment('COMPANION_RESPONSE_EMPTY');
             $this->errorHandler->exception('Empty Response', "RESPONSE EMPTY: {$itemId} : ({$serverId}) {$serverName} - {$serverDc}");
             return true;
         }
@@ -448,7 +437,6 @@ class MarketUpdater
     
         // update item entry
         $this->marketItemEntryUpdated[] = $dbid;
-        RedisTracking::increment($this->perMinuteTrackingKey);
     }
     
     /**

@@ -4,9 +4,7 @@ namespace App\Service\Companion;
 
 use App\Common\Constants\DiscordConstants;
 use App\Common\ServicesThirdParty\Discord\Discord;
-use App\Common\ServicesThirdParty\Google\GoogleAnalytics;
 use App\Common\Service\Redis\Redis;
-use App\Common\Service\Redis\RedisTracking;
 use App\Entity\CompanionError;
 use App\Repository\CompanionErrorRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -55,10 +53,6 @@ class CompanionErrorHandler
         if ($errorCode == '340000' || $errorCode == 'cURL error 28') {
             return;
         }
-        
-        // track each code
-        RedisTracking::increment('ITEM_UPDATE_ERROR_'. $errorCode);
-        RedisTracking::increment('ITEM_UPDATE_ERROR');
 
         // Increase critical exception count
         $this->incrementCriticalExceptionCount();
