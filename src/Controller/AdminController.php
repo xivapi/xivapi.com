@@ -55,11 +55,13 @@ class AdminController extends AbstractController
         
         return $this->render('admin/home.html.twig', [
             'daily_hits' => $dailyhits,
+            'total_hits' => Redis::cache()->getCount('stats_total'),
+            'total_date' => Redis::cache()->getCount('stat_date')
         ]);
     }
     
     /**
-     * @Route("/admin/companion/accounts", name="admin_companion_accounts")
+     * @Route("/admin/companion", name="admin_companion")
      */
     public function companionAccounts()
     {
@@ -87,21 +89,9 @@ class AdminController extends AbstractController
     
             $tokenServers[$index][] = $token->getServer();
         }
-        
-        return $this->render('admin/companion_accounts.html.twig', [
-            'token_servers' => $tokenServers,
-            'valid_servers' => $validServers,
-            'datacenter'  => GameServers::LIST_DC
-        ]);
-    }
 
-    /**
-     * @Route("/admin/companion/errors", name="admin_companion_errors")
-     */
-    public function companionErrors()
-    {
         $this->authenticate();
-        
+
         date_default_timezone_set("Europe/London");
 
         $user = $this->users->getUser(true);
@@ -114,7 +104,7 @@ class AdminController extends AbstractController
             date('Y-m-d', (time() + (60 * 60 * 24))) => 0,
         ];
         $exception  = [];
-        
+
         foreach ($errors as $error) {
             $index = date('Y-m-d', $error['Added']);
             $ex = $error['Exception'];
@@ -126,8 +116,12 @@ class AdminController extends AbstractController
         krsort($errorGraph);
         $errorGraph = array_reverse($errorGraph);
         $errorGraph = array_splice($errorGraph, 0, 60);
+        
+        return $this->render('admin/companion.html.twig', [
+            'token_servers' => $tokenServers,
+            'valid_servers' => $validServers,
+            'datacenter'  => GameServers::LIST_DC,
 
-        return $this->render('admin/companion_errors.html.twig', [
             'status' => [
                 'at_critical' => $this->ceh->isCriticalExceptionCount(),
                 'state'       => $this->ceh->getCriticalExceptionCount(),

@@ -119,6 +119,11 @@ class ApiRequest
             $this->isLodestoneRequest = true;  
         }
 
+        // set request ids
+        $this->setApiRequestIds();
+
+        $this->statRequestCount();
+
         // check tempban
         $tempban = Redis::cache()->get('temp_ban_'. ApiRequest::$idStatic);
         if ($tempban) {
@@ -129,11 +134,6 @@ class ApiRequest
         if ($permaan > 30) {
             throw new ApiPermaBanException();
         }
-
-        $this->statRequestCount();
-
-        // set request ids
-        $this->setApiRequestIds();
         
         file_put_contents(
             __DIR__.'/../../../../api_logs.txt',
