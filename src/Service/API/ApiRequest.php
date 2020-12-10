@@ -301,9 +301,10 @@ class ApiRequest
                 $type
             );
 
+            $tempban = Redis::cache()->get('temp_ban_'. ApiRequest::$idStatic);
 
-            if ($count > 100) {
-                Discord::mog()->sendMessage(null, "Temp Banned static ID: ". ApiRequest::$idStatic ." for 1 hour as 100+ requests were sent within the past 1 second. -- Key: ". ($this->apikey ?: "[nokey]"));
+            if ($count > 100 && !$tempban) {
+                Discord::mog()->sendMessage(null, "[1hr TempBan = 100+/sec/requests] `". ApiRequest::$idStatic ."` -- `". ($this->apikey ?: "--nokey--") ."`");
                 Redis::cache()->set('temp_ban_'. ApiRequest::$idStatic, 3600);
             }
 
