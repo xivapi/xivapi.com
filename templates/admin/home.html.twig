@@ -6,14 +6,15 @@
 
     <div class="card">
         <div class="card-body">
-            <h3 class="card-title">Daily API Requests</h3>
-            <p class="card-text">This graph shows the number of requests received by the API per hour.</p>
+            <h3 class="card-title">Total API Requests</h3>
 
-            <br/>
+            <h2>{{ total_hits|number_format }}</h2>
 
-            <div id="chart"></div>
+            <p class="card-text">Since: {{ total_date }}</p>
         </div>
     </div>
+
+    <br/><br/>
 
     <div class="card">
         <div class="card-body">
