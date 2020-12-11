@@ -185,13 +185,11 @@ class ApiRequest
         $hour = date('G');
         $key1 = "stat_requests_". $hour;
         $key2 = "stats_total";
-        $key3 = "stat_requests_". ($hour+1);
 
         Redis::cache()->increment($key1);
         Redis::cache()->increment($key2);
 
-        // delete hr ahead so we can refill it.
-        Redis::cache()->delete($key3);
+
     }
 
     /**
