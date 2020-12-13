@@ -1214,5 +1214,25 @@
         "PatchNotes_ja": "",
         "ReleaseDate": 1602374400,
         "Version": "5.35"
+    },
+    {
+        "Banner": null,
+        "ID": 72,
+        "Url": "\/patch+5.4",
+        "ExVersion": 3,
+        "ExName": "Shadowbringers",
+        "IsExpansion": false,
+        "Name_ja": "Patch 5.4",
+        "Name_en": "Patch 5.4",
+        "Name_fr": "Patch 5.4",
+        "Name_de": "Patch 5.4",
+        "Name_cn": "Patch 5.4",
+        "Name_kr": "Patch 5.4",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "",
+        "PatchNotes_fr": "",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1607425200,
+        "Version": "5.4"
     }
 ]
