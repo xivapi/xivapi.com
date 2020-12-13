@@ -1,0 +1,82 @@
+{% extends "admin/base.html.twig"  %}
+
+{% block title %}Companion{% endblock %}
+
+{% block body %}
+
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Companion API Errors</h3>
+            <p class="card-text">This graph shows the number of error responses from the Companion API</p>
+
+            <br/>
+
+            <div id="chart"></div>
+            <script>
+                var options = {
+                    chart: {
+                        type: 'area',
+                        height: '400px',
+                        toolbar: {
+                            show: false
+                        },
+                    },
+                    fill: {
+                        colors: ['#F44336']
+                    },
+                    colors:['#F44336'],
+                    series: [{
+                        name: 'Exceptions Thrown',
+                        data: {{ errorGraph.values|json_encode|raw }},
+
+                    }],
+                    xaxis: {
+                        categories: {{ errorGraph.keys|json_encode|raw  }}
+                    }
+                }
+
+                var chart = (new ApexCharts(document.querySelector("#chart"), options));
+                chart.render();
+            </script>
+
+            <br/>
+
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th width="30%">Exception</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ex, count in errors.exceptions %}
+                        <tr>
+                            <td><strong>{{ ex }}</strong></td>
+                            <td>{{ count|number_format }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <br/><br/>
+
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Account Status</h3>
+            <p class="card-text">Shown is the online/offline status of accounts.</p>
+
+            <div class="d-flex flex-wrap">
+                {% for account, accountServers in token_servers %}
+                    {% for server in valid_servers %}
+                        <div class="p-2 {{ server in accountServers ? 'text-success' : 'text-danger' }}">
+                            {{ server }} <strong>{{ server in accountServers ? 'OK' : 'NO CHARACTER' }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

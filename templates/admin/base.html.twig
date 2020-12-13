@@ -18,6 +18,7 @@
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
         html, body {
             background: #eee;
@@ -39,27 +40,24 @@
 <body>
 
     <div class="container-fluid">
-        <div class="row">
-            <aside class="col-2 px-0" id="left">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{{ path('admin') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('admin_companion') }}">Companion</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
-                <div class="list-group w-100">
-                    <div class="list-group-item">
-                        <h3>Admin</h3>
-                        <a href="{{ path('admin') }}">Home</a><br>
-                        <a href="{{ path('admin_tracking') }}">Tracking</a><br>
-                    </div>
-                    <div class="list-group-item">
-                        <h3>Companion</h3>
-                        <a href="{{ path('admin_companion_accounts') }}">Accounts</a><br>
-                        <a href="{{ path('admin_companion_errors') }}">Errors</a>
-                    </div>
-                </div>
+        <br/><br/>
 
-            </aside>
-            <main class="col h-100">
-                {% block body %}{% endblock %}
-            </main>
-        </div>
+        <main>
+            {% block body %}{% endblock %}
+        </main>
     </div>
 
     {% block javascripts %}{% endblock %}

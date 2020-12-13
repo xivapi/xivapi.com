@@ -158,3 +158,12 @@
 
 </table>
 {% endmacro %}
+
+
+{% macro lodestoneErrors() %}
+    <div class="note">
+        <h6>Lodestone Errors</h6>
+        If you receive a HTTP error code response from any of these endpoints, it is very likely from Lodestone itself
+        and not part of XIVAPI. Some common responses are: 404 Not Found / 429 Too Many Requests / 503 Maintenance
+    </div>
+{% endmacro %}

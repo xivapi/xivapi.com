@@ -103,14 +103,25 @@
                     <tr>
                         <td>Rate Limits</td>
                         <td>
+                            <p>Your rate limit is specific to your account and may be adjusted automatically based on usage.</p>
+
                             <div class="rate-limits">
-                                <div>
-                                    <em>{{ api_key_limits.MAX_RATE_LIMIT_GLOBAL }}</em>/second/per user ip
-                                </div>
-                                <div>
-                                    <em>{{ auth.user.apiRateLimit }}</em>/second/per api key
-                                </div>
+                                <table>
+                                    <tr>
+                                        <td width="30%">API KEY</td>
+                                        <td><em>{{ auth.user.apiRateLimit }}</em> / sec</td>
+                                    </tr>
+                                    <tr>
+                                        <td>User IP </td>
+                                        <td><em>{{ api_key_limits.MAX_RATE_LIMIT_GLOBAL }}</em> / sec</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Lodestone</td>
+                                        <td><em>1</em> / sec</td>
+                                    </tr>
+                                </table>
                             </div>
+
                             <p class="account-note">
                                 <strong>IMPORTANT</strong> Just because you have X/second rate limit does not mean
                                 you should be hitting the service consistently for X/second, this rate is set so that

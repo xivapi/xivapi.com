@@ -19,7 +19,7 @@
 <div class="home-top">
     <div class="heading">
         <h1>A FINAL FANTASY XIV: Online REST API</h1>
-        <div>All the data you need, under one source.</div>
+        <div style="font-size: 20px;">Throwing out <strong id="served" style="color: #f1ff35;">a lot</strong> requests in the past day.</div>
     </div>
 
     <div class="fake-browser">
@@ -126,12 +126,8 @@
     </div>
 </div>
 
-
 <footer>
     <div>
-        <div>
-            &nbsp;
-        </div>
         <div>
             v{{ siteVersion().version }} ({{ siteVersion().hash_min }}) - {{ siteVersion().commits|number_format }} changes - Deployed {{ siteVersion().time }} <br>
             ALL FINAL FANTASY XIV CONTENT IS PROPERTY OF SQUARE ENIX CO., LTD <br>
@@ -142,4 +138,29 @@
         </div>
     </div>
 </footer>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    var field = $("#served");
+
+    function getRequestStats() {
+        $.ajax({
+            url: "/requests/stats?r=" + Math.floor(Math.random() * 99999999),
+            success: function(response) {
+                var amount = String(response.tfhour).replace(/(.)(?=(\d{3})+$)/g,'$1,');
+                field.text(amount);
+
+                // self call
+                setTimeout(function() {
+                    getRequestStats();
+                }, 2000)
+            }
+        })
+    }
+
+    // run
+    getRequestStats();
+
+</script>
 {% endblock %}

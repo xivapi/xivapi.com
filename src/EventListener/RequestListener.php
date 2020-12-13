@@ -3,11 +3,9 @@
 namespace App\EventListener;
 
 use App\Common\Exceptions\BasicException;
-use App\Common\Service\Redis\RedisTracking;
 use App\Common\Utils\Environment;
 use App\Common\Utils\Language;
 use App\Service\API\ApiRequest;
-use App\Common\Service\Redis\Redis;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
@@ -23,8 +21,6 @@ class RequestListener
 
     public function onKernelRequest(GetResponseEvent $event)
     {
-        RedisTracking::increment('API_HITS');
-        
         /** @var Request $request */
         $request = $event->getRequest();
     

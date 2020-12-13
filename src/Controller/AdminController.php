@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Common\Entity\User;
 use App\Common\Game\GameServers;
-use App\Common\Service\Redis\RedisTracking;
+use App\Common\Service\Redis\Redis;
 use App\Common\User\Users;
 use App\Entity\CompanionToken;
 use App\Service\API\ApiPermissions;
@@ -46,12 +46,23 @@ class AdminController extends AbstractController
     public function admin()
     {
         $this->authenticate();
+
+        $dailyhits = [];
+
+        foreach (range(0, 23) as $hour) {
+            $dailyhits[$hour] = (int)Redis::cache()->getCount('stat_requests_'. $hour);
+        }
         
-        return $this->render('admin/home.html.twig');
+        return $this->render('admin/home.html.twig', [
+            'daily_hits' => $dailyhits,
+            'daily_total' => array_sum($dailyhits),
+            'total_hits' => Redis::cache()->getCount('stats_total'),
+            'total_date' => Redis::cache()->get('stat_date')
+        ]);
     }
     
     /**
-     * @Route("/admin/companion/accounts", name="admin_companion_accounts")
+     * @Route("/admin/companion", name="admin_companion")
      */
     public function companionAccounts()
     {
@@ -79,21 +90,9 @@ class AdminController extends AbstractController
     
             $tokenServers[$index][] = $token->getServer();
         }
-        
-        return $this->render('admin/companion_accounts.html.twig', [
-            'token_servers' => $tokenServers,
-            'valid_servers' => $validServers,
-            'datacenter'  => GameServers::LIST_DC
-        ]);
-    }
 
-    /**
-     * @Route("/admin/companion/errors", name="admin_companion_errors")
-     */
-    public function companionErrors()
-    {
         $this->authenticate();
-        
+
         date_default_timezone_set("Europe/London");
 
         $user = $this->users->getUser(true);
@@ -106,7 +105,7 @@ class AdminController extends AbstractController
             date('Y-m-d', (time() + (60 * 60 * 24))) => 0,
         ];
         $exception  = [];
-        
+
         foreach ($errors as $error) {
             $index = date('Y-m-d', $error['Added']);
             $ex = $error['Exception'];
@@ -118,8 +117,12 @@ class AdminController extends AbstractController
         krsort($errorGraph);
         $errorGraph = array_reverse($errorGraph);
         $errorGraph = array_splice($errorGraph, 0, 60);
+        
+        return $this->render('admin/companion.html.twig', [
+            'token_servers' => $tokenServers,
+            'valid_servers' => $validServers,
+            'datacenter'  => GameServers::LIST_DC,
 
-        return $this->render('admin/companion_errors.html.twig', [
             'status' => [
                 'at_critical' => $this->ceh->isCriticalExceptionCount(),
                 'state'       => $this->ceh->getCriticalExceptionCount(),
@@ -134,42 +137,5 @@ class AdminController extends AbstractController
                 'values' => array_values($errorGraph),
             ],
         ]);
-    }
-    
-    /**
-     * @Route("/admin/tracking", name="admin_tracking")
-     */
-    public function tracking()
-    {
-        $this->authenticate();
-        
-        return $this->render('admin/statistics.html.twig');
-    }
-    
-    /**
-     * @Route("/admin/tracking_stats")
-     */
-    public function trackingStats()
-    {
-        $this->authenticate();
-        
-        $report = RedisTracking::get();
-        $report = (Array)$report;
-        ksort($report);
-        
-        return new Response(
-            json_encode($report, JSON_PRETTY_PRINT)
-        );
-    }
-    
-    /**
-     * @Route("/admin/tracking_stats_reset")
-     */
-    public function trackingStatsReset()
-    {
-        $this->authenticate();
-        
-        RedisTracking::reset();
-        return $this->json(true);
     }
 }

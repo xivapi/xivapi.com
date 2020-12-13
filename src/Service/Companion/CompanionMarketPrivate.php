@@ -4,7 +4,6 @@ namespace App\Service\Companion;
 
 use App\Common\Game\GameServers;
 use App\Common\Service\Redis\Redis;
-use App\Common\Service\Redis\RedisTracking;
 use App\Entity\CompanionItem;
 use App\Service\Companion\Updater\MarketUpdater;
 use Companion\CompanionApi;
@@ -127,8 +126,6 @@ class CompanionMarketPrivate
      */
     public function manualUpdateItem()
     {
-        RedisTracking::increment('TOTAL_DPS_ALERTS_INITIALIZED');
-    
         $itemId = (int)$this->request->get('item_id');
         $server = (int)$this->request->get('server');
         $dc     = GameServers::getDataCenter(GameServers::LIST[$server]);
@@ -153,7 +150,6 @@ class CompanionMarketPrivate
 
         // request item update
         $this->companionMarketUpdater->updatePatreon($itemId, $server);
-        RedisTracking::increment('TOTAL_DPS_ALERTS_UPDATES');
 
         return [
             true,
@@ -168,8 +164,6 @@ class CompanionMarketPrivate
      */
     public function manualUpdateItemRequested()
     {
-        RedisTracking::increment('TOTAL_MANUAL_UPDATES_CLICKED');
-
         $itemId  = (int)$this->request->get('item_id');
         $server  = (int)$this->request->get('server');
         $dc      = GameServers::getDataCenter(GameServers::LIST[$server]);
@@ -205,7 +199,6 @@ class CompanionMarketPrivate
 
         // request item update
         $this->companionMarketUpdater->updateManual($itemId, $server);
-        RedisTracking::increment('TOTAL_MANUAL_UPDATES');
 
         return [
             true,

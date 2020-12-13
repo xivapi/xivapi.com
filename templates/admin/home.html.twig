@@ -4,6 +4,49 @@
 
 {% block body %}
 
-    XIVAPI + Mogboard
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Total API Requests</h3>
+
+            <h2>{{ total_hits|number_format }}</h2>
+
+            <p class="card-text">Since: {{ total_date }}</p>
+        </div>
+    </div>
+
+    <br/><br/>
+
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Daily API Requests ({{ daily_total|number_format }})</h3>
+            <p class="card-text">This graph shows the number of requests received by the API per hour.</p>
+
+            <br/>
+
+            <div id="chart"></div>
+        </div>
+    </div>
+
+    <script>
+        var options = {
+            chart: {
+                type: 'bar',
+                height: '400px',
+                toolbar: {
+                    show: false
+                },
+            },
+            series: [{
+                name: 'Daily Hits',
+                data: {{ daily_hits|json_encode|raw }}
+            }],
+            xaxis: {
+                categories: {{ daily_hits|keys|json_encode|raw }}
+            }
+        }
+
+        var chart = (new ApexCharts(document.querySelector("#chart"), options));
+        chart.render();
+    </script>
 
 {% endblock %}

@@ -110,13 +110,16 @@
                 <td>{{ max_rate_limit_key }} / req / sec (*)</td>
                 <td>{{ max_rate_limit_global }} / req / sec</td>
             </tr>
+            <tr>
+                <td colspan="2">Lodestone endpoints are limited to 1/second. Lodestone has its own rate limit that is out of XIVAPI's control, you can read more about that on their relative documentation pages.</td>
+            </tr>
         </tbody>
     </table>
     <small>
         * Accounts have individually set rate limits and may change based on usage or requirements.
     </small>
 
-    <p class="note">
+    <div class="note">
         <strong>Due Diligence</strong>
         <br>
         Just because you can hit the API for X requests a second every second of the day; does not mean
@@ -127,11 +130,24 @@
         <br><br>
         Game Content is very static and real-time data (e.g. Characters) makes requests directly to the Lodestone.
         Be wise with regards to your usage.
-    </p>
+    </div>
 
-    <small>
-        <strong>Note:</strong> XIVAPI does not keep a record of IPs and usage of them are SHA1 hashed in memory.
-    </small>
+    <br/>
+
+    <div class="note">
+        <h6>Automated Bans Notice</h6>
+
+        XIVAPI will automatically ban request sources if they reach a high threshold. This lasts for 1 hour, this is very obvious
+        to the creators of the API so if you hit this, know we're watching and we may perma ban either a request source or API key.
+
+        <br/><br/>
+
+        <small style="margin-bottom: 0;">
+            <strong>Note:</strong> XIVAPI does not keep a record of IPs and usage of them are SHA1 hashed in memory.
+        </small>
+    </div>
+
+
 
     <p>
         If you use an API key then the request IP is no longer factored into rate limit checks.

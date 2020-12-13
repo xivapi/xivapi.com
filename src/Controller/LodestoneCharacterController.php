@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Common\Service\Redis\Redis;
+use App\Exception\LodestoneResponseErrorException;
 use App\Service\API\ApiPermissions;
 use App\Service\Content\LodestoneCharacter;
 use App\Service\LodestoneQueue\CharacterConverter;
@@ -113,15 +114,14 @@ class LodestoneCharacterController extends AbstractController
             // check our response
             $resCodes = [
                 $lsdata['profile']->StatusCode ?? 0,
-                $lsdata['classjobs']->StatusCode ?? 0,
-                $lsdata['minions']->StatusCode ?? 0,
-                $lsdata['mounts']->StatusCode ?? 0
+                $lsdata['classjobs']->StatusCode ?? 0
             ];
 
             $resCodesTotal = array_sum($resCodes);
 
             if ($resCodesTotal > 0) {
-                throw new \Exception("Lodestone response error, codes: ". implode(",", $resCodes));
+                $error = sprintf(LodestoneResponseErrorException::MESSAGE, implode(",", $resCodes));
+                throw new LodestoneResponseErrorException($error);
             }
     
             // response model
