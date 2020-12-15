@@ -86,7 +86,7 @@ class MappyController extends AbstractController
     /**
      * Removes a mappy entry per id
      *
-     * @Route("/mappy/entry/{id}", name="mappy_entry_delete", method={"DELETE"})
+     * @Route("/mappy/entry/{id}", name="mappy_entry_delete", methods={"DELETE"})
      */
     public function deleteEntry(Request $request)
     {
