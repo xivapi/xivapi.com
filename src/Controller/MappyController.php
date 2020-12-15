@@ -86,10 +86,13 @@ class MappyController extends AbstractController
     /**
      * Removes a mappy entry per id
      *
-     * @Route("/mappy/entry/{id}", name="mappy_entry_delete", methods={"DELETE"})
+     * @Route("/mappy/entry/{id}", name="mappy_entry_delete", methods={"DELETE", "OPTIONS"})
      */
     public function deleteEntry(Request $request)
     {
+        if ($request->isMethod('OPTIONS')) {
+            return $this->empty();
+        }
         $user = $this->users->getUserByApiKey($request->get(ApiRequest::KEY_FIELD));
         $user->mustBeAdmin();
         $entityId = $request->get('id');
@@ -102,10 +105,13 @@ class MappyController extends AbstractController
     /**
      * Removes everything for a given map
      *
-     * @Route("/mappy/map/{id}", name="mappy_map_delete", methods={"DELETE"})
+     * @Route("/mappy/map/{id}", name="mappy_map_delete", methods={"DELETE", "OPTIONS"})
      */
     public function deleteMap(Request $request)
     {
+        if ($request->isMethod('OPTIONS')) {
+            return $this->empty();
+        }
         $user = $this->users->getUserByApiKey($request->get(ApiRequest::KEY_FIELD));
         $user->mustBeAdmin();
         $mapId = $request->get('id');
