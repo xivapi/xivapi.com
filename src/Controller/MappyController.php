@@ -54,7 +54,7 @@ class MappyController extends AbstractController
     /**
      * Gets data for an entire map inside Mappy and returns it as JSON
      *
-     * @Route("/mappy/map/{mapId}", name="mappy_data_map")
+     * @Route("/mappy/map/{mapId}", name="mappy_data_map", methods={"GET"})
      */
     public function getMap(int $mapId)
     {
@@ -96,6 +96,22 @@ class MappyController extends AbstractController
         $this->mappy->deleteEntry($entityId);
         return $this->json([
             'deleted' => $entityId
+        ]);
+    }
+
+    /**
+     * Removes everything for a given map
+     *
+     * @Route("/mappy/map/{id}", name="mappy_map_delete", methods={"DELETE"})
+     */
+    public function deleteMap(Request $request)
+    {
+        $user = $this->users->getUserByApiKey($request->get(ApiRequest::KEY_FIELD));
+        $user->mustBeAdmin();
+        $mapId = $request->get('id');
+        $deleted = $this->mappy->deleteMap($mapId);
+        return $this->json([
+            'deleted' => $deleted
         ]);
     }
 

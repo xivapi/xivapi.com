@@ -12,13 +12,13 @@ class Mappy
     private $em;
     /** @var MapPositionRepository */
     private $repository;
-    
+
     public function __construct(EntityManagerInterface $em)
     {
         $this->em               = $em;
         $this->repository       = $em->getRepository(MapPosition::class);
     }
-    
+
     public function getMapPositionRepository()
     {
         return $this->repository;
@@ -33,14 +33,23 @@ class Mappy
     {
         return $this->repository->findAll();
     }
-    
+
     public function deleteEntry(string $id)
     {
         $entry = $this->repository->findOneBy(['ID' => $id]);
         $this->em->remove($entry);
         return $this->em->flush();
     }
-    
+
+    public function deleteMap(int $mapId)
+    {
+        $qb = $this->em->createQueryBuilder();
+        $qb->delete('map_positions');
+        $qb->where('map_id = :map');
+        $qb->setParameter('map', $mapId);
+        return $qb->getQuery()->execute();
+    }
+
     /**
      * Save some positions
      */
@@ -51,14 +60,14 @@ class Mappy
         }
 
         $saved = 0;
-        
+
         // Step 2
         foreach ($positions as $pos) {
             $hash = $this->getPositionHash($pos);
-            
+
             $existingObj = $this->repository->findOneBy(['Hash' => $hash]);
 
-            if(isset($existingObj)) {
+            if (isset($existingObj)) {
                 continue;
             }
 
@@ -93,20 +102,19 @@ class Mappy
                 // ignore
                 return $e->getMessage();
             }
-
         }
         return $saved;
     }
-    
+
     private function getPositionHash($pos)
-    {        
+    {
         $xPos = 1;
         $yPos = 1;
 
         $xPos = explode('.', $pos->PosX)[0];
         $yPos = explode('.', $pos->PosY)[0];
-        
-        return sha1(implode('',[
+
+        return sha1(implode('', [
             $pos->NodeID,
             $pos->BNpcNameID,
             $pos->BNpcBaseID,
