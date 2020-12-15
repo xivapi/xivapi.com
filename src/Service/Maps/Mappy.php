@@ -47,6 +47,7 @@ class Mappy
         foreach ($entries as $entry) {
             $this->em->remove($entry);
         }
+        $this->em->flush();
         return count($entries);
     }
 
