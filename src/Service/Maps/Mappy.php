@@ -43,11 +43,11 @@ class Mappy
 
     public function deleteMap(int $mapId)
     {
-        $qb = $this->em->createQueryBuilder();
-        $qb->delete('MapPosition');
-        $qb->where('MapID = :map');
-        $qb->setParameter('map', $mapId);
-        return $qb->getQuery()->execute();
+        $entries = $this->repository->findBy(['MapID' => $mapId]);
+        foreach ($entries as $entry) {
+            $this->em->remove($entry);
+        }
+        return count($entries);
     }
 
     /**
