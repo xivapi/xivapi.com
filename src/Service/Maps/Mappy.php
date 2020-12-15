@@ -44,8 +44,8 @@ class Mappy
     public function deleteMap(int $mapId)
     {
         $qb = $this->em->createQueryBuilder();
-        $qb->delete('map_positions');
-        $qb->where('map_id = :map');
+        $qb->delete('MapPosition');
+        $qb->where('MapID = :map');
         $qb->setParameter('map', $mapId);
         return $qb->getQuery()->execute();
     }
