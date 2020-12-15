@@ -34,6 +34,13 @@ class Mappy
         return $this->repository->findAll();
     }
     
+    public function deleteEntry(string $id)
+    {
+        $entry = $this->repository->findOneBy(['ID' => $id]);
+        $this->em->remove($entry);
+        return $this->em->flush();
+    }
+    
     /**
      * Save some positions
      */

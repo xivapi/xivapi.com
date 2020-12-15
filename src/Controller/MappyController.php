@@ -26,7 +26,7 @@ class MappyController extends AbstractController
         $this->mappy = $mappy;
         $this->users = $users;
     }
-    
+
     /**
      * Confirms access to submitting data to XIVAPI
      *
@@ -38,13 +38,13 @@ class MappyController extends AbstractController
         if (ApiPermissions::has(ApiPermissions::PERMISSION_MAPPY)) {
             /** @var User $user */
             $user = $this->users->getUserByApiKey($request->get(ApiRequest::KEY_FIELD));
-            
+
             return $this->json([
                 'ok'   => true,
                 'user' => $user->getUsername()
             ]);
         }
-        
+
         return $this->json([
             'ok'   => false,
             'user' => null,
@@ -55,19 +55,56 @@ class MappyController extends AbstractController
      * Gets data for an entire map inside Mappy and returns it as JSON
      *
      * @Route("/mappy/map/{mapId}", name="mappy_data_map")
-     */   
-    public function getMap(int $mapId) 
+     */
+    public function getMap(int $mapId)
     {
         $entries = $this->mappy->getByMap($mapId);
         return $this->json($entries);
     }
 
     /**
+     * Gets data for an entire map inside Mappy and returns it as JSON
+     *
+     * @Route("/mappy/updates", name="mappy_data_updates")
+     */
+    public function getUpdates()
+    {
+        $data = $this->mappy->getFullData();
+        $updates = [];
+        foreach ($data as $entry) {
+            if (!isset($updates[$entry->getMapID()])) {
+                $updates[$entry->getMapID()] = [];
+            }
+
+            if (!isset($updates[$entry->getMapID()][$entry->getType()]) || $updates[$entry->getMapID()][$entry->getType()] < $entry->getAdded()) {
+                $updates[$entry->getMapID()][$entry->getType()] = $entry->getAdded();
+            }
+        }
+        return $this->json($updates);
+    }
+
+    /**
+     * Removes a mappy entry per id
+     *
+     * @Route("/mappy/entry/{id}", name="mappy_entry_delete", method={"DELETE"})
+     */
+    public function deleteEntry(Request $request)
+    {
+        $user = $this->users->getUserByApiKey($request->get(ApiRequest::KEY_FIELD));
+        $user->mustBeAdmin();
+        $entityId = $request->get('id');
+        $this->mappy->deleteEntry($entityId);
+        return $this->json([
+            'deleted' => $entityId
+        ]);
+    }
+
+    /**
      * Gets all mappy data as a giant json array
      *
      * @Route("/mappy/json", name="mappy_data_full_json")
-     */   
-    public function getFullData() 
+     */
+    public function getFullData()
     {
         $entries = $this->mappy->getFullData();
         return $this->json($entries);
@@ -78,42 +115,42 @@ class MappyController extends AbstractController
      */
     public function submit(Request $request)
     {
-        $response = [ 'ok' => true ];
+        $response = ['ok' => true];
         $json     = json_decode($request->getContent());
-        
+
         if (empty($json)) {
             return $this->json($response);
         }
-        
+
         $response['output'] = $this->mappy->save($json);
-        
+
         return $this->json($response);
     }
-    
+
     /**
      * @Route("/download", name="mappy_download")
      */
     public function download(Request $request)
     {
-        $folder = __DIR__.'/downloads';
-        
+        $folder = __DIR__ . '/downloads';
+
         if (!is_dir($folder)) {
             mkdir($folder);
         }
-        
+
         $date       = date('Y-m-d-h-i-s');
         $filename   = "{$folder}/xivapi_mappy_{$date}.csv";
         $repository = null;
-        
-        switch($request->get('data')) {
+
+        switch ($request->get('data')) {
             default:
                 throw new NotFoundHttpException();
-                
+
             case 'map_data':
                 $repository = $this->mappy->getMapPositionRepository();
                 break;
         }
-    
+
         Arrays::repositoryToCsv($repository, $filename);
         return $this->file(new File($filename));
     }
