@@ -86,15 +86,35 @@ class MappyController extends AbstractController
     /**
      * Gets a list of the GatheringPoints that we have position for inside a given map
      *
-     * @Route("/mappy/map/{mapId}/nodes", name="mappy_data_nodes")
+     * @Route("/mappy/map/{mapId}/nodes", name="mappy_data_map_nodes")
      */
-    public function getNodes(int $mapId)
+    public function getNodesForMap(int $mapId)
     {
         $entries = $this->mappy->getByMap($mapId);
         $nodes = [];
         foreach ($entries as $entry) {
             if (!in_array($entry->NodeID, $nodes) && $entry->NodeID > 0) {
                 $nodes[] = $entry->NodeID;
+            }
+        }
+        return $this->json($nodes);
+    }
+
+    /**
+     * Gets a list of the GatheringPoints that we have position for, per map
+     *
+     * @Route("/mappy/nodes", name="mappy_data_nodes")
+     */
+    public function getNodes(int $mapId)
+    {
+        $entries = $this->mappy->getFullData();
+        $nodes = [];
+        foreach ($entries as $entry) {
+            if (!isset($nodes[$entry->getMapID()])) {
+                $nodes[$entry->getMapID()] = [];
+            }
+            if (!in_array($entry->NodeID, $nodes[$entry->getMapID()]) && $entry->NodeID > 0) {
+                $nodes[$entry->getMapID()][] = $entry->NodeID;
             }
         }
         return $this->json($nodes);
