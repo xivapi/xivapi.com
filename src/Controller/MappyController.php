@@ -84,6 +84,23 @@ class MappyController extends AbstractController
     }
 
     /**
+     * Gets a list of the GatheringPoints that we have position for inside a given map
+     *
+     * @Route("/mappy/map/{id}/nodes", name="mappy_data_nodes")
+     */
+    public function getNodes(int $mapId)
+    {
+        $entries = $this->mappy->getByMap($mapId);
+        $nodes = [];
+        foreach ($entries as $entry) {
+            if (!in_array($entry->NodeID, $nodes) && $entry->NodeID > 0) {
+                $nodes[] = $entry->NodeID;
+            }
+        }
+        return $this->json($nodes);
+    }
+
+    /**
      * Removes a mappy entry per id
      *
      * @Route("/mappy/entry/{id}", name="mappy_entry_delete", methods={"DELETE", "OPTIONS"})
