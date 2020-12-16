@@ -86,7 +86,7 @@ class MappyController extends AbstractController
     /**
      * Gets a list of the GatheringPoints that we have position for inside a given map
      *
-     * @Route("/mappy/map/{id}/nodes", name="mappy_data_nodes")
+     * @Route("/mappy/map/{mapId}/nodes", name="mappy_data_nodes")
      */
     public function getNodes(int $mapId)
     {
