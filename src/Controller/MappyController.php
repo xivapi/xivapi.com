@@ -105,7 +105,7 @@ class MappyController extends AbstractController
      *
      * @Route("/mappy/nodes", name="mappy_data_nodes")
      */
-    public function getNodes(int $mapId)
+    public function getNodes()
     {
         $entries = $this->mappy->getFullData();
         $nodes = [];
