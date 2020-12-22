@@ -44,11 +44,6 @@ class RequestListener
             (new \Raven_Client($sentry))->install();
         }
         
-        // look for multiple ?'s
-        if (substr_count(urldecode($request->getQueryString()), '?') > 0) {
-            throw new BasicException("https://en.wikipedia.org/wiki/Query_string");
-        }
-
         // Another quick hack to convert all queries into the request object
         if ($queries = $request->query->all()) {
             foreach ($queries as $key => $value) {
