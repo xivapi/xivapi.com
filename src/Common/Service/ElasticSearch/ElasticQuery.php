@@ -300,7 +300,7 @@ class ElasticQuery
     public function excludeColumn(string $field): self
     {
         $this->exclude[] = [
-                'field' => [$field]
+            'field' => $field
         ];
         return $this;
     }
