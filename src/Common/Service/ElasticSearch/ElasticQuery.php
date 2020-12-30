@@ -7,7 +7,7 @@ class ElasticQuery
     /** @var array */
     private $body = [];
     private $filters = [];
-    private $exclude;
+    private $exclude = [];
     private $suggestions = [];
     private $limit;
     private $sorting;
@@ -47,7 +47,10 @@ class ElasticQuery
         }
 
         if ($this->exclude) {
-            $response['query']['bool']['must_not']['exists'] = $this->exclude;
+            if (!isset($response['query']['bool']['must'])) {
+                $response['query']['bool']['must'] = [];
+            }
+            $response['query']['bool']['must'][] = $this->exclude;
         }
 
         return $response;
@@ -299,8 +302,14 @@ class ElasticQuery
 
     public function excludeColumn(string $field): self
     {
-        $this->exclude = [
-            'field' => $field
+        $this->exclude[] = [
+            'bool' => [
+                'must_not' => [
+                    'exists' => [
+                        'field' => $field
+                    ]
+                ]
+            ]
         ];
         return $this;
     }
