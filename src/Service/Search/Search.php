@@ -203,8 +203,10 @@ class Search
                 $this->query->filterRange($column, (int)$value, $opConversion[$op]);
             } else if (in_array($op, ['|='])) {
                 $this->query->filterTerms($column, explode(';', $value));
+            }else if (in_array($op, ['!!'])){
+                $this->query->excludeColumn($column);
             } else {
-                throw new \Exception("Invalid operand provided: {$op}, please provide either: >, >=, <, <=, |=, or =");
+                throw new \Exception("Invalid operand provided: {$op}, please provide either: >, >=, <, <=, |=, = or !!");
             }
         }
     }
