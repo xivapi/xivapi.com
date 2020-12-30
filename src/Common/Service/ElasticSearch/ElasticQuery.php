@@ -48,6 +48,7 @@ class ElasticQuery
 
         if ($this->exclude) {
             $response['query']['bool']['must_not']['exists'] = $this->exclude;
+            var_dump($response);
         }
 
         return $response;
