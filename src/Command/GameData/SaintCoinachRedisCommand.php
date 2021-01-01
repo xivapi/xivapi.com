@@ -23,7 +23,7 @@ class SaintCoinachRedisCommand extends Command
 {
     use CommandHelperTrait;
 
-    const MAX_DEPTH = 5;
+    const MAX_DEPTH = 3;
     const SAVE_TO_REDIS = true;
     const REDIS_PIPESIZE = 250;
     const REDIS_DURATION = (60 * 60 * 24 * 365 * 10); // 10 years
