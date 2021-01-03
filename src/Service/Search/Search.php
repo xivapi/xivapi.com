@@ -180,7 +180,7 @@ class Search
         $filters = str_getcsv($searchRequest->filters);
 
         foreach ($filters as $filter) {
-            preg_match('/(?P<column>[A-Za-z0-9_\.]+)(?P<op>(?:=|[<\|>\!]=?))\[?(?P<value>[\w\;]*)\]?/', $filter, $matches);
+            preg_match('/(?P<column>[A-Za-z0-9_\.]+)(?P<op>(?:=|[<\|>\!]=?[\!]?))\[?(?P<value>[\w\;]*)\]?/', $filter, $matches);
 
             $column = $matches['column'] ?? null;
             $op     = $matches['op'] ?? null;
@@ -189,8 +189,6 @@ class Search
             if (!$column || !$op) {
                 throw new \Exception("Invalid search filter: {$filter} - It must be: [COLUMN][OPERATOR][VALUE]");
             }
-
-            var_dump($op);
 
             if (in_array($op, ['='])) {
                 $this->query->filterTerm($column, $value);
