@@ -25,22 +25,22 @@ class Leve extends ManualHelper
             
             // CraftLeve = 917500 > 930000
             if ($leve->DataIdTargetID >= 917500 && $leve->DataIdTargetID <= 930000) {
-                $leve->CraftLeve = Redis::Cache()->get("xiv_CraftLeve_{$leve->DataId}");
+                $leve->CraftLeve = Redis::Cache()->get("xiv_CraftLeve_{$leve->DataIdTargetID}");
             }
             
             // CompanyLeve = 196600 > 196700
             if ($leve->DataIdTargetID >= 196600 && $leve->DataIdTargetID <= 199000) {
-                $leve->CompanyLeve = Redis::Cache()->get("xiv_CompanyLeve_{$leve->DataId}");
+                $leve->CompanyLeve = Redis::Cache()->get("xiv_CompanyLeve_{$leve->DataIdTargetID}");
             }
             
             // GatheringLeve = 131070 > 131300
             if ($leve->DataIdTargetID >= 131070 && $leve->DataIdTargetID <= 135000) {
-                $leve->GatheringLeve = Redis::Cache()->get("xiv_GatheringLeve_{$leve->DataId}");
+                $leve->GatheringLeve = Redis::Cache()->get("xiv_GatheringLeve_{$leve->DataIdTargetID}");
             }
             
             // BattleLeve = 65530 > 65800
             if ($leve->DataIdTargetID >= 65530 && $leve->DataIdTargetID <= 70000) {
-                $leve->BattleLeve = Redis::Cache()->get("xiv_BattleLeve_{$leve->DataId}");
+                $leve->BattleLeve = Redis::Cache()->get("xiv_BattleLeve_{$leve->DataIdTargetID}");
             }
     
             // ---------------------------------------------------
