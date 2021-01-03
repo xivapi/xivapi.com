@@ -36,6 +36,11 @@ class ElasticMapping
         ]
     ];
 
+    const LORE_STRING = [
+        'type' => 'text',
+        'analyzer' => 'custom_string_search_basic'
+    ];
+
     const STRING = [
         'type' => 'text',
         'analyzer' => 'custom_string_search_basic',
