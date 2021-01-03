@@ -71,7 +71,7 @@ class ElasticSearch
                             [
                                 'strings' => [
                                     'match_mapping_type' => 'string',
-                                    'mapping'            => $index == 'lore_finder' ? ElasticMapping::LORE_STRING : ElasticMapping::STRING
+                                    'mapping'            => $index == 'Item' ? ElasticMapping::STRING : ElasticMapping::ITEM_STRING
                                 ],
                             ], [
                                 'integers' => [

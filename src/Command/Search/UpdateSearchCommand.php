@@ -50,6 +50,9 @@ class UpdateSearchCommand extends Command
         // import documents to ElasticSearch
         try {
             foreach (SearchContent::LIST as $contentName) {
+                if ($contentName == 'lore_finder') {
+                    continue;
+                }
                 if ($input->getOption('content') &&
                     $input->getOption('content') != $contentName) {
                     continue;
