@@ -57,8 +57,7 @@ class SaintCoinachRedisCommand extends Command
             ->addOption('fast', null, InputOption::VALUE_OPTIONAL, 'Skip all questions and use default values', true)
             ->addOption('full', null, InputOption::VALUE_OPTIONAL, 'Perform a full import, regardless of existing entries', false)
             ->addOption('content', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null)
-            ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null)
-            ->addOption('quiet', null, InputOption::VALUE_OPTIONAL, 'Minimize output for better performances', false);
+            ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
