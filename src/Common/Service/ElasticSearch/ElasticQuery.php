@@ -332,7 +332,7 @@ class ElasticQuery
     {
         $this->must_not[] = [
             'prefix' => [
-                'Name' => 'Dated'
+                'Name_en.raw' => 'Dated '
             ]
         ];
         return $this;
