@@ -46,7 +46,7 @@ class SearchRequest
     // the search string
     public $string = '';
     // excclude dated items?
-    public $excludeDated = '';
+    public $excludeDated = 0;
     // the string query algorithm to use
     public $stringAlgo = self::STRING_ALGORITHM_DEFAULT;
     // string search column
@@ -80,7 +80,7 @@ class SearchRequest
     {
         $this->indexes          = $request->get('indexes',        $this->indexes);
         $this->string           = $request->get('string',         $this->string);
-        $this->excludeDated     = $request->get('exclude_dated', $this->excludeDated);
+        $this->excludeDated     = $request->get('exclude_dated',  $this->excludeDated);
         $this->stringAlgo       = $request->get('string_algo',    $this->stringAlgo);
         $this->stringColumn     = $request->get('string_column',  $this->stringColumn);
         $this->page             = $request->get('page',           $this->page);

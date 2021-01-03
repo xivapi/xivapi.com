@@ -327,4 +327,18 @@ class ElasticQuery
         ];
         return $this;
     }
+
+    public function excludeDated(): self
+    {
+        $this->extra[] = [
+            'bool' => [
+                'must_not' => [
+                    'prefix' => [
+                        'Name_en' => 'Dated'
+                    ]
+                ]
+            ]
+        ];
+        return $this;
+    }
 }
