@@ -190,6 +190,8 @@ class Search
                 throw new \Exception("Invalid search filter: {$filter} - It must be: [COLUMN][OPERATOR][VALUE]");
             }
 
+            var_dump($op);
+
             if (in_array($op, ['='])) {
                 $this->query->filterTerm($column, $value);
             } else if (in_array($op, ['>', '<', '>=', '<='])) {
@@ -208,7 +210,7 @@ class Search
             } else if (in_array($op, ['!!'])){
                 $this->query->excludeColumn($column);
             } else {
-                throw new \Exception("Invalid operand provided: {$op}, please provide either: >, >=, <, <=, |=, =, !! or !");
+                throw new \Exception("Invalid operand provided: {$op}, please provide either: >, >=, <, <=, |=, =, !! or !", 400);
             }
         }
     }
