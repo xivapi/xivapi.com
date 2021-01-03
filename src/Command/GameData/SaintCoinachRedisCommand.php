@@ -57,7 +57,8 @@ class SaintCoinachRedisCommand extends Command
             ->addOption('fast', null, InputOption::VALUE_OPTIONAL, 'Skip all questions and use default values', true)
             ->addOption('full', null, InputOption::VALUE_OPTIONAL, 'Perform a full import, regardless of existing entries', false)
             ->addOption('content', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null)
-            ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null);
+            ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null)
+            ->addOption('quiet', null, InputOption::VALUE_OPTIONAL, 'Minimize output for better performances', false);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -94,6 +95,7 @@ class SaintCoinachRedisCommand extends Command
         $focusName  = $this->input->getOption('content');
         $focusId    = $this->input->getOption('id');
         $isFullRun  = $this->input->getOption('full');
+        $quiet  = $this->input->getOption('quiet');
 
         if ($focusName || $focusId) {
             $this->io->table(
@@ -162,9 +164,11 @@ class SaintCoinachRedisCommand extends Command
             $currentIds = (array)Redis::cache()->get("ids_{$contentName}");
             Redis::cache()->set("ids_{$contentName}_es", $currentIds, self::REDIS_DURATION);
 
-            $section = new ConsoleOutput();
-            $section = $section->section();
-            $section->writeln(">> starting: {$contentName}");
+            if (!$quiet) {
+                $section = new ConsoleOutput();
+                $section = $section->section();
+                $section->writeln(">> starting: {$contentName}");
+            }
 
             foreach ($allContentData as $contentId => $contentData) {
                 if ($focusId && $focusId != $contentId) {
@@ -180,10 +184,14 @@ class SaintCoinachRedisCommand extends Command
 
                 // store the content ids
                 $this->saveContentId($contentId, $contentName);
-                $section->overwrite(">> id: {$contentId}");
+                if (!$quiet) {
+                    $section->overwrite(">> id: {$contentId}");
+                }
             }
 
-            $section->clear();
+            if (!$quiet) {
+                $section->clear();
+            }
 
             unset($allContentData);
 
