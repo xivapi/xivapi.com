@@ -7,7 +7,8 @@ class ElasticQuery
     /** @var array */
     private $body = [];
     private $filters = [];
-    private $extra = [];
+    private $must = [];
+    private $must_not = [];
     private $suggestions = [];
     private $limit;
     private $sorting;
@@ -46,11 +47,18 @@ class ElasticQuery
             $response['query']['bool']['filter'] = $this->filters;
         }
 
-        if ($this->extra) {
+        if ($this->must) {
             if (!isset($response['query']['bool']['must'])) {
                 $response['query']['bool']['must'] = [];
             }
-            $response['query']['bool']['must'][] = $this->extra;
+            $response['query']['bool']['must'][] = $this->must;
+        }
+
+        if ($this->must_not) {
+            if (!isset($response['query']['bool']['must_not'])) {
+                $response['query']['bool']['must_not'] = [];
+            }
+            $response['query']['bool']['must_not'][] = $this->must_not;
         }
 
         return $response;
@@ -302,13 +310,9 @@ class ElasticQuery
 
     public function excludeColumn(string $field): self
     {
-        $this->extra[] = [
-            'bool' => [
-                'must_not' => [
-                    'exists' => [
-                        'field' => $field
-                    ]
-                ]
+        $this->must_not[] = [
+            'exists' => [
+                'field' => $field
             ]
         ];
         return $this;
@@ -316,13 +320,9 @@ class ElasticQuery
 
     public function mustHaveColumn(string $field): self
     {
-        $this->extra[] = [
-            'bool' => [
-                'must' => [
-                    'exists' => [
-                        'field' => $field
-                    ]
-                ]
+        $this->must[] = [
+            'exists' => [
+                'field' => $field
             ]
         ];
         return $this;
@@ -330,13 +330,9 @@ class ElasticQuery
 
     public function excludeDated(): self
     {
-        $this->extra[] = [
-            'bool' => [
-                'must_not' => [
-                    'prefix' => [
-                        'Name_en' => 'Dated'
-                    ]
-                ]
+        $this->must_not[] = [
+            'prefix' => [
+                'Name' => 'Dated'
             ]
         ];
         return $this;

@@ -39,6 +39,12 @@ class ElasticMapping
     const STRING = [
         'type' => 'text',
         'analyzer' => 'custom_string_search_basic',
+        'fields' => [
+            'raw' => [
+                'type' => 'keyword',
+                'ignore_above' => 256,
+            ]
+        ]
     ];
 
     const INTEGER = [
