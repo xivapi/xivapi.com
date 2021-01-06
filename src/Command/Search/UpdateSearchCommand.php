@@ -13,6 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateSearchCommand extends Command
@@ -49,12 +50,16 @@ class UpdateSearchCommand extends Command
 
         // import documents to ElasticSearch
         try {
+            $section = (new ConsoleOutput())->section();
+            $section->writeln(">> Warming Up");
             foreach (SearchContent::LIST as $contentName) {
                 if ($contentName == 'lore_finder') {
                     continue;
                 }
-                if ($input->getOption('content') &&
-                    $input->getOption('content') != $contentName) {
+                if (
+                    $input->getOption('content') &&
+                    $input->getOption('content') != $contentName
+                ) {
                     continue;
                 }
 
@@ -96,8 +101,10 @@ class UpdateSearchCommand extends Command
                 foreach ($ids as $id) {
                     $count++;
 
-                    if ($input->getOption('id') &&
-                        $input->getOption('id') != $id) {
+                    if (
+                        $input->getOption('id') &&
+                        $input->getOption('id') != $id
+                    ) {
                         continue;
                     }
 
@@ -139,6 +146,8 @@ class UpdateSearchCommand extends Command
                     // append to docs
                     $docs[$id] = $content;
 
+                    $section->overwrite(">> {$id}");
+
                     // un comment to debug insert issues
                     // $elastic->addDocument($index, 'search', $id, $content);
 
@@ -157,6 +166,8 @@ class UpdateSearchCommand extends Command
                 }
 
                 $this->io->progressFinish();
+                $section->clear();
+                unset($section);
 
                 $elastic->putSettings([
                     "index" => "$index",
@@ -186,32 +197,30 @@ class UpdateSearchCommand extends Command
             // Remove junk
             //
             foreach (range(0, 170) as $num) {
-                unset(
-                    $content["TextData_en"],
-                    $content["TextData_de"],
-                    $content["TextData_fr"],
-                    $content["TextData_ja"],
-                    $content["TextData_kr"],
-                    $content["TextData_cn"],
+                unset($content["TextData_en"],
+                $content["TextData_de"],
+                $content["TextData_fr"],
+                $content["TextData_ja"],
+                $content["TextData_kr"],
+                $content["TextData_cn"],
 
-                    $content["Level{$num}"],
-                    $content["Level{$num}Target"],
-                    $content["Level{$num}TargetID"],
-                    $content["ScriptInstruction{$num}_en"],
-                    $content["ScriptInstruction{$num}_de"],
-                    $content["ScriptInstruction{$num}_fr"],
-                    $content["ScriptInstruction{$num}_ja"],
-                    $content["ScriptArg{$num}"],
+                $content["Level{$num}"],
+                $content["Level{$num}Target"],
+                $content["Level{$num}TargetID"],
+                $content["ScriptInstruction{$num}_en"],
+                $content["ScriptInstruction{$num}_de"],
+                $content["ScriptInstruction{$num}_fr"],
+                $content["ScriptInstruction{$num}_ja"],
+                $content["ScriptArg{$num}"],
 
-                    $content["PreviousQuest0"]["Level{$num}"],
-                    $content["PreviousQuest0"]["Level{$num}Target"],
-                    $content["PreviousQuest0"]["Level{$num}TargetID"],
-                    $content["PreviousQuest0"]["ScriptInstruction{$num}_en"],
-                    $content["PreviousQuest0"]["ScriptInstruction{$num}_de"],
-                    $content["PreviousQuest0"]["ScriptInstruction{$num}_fr"],
-                    $content["PreviousQuest0"]["ScriptInstruction{$num}_ja"],
-                    $content["PreviousQuest0"]["ScriptArg{$num}"]
-                );
+                $content["PreviousQuest0"]["Level{$num}"],
+                $content["PreviousQuest0"]["Level{$num}Target"],
+                $content["PreviousQuest0"]["Level{$num}TargetID"],
+                $content["PreviousQuest0"]["ScriptInstruction{$num}_en"],
+                $content["PreviousQuest0"]["ScriptInstruction{$num}_de"],
+                $content["PreviousQuest0"]["ScriptInstruction{$num}_fr"],
+                $content["PreviousQuest0"]["ScriptInstruction{$num}_ja"],
+                $content["PreviousQuest0"]["ScriptArg{$num}"]);
             }
         }
 
