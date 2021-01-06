@@ -51,7 +51,7 @@ class UpdateSearchCommand extends Command
         // import documents to ElasticSearch
         try {
             $section = (new ConsoleOutput())->section();
-            $section->writeln(">> Warming Up");
+            $section->overwrite(">> Warming Up");
             foreach (SearchContent::LIST as $contentName) {
                 if ($contentName == 'lore_finder') {
                     continue;
