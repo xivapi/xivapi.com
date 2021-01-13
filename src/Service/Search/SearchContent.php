@@ -37,7 +37,7 @@ class SearchContent
         'PlaceName',
         'Weather',
         'World',
-	'Map',
+	    'Map',
         
         // allowed
         'lore_finder',

@@ -113,7 +113,7 @@ class UpdateSearchCommand extends Command
                     $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
 
                     // if no name_en, skip it!
-                    if (empty($content->Name_en)) {
+                    if (empty($content->Name_en) && $index != 'map') {
                         continue;
                     }
 
