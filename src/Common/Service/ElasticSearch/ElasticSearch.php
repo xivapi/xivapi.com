@@ -9,7 +9,7 @@ class ElasticSearch
     const NUMBER_OF_SHARDS = 1;
     const NUMBER_OF_REPLICAS = 0;
     const MAX_RESULT_WINDOW = 150000;
-    const MAX_BULK_DOCUMENTS = 200;
+    const MAX_BULK_DOCUMENTS = 100;
     const MAX_FIELDS = 100000;
 
     /** @var \Elasticsearch\Client */
@@ -69,9 +69,15 @@ class ElasticSearch
                         'dynamic'           => true,
                         'dynamic_templates' => [
                             [
+                                'names' => [
+                                    'match_mapping_type' => 'string',
+                                    'match'              => 'Name*',
+                                    'mapping'            => ElasticMapping::ITEM_STRING
+                                ],
+                            ],[
                                 'strings' => [
                                     'match_mapping_type' => 'string',
-                                    'mapping'            => $index == 'item' ? ElasticMapping::ITEM_STRING : ElasticMapping::STRING
+                                    'mapping'            => ElasticMapping::STRING
                                 ],
                             ], [
                                 'integers' => [
@@ -90,7 +96,7 @@ class ElasticSearch
                                 ]
                             ]
                         ],
-                    ],
+                    ]
                 ]
             ]
         ]);
