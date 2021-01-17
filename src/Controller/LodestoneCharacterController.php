@@ -72,9 +72,9 @@ class LodestoneCharacterController extends AbstractController
         if (ApiPermissions::has(ApiPermissions::PERMISSION_KING) === false) {
             usleep(mt_rand(250000, 1000000));
         }
-        
+
         $lodestoneId = (int)strtolower(trim($lodestoneId));
-        
+
         // initialise api
         $api = new Api();
 
@@ -90,46 +90,42 @@ class LodestoneCharacterController extends AbstractController
             'MIMO' => in_array('MIMO', $data),
             'CJ'   => in_array('CJ', $data)
         ];
-    
+
         // -------------------------------------------
         // Mandatory
         // -------------------------------------------
-    
+
         $rediskey = "lodestone_json_response_v6_" . $lodestoneId;
         $response = Redis::Cache()->get($rediskey, true);
-        
+
         if (!$response) {
             $api->config()->useAsync();
-            
+
             $api->requestId('profile')->character()->get($lodestoneId);
-            $api->requestId('classjobs')->character()->classjobs($lodestoneId);
-            $api->requestId('minions')->character()->minions($lodestoneId);
-            $api->requestId('mounts')->character()->mounts($lodestoneId);
-            
+            if ($content->CJ) {
+                $api->requestId('classjobs')->character()->classjobs($lodestoneId);
+            }
+            if ($content->MIMO) {
+                $api->requestId('minions')->character()->minions($lodestoneId);
+                $api->requestId('mounts')->character()->mounts($lodestoneId);
+            }
+
             $lsdata = $api->http()->settle();
-            
+
             AsyncHandler::$requestId = null;
             $api->config()->useSync();
-            
-            // check our response
-            $resCodes = [
-                $lsdata['profile']->StatusCode ?? 0,
-                $lsdata['classjobs']->StatusCode ?? 0
-            ];
 
-            $resCodesTotal = array_sum($resCodes);
-
-            if ($resCodesTotal > 0) {
-                $error = sprintf(LodestoneResponseErrorException::MESSAGE, implode(",", $resCodes));
+            if ($lsdata['profile']->StatusCode ?? 0 > 0) {
+                $error = sprintf(LodestoneResponseErrorException::MESSAGE, $lsdata['profile']->StatusCode);
                 throw new LodestoneResponseErrorException($error);
             }
-    
+
             // response model
-            $response = (Object)[
+            $response = (object)[
                 'Character'          => $lsdata['profile'],
                 'Minions'            => isset($lsdata['minions']->Error) ? [] : $lsdata['minions'],
                 'Mounts'             => isset($lsdata['mounts']->Error) ? [] : $lsdata['mounts'],
-        
+
                 // optional
                 'Achievements'       => null,
                 'AchievementsPublic' => null,
@@ -139,24 +135,24 @@ class LodestoneCharacterController extends AbstractController
                 'FreeCompanyMembers' => null,
                 'PvPTeam'            => null,
             ];
-    
+
             try {
                 $classjobs = $lsdata['classjobs'];
-        
+
                 // set some root data
                 $response->Character->ClassJobs          = $classjobs['classjobs'] ?? null;
                 $response->Character->ClassJobsElemental = $classjobs['elemental'] ?? null;
                 $response->Character->ClassJobsBozjan    = $classjobs['bozjan'] ?? null;
-        
+
                 // ---------------------- ACTIVE CLASS JOB ----------------------
                 // look at this shit, pulled straight from lodestone parser :D
                 // thanks SE
                 $item = $response->Character->GearSet['Gear']['MainHand'];
                 $name = explode("'", $item->Category)[0];
-        
+
                 // get class job id from the main-hand category name
                 $gd = ClassJobs::findGameData($name);
-        
+
                 /** @var ClassJob $cj */
                 foreach ($response->Character->ClassJobs as $cj) {
                     if ($cj->JobID === $gd->JobID) {
@@ -168,12 +164,12 @@ class LodestoneCharacterController extends AbstractController
                 $response->Character->ClassJobs = [];
                 $response->Character->ActiveClassJob = null;
             }
-            
+
             Redis::cache()->set($rediskey, $response, 60, true);
         } else {
-            $response = (Object)$response;
+            $response = (object)$response;
         }
-        
+
         // ---------------------------------
         // Optional
         // ---------------------------------
@@ -226,7 +222,7 @@ class LodestoneCharacterController extends AbstractController
                 }
 
                 $api->config()->useSync();
-                
+
                 // Attempt for category 13
                 try {
                     $cat13 = $api->character()->achievements($lodestoneId, 13);
@@ -236,7 +232,7 @@ class LodestoneCharacterController extends AbstractController
                 }
             }
 
-            $response->Achievements = (Object)[
+            $response->Achievements = (object)[
                 'List'   => [],
                 'Points' => 0
             ];
@@ -244,7 +240,7 @@ class LodestoneCharacterController extends AbstractController
             // simplify achievements
             foreach ($achievements as $i => $achi) {
                 $response->Achievements->Points   += $achi->Points;
-                $response->Achievements->List[$i] = (Object)[
+                $response->Achievements->List[$i] = (object)[
                     'ID'   => $achi->ID,
                     'Date' => $achi->ObtainedTimestamp
                 ];
@@ -322,7 +318,7 @@ class LodestoneCharacterController extends AbstractController
         if ($content->PVP && $pvpId) {
             $response->PvPTeam = $api->pvpteam()->get($pvpId);
         }
-    
+
         // ---------------------------------
         // Finish up (data cleaning, converting, etc)
         // ---------------------------------
