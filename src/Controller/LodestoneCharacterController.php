@@ -123,8 +123,8 @@ class LodestoneCharacterController extends AbstractController
             // response model
             $response = (object)[
                 'Character'          => $lsdata['profile'],
-                'Minions'            => isset($lsdata['minions']->Error) ? [] : $lsdata['minions'],
-                'Mounts'             => isset($lsdata['mounts']->Error) ? [] : $lsdata['mounts'],
+                'Minions'            => null,
+                'Mounts'             => null,
 
                 // optional
                 'Achievements'       => null,
