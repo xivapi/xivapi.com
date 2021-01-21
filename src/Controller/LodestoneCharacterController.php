@@ -136,6 +136,14 @@ class LodestoneCharacterController extends AbstractController
                 'PvPTeam'            => null,
             ];
 
+
+            if ($content->MIMO) {
+                $response->Minions = isset($lsdata['minions']->Error) ? [] : $lsdata['minions'];
+                $response->Mounts = isset($lsdata['mounts']->Error) ? [] : $lsdata['mounts'];
+            }
+
+
+
             try {
                 $classjobs = $lsdata['classjobs'];
 
