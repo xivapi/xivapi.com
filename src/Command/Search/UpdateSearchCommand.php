@@ -215,6 +215,22 @@ class UpdateSearchCommand extends Command
             }
         }
 
+        if($contentName === 'Leve' && isset($content['CraftLeve'])){
+            unset(
+                $content['CraftLeve']['Leve'],
+                $content['CraftLeve']['Item0'],
+                $content['CraftLeve']['Item1'],
+                $content['CraftLeve']['Item2']
+            );
+            foreach (range(0, 7) as $num) {
+                foreach(range(0, 8) as $index){
+                    unset(
+                        $content['LeveRewardItem']["LeveRewardItemGroup{$num}"]["Item{$index}"]
+                    );
+                }
+            }
+        }
+
         return $content;
     }
 
