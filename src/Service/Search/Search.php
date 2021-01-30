@@ -175,15 +175,15 @@ class Search
     {
         $this->connect();
 
+        if ($searchRequest->excludeDated) {
+            $this->query->excludeDated();
+        }
+
         if (!$searchRequest->filters) {
             return;
         }
 
         $filters = str_getcsv($searchRequest->filters);
-
-        if ($searchRequest->excludeDated) {
-            $this->query->excludeDated();
-        }
 
         foreach ($filters as $filter) {
             preg_match('/(?P<column>[A-Za-z0-9_\.]+)(?P<op>(?:=|[<\|>\!]=?[\!]?))\[?(?P<value>[\w\;]*)\]?/', $filter, $matches);
