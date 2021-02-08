@@ -178,8 +178,17 @@ class LodestoneCharacterController extends AbstractController
 
         // Minions and mounts
         if ($content->MIMO) {
-            $response->Minions = $api->character()->minions($lodestoneId);
-            $response->Mounts = $api->character()->mounts($lodestoneId);
+            // Two blocks here so one request cannot cancel the other.
+            try {
+                $response->Minions = $api->character()->minions($lodestoneId);
+            } catch (LodestoneNotFoundException $e) {
+                // If we get a 404, there's no minions, we can safely skip
+            }
+            try {
+                $response->Mounts = $api->character()->mounts($lodestoneId);
+            } catch (LodestoneNotFoundException $e) {
+                // If we get a 404, there's no mounts, we can safely skip
+            }
         }
 
         // Achievements
