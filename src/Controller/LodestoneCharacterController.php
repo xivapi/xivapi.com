@@ -102,13 +102,7 @@ class LodestoneCharacterController extends AbstractController
             $api->config()->useAsync();
 
             $api->requestId('profile')->character()->get($lodestoneId);
-            if ($content->CJ) {
-                $api->requestId('classjobs')->character()->classjobs($lodestoneId);
-            }
-            if ($content->MIMO) {
-                $api->requestId('minions')->character()->minions($lodestoneId);
-                $api->requestId('mounts')->character()->mounts($lodestoneId);
-            }
+            $api->requestId('classjobs')->character()->classjobs($lodestoneId);
 
             $lsdata = $api->http()->settle();
 
@@ -135,13 +129,6 @@ class LodestoneCharacterController extends AbstractController
                 'FreeCompanyMembers' => null,
                 'PvPTeam'            => null,
             ];
-
-
-            if ($content->MIMO) {
-                $response->Minions = isset($lsdata['minions']->Error) ? [] : $lsdata['minions'];
-                $response->Mounts = isset($lsdata['mounts']->Error) ? [] : $lsdata['mounts'];
-            }
-
 
 
             try {
@@ -188,6 +175,12 @@ class LodestoneCharacterController extends AbstractController
 
         // ensure bio is UT8
         $response->Character->Bio = mb_convert_encoding($response->Character->Bio, 'UTF-8', 'UTF-8');
+
+        // Minions and mounts
+        if ($content->MIMO) {
+            $response->Minions = $api->character()->minions($lodestoneId);
+            $response->Mounts = $api->character()->mounts($lodestoneId);
+        }
 
         // Achievements
         if ($content->AC) {
