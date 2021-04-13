@@ -68,7 +68,7 @@ class DataHelper
     /**
      * Gets the real path to an image
      */
-    public static function getImagePath($number)
+    public static function getImagePath($number, $hd = false)
     {
         $number = intval($number);
         $extended = (strlen($number) >= 6);
@@ -82,11 +82,14 @@ class DataHelper
 
         // create icon path
         $path = [];
-        $path[] = $extended ? $icon[0] . $icon[1] . $icon[2] .'000' : '0'. $icon[1] . $icon[2] .'000';
+        $path[] = $extended ? $icon[0] . $icon[1] . $icon[2] . '000' : '0' . $icon[1] . $icon[2] . '000';
         $path[] = $icon;
+        if ($hd) {
+            $path[] = '_hr1';
+        }
 
         // combine
-        return '/i/'. implode('/', $path) .'.png';
+        return '/i/' . implode('/', $path) . '.png';
     }
 
     /**
@@ -120,9 +123,9 @@ class DataHelper
             '(' => ' ',
             ')' => '',
         ];
-        
+
         $columns = str_replace(array_keys($replace), $replace, $columns);
-        
+
         if (is_array($columns)) {
             foreach ($columns as $i => $col) {
                 $columns[$i] = ucwords($col);
@@ -140,7 +143,7 @@ class DataHelper
     public static function getReplacedName($filename, $column)
     {
         $replace = DataHelper::COLUMNS;
-        
+
         if (!isset($replace[$filename])) {
             return $column;
         }

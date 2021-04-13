@@ -16,7 +16,7 @@ class FileReader extends DataHelper
         '<Indent>',     '</Indent>',    '<Indent/>',
         '<SoftHyphen/>'
     ];
-    
+
     public static function open(string $filename, bool $isRaw)
     {
         return $isRaw
@@ -34,7 +34,7 @@ class FileReader extends DataHelper
         $filenameList = new \stdClass();
 
         // build a list of multi-language filenames
-        foreach(['en','de','fr','ja'] as $language) {
+        foreach (['en', 'de', 'fr', 'ja'] as $language) {
             $filenameList->{$language} = sprintf($filenameStructure, $filename, $language);
         }
 
@@ -42,7 +42,7 @@ class FileReader extends DataHelper
         [$columns, $types, $data] = self::parseCsvFile($filenameList->en);
 
         // append on: German, French and Japanese
-        foreach(['de', 'fr', 'ja'] as $language) {
+        foreach (['de', 'fr', 'ja'] as $language) {
             $langFilename = $filenameList->{$language};
             $data = self::parseLanguageCsvFile($language, $langFilename, $data, $columns, $types);
         }
@@ -73,7 +73,7 @@ class FileReader extends DataHelper
     {
         $csv = Reader::createFromPath($filename);
 
-         // get columns
+        // get columns
         $stmt = (new Statement())->offset(1)->limit(1);
         $columns = $stmt->process($csv)->fetchOne();
         $columns = self::getRealColumnNames($filename, $columns);
@@ -86,12 +86,12 @@ class FileReader extends DataHelper
         $stmt = (new Statement())->offset(3);
 
         $data = [];
-        foreach($stmt->process($csv)->getRecords() as $record) {
+        foreach ($stmt->process($csv)->getRecords() as $record) {
             $id = $record[0];
-            
+
             // handle column names
             $newRecords = [];
-            foreach($record as $offset => $value) {
+            foreach ($record as $offset => $value) {
                 $columnName = $columns[$offset];
 
                 // remove columns with no names
@@ -110,36 +110,45 @@ class FileReader extends DataHelper
                 } else if ($types[$offset] == 'Image') {
                     // maintain an ID record
                     $newRecords[] = [
-                          'Image',
-                          $columnName .'ID',
-                          $value
+                        'Image',
+                        $columnName . 'ID',
+                        $value
                     ];
-                    
+
+                    if ($columnName == 'Icon') {
+                        // Add HD version of the icon
+                        $newRecords[] = [
+                            'Image',
+                            $columnName . 'HD',
+                            DataHelper::getImagePath($value, true)
+                        ];
+                    }
+
                     // convert icon
                     $value = DataHelper::getImagePath($value);
                 } else if ($types[$offset] == 'str') {
                     $columnName = "{$columnName}_en";
-                    
+
                     // fix new lines (broke around 30th May 2018)
                     $value = str_ireplace("\r", "\n", $value);
                 }
-                
+
                 $record[$columnName] = $value;
                 unset($record[$offset]);
             }
-    
+
             // remove foreign stuff
             $record = str_ireplace(self::FOREIGN_REMOVALS, null, $record);
-            
+
             // add new records
             foreach ($newRecords as $nr) {
                 [$newType, $newColumnName, $newValue] = $nr;
-                
+
                 $types[] = $newType;
                 $columns[] = $newColumnName;
                 $record[$newColumnName] = $newValue;
             }
-      
+
             ksort($record);
             $data[$id] = $record;
             unset($record);
@@ -162,27 +171,27 @@ class FileReader extends DataHelper
         $csv = Reader::createFromPath($filename);
         $stmt = (new Statement())->offset(3);
 
-        foreach($stmt->process($csv)->getRecords() as $record) {
+        foreach ($stmt->process($csv)->getRecords() as $record) {
             $id = $record[0];
 
-            foreach($types as $offset => $type) {
+            foreach ($types as $offset => $type) {
                 // process all strings
                 if ($type == 'str') {
                     // ignore empty ones
                     if (strlen($columns[$offset]) == 0) {
                         continue;
                     }
-                    
+
                     $columnName = "{$columns[$offset]}_{$language}";
                     $value = $record[$offset];
-    
+
                     // fix new lines (broke around 30th May 2018)
                     $value = str_ireplace("\r", "\n", $value);
-                    
+
                     $data[$id][$columnName] = $value;
                 }
             }
-    
+
             // remove foreign stuff
             $data[$id] = str_ireplace(self::FOREIGN_REMOVALS, null, $data[$id]);
 
