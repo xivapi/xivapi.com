@@ -83,9 +83,10 @@ class DataHelper
         // create icon path
         $path = [];
         $path[] = $extended ? $icon[0] . $icon[1] . $icon[2] . '000' : '0' . $icon[1] . $icon[2] . '000';
-        $path[] = $icon;
         if ($hd) {
-            $path[] = '_hr1';
+            $path[] = $icon . '_hr1';
+        } else {
+            $path[] = $icon;
         }
 
         // combine
