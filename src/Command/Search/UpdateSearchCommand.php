@@ -203,14 +203,9 @@ class UpdateSearchCommand extends Command
                     $content["ScriptInstruction{$num}_ja"],
                     $content["ScriptArg{$num}"],
 
-                    $content["PreviousQuest0"]["Level{$num}"],
-                    $content["PreviousQuest0"]["Level{$num}Target"],
-                    $content["PreviousQuest0"]["Level{$num}TargetID"],
-                    $content["PreviousQuest0"]["ScriptInstruction{$num}_en"],
-                    $content["PreviousQuest0"]["ScriptInstruction{$num}_de"],
-                    $content["PreviousQuest0"]["ScriptInstruction{$num}_fr"],
-                    $content["PreviousQuest0"]["ScriptInstruction{$num}_ja"],
-                    $content["PreviousQuest0"]["ScriptArg{$num}"]
+                    $content["PreviousQuest0"],
+                    $content["PreviousQuest1"],
+                    $content["PreviousQuest2"]
                 );
             }
         }
@@ -220,7 +215,11 @@ class UpdateSearchCommand extends Command
                 $content['CraftLeve']['Leve'],
                 $content['CraftLeve']['Item0'],
                 $content['CraftLeve']['Item1'],
-                $content['CraftLeve']['Item2']
+                $content['CraftLeve']['Item2'],
+                $content['BGM'],
+                $content['LevelLevemete']['Territory'],
+                $content['LevelLevemete']['Map'],
+
             );
             foreach (range(0, 7) as $num) {
                 foreach(range(0, 8) as $index){
