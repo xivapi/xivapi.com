@@ -58,6 +58,11 @@ class UpdateSearchCommand extends Command
                     continue;
                 }
 
+                $maxDocuments = ElasticSearch::MAX_BULK_DOCUMENTS;
+                if($contentName == 'Lore' || $contentName == 'Quest'){
+                    $maxDocuments = 10;
+                }
+
                 $index = strtolower($contentName);
                 $ids   = (array)Redis::Cache()->get("ids_{$contentName}");
                 $idsEs = (array)Redis::cache()->get("ids_{$contentName}_es");
@@ -143,7 +148,7 @@ class UpdateSearchCommand extends Command
                     // $elastic->addDocument($index, 'search', $id, $content);
 
                     // insert docs
-                    if ($count >= ElasticSearch::MAX_BULK_DOCUMENTS) {
+                    if ($count >= $maxDocuments) {
                         $this->io->progressAdvance($count);
                         $elastic->bulkDocuments($index, 'search', $docs);
                         $docs  = [];
