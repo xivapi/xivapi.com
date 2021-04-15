@@ -53,14 +53,11 @@ class UpdateSearchCommand extends Command
                 if ($contentName == 'lore_finder') {
                     continue;
                 }
-                if ($input->getOption('content') &&
-                    $input->getOption('content') != $contentName) {
+                if (
+                    $input->getOption('content') &&
+                    $input->getOption('content') != $contentName
+                ) {
                     continue;
-                }
-
-                $maxDocuments = ElasticSearch::MAX_BULK_DOCUMENTS;
-                if($contentName == 'Leve' || $contentName == 'Quest'){
-                    $maxDocuments = 10;
                 }
 
                 $index = strtolower($contentName);
@@ -101,8 +98,10 @@ class UpdateSearchCommand extends Command
                 foreach ($ids as $id) {
                     $count++;
 
-                    if ($input->getOption('id') &&
-                        $input->getOption('id') != $id) {
+                    if (
+                        $input->getOption('id') &&
+                        $input->getOption('id') != $id
+                    ) {
                         continue;
                     }
 
@@ -148,7 +147,7 @@ class UpdateSearchCommand extends Command
                     // $elastic->addDocument($index, 'search', $id, $content);
 
                     // insert docs
-                    if ($count >= $maxDocuments) {
+                    if ($count >= ElasticSearch::MAX_BULK_DOCUMENTS) {
                         $this->io->progressAdvance($count);
                         $elastic->bulkDocuments($index, 'search', $docs);
                         $docs  = [];
@@ -215,19 +214,48 @@ class UpdateSearchCommand extends Command
             }
         }
 
-        if($contentName === 'Leve' && isset($content['CraftLeve'])){
+        if ($contentName === 'Leve') {
+            if (isset($content['CraftLeve'])) {
+                unset(
+                    $content['CraftLeve']['Leve'],
+                    $content['CraftLeve']['Item0'],
+                    $content['CraftLeve']['Item1'],
+                    $content['CraftLeve']['Item2']
+                );
+            }
+            if (isset($content['BattleLeve'])) {
+                unset(
+                    $content['BattleLeve']
+                );
+            }
+            if (isset($content['CompanyLeve'])) {
+                unset(
+                    $content['CompanyLeve']
+                );
+            }
+            if (isset($content['GatheringLeve'])) {
+                unset(
+                    $content['GatheringLeve']['Route0'],
+                    $content['GatheringLeve']['Route1'],
+                    $content['GatheringLeve']['Route2'],
+                    $content['GatheringLeve']['Route3'],
+                );
+            }
+            if (isset($content['LevelStart'])) {
+                unset(
+                    $content['LevelStart']['Map'],
+                    $content['LevelStart']['Territory'],
+                );
+            }
             unset(
-                $content['CraftLeve']['Leve'],
-                $content['CraftLeve']['Item0'],
-                $content['CraftLeve']['Item1'],
-                $content['CraftLeve']['Item2'],
                 $content['BGM'],
                 $content['LevelLevemete']['Territory'],
                 $content['LevelLevemete']['Map'],
-
+                $content['LeveVfx'],
+                $content['LeveVfxFrame']
             );
             foreach (range(0, 7) as $num) {
-                foreach(range(0, 8) as $index){
+                foreach (range(0, 8) as $index) {
                     unset(
                         $content['LeveRewardItem']["LeveRewardItemGroup{$num}"]["Item{$index}"]
                     );
