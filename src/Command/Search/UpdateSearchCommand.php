@@ -59,7 +59,7 @@ class UpdateSearchCommand extends Command
                 }
 
                 $maxDocuments = ElasticSearch::MAX_BULK_DOCUMENTS;
-                if($contentName == 'Lore' || $contentName == 'Quest'){
+                if($contentName == 'Leve' || $contentName == 'Quest'){
                     $maxDocuments = 10;
                 }
 
