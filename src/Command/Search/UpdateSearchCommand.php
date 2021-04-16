@@ -250,7 +250,6 @@ class UpdateSearchCommand extends Command
             unset(
                 $content['BGM'],
                 $content['LevelLevemete']['Territory'],
-                $content['LevelLevemete']['Map'],
                 $content['LeveVfx'],
                 $content['LeveVfxFrame']
             );
