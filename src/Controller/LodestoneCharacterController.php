@@ -17,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class LodestoneCharacterController extends AbstractController
 {
@@ -111,7 +112,7 @@ class LodestoneCharacterController extends AbstractController
 
             if ($lsdata['profile']->StatusCode ?? 0 > 0) {
                 if ($lsdata['profile']->StatusCode == 404) {
-                    return $this->createNotFoundException();
+                    throw new NotFoundHttpException();
                 } else {
                     $error = sprintf(LodestoneResponseErrorException::MESSAGE, $lsdata['profile']->StatusCode);
                     throw new LodestoneResponseErrorException($error);
