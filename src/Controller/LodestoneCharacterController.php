@@ -112,7 +112,7 @@ class LodestoneCharacterController extends AbstractController
 
             if ($lsdata['profile']->StatusCode ?? 0 > 0) {
                 if ($lsdata['profile']->StatusCode == 404) {
-                    throw new NotFoundHttpException();
+                    throw new NotFoundHttpException('Character not found on Lodestone');
                 } else {
                     $error = sprintf(LodestoneResponseErrorException::MESSAGE, $lsdata['profile']->StatusCode);
                     throw new LodestoneResponseErrorException($error);
