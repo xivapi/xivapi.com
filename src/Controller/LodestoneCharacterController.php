@@ -110,8 +110,12 @@ class LodestoneCharacterController extends AbstractController
             $api->config()->useSync();
 
             if ($lsdata['profile']->StatusCode ?? 0 > 0) {
-                $error = sprintf(LodestoneResponseErrorException::MESSAGE, $lsdata['profile']->StatusCode);
-                throw new LodestoneResponseErrorException($error);
+                if ($lsdata['profile']->StatusCode == 404) {
+                    return $this->createNotFoundException();
+                } else {
+                    $error = sprintf(LodestoneResponseErrorException::MESSAGE, $lsdata['profile']->StatusCode);
+                    throw new LodestoneResponseErrorException($error);
+                }
             }
 
             // response model
