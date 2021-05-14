@@ -415,8 +415,13 @@ class SaintCoinachRedisCommand extends Command
         $definition->name = DataHelper::getSimpleColumnName($definition->name);
         $definition->name = DataHelper::getReplacedName($contentName, $definition->name);
 
+        $debug = $contentName == "TerritoryType" && $contentId == 951;
+
         // if definition is set, ignore it
         if (isset($content->{$definition->name}) && is_object($content->{$definition->name})) {
+            if ($debug) {
+                echo "Definition already set";
+            }
             return $contentId;
         }
 
@@ -427,11 +432,17 @@ class SaintCoinachRedisCommand extends Command
 
         // handle link type definition
         if (isset($definition->converter) && $definition->converter->type == 'link') {
+            if ($debug) {
+                echo "Link !";
+            }
             // id of linked data
             $linkId = $content->{$definition->name} ?? null;
 
             // target name of linked data
             $linkTarget = $definition->converter->target;
+            if ($debug) {
+                echo $definition->name;
+            }
 
             // add link target and target id
             $content->{$definition->name} = null;
