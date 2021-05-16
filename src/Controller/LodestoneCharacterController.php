@@ -70,10 +70,6 @@ class LodestoneCharacterController extends AbstractController
      */
     public function index(Request $request, $lodestoneId, $internal = false)
     {
-        if (ApiPermissions::has(ApiPermissions::PERMISSION_KING) === false) {
-            usleep(mt_rand(250000, 1000000));
-        }
-
         $lodestoneId = (int)strtolower(trim($lodestoneId));
 
         // initialise api
@@ -165,7 +161,7 @@ class LodestoneCharacterController extends AbstractController
                 $response->Character->ActiveClassJob = null;
             }
 
-            Redis::cache()->set($rediskey, $response, 60, true);
+            Redis::cache()->set($rediskey, $response, 3600, true);
         } else {
             $response = (object)$response;
         }
