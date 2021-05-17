@@ -161,7 +161,7 @@ class LodestoneCharacterController extends AbstractController
                 $response->Character->ActiveClassJob = null;
             }
 
-            Redis::cache()->set($rediskey, $response, 3600, true);
+            Redis::cache()->set($rediskey, $response, 300, true);
         } else {
             $response = (object)$response;
         }
