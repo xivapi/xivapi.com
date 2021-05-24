@@ -58,8 +58,8 @@ class ContentList
         $pageTotal      = $totalResults > 0 ? ceil($totalResults / $maxItems) : 0;
         $page           = $this->request->get('page') ?: 1;
         $page           = $page >= 1 ? $page : 1;
-        $pageNext       = ($page + 1) <= $pageTotal ? ($page + 1) : 1;
-        $pagePrev       = $page-1 > 0 ? $page-1 : 1;
+        $pageNext       = ($page + 1) <= $pageTotal ? ($page + 1) : null;
+        $pagePrev       = $page-1 > 0 ? $page-1 : null;
 
         // sort ids
         asort($this->ids);
