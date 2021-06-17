@@ -32,7 +32,7 @@ class SaintCoinach
         $this->console->writeln('Downloading SaintCoinach.Cmd');
     
         // grab the latest release from github
-        $release  = (new Client())->api('repo')->releases()->latest('ufx', 'SaintCoinach');
+        $release  = (new Client())->api('repo')->releases()->latest('xivapi', 'SaintCoinach');
         $buildTag = $release['tag_name'];
         $this->console->writeln("Latest build: <info>{$buildTag}</info>");
 

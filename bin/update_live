@@ -12,12 +12,12 @@ START_TIME=$SECONDS
 
 sleep 5
 
-for (( i = 0; i <= 22; ++i )); do
-    start_point=$(( $i * 25 ))
+for (( i = 0; i <= 55; ++i )); do
+    start_point=$(( $i * 10 ))
 
     echo " --------- Loop: $i / 22 - chunk: $start_point ------------------------------------"
 
-    /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand --start=$start_point --count=25 --full=1 -q
+    /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand --start=$start_point --count=10 --full=1 -q
 
     sleep 3
 done
@@ -35,6 +35,9 @@ sleep 3
 
 sleep 3
 /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCustomCommand SkillDescriptions
+
+sleep 3
+/usr/bin/php /home/dalamud/xivapi.com/bin/console BuildCharacterData
 
 
 # Add on patch info
