@@ -95,7 +95,7 @@ class LodestoneCharacterController extends AbstractController
         $rediskey = "lodestone_json_response_v6_" . $lodestoneId;
         $response = Redis::Cache()->get($rediskey, true);
 
-        if (!$response) {
+        if (!$response || in_array('Character.Bio', $request->get('columns'))) {
             $api->config()->useAsync();
 
             $api->requestId('profile')->character()->get($lodestoneId);
