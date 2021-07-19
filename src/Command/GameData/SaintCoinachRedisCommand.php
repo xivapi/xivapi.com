@@ -647,26 +647,25 @@ class SaintCoinachRedisCommand extends Command
         }
 
         $targetContent = [];
+        $targetSchema  = $this->schema[$linkTarget] ?? null;
         $subIndex = 0;
         $el = FileSystemCache::get($linkTarget, $linkId . $subIndex);
         while (isset($el)) {
-            $targetContent[] = $el;
+            if (!$targetSchema) {
+                $targetContent[] = $el;
+            } else {
+                $targetContent[] = $this->buildContent($linkId, $linkTarget, $targetSchema, clone $el, $depth);
+            }
             $subIndex++;
             $el = FileSystemCache::get($linkTarget, $linkId . $subIndex);
         }
-        $targetSchema  = $this->schema[$linkTarget] ?? null;
 
         // no content? return null
         if (count($targetContent) == 0) {
             return null;
         }
 
-        // if no schema, return just the value
-        if (!$targetSchema) {
-            return $targetContent;
-        }
-
-        return $this->buildContent($linkId, $linkTarget, $targetSchema, clone $targetContent, $depth);
+        return $targetContent;
     }
 
     /**
