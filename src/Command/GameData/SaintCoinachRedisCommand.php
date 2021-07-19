@@ -446,31 +446,6 @@ class SaintCoinachRedisCommand extends Command
             // if link id is null, something wrong with the content and definition
             // this shouldn't happen ...
             if ($linkId === null) {
-                /*
-                $this->io->error([
-                    "LINK ID ERROR",
-                    "This happens when the definition 'name' is not an index in the CSV content row, this is likely because the ex.json does not match the CSV file headers.",
-                    "Possible fix #2: Make sure the column name is not falsey, eg: 'false', '0', 'null', etc.",
-                    "Possible fix #2: Make sure the ex.json file is up to date",
-                ]);
-                
-                file_put_contents(__DIR__.'/LinkIdNull.json', json_encode($content, JSON_PRETTY_PRINT));
-                $this->io->table(
-                    [ 'LinkID', 'ContentID', 'ContentName', 'Definition', 'Depth', ],
-                    [
-                        [
-                            $linkId,
-                            $contentId,
-                            $contentName,
-                            json_encode($definition, JSON_PRETTY_PRINT),
-                            $depth
-                        ]
-                    ]
-                );
-                
-                die;
-                */
-
                 return $content;
             }
 
@@ -566,6 +541,69 @@ class SaintCoinachRedisCommand extends Command
             }
         }
 
+        // handle link type definition
+        if (isset($definition->converter) && $definition->converter->type == 'complexlink') {
+            // id of linked data
+            $linkId = $content->{$definition->name} ?? null;
+
+            // possible targets
+            $links = $definition->converter->links;
+
+            foreach ($links as $link) {
+                $matches = !isset($link->when);
+                if ($link->when) {
+                    $linkData = $this->linkContent($linkId, $possibleTarget, ($contentName == $possibleTarget) ? 99 : $depth);
+                    $targetColumnValue = $content->{$link->when->key};
+                    $matches = $matches || $targetColumnValue == $link->when->value;
+                }
+                if ($matches) {
+                    $linkData = $this->linkContent($linkId, $link->sheet, ($contentName == $link->sheet) ? 99 : $depth);
+                    // add link target and target id
+                    $content->{$definition->name} = null;
+                    $content->{$definition->name . "Target"} = $link->sheet;
+                    $content->{$definition->name . "TargetID"} = $linkId;
+
+                    // if link id is an object, it has already been managed
+                    if (is_object($linkId)) {
+                        return $linkId;
+                    }
+
+                    // if link id is null, something wrong with the content and definition
+                    // this shouldn't happen ...
+                    if ($linkId === null) {
+                        return $content;
+                    }
+
+                    // depth reached
+                    if ($depth > $this->maxDepth) {
+                        return $contentId;
+                    }
+
+                    // linkId is 0 and linkTarget is not in our zero content list
+                    if ($linkId == 0 && in_array($link->sheet, self::ZERO_CONTENT) == false) {
+                        return $contentId;
+                    }
+
+                    # $this->io->text("<info>[LINK {$depth}]</info> {$contentId} {$contentName} : {$definition->name} ---> {$linkId} {$linkTarget}");
+
+                    // if the content links to itself, then return back
+                    if ($contentName == $link->sheet && (int)$contentId == (int)$linkId) {
+                        return $contentId;
+                    }
+
+                    // append on linked data if it exists
+                    $content->{$definition->name} = $linkData ?: $content->{$definition->name};
+
+                    // save connection
+                    if ($linkData) {
+                        $this->saveConnection($contentId, $contentName, $definition->name, $linkId, $link->sheet);
+                    }
+
+                    unset($linkData);
+                    return $contentId;
+                }
+            }
+        }
         return $contentId;
     }
 
