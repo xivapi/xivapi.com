@@ -550,6 +550,9 @@ class SaintCoinachRedisCommand extends Command
             $links = $definition->converter->links;
 
             foreach ($links as $link) {
+                if (!isset($link->sheet)) {
+                    continue;
+                }
                 $matches = !isset($link->when);
                 if (isset($link->when)) {
                     $matches = $matches || (isset($content->{$link->when->key}) && $content->{$link->when->key} == $link->when->value);
