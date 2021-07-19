@@ -551,7 +551,7 @@ class SaintCoinachRedisCommand extends Command
 
             foreach ($links as $link) {
                 $matches = !isset($link->when);
-                if ($link->when) {
+                if (isset($link->when)) {
                     $targetColumnValue = $content->{$link->when->key};
                     $matches = $matches || $targetColumnValue == $link->when->value;
                 }
