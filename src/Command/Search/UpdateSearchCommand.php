@@ -209,7 +209,24 @@ class UpdateSearchCommand extends Command
 
                     $content["PreviousQuest0"],
                     $content["PreviousQuest1"],
-                    $content["PreviousQuest2"]
+                    $content["PreviousQuest2"],
+
+                    $content["ItemReward00"],
+                    $content["ItemReward01"],
+                    $content["ItemReward02"],
+                    $content["ItemReward03"],
+                    $content["ItemReward04"],
+                    $content["ItemReward05"],
+                    $content["ItemReward06"],
+                    $content["ItemReward07"],
+                    $content["ItemReward08"],
+                    $content["ItemReward09"],
+                    $content["ItemReward10"],
+                    $content["ItemReward11"],
+                    $content["ItemReward12"],
+                    $content["ItemReward13"],
+                    $content["ItemReward14"],
+                    $content["ItemReward15"],
                 );
             }
         }

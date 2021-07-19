@@ -649,7 +649,7 @@ class SaintCoinachRedisCommand extends Command
         $targetContent = [];
         $targetSchema  = $this->schema[$linkTarget] ?? null;
         $subIndex = 0;
-        $el = FileSystemCache::get($linkTarget, $linkId . $subIndex);
+        $el = FileSystemCache::get($linkTarget, $linkId . '.' .  $subIndex);
         while (isset($el)) {
             if (!$targetSchema) {
                 $targetContent[] = $el;
