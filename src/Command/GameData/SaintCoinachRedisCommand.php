@@ -559,6 +559,8 @@ class SaintCoinachRedisCommand extends Command
                 }
                 if ($matches) {
                     $linkData = $this->linkContent($linkId, $link->sheet, ($contentName == $link->sheet) ? 99 : $depth);
+                    if (!isset($linkData)) {
+                    }
                     // add link target and target id
                     $content->{$definition->name} = null;
                     $content->{$definition->name . "Target"} = $link->sheet;
@@ -621,8 +623,41 @@ class SaintCoinachRedisCommand extends Command
         $targetContent = FileSystemCache::get($linkTarget, $linkId);
         $targetSchema  = $this->schema[$linkTarget] ?? null;
 
-        // no content? return null
+        // no content? try array
         if (!$targetContent) {
+            return $this->linkContentArray($linkId, $linkTarget, $depth);
+        }
+
+        // if no schema, return just the value
+        if (!$targetSchema) {
+            return $targetContent;
+        }
+
+        return $this->buildContent($linkId, $linkTarget, $targetSchema, clone $targetContent, $depth);
+    }
+
+    /**
+     * Link content Array (for links like ID:4 and sheet has 4.0, 4.1, 4.2, etc)
+     */
+    private function linkContentArray($linkId, $linkTarget, $depth)
+    {
+        // linkId is 0 and linkTarget is not in our zero content list
+        if ($linkId == 0 && in_array($linkTarget, self::ZERO_CONTENT) == false) {
+            return $linkId;
+        }
+
+        $targetContent = [];
+        $subIndex = 0;
+        $el = FileSystemCache::get($linkTarget, $linkId . $subIndex);
+        while (isset($el)) {
+            $targetContent[] = $el;
+            $subIndex++;
+            $el = FileSystemCache::get($linkTarget, $linkId . $subIndex);
+        }
+        $targetSchema  = $this->schema[$linkTarget] ?? null;
+
+        // no content? return null
+        if (count($targetContent) == 0) {
             return null;
         }
 
