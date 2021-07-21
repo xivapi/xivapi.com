@@ -86,7 +86,7 @@ class Achievement extends ManualHelper
     {
         $pre = [];
         foreach (self::DATA_IDS as $i) {
-            $value = $achievement->{"Data{$i}"};
+            $value = $achievement->{"Data{$i}TargetID"};
             
             if ($value > 0) {
                 $pre[] = $value;
