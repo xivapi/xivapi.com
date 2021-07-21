@@ -134,7 +134,7 @@ class Achievement extends ManualHelper
     private function insertQuestRequirements($achievement)
     {
         foreach (self::DATA_IDS as $i) {
-            $value = $achievement->{"Data{$i}"};
+            $value = $achievement->{"Data{$i}TargetID"};
 
             if ($value > 0) {
                 $quest = Arrays::minification(
