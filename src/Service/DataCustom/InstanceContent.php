@@ -37,7 +37,7 @@ class InstanceContent extends ManualHelper
             }
 
             $id   = $cfc->Content;
-            $type = self::CONTENT_LINK_TYPES[$cfc->ContentLinkType];
+            $type = self::CONTENT_LINK_TYPES[$cfc->ContentTypeTargetID];
 
             $this->contentFinderConditions[$type][$id] = $cfc;
         }
