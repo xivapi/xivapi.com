@@ -32,7 +32,7 @@ class InstanceContent extends ManualHelper
             $cfc  = Redis::Cache()->get("xiv_ContentFinderCondition_{$id}");
 
             // skip dummy rows
-            if ((int)$cfc->ContentLinkType === 0) {
+            if ((int)$cfc->ContentTypeTargetID === 0) {
                 continue;
             }
 
