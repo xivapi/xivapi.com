@@ -185,6 +185,10 @@ class UpdateSearchCommand extends Command
 
     private function handleCleanUp(string $contentName, array $content)
     {
+        if ($contentName === 'Item') {
+            // Because AdditionalData's shape is inconsistent, better remove it to not break ES import.
+            unset($content['AdditionalData']);
+        }
         if ($contentName === 'Quest') {
             //
             // Remove junk
