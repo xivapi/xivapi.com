@@ -106,7 +106,7 @@ class UpdateSearchCommand extends Command
                     }
 
                     // if this is not a full run and the id is already in the array, skip!
-                    if ($isFullRun === false && in_array($id, $idsEs) === true) {
+                    if (!$input->getOption('id') && $isFullRun === false && in_array($id, $idsEs) === true) {
                         $this->io->progressAdvance($count);
                         $count = 0;
                         continue;
