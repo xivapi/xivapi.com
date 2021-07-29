@@ -195,7 +195,7 @@ class UpdateSearchCommand extends Command
             //
             // Remove junk
             //
-            foreach (range(0, 170) as $num) {
+            foreach (range(0, 236) as $num) {
                 unset(
                     $content["TextData_en"],
                     $content["TextData_de"],
@@ -233,6 +233,30 @@ class UpdateSearchCommand extends Command
                     $content["ItemReward13"],
                     $content["ItemReward14"],
                     $content["ItemReward15"],
+
+                    $content["ToDoMainLocation00"],
+                    $content["ToDoMainLocation01"],
+                    $content["ToDoMainLocation02"],
+                    $content["ToDoMainLocation03"],
+                    $content["ToDoMainLocation04"],
+                    $content["ToDoMainLocation05"],
+                    $content["ToDoMainLocation06"],
+                    $content["ToDoMainLocation07"],
+                    $content["ToDoMainLocation08"],
+                    $content["ToDoMainLocation09"],
+                    $content["ToDoMainLocation{$num}"],
+
+                    $content["ToDoChildLocation00"],
+                    $content["ToDoChildLocation01"],
+                    $content["ToDoChildLocation02"],
+                    $content["ToDoChildLocation03"],
+                    $content["ToDoChildLocation04"],
+                    $content["ToDoChildLocation05"],
+                    $content["ToDoChildLocation06"],
+                    $content["ToDoChildLocation07"],
+                    $content["ToDoChildLocation08"],
+                    $content["ToDoChildLocation09"],
+                    $content["ToDoChildLocation{$num}"],
                 );
             }
         }
