@@ -144,7 +144,9 @@ class UpdateSearchCommand extends Command
                     $docs[$id] = $content;
 
                     // un comment to debug insert issues
-                    // $elastic->addDocument($index, 'search', $id, $content);
+                    if (isset($input->getOption('id'))) {
+                        $elastic->addDocument($index, 'search', $id, $content);
+                    }
 
                     // insert docs
                     if ($count >= ElasticSearch::MAX_BULK_DOCUMENTS) {
