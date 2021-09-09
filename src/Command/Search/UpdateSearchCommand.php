@@ -309,6 +309,10 @@ class UpdateSearchCommand extends Command
             }
         }
 
+        if ($contentName === 'ContentFinderCondition') {
+            unset($content['Transient']);
+        }
+
         return $content;
     }
 
