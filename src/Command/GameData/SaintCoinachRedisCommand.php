@@ -468,7 +468,7 @@ class SaintCoinachRedisCommand extends Command
             }
 
             // grab linked data
-            $linkData = $this->linkContent($linkId, $linkTarget, ($contentName == $linkTarget) ? 99 : $depth);
+            $linkData = $this->linkContent($linkId, $linkTarget, ($contentName == $linkTarget) ? 99 : $depth, $contentId, $contentName, $definition);
 
             // append on linked data if it exists
             $content->{$definition->name} = $linkData ?: $content->{$definition->name};
@@ -491,7 +491,7 @@ class SaintCoinachRedisCommand extends Command
             $possibleTargets = $definition->converter->targets;
 
             foreach ($possibleTargets as $possibleTarget) {
-                $linkData = $this->linkContent($linkId, $possibleTarget, ($contentName == $possibleTarget) ? 99 : $depth);
+                $linkData = $this->linkContent($linkId, $possibleTarget, ($contentName == $possibleTarget) ? 99 : $depth, $contentId, $contentName, $definition);
                 // If content is not null, then we got the multiref target that's mathing this value
                 if (!is_null($linkData)) {
 
@@ -559,7 +559,7 @@ class SaintCoinachRedisCommand extends Command
                     $matches = $matches || (isset($content->{$link->when->key}) && $content->{$link->when->key} == $link->when->value);
                 }
                 if ($matches) {
-                    $linkData = $this->linkContent($linkId, $link->sheet, ($contentName == $link->sheet) ? 99 : $depth);
+                    $linkData = $this->linkContent($linkId, $link->sheet, ($contentName == $link->sheet) ? 99 : $depth, $contentId, $contentName, $definition);
                     if (!isset($linkData)) {
                     }
                     // add link target and target id
@@ -614,7 +614,7 @@ class SaintCoinachRedisCommand extends Command
     /**
      * Link content
      */
-    private function linkContent($linkId, $linkTarget, $depth)
+    private function linkContent($linkId, $linkTarget, $depth, $contentId, $contentName, $definition)
     {
         // linkId is 0 and linkTarget is not in our zero content list
         if ($linkId == 0 && in_array($linkTarget, self::ZERO_CONTENT) == false) {
@@ -626,7 +626,7 @@ class SaintCoinachRedisCommand extends Command
 
         // no content? try array
         if (!$targetContent) {
-            return $this->linkContentArray($linkId, $linkTarget, $depth);
+            return $this->linkContentArray($linkId, $linkTarget, $depth, $contentId, $contentName, $definition);
         }
 
         // if no schema, return just the value
@@ -640,7 +640,7 @@ class SaintCoinachRedisCommand extends Command
     /**
      * Link content Array (for links like ID:4 and sheet has 4.0, 4.1, 4.2, etc)
      */
-    private function linkContentArray($linkId, $linkTarget, $depth)
+    private function linkContentArray($linkId, $linkTarget, $depth, $contentId, $contentName, $definition)
     {
         // linkId is 0 and linkTarget is not in our zero content list
         if ($linkId == 0 && in_array($linkTarget, self::ZERO_CONTENT) == false) {
@@ -652,6 +652,7 @@ class SaintCoinachRedisCommand extends Command
         $subIndex = 0;
         $el = FileSystemCache::get($linkTarget, $linkId . '.' .  $subIndex);
         while (isset($el)) {
+            $this->saveConnection($contentId, $contentName, $definition->name, $linkId, $linkTarget);
             if (!$targetSchema) {
                 $targetContent[] = $el;
             } else {
