@@ -30,7 +30,7 @@ class ApiRequest
 {
     const KEY_FIELD             = 'private_key';
     const MAX_RATE_LIMIT_KEY    = 20;
-    const MAX_RATE_LIMIT_GLOBAL = 8;
+    const MAX_RATE_LIMIT_GLOBAL = 20;
     const MAX_RATE_LIMIT_LODE   = 10;
     
     private $isLodestoneRequest = false;
@@ -306,7 +306,7 @@ class ApiRequest
 
             $tempban = Redis::cache()->get('temp_ban_'. ApiRequest::$idStatic);
 
-            if ($count > 100 && !$tempban) {
+            if ($count > 200 && !$tempban) {
                 //Discord::mog()->sendMessage(null, "[1hr TempBan = 100+/sec/requests] `". ApiRequest::$idStatic ."` -- `". ($this->apikey ?: "--nokey--") ."`");
                 Redis::cache()->set('temp_ban_'. ApiRequest::$idStatic, 3600);
                 Redis::cache()->increment('perma_ban_'. ApiRequest::$idStatic);
