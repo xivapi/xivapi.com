@@ -658,7 +658,7 @@ class SaintCoinachRedisCommand extends Command
                 $targetContent[] = $this->buildContent($linkId, $linkTarget, $targetSchema, clone $el, $depth);
             }
             $subIndex++;
-            $el = FileSystemCache::get($linkTarget, $linkId . $subIndex);
+            $el = FileSystemCache::get($linkTarget, $linkId . '.' . $subIndex);
         }
 
         // no content? return null
