@@ -18,7 +18,16 @@ class Arrays
 
         $newData = [];
         foreach ($columns as $col) {
-            $newData[$col] = self::getArrayValueFromDotNotation($array, $col);
+            if(!str_contains($col, ".") && str_ends_with($col, '*') && !str_ends_with($col, "_*")){
+                $colWithoutWildcard = substr($col, 0, -1);
+                foreach($array as $key => $value) {
+                    if(str_starts_with($key, $colWithoutWildcard)){
+                        $newData[$key] = self::getArrayValueFromDotNotation($array, $col);
+                    }
+                }
+            } else {
+                $newData[$col] = self::getArrayValueFromDotNotation($array, $col);
+            }
         }
 
         foreach ($newData as $index => $value) {
