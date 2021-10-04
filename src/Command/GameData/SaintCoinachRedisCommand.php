@@ -560,10 +560,8 @@ class SaintCoinachRedisCommand extends Command
                 }
                 if ($matches) {
                     $linkData = $this->linkContent($linkId, $link->sheet, ($contentName == $link->sheet) ? 99 : $depth, $contentId, $contentName, $definition);
-                    if (!isset($linkData)) {
-                    }
                     // add link target and target id
-                    $content->{$definition->name} = null;
+                    $content->{$definition->name} = $linkData;
                     $content->{$definition->name . "Target"} = $link->sheet;
                     $content->{$definition->name . "TargetID"} = $linkId;
 
