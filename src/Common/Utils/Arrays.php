@@ -22,7 +22,7 @@ class Arrays
                 $colWithoutWildcard = substr($col, 0, -1);
                 foreach($array as $key => $value) {
                     if(str_starts_with($key, $colWithoutWildcard)) {
-                        $newData[$key] = self::getArrayValueFromDotNotation($array, $col);
+                        $newData[$key] = $value;
                     }
                 }
             } else {
