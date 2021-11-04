@@ -31,7 +31,7 @@ class ApiRequest
     const KEY_FIELD             = 'private_key';
     const MAX_RATE_LIMIT_KEY    = 20;
     const MAX_RATE_LIMIT_GLOBAL = 20;
-    const MAX_RATE_LIMIT_LODE   = 10;
+    const MAX_RATE_LIMIT_LODE   = 2;
     
     private $isLodestoneRequest = false;
     
