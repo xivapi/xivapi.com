@@ -161,7 +161,8 @@ class LodestoneCharacterController extends AbstractController
                 $response->Character->ActiveClassJob = null;
             }
 
-            Redis::cache()->set($rediskey, $response, 300, true);
+             // 8h cache except if it's asking for Bio
+            Redis::cache()->set($rediskey, $response, 3600 * 8, true);
         } else {
             $response = (object)$response;
         }
