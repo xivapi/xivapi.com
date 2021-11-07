@@ -19,6 +19,9 @@ use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+
+const CACHE_DURATION = 8 * 3600; // 8 hours
+
 class LodestoneCharacterController extends AbstractController
 {
     /**
@@ -161,8 +164,8 @@ class LodestoneCharacterController extends AbstractController
                 $response->Character->ActiveClassJob = null;
             }
 
-             // 8h cache except if it's asking for Bio
-            Redis::cache()->set($rediskey, $response, 3600 * 8, true);
+            // 8h cache except if it's asking for Bio
+            Redis::cache()->set($rediskey, $response, CACHE_DURATION, true);
         } else {
             $response = (object)$response;
         }
@@ -180,82 +183,99 @@ class LodestoneCharacterController extends AbstractController
 
         // Minions and mounts
         if ($content->MIMO) {
-            // Two blocks here so one request cannot cancel the other.
-            try {
-                $response->Minions = $api->character()->minions($lodestoneId);
-            } catch (LodestoneNotFoundException $e) {
-                // If we get a 404, there's no minions, we can safely skip
-            }
-            try {
-                $response->Mounts = $api->character()->mounts($lodestoneId);
-            } catch (LodestoneNotFoundException $e) {
-                // If we get a 404, there's no mounts, we can safely skip
+            $cachedMIMO = Redis::Cache()->get($rediskey . "_MIMO", true);
+            if ($cachedMIMO) {
+                $response->Minions = $cachedMIMO->Minions;
+                $response->Mounts = $cachedMIMO->Mounts;
+            } else {
+                // Two blocks here so one request cannot cancel the other.
+                try {
+                    $response->Minions = $api->character()->minions($lodestoneId);
+                } catch (LodestoneNotFoundException $e) {
+                    // If we get a 404, there's no minions, we can safely skip
+                }
+                try {
+                    $response->Mounts = $api->character()->mounts($lodestoneId);
+                } catch (LodestoneNotFoundException $e) {
+                    // If we get a 404, there's no mounts, we can safely skip
+                }
+                $MIMO = [
+                    "Minions" => $response->Minions,
+                    "Mounts" => $response->Mounts
+                ];
+                Redis::cache()->set($rediskey . "_MIMO", $MIMO, CACHE_DURATION, true);
             }
         }
 
         // Achievements
         if ($content->AC) {
-            $achievements       = [];
-            $achievementsPublic = true;
-
-            try {
-                // achievements might be private/public, can check on 1st one
-                $first = $api->character()->achievements($lodestoneId, 1);
-            } catch (LodestonePrivateException $ex) {
-                // we catch this exception as users will probably still want to handle the response (profile, other data)
-                // even if achievements are private
-                $achievementsPublic = false;
-            }
-
-            // add public status to response
-            $response->AchievementsPublic = $achievementsPublic;
-
-            if ($achievementsPublic && $first) {
-                $achievements = array_merge($achievements, $first->Achievements);
-
-                $api->config()->useAsync();
+            $cachedAC = Redis::Cache()->get($rediskey . "_AC", true);
+            if ($cachedAC) {
+                $response->Achievements = $cachedAC;
+            } else {
+                $achievements       = [];
+                $achievementsPublic = true;
 
                 try {
-                    // parse the rest of the pages
-                    foreach ([2, 3, 4, 5, 6, 8, 11, 12] as $kindId) {
-                        $api->config()->setRequestId("kind_{$kindId}");
-                        $api->character()->achievements($lodestoneId, $kindId);
-                    }
+                    // achievements might be private/public, can check on 1st one
+                    $first = $api->character()->achievements($lodestoneId, 1);
+                } catch (LodestonePrivateException $ex) {
+                    // we catch this exception as users will probably still want to handle the response (profile, other data)
+                    // even if achievements are private
+                    $achievementsPublic = false;
+                }
 
-                    foreach ($api->http()->settle() as $res) {
-                        if (isset($res->Error)) {
-                            continue;
+                // add public status to response
+                $response->AchievementsPublic = $achievementsPublic;
+
+                if ($achievementsPublic && $first) {
+                    $achievements = array_merge($achievements, $first->Achievements);
+
+                    $api->config()->useAsync();
+
+                    try {
+                        // parse the rest of the pages
+                        foreach ([2, 3, 4, 5, 6, 8, 11, 12] as $kindId) {
+                            $api->config()->setRequestId("kind_{$kindId}");
+                            $api->character()->achievements($lodestoneId, $kindId);
                         }
 
-                        $achievements = array_merge($achievements, $res->Achievements);
+                        foreach ($api->http()->settle() as $res) {
+                            if (isset($res->Error)) {
+                                continue;
+                            }
+
+                            $achievements = array_merge($achievements, $res->Achievements);
+                        }
+                    } catch (\Exception $ex) {
+                        // ignore errors
                     }
-                } catch (\Exception $ex) {
-                    // ignore errors
+
+                    $api->config()->useSync();
+
+                    // Attempt for category 13
+                    try {
+                        $cat13 = $api->character()->achievements($lodestoneId, 13);
+                        $achievements = array_merge($achievements, $cat13->Achievements);
+                    } catch (\Exception $ex) {
+                        // ignore, might not have it
+                    }
                 }
 
-                $api->config()->useSync();
-
-                // Attempt for category 13
-                try {
-                    $cat13 = $api->character()->achievements($lodestoneId, 13);
-                    $achievements = array_merge($achievements, $cat13->Achievements);
-                } catch (\Exception $ex) {
-                    // ignore, might not have it
-                }
-            }
-
-            $response->Achievements = (object)[
-                'List'   => [],
-                'Points' => 0
-            ];
-
-            // simplify achievements
-            foreach ($achievements as $i => $achi) {
-                $response->Achievements->Points   += $achi->Points;
-                $response->Achievements->List[$i] = (object)[
-                    'ID'   => $achi->ID,
-                    'Date' => $achi->ObtainedTimestamp
+                $response->Achievements = (object)[
+                    'List'   => [],
+                    'Points' => 0
                 ];
+
+                // simplify achievements
+                foreach ($achievements as $i => $achi) {
+                    $response->Achievements->Points   += $achi->Points;
+                    $response->Achievements->List[$i] = (object)[
+                        'ID'   => $achi->ID,
+                        'Date' => $achi->ObtainedTimestamp
+                    ];
+                }
+                Redis::cache()->set($rediskey . "_AC", $response->Achievements, CACHE_DURATION, true);
             }
 
             if ($isExtended) {
@@ -265,70 +285,94 @@ class LodestoneCharacterController extends AbstractController
 
         // Friends
         if ($content->FR) {
-            $friends       = [];
-            $friendsPublic = true;
+            $cachedFR = Redis::Cache()->get($rediskey . "_FR", true);
+            if ($cachedFR) {
+                $response->Friends = $cachedFR;
+            } else {
+                $friends       = [];
+                $friendsPublic = true;
 
-            // grab 1st page, so we know if there is more than 1 page
-            try {
-                $first   = $api->character()->friends($lodestoneId, 1);
-                $friends = $first ? array_merge($friends, $first->Results) : $friends;
-            } catch (LodestonePrivateException $ex) {
-                // we catch this exception as users will probably still want to handle the response (profile, other data)
-                // even if achievements are private
-                $friendsPublic = false;
-            }
-
-            // add public status to response
-            $response->FriendsPublic = $achievementsPublic;
-
-            if ($friendsPublic && $first && $first->Pagination->PageTotal > 1) {
-                // parse the rest of pages
-                $api->config()->useAsync();
-                foreach (range(2, $first->Pagination->PageTotal) as $page) {
-                    $api->character()->friends($lodestoneId, $page);
+                // grab 1st page, so we know if there is more than 1 page
+                try {
+                    $first   = $api->character()->friends($lodestoneId, 1);
+                    $friends = $first ? array_merge($friends, $first->Results) : $friends;
+                } catch (LodestonePrivateException $ex) {
+                    // we catch this exception as users will probably still want to handle the response (profile, other data)
+                    // even if achievements are private
+                    $friendsPublic = false;
                 }
 
-                foreach ($api->http()->settle() as $res) {
-                    $friends = array_merge($friends, $res->Results);
-                }
-                $api->config()->useSync();
-            }
+                // add public status to response
+                $response->FriendsPublic = $achievementsPublic;
 
-            $response->Friends = $friends;
+                if ($friendsPublic && $first && $first->Pagination->PageTotal > 1) {
+                    // parse the rest of pages
+                    $api->config()->useAsync();
+                    foreach (range(2, $first->Pagination->PageTotal) as $page) {
+                        $api->character()->friends($lodestoneId, $page);
+                    }
+
+                    foreach ($api->http()->settle() as $res) {
+                        $friends = array_merge($friends, $res->Results);
+                    }
+                    $api->config()->useSync();
+                }
+
+                $response->Friends = $friends;
+                $cachedFR = Redis::Cache()->set($rediskey . "_FR", $response->Friends, CACHE_DURATION, true);
+            }
         }
 
         // Free Company
         if ($content->FC && $fcId) {
-            $response->FreeCompany = $api->freecompany()->get($fcId);
+            $cachedFC = Redis::Cache()->get($rediskey . "_FC", true);
+            if ($cachedFC) {
+                $response->FreeCompany = $cachedFC;
+            } else {
+                $response->FreeCompany = $api->freecompany()->get($fcId);
+                $cachedFR = Redis::Cache()->set($rediskey . "_FC", $response->FreeCompany, CACHE_DURATION, true);
+            }
         }
 
         // Free Company Members
         if ($content->FCM && $fcId) {
-            $members = [];
+            $cachedFCM = Redis::Cache()->get($rediskey . "_FCM", true);
+            if($cachedFCM){
+                $response->FreeCompanyMembers = $cachedFCM;
+            } else {
+                $members = [];
 
-            // grab 1st page, so we know if there is more than 1 page
-            $first   = $api->freecompany()->members($response->Character->FreeCompanyId, 1);
-            $members = $first ? array_merge($members, $first->Results) : $members;
-
-            if ($first && $first->Pagination->PageTotal > 1) {
-                // parse the rest of pages
-                $api->config()->useAsync();
-                foreach (range(2, $first->Pagination->PageTotal) as $page) {
-                    $api->freecompany()->members($response->Character->FreeCompanyId, $page);
+                // grab 1st page, so we know if there is more than 1 page
+                $first   = $api->freecompany()->members($response->Character->FreeCompanyId, 1);
+                $members = $first ? array_merge($members, $first->Results) : $members;
+    
+                if ($first && $first->Pagination->PageTotal > 1) {
+                    // parse the rest of pages
+                    $api->config()->useAsync();
+                    foreach (range(2, $first->Pagination->PageTotal) as $page) {
+                        $api->freecompany()->members($response->Character->FreeCompanyId, $page);
+                    }
+    
+                    foreach ($api->http()->settle() as $res) {
+                        $members = array_merge($members, $res->Results);
+                    }
+                    $api->config()->useSync();
                 }
-
-                foreach ($api->http()->settle() as $res) {
-                    $members = array_merge($members, $res->Results);
-                }
-                $api->config()->useSync();
-            }
-
-            $response->FreeCompanyMembers = $members;
+    
+                $response->FreeCompanyMembers = $members;
+                $cachedFR = Redis::Cache()->set($rediskey . "_FCM", $response->FreeCompanyMembers, CACHE_DURATION, true);
+            }            
         }
 
         // PVP Team
         if ($content->PVP && $pvpId) {
-            $response->PvPTeam = $api->pvpteam()->get($pvpId);
+            $cachedPVP = Redis::Cache()->get($rediskey . "_PVP", true);
+            if ($cachedPVP) {
+                $response->PvPTeam = $cachedPVP;
+            } else {
+                $response->PvPTeam = $api->pvpteam()->get($pvpId);
+                $cachedFR = Redis::Cache()->set($rediskey . "_PVP", $response->PvPTeam, CACHE_DURATION, true);
+            }
         }
 
         // ---------------------------------
