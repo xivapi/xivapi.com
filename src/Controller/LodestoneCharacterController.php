@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
-const CACHE_DURATION = 8 * 3600; // 8 hours
+const CACHE_DURATION = 24 * 3600; // 24 hours
 
 class LodestoneCharacterController extends AbstractController
 {

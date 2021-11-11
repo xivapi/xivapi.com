@@ -10,7 +10,6 @@ use Lodestone\Api;
 
 class LodestoneController extends Controller
 {
-    const CACHE_DURATION = (5 * 60 * 60);
 
     /**
      * @Route("/lodestone")
