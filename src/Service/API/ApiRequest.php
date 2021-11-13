@@ -31,17 +31,18 @@ class ApiRequest
     const KEY_FIELD             = 'private_key';
     const MAX_RATE_LIMIT_KEY    = 20;
     const MAX_RATE_LIMIT_GLOBAL = 20;
-    const MAX_RATE_LIMIT_LODE   = 2;
-    
+    const MAX_RATE_LIMIT_LODE   = 1;
+    const MAX_RATE_LIMIT_LODE_MINUTE   = 3;
+
     private $isLodestoneRequest = false;
-    
+
     const LODESTONE_CONTROLLERS = [
         'App\Controller\LodestoneCharacterController',
         'App\Controller\LodestoneFreeCompanyController',
         'App\Controller\LodestoneLinkshellController',
         'App\Controller\LodestonePvPTeamController'
     ];
-    
+
     /**
      * List of controllers that require a API Key
      */
@@ -88,7 +89,7 @@ class ApiRequest
      * @var string
      */
     private $apikey;
-    
+
     private $clientHash;
 
     public function __construct(Users $users)
@@ -111,12 +112,12 @@ class ApiRequest
         $this->request    = $request;
         $this->apikey     = trim($this->request->get(self::KEY_FIELD));
         $this->clientHash = sha1($request->getClientIp());
-        
+
         $endpoint = $this->request->attributes->get('_controller');
         $endpoint = explode("::", $endpoint)[0];
-        
+
         if (in_array($endpoint, self::LODESTONE_CONTROLLERS)) {
-            $this->isLodestoneRequest = true;  
+            $this->isLodestoneRequest = true;
         }
 
         // set request ids
@@ -125,18 +126,18 @@ class ApiRequest
         $this->statRequestCount();
 
         // check tempban
-        $tempban = Redis::cache()->get('temp_ban_'. ApiRequest::$idStatic);
+        $tempban = Redis::cache()->get('temp_ban_' . ApiRequest::$idStatic);
         if ($tempban) {
             throw new ApiTempBanException();
         }
 
-        $permaan = Redis::cache()->getCount('perma_ban_'. ApiRequest::$idStatic);
+        $permaan = Redis::cache()->getCount('perma_ban_' . ApiRequest::$idStatic);
         if ($permaan > 30) {
             throw new ApiPermaBanException();
         }
-        
+
         file_put_contents(
-            __DIR__.'/../../../../api_logs.txt',
+            __DIR__ . '/../../../../api_logs.txt',
             implode("|", [
                 date('Y-m-d H:i:s'),
                 $this->request->attributes->get('_controller'),
@@ -150,7 +151,7 @@ class ApiRequest
         if ($this->isApiController() === false) {
             return;
         }
-        
+
         // if no key, handle per ip
         if ($this->hasApiKey() === false) {
             $this->checkUserRateLimit();
@@ -179,17 +180,15 @@ class ApiRequest
         $date = Redis::cache()->get('stat_date');
 
         if (empty($date)) {
-            Redis::cache()->set('stat_date', date('Y-m-d H:i:s') ." UTC");
+            Redis::cache()->set('stat_date', date('Y-m-d H:i:s') . " UTC");
         }
 
         $hour = date('G');
-        $key1 = "stat_requests_". $hour;
+        $key1 = "stat_requests_" . $hour;
         $key2 = "stats_total";
 
         Redis::cache()->increment($key1);
         Redis::cache()->increment($key2);
-
-
     }
 
     /**
@@ -197,9 +196,9 @@ class ApiRequest
      */
     private function setApiRequestIds()
     {
-        $unique = (Object)[
-            'static'  => sha1("ga_". ($this->apikey ?: $this->request->getClientIp())),
-            'dynamic' => sha1("ga_". ($this->apikey ?: $this->request->getClientIp()) . time()),
+        $unique = (object)[
+            'static'  => sha1("ga_" . ($this->apikey ?: $this->request->getClientIp())),
+            'dynamic' => sha1("ga_" . ($this->apikey ?: $this->request->getClientIp()) . time()),
             'unique'  => Uuid::uuid4()->toString(),
         ];
 
@@ -220,7 +219,7 @@ class ApiRequest
 
         return true;
     }
-    
+
     /**
      * States if an API key exists in the request
      */
@@ -250,7 +249,7 @@ class ApiRequest
         $key = "api_rate_limit_user_{$this->user->getId()}";
         $this->handleRateLimit($key, $this->user->getApiRateLimit(), "Developer");
     }
-    
+
     /**
      * Check a users rate limit
      */
@@ -260,28 +259,42 @@ class ApiRequest
         $key = "api_rate_limit_client_{$ip}";
 
         $ratelimit = $this->isLodestoneRequest ? self::MAX_RATE_LIMIT_LODE : self::MAX_RATE_LIMIT_GLOBAL;
-        
+
         $this->handleRateLimit($key, $ratelimit, "WebBased");
     }
-    
+
     /**
      * Handle rate limit tracking
      */
     private function handleRateLimit($key, $limit = self::MAX_RATE_LIMIT_GLOBAL, $type = 'unknown')
     {
         // current and last second
-        $key = $key .'_v4_'. (int)date('s');
-        
+        $rateLimitKey = $key . '_v4_' . (int)date('s');
+
         // increment
-        $count = (int)Redis::Cache()->get($key);
+        $count = (int)Redis::Cache()->get($rateLimitKey);
         $count++;
-        Redis::Cache()->set($key, $count, max(60 / $limit, 1));
-        
+        Redis::Cache()->set($rateLimitKey, $count, 3);
+
+        $rateLimited = $count > $limit;
+
+        if ($this->isLodestoneRequest) {
+            // checking per minute for lodestone endpoints, 1/s doesn't mean 3600/h.
+            $lodeAntiSpamKey = $key . '_lode_' . (int)date('H');
+
+            // increment
+            $requestsInLastHour = (int)Redis::Cache()->get($lodeAntiSpamKey);
+            $requestsInLastHour++;
+            // Let's store for 30min, if they don't request for 30min it's fine anyways.
+            Redis::Cache()->set($key, $requestsInLastHour, 1800);
+            $rateLimited = $requestsInLastHour > 300;
+        }
+
         // throw exception if hit count too high
-        if ($count > $limit) {
+        if ($rateLimited) {
             // private error message
             file_put_contents(
-            __DIR__.'/../../../../api_rate_limited.txt',
+                __DIR__ . '/../../../../api_rate_limited.txt',
                 implode("|", [
                     date('Y-m-d H:i:s'),
                     $count,
@@ -304,18 +317,18 @@ class ApiRequest
                 $type
             );
 
-            $tempban = Redis::cache()->get('temp_ban_'. ApiRequest::$idStatic);
+            $tempban = Redis::cache()->get('temp_ban_' . ApiRequest::$idStatic);
 
             if ($count > 200 && !$tempban) {
-                //Discord::mog()->sendMessage(null, "[1hr TempBan = 100+/sec/requests] `". ApiRequest::$idStatic ."` -- `". ($this->apikey ?: "--nokey--") ."`");
-                Redis::cache()->set('temp_ban_'. ApiRequest::$idStatic, 3600);
-                Redis::cache()->increment('perma_ban_'. ApiRequest::$idStatic);
+                Discord::mog()->sendMessage(null, "[1hr TempBan = 100+/sec/requests] `" . ApiRequest::$idStatic . "` -- `" . ($this->apikey ?: "--nokey--") . "`");
+                Redis::cache()->set('temp_ban_' . ApiRequest::$idStatic, 3600);
+                Redis::cache()->increment('perma_ban_' . ApiRequest::$idStatic);
             }
 
             throw new ApiRateLimitException($message);
         }
     }
-    
+
     /**
      * Check that the user is not banned, if they provided a key
      */
@@ -341,7 +354,7 @@ class ApiRequest
     {
         return strtolower(explode('/', $this->request->getPathInfo())[1]) ?? 'x';
     }
-    
+
     /**
      * Send developer specific analytic data
      */
@@ -368,7 +381,7 @@ class ApiRequest
         if (empty($this->apikey)) {
             return;
         }
-        
+
         if (ApiPermissions::has(ApiPermissions::PERMISSION_KING) !== false) {
             return;
         }
@@ -385,7 +398,7 @@ class ApiRequest
             if (Redis::Cache()->get($key . "_alert") == null) {
                 Redis::Cache()->set($key . "_alert", true, 3600);
                 Discord::mog()->sendMessage(null, "The API Key: {$this->apikey} ({$this->user->getUsername()}) has performed over 1500 requests in the past 60 seconds. The rate limit for this key will be dramatically reduced.");
-                
+
                 $this->user->setApiRateLimit(2);
                 $this->users->save($this->user);
             }
