@@ -33,14 +33,24 @@ class LodestoneCharacterController extends AbstractController
         if (empty(trim($request->get('name')))) {
             throw new NotAcceptableHttpException('You must provide a name to search.');
         }
+        $rediskey = "lodestone_search_json_response_v6_" . preg_replace('/\s+/', '_', $request->get('name'));
+        $cache = Redis::Cache()->get($rediskey, true);
 
-        return $this->json(
-            (new Api())->character()->search(
-                $request->get('name'),
-                ucwords(strtolower($request->get('server'))),
-                $request->get('page') ?: 1
-            )
-        );
+        if (!$cache) {
+            return $this->json(
+                $cache
+            );
+        } else {
+            $response = $this->json(
+                (new Api())->character()->search(
+                    $request->get('name'),
+                    ucwords(strtolower($request->get('server'))),
+                    $request->get('page') ?: 1
+                )
+            );
+            Redis::cache()->set($rediskey, $response, 2 * 3600, true);
+            return $this->json($response);
+        }
     }
 
     /**
@@ -337,7 +347,7 @@ class LodestoneCharacterController extends AbstractController
         // Free Company Members
         if ($content->FCM && $fcId) {
             $cachedFCM = Redis::Cache()->get($rediskey . "_FCM", true);
-            if($cachedFCM){
+            if ($cachedFCM) {
                 $response->FreeCompanyMembers = $cachedFCM;
             } else {
                 $members = [];
@@ -345,23 +355,23 @@ class LodestoneCharacterController extends AbstractController
                 // grab 1st page, so we know if there is more than 1 page
                 $first   = $api->freecompany()->members($response->Character->FreeCompanyId, 1);
                 $members = $first ? array_merge($members, $first->Results) : $members;
-    
+
                 if ($first && $first->Pagination->PageTotal > 1) {
                     // parse the rest of pages
                     $api->config()->useAsync();
                     foreach (range(2, $first->Pagination->PageTotal) as $page) {
                         $api->freecompany()->members($response->Character->FreeCompanyId, $page);
                     }
-    
+
                     foreach ($api->http()->settle() as $res) {
                         $members = array_merge($members, $res->Results);
                     }
                     $api->config()->useSync();
                 }
-    
+
                 $response->FreeCompanyMembers = $members;
                 $cachedFR = Redis::Cache()->set($rediskey . "_FCM", $response->FreeCompanyMembers, CACHE_DURATION, true);
-            }            
+            }
         }
 
         // PVP Team
