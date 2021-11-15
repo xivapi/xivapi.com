@@ -41,12 +41,10 @@ class LodestoneCharacterController extends AbstractController
                 $cache
             );
         } else {
-            $response = $this->json(
-                (new Api())->character()->search(
-                    $request->get('name'),
-                    ucwords(strtolower($request->get('server'))),
-                    $request->get('page') ?: 1
-                )
+            $response = (new Api())->character()->search(
+                $request->get('name'),
+                ucwords(strtolower($request->get('server'))),
+                $request->get('page') ?: 1
             );
             Redis::cache()->set($rediskey, $response, 2 * 3600, true);
             return $this->json($response);
