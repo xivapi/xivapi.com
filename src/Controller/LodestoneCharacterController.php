@@ -36,7 +36,7 @@ class LodestoneCharacterController extends AbstractController
         $rediskey = "lodestone_search_json_response_v6_" . preg_replace('/\s+/', '_', $request->get('name'));
         $cache = Redis::Cache()->get($rediskey, true);
 
-        if (!$cache) {
+        if ($cache) {
             return $this->json(
                 $cache
             );
