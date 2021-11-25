@@ -33,7 +33,7 @@ class LodestoneCharacterController extends AbstractController
         if (empty(trim($request->get('name')))) {
             throw new NotAcceptableHttpException('You must provide a name to search.');
         }
-        $rediskey = "lodestone_search_json_response_v6_" . preg_replace('/\s+/', '_', $request->get('name'));
+        $rediskey = "lodestone_search_json_response_v6_" . preg_replace('/\s+/', '_', $request->get('name')) . $request->get('server', '');
         $cache = Redis::Cache()->get($rediskey, true);
 
         if ($cache) {
