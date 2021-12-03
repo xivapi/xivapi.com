@@ -309,6 +309,12 @@ class UpdateSearchCommand extends Command
             }
         }
 
+        if ($contentName === 'Item') {
+            if (isset($content['GameContentLinks']) && isset($content['GameContentLinks']['CollectablesShopItem'])) {
+                $content['GameContentLinks']['CollectablesShopItem'] = array_map( 'intval', $content['GameContentLinks']['CollectablesShopItem']);
+            }
+        }
+
         if ($contentName === 'ContentFinderCondition') {
             unset($content['Transient']);
         }
