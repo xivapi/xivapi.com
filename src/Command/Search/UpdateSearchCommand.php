@@ -189,7 +189,13 @@ class UpdateSearchCommand extends Command
     {
         if ($contentName === 'Item') {
             // Because AdditionalData's shape is inconsistent, better remove it to not break ES import.
-            unset($content['AdditionalData']);
+            if (isset($content['AdditionalData']) && !is_object($content['AdditionalData'])) {
+                unset($content['AdditionalData']);
+            }
+
+            if (isset($content['GameContentLinks']) && isset($content['GameContentLinks']['CollectablesShopItem'])) {
+                $content['GameContentLinks']['CollectablesShopItem'] = array_map('intval', $content['GameContentLinks']['CollectablesShopItem']);
+            }
         }
         if ($contentName === 'Quest') {
             //
@@ -310,9 +316,6 @@ class UpdateSearchCommand extends Command
         }
 
         if ($contentName === 'Item') {
-            if (isset($content['GameContentLinks']) && isset($content['GameContentLinks']['CollectablesShopItem'])) {
-                $content['GameContentLinks']['CollectablesShopItem'] = array_map( 'intval', $content['GameContentLinks']['CollectablesShopItem']);
-            }
         }
 
         if ($contentName === 'ContentFinderCondition') {
