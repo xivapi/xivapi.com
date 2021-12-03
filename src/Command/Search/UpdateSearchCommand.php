@@ -196,6 +196,8 @@ class UpdateSearchCommand extends Command
             if (isset($content['GameContentLinks']) && isset($content['GameContentLinks']['CollectablesShopItem'])) {
                 $content['GameContentLinks']['CollectablesShopItem'] = array_map('intval', $content['GameContentLinks']['CollectablesShopItem']);
             }
+
+            unset($content['ClassJobUse']);
         }
         if ($contentName === 'Quest') {
             //
