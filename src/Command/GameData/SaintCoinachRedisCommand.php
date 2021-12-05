@@ -56,7 +56,7 @@ class SaintCoinachRedisCommand extends Command
             ->addOption('start', null, InputOption::VALUE_OPTIONAL, 'The required starting position for the data', 0)
             ->addOption('count', null, InputOption::VALUE_OPTIONAL, 'The amount of files to process in 1 go', 1000)
             ->addOption('fast', null, InputOption::VALUE_OPTIONAL, 'Skip all questions and use default values', true)
-            ->addOption('full', null, InputOption::VALUE_OPTIONAL, 'Perform a full import, regardless of existing entries', false)
+            ->addOption('full', null, InputOption::VALUE_OPTIONAL, 'Perform a full import, regardless of existing entries', true)
             ->addOption('content', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null)
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null);
     }
@@ -94,7 +94,7 @@ class SaintCoinachRedisCommand extends Command
     {
         $focusName  = $this->input->getOption('content');
         $focusId    = $this->input->getOption('id');
-        $isFullRun  = $this->input->getOption('full');
+        $isFullRun  = true;
         $quiet  = $this->input->getOption('quiet');
 
         if ($focusName || $focusId) {
