@@ -208,6 +208,10 @@ class UpdateSearchCommand extends Command
             unset($content['ClassJob']['RelicQuest']);
         }
 
+        if (isset($content['ClassJob']) && isset($content['ClassJob']['UnlockQuest'])) {
+            unset($content['ClassJob']['UnlockQuest']);
+        }
+
         if ($contentName === 'Quest') {
             //
             // Remove junk
