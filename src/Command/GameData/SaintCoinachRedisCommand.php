@@ -289,7 +289,7 @@ class SaintCoinachRedisCommand extends Command
 
                 // is this a repeater definition?
                 // If it's topicselect, don't handle the link or it'll break data
-                if (!isset($definition->name) && $definition->type === 'repeat' && $definition->name !== 'TopicSelect') {
+                if (!isset($definition->name) && $definition->type === 'repeat' && $contentName !== 'TopicSelect') {
                     $this->handleSingleRepeat($contentId, $contentName, $content, $depth, $definition);
                     continue;
                 }
