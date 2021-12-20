@@ -25,7 +25,6 @@ class UpdateSearchCommand extends Command
             ->setName('UpdateSearchCommand')
             ->setDescription('Deploy all search data to live!')
             ->addOption('environment', null, InputOption::VALUE_OPTIONAL, 'prod OR dev', 'prod')
-            ->addOption('full', null, InputOption::VALUE_OPTIONAL, 'Perform a full import, regardless of existing entries', false)
             ->addOption('content', null, InputOption::VALUE_OPTIONAL, 'Run a specific content', null)
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Run a specific content id', null);
     }
@@ -39,7 +38,6 @@ class UpdateSearchCommand extends Command
 
         $envAllowed  = in_array($input->getOption('environment'), ['prod', 'staging']);
         $environment = $envAllowed ? 'ELASTIC_SERVER_PROD' : 'ELASTIC_SERVER_LOCAL';
-        $isFullRun   = $this->input->getOption('full') == 1;
 
         if ($input->getOption('environment') == 'prod') {
             $this->io->success('DEPLOYING TO PRODUCTION');
@@ -74,13 +72,11 @@ class UpdateSearchCommand extends Command
 
                 $this->io->text("<info>ElasticSearch import: {$total} {$contentName} documents to index: {$index}</info>");
 
-                if ($isFullRun) {
                     // delete index for a clean slate
                     $elastic->deleteIndex($index);
 
                     // create index
                     $elastic->addIndexGameData($index);
-                }
 
                 // temporarily -1 the refresh interval for this index
                 $elastic->putSettings([
@@ -102,13 +98,6 @@ class UpdateSearchCommand extends Command
                         $input->getOption('id') &&
                         $input->getOption('id') != $id
                     ) {
-                        continue;
-                    }
-
-                    // if this is not a full run and the id is already in the array, skip!
-                    if (!$input->getOption('id') && $isFullRun === false && in_array($id, $idsEs) === true) {
-                        $this->io->progressAdvance($count);
-                        $count = 0;
                         continue;
                     }
 

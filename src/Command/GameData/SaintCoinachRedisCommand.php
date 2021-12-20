@@ -56,7 +56,6 @@ class SaintCoinachRedisCommand extends Command
             ->addOption('start', null, InputOption::VALUE_OPTIONAL, 'The required starting position for the data', 0)
             ->addOption('count', null, InputOption::VALUE_OPTIONAL, 'The amount of files to process in 1 go', 1000)
             ->addOption('fast', null, InputOption::VALUE_OPTIONAL, 'Skip all questions and use default values', true)
-            ->addOption('full', null, InputOption::VALUE_OPTIONAL, 'Perform a full import, regardless of existing entries', true)
             ->addOption('content', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null)
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Forced content name', null);
     }
@@ -94,7 +93,6 @@ class SaintCoinachRedisCommand extends Command
     {
         $focusName  = $this->input->getOption('content');
         $focusId    = $this->input->getOption('id');
-        $isFullRun  = true;
         $quiet  = $this->input->getOption('quiet');
 
         if ($focusName || $focusId) {
@@ -175,12 +173,8 @@ class SaintCoinachRedisCommand extends Command
                     $this->io->writeln("Skipping focus id: {$focusId}");
                     continue;
                 }
-
-                // if this is a full run or this ID is not in our current saved, then process it.
-                if ($isFullRun == true || in_array($contentId, $currentIds) === false) {
                     // build the game content
                     $this->buildContent($contentId, $contentName, $contentSchema, clone $contentData, 0, true);
-                }
 
                 // store the content ids
                 $this->saveContentId($contentId, $contentName);
