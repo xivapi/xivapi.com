@@ -74,34 +74,33 @@ class Mappy
 
             $obj = new MapPosition();
 
-
             try {
-            $obj->setHash($hash)
-                ->setType($pos->Type)
-                ->setBNpcNameID($pos->BNpcNameID)
-                ->setBNpcBaseID($pos->BNpcBaseID)
-                ->setFateID($pos->FateID)
-                ->setNodeID($pos->NodeID)
-                ->setType($pos->Type)
-                ->setMapID($pos->MapID)
-                ->setMapTerritoryId($pos->MapTerritoryID)
-                ->setPlaceNameId($pos->PlaceNameID)
-                ->setCoordinateX($pos->CoordinateX)
-                ->setCoordinateY($pos->CoordinateY)
-                ->setCoordinateZ($pos->CoordinateZ)
-                ->setPosX($pos->PosX)
-                ->setPosY($pos->PosY)
-                ->setPosZ($pos->PosZ)
-                ->setPixelX($pos->PixelX)
-                ->setPixelY($pos->PixelY)
-                ->setHP($pos->HP)
-                ->setLevel($pos->Level);
-                $this->em->persist($obj);
-                $this->em->flush();
-                $saved++;
+                $obj->setHash($hash)
+                    ->setType($pos->Type)
+                    ->setBNpcNameID($pos->BNpcNameID)
+                    ->setBNpcBaseID($pos->BNpcBaseID)
+                    ->setFateID($pos->FateID)
+                    ->setNodeID($pos->NodeID)
+                    ->setType($pos->Type)
+                    ->setMapID($pos->MapID)
+                    ->setMapTerritoryId($pos->MapTerritoryID)
+                    ->setPlaceNameId($pos->PlaceNameID)
+                    ->setCoordinateX($pos->CoordinateX)
+                    ->setCoordinateY($pos->CoordinateY)
+                    ->setCoordinateZ($pos->CoordinateZ)
+                    ->setPosX($pos->PosX)
+                    ->setPosY($pos->PosY)
+                    ->setPosZ($pos->PosZ)
+                    ->setPixelX($pos->PixelX)
+                    ->setPixelY($pos->PixelY)
+                    ->setHP($pos->HP)
+                    ->setLevel($pos->Level);
+                    $this->em->persist($obj);
+                    $this->em->flush();
+                    $saved++;
             } catch (\Exception $e) {
                 // ignore
-                return $e->getMessage();
+                return 0;
             }
         }
         return $saved;
