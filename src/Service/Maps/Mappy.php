@@ -74,6 +74,8 @@ class Mappy
 
             $obj = new MapPosition();
 
+
+            try {
             $obj->setHash($hash)
                 ->setType($pos->Type)
                 ->setBNpcNameID($pos->BNpcNameID)
@@ -94,8 +96,6 @@ class Mappy
                 ->setPixelY($pos->PixelY)
                 ->setHP($pos->HP)
                 ->setLevel($pos->Level);
-
-            try {
                 $this->em->persist($obj);
                 $this->em->flush();
                 $saved++;
