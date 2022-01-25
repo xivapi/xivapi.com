@@ -89,6 +89,13 @@ class GameServers
         'Spriggan',     # 66
         'Twintania',    # 67
 
+        // Materia, 6.08, Oceania DC
+        'Bismarck',
+        'Ravana',
+        'Sephirot',
+        'Sophia',
+        'Zurvan',
+
         // Chinese servers
         'HongYuHai',
         'ShenYiZhiDi',
@@ -113,28 +120,6 @@ class GameServers
         'HaiMaoChaWu',
         'RouFengHaiWan',
         'HuPoYuan'
-    ];
-
-    const MARKET_SERVER = 'Balmung';
-
-    const LIST_DC_REGIONS = [
-        'Elemental'     => 1,
-        'Gaia'          => 1,
-        'Mana'          => 1,
-
-        'Aether'        => 2,
-        'Primal'        => 2,
-        'Crystal'       => 2,
-
-        'Chaos'         => 3,
-        'Light'         => 3,
-
-        '陆行鸟'        => 4,
-        '莫古力'        => 4,
-        '猫小胖'        => 4,
-        'LuXingNiao'    => 4,
-        'MoGuLi'        => 4,
-        'MaoXiaoPang'   => 4
     ];
 
     const LIST_DC = [
@@ -227,6 +212,16 @@ class GameServers
             'Shinryu',
             'Titan',
         ],
+
+        // Oceania
+        'Materia' => [
+            'Bismarck',
+            'Ravana',
+            'Sephirot',
+            'Sophia',
+            'Zurvan',
+        ],
+
         // Chinese servers
         '陆行鸟' => [
             'HongYuHai',
