@@ -191,7 +191,7 @@ class UpdateSearchCommand extends Command
             }
 
             if (isset($content['GameContentLinks']) && isset($content['GameContentLinks']['QuestClassJobSupply']) && isset($content['GameContentLinks']['QuestClassJobSupply']['Item'])) {
-                $projection = function(mixed $value): mixed {
+                $projection = function($value): mixed {
                     if(is_string($value)) {
                         return floatval($value);
                     }
