@@ -190,6 +190,16 @@ class UpdateSearchCommand extends Command
                 unset($content['GameContentLinks']['QuestClassJobReward']);
             }
 
+            if (isset($content['GameContentLinks']) && isset($content['GameContentLinks']['QuestClassJobSupply']) && isset($content['GameContentLinks']['QuestClassJobSupply']['Item'])) {
+                $projection = function(mixed $value): mixed {
+                    if(is_string($value)) {
+                        return floatval($value);
+                    }
+                    return $value;
+                };
+                $content['GameContentLinks']['QuestClassJobSupply']['Item'] = array_map($projection, $content['GameContentLinks']['QuestClassJobSupply']['Item']);
+            }
+
             unset($content['ClassJobUse']);
         }
 
