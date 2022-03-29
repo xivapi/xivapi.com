@@ -176,6 +176,14 @@ class UpdateSearchCommand extends Command
 
     private function handleCleanUp(string $contentName, array $content)
     {
+        if ($contentName === 'Recipe') {
+            foreach ($content as $field => $value) {
+                if (strpos($field, 'Item') !== false) {
+                    $content[$field] = $this->handleCleanUp('Item', (array) $value);
+                }
+            }
+        }
+
         if ($contentName === 'Item') {
             // Because AdditionalData's shape is inconsistent, better remove it to not break ES import.
             if (isset($content['AdditionalData']) && !is_object($content['AdditionalData'])) {
