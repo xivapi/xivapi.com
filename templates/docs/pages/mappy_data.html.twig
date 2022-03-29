@@ -13,21 +13,12 @@
         different content such as NPCs, Enemies and Gathering nodes.
     </p>
 
-    <p>
-        Mappy is a very basic windows application that reads your FFXIV Game Memory to retrieve
-        data about entities around you, for example if you are next to a Monster in the open world then
-        the application will record its position, HP, MP, TP, Level, etc. All this data is stored
-        into JSON files in the apps directory which you can open in any text editor to view. Since it
-        is JSON you can use it in any shape or form you would like.
-    </p>
-
     <img src="/img-map/showcase_1.png" width="600">
 
     {{ docs.gap() }}
 
     <p>
-        You can find the full source code for mappy on Github:
-        <a href="https://github.com/xivapi/xivapi-mappy">https://github.com/xivapi/xivapi-mappy</a>
+        Mappy is now part of the FFXIV Teamcraft project and can be enabled on their desktop app by asking Miu#1568 for it.
     </p>
 
     <p>
@@ -44,30 +35,10 @@
 
     {{ docs.gap() }}
 
-    <h4 id="download">Download Map Data</h4>
+    <h4 id="download">API</h4>
 
-    <p>Use as you like!</p>
+    <p>Map data is available at <a href="https://xivapi.com/mappy/json">https://xivapi.com/mappy/json</a> for the full dump or <a href="https://xivapi.com/mappy/map/<mapId>">https://xivapi.com/mappy/map/<mapId></a> to get the data for a single map.</p>
 
-    <ul>
-        <li><a href="{{ path('mappy_download', { data: 'map_data' }) }}">Map Data</a></li>
-        <li><a href="{{ path('mappy_download', { data: 'memory_data' }) }}">Memory Data</a></li>
-    </ul>
-
-    <p>
-        MemoryData is various other information found in memory, some of it may be faulty right now
-        (eg all results are 0) as Patch updates do break things. However if it looks correct, it likely is.
-        You can link MemoryData to MapPositions via the `hash` as well as other content via thei
-        respective IDs.
-    </p>
-
-    <hr>
-
-
-
-    <p>
-        As map data is very static (only changes when SE change something on an update) there
-        is not much reason to go back to old positions to update. The only real exception is F.A.T.Es
-        where the position can only be recorded when the F.A.T.E is active.
-    </p>
+   
 
 {% endblock %}
