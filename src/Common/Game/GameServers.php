@@ -119,7 +119,12 @@ class GameServers
         'MoDuNa',
         'HaiMaoChaWu',
         'RouFengHaiWan',
-        'HuPoYuan'
+        'HuPoYuan',
+        'ShuiJingTa2',
+        'YinLeiHu2',
+        'TaiYangHaiAn2',
+        'YiXiuJiaDe2',
+        'HongChaChuan2'
     ];
 
     const LIST_DC = [
@@ -251,6 +256,13 @@ class GameServers
             'HaiMaoChaWu',
             'RouFengHaiWan',
             'HuPoYuan'
+        ],
+        '豆豆柴' => [
+            'ShuiJingTa2',
+            'YinLeiHu2',
+            'TaiYangHaiAn2',
+            'YiXiuJiaDe2',
+            'HongChaChuan2'
         ],
 
         // Korean servers don't have datacenters, so we're going to call them "Korea"
