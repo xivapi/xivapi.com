@@ -197,8 +197,8 @@ class LodestoneCharacterController extends AbstractController
         if ($content->MIMO) {
             $cachedMIMO = Redis::Cache()->get($rediskey . "_MIMO", true);
             if ($cachedMIMO) {
-                $response->Minions = $cachedMIMO->Minions;
-                $response->Mounts = $cachedMIMO->Mounts;
+                $response['Minions'] = $cachedMIMO['Minions'];
+                $response['Mounts'] = $cachedMIMO['Mounts'];
             } else {
                 // Two blocks here so one request cannot cancel the other.
                 try {
