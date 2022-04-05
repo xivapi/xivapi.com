@@ -109,9 +109,25 @@ class LodestoneCharacterController extends AbstractController
         // -------------------------------------------
 
         $rediskey = "lodestone_json_response_v6_" . $lodestoneId;
-        $response = Redis::Cache()->get($rediskey, true);
+        $cachedCharacter = Redis::Cache()->get($rediskey, true);
+        
+        // response model
+        $response = (object)[
+            'Character'          => $cachedCharacter,
+            'Minions'            => null,
+            'Mounts'             => null,
 
-        if (!$response || in_array('Character.Bio', $request->get('columns'))) {
+            // optional
+            'Achievements'       => null,
+            'AchievementsPublic' => null,
+            'Friends'            => null,
+            'FriendsPublic'      => null,
+            'FreeCompany'        => null,
+            'FreeCompanyMembers' => null,
+            'PvPTeam'            => null,
+        ];
+
+        if (!$cachedCharacter || in_array('Character.Bio', $request->get('columns'))) {
             $api->config()->useAsync();
 
             $api->requestId('profile')->character()->get($lodestoneId);
@@ -130,23 +146,6 @@ class LodestoneCharacterController extends AbstractController
                     throw new LodestoneResponseErrorException($error);
                 }
             }
-
-            // response model
-            $response = (object)[
-                'Character'          => $lsdata['profile'],
-                'Minions'            => null,
-                'Mounts'             => null,
-
-                // optional
-                'Achievements'       => null,
-                'AchievementsPublic' => null,
-                'Friends'            => null,
-                'FriendsPublic'      => null,
-                'FreeCompany'        => null,
-                'FreeCompanyMembers' => null,
-                'PvPTeam'            => null,
-            ];
-
 
             try {
                 $classjobs = $lsdata['classjobs'];
@@ -178,7 +177,7 @@ class LodestoneCharacterController extends AbstractController
             }
 
             // 8h cache except if it's asking for Bio
-            Redis::cache()->set($rediskey, $response, CACHE_DURATION, true);
+            Redis::cache()->set($rediskey, $response->Character, CACHE_DURATION, true);
         } else {
             $response = (object)$response;
         }
