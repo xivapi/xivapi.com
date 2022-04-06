@@ -108,12 +108,12 @@ class LodestoneCharacterController extends AbstractController
         // Mandatory
         // -------------------------------------------
 
-        $rediskey = "lodestone_json_response_v6_" . $lodestoneId;
+        $rediskey = "lodestone_json_response_v7_" . $lodestoneId;
         $cachedCharacter = Redis::Cache()->get($rediskey, true);
         
         // response model
         $response = (object)[
-            'Character'          => $cachedCharacter,
+            'Character'          => (object)$cachedCharacter,
             'Minions'            => null,
             'Mounts'             => null,
 
@@ -148,6 +148,7 @@ class LodestoneCharacterController extends AbstractController
             }
 
             try {
+                $response->Character = $lsdata['profile'];
                 $classjobs = $lsdata['classjobs'];
 
                 // set some root data
