@@ -147,7 +147,13 @@ class SaintCoinachRedisCommand extends Command
                 continue;
             }
 
-            $this->maxDepth = $contentName == 'ENpcBase' ? 1 : self::MAX_DEPTH;
+            if ($contentName == 'ENpcBase') {
+                $this->maxDepth = 1;
+            } else if ($contentName == 'Recipe') {
+                $this->maxDepth = 2;
+            } else {
+                $this->maxDepth = self::MAX_DEPTH;
+            }
 
             // load all content for that schema
             $allContentData = FileSystem::load($contentName, 'json');
@@ -174,8 +180,8 @@ class SaintCoinachRedisCommand extends Command
                     $this->io->writeln("Skipping focus id: {$focusId}");
                     continue;
                 }
-                    // build the game content
-                    $this->buildContent($contentId, $contentName, $contentSchema, clone $contentData, 0, true);
+                // build the game content
+                $this->buildContent($contentId, $contentName, $contentSchema, clone $contentData, 0, true);
 
                 // store the content ids
                 $this->saveContentId($contentId, $contentName);
