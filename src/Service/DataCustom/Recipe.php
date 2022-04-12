@@ -27,6 +27,9 @@ class Recipe extends ManualHelper
             $this->setRecipeNames($recipe);
             $this->setIngredientRecipes($recipe);
             $this->setClassJob($recipe);
+
+            // remove breaking stuff
+            unset($recipe['RecipeNotebookList']);
             
             // save
             Redis::Cache()->set($key, $recipe, self::REDIS_DURATION);
