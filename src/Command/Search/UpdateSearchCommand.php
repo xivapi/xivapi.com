@@ -341,7 +341,18 @@ class UpdateSearchCommand extends Command
             }
         }
 
-        if ($contentName === 'Item') {
+        if ($contentName === 'Recipe') {
+            unset($content['RecipeNotebookList']);
+            unset($content['ItemIngredientRecipe0']);
+            unset($content['ItemIngredientRecipe1']);
+            unset($content['ItemIngredientRecipe2']);
+            unset($content['ItemIngredientRecipe3']);
+            unset($content['ItemIngredientRecipe4']);
+            unset($content['ItemIngredientRecipe5']);
+            unset($content['ItemIngredientRecipe6']);
+            unset($content['ItemIngredientRecipe7']);
+            unset($content['ItemIngredientRecipe8']);
+            unset($content['ItemIngredientRecipe9']);
         }
 
         if ($contentName === 'ContentFinderCondition') {
