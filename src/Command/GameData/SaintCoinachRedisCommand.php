@@ -413,6 +413,10 @@ class SaintCoinachRedisCommand extends Command
      */
     private function handleDefinition($contentId, $contentName, $content, $definition, $depth)
     {
+        // Skipping recipenotebooklist for perf reasons
+        if($contentName === 'Recipe' && $definition->name === 'RecipeNotebookList'){
+            return $contentId;
+        }
         // simplify column names
         $definition->name = DataHelper::getSimpleColumnName($definition->name);
         $definition->name = DataHelper::getReplacedName($contentName, $definition->name);
