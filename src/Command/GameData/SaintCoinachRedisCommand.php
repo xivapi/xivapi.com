@@ -149,8 +149,6 @@ class SaintCoinachRedisCommand extends Command
 
             if ($contentName == 'ENpcBase') {
                 $this->maxDepth = 1;
-            } else if ($contentName == 'Recipe') {
-                $this->maxDepth = 2;
             } else {
                 $this->maxDepth = self::MAX_DEPTH;
             }
