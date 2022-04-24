@@ -48,7 +48,7 @@ class LodestoneCharacterController extends AbstractController
         } else {
             $response = (new Api())->character()->search(
                 $request->get('name'),
-                ucwords(strtolower($request->get('server'))),
+                ucwords($request->get('server')),
                 $request->get('page') ?: 1
             );
             Redis::cache()->set($rediskey, $response, 2 * 3600, true);
