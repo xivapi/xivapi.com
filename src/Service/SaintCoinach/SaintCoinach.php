@@ -62,8 +62,7 @@ class SaintCoinach
         $this->console->writeln('Generating Bat Scripts');
         $this->generateBatScript($extractFolder, 'allrawexd');
         $this->generateBatScript($extractFolder, 'ui');
-        $this->generateBatScript($extractFolder, 'bgm');
-        $this->generateBatScript($extractFolder, 'maps');
+        $this->generateBatScript($extractFolder, 'uiHD');
         
         // ensure unix line endings
         $this->console->writeln("Fixing line endings...");

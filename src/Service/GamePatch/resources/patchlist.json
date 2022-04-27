@@ -1394,5 +1394,25 @@
         "PatchNotes_ja": "",
         "ReleaseDate": 1649754000,
         "Version": "6.1"
+    },
+    {
+        "Banner": null,
+        "ID": 81,
+        "Url": "\/patch+6.11",
+        "ExVersion": 4,
+        "ExName": "Endwalker",
+        "IsExpansion": false,
+        "Name_ja": "Patch 6.11",
+        "Name_en": "Patch 6.11",
+        "Name_fr": "Patch 6.11",
+        "Name_de": "Patch 6.11",
+        "Name_cn": "Patch 6.11",
+        "Name_kr": "Patch 6.11",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "",
+        "PatchNotes_fr": "",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1650963600,
+        "Version": "6.11"
     }
 ]
