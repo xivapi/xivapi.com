@@ -9,7 +9,7 @@ use App\Common\Service\Redis\Redis;
 
 class Quest extends ManualHelper
 {
-    const PRIORITY = 20;
+    const PRIORITY = -1;
     
     private $ENpcResidentToName = [];
     private $ENpcResidentToData = [];

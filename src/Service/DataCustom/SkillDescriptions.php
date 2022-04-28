@@ -9,7 +9,7 @@ use App\Service\Content\DescriptionFormatter;
 
 class SkillDescriptions extends ManualHelper
 {
-    const PRIORITY = 20;
+    const PRIORITY = 10000;
     
     /**
      * Restore:
