@@ -18,7 +18,7 @@ class Leve extends ManualHelper
             // ---------------------------------------------------
 
             // defaults
-            $leve->CraftLeve        = null;
+            // $leve->CraftLeve        = null;
             $leve->CompanyLeve      = null;
             $leve->GatheringLeve    = null;
             $leve->BattleLeve       = null;
