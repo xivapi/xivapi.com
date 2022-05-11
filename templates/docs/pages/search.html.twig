@@ -35,12 +35,10 @@
 
     <h2 style="font-size: 16px;">Deprecation Notice:</h2>
     <p class="note">
-        The method of GET params (show in the table below) for search is now deprecated. While the functionality
-        will never go away and always exist in some capacity, extending filter
-        abilities is no longer supported. If you want uncapped power for search please
-        considering using ElasticSearch Payloads, view the
-        <a href="#advanced">advanced section</a>
-        for more information.
+        Search filters are now in maintenance mode. We won't be adding any additional filter abilities.
+        If you want uncapped power for searchm please considering using ElasticSearch Payloads, view the
+        <a href="#advanced">advanced section</a> for more information. Note that the majority of users
+        will <i>not</i> need this, and no support or additional docs are offered.
     </p>
 
     <table class="param-table">
@@ -70,7 +68,7 @@
             <td>
                 <p>The search algorithm to use for string matching.</p>
                 <p><strong>Default:</strong> <em>{{ search_algo_default }}</em></p>
-                <p>For more information, read: <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/term-level-queries.html">Term Level Queries</a> on ElasticSearch.</p>
+                <p>For more information, read: <a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.8/term-level-queries.html>Term Level Queries</a> on ElasticSearch.</p>
                 <p><strong>Supported Algorithms</strong>:</p>
                 <table class="param-table mini-table">
                     <tr>
@@ -268,11 +266,12 @@
         As search just uses the powerful <strong>ElasticSearch</strong>, you can infact just provide
         an Elastic Search valid JSON query to the endpoint as the "body" param and it will be processed.
         This bypasses all of the normal <code>GET</code> attributes you see above <small>(excluding: indexes)</small>
-        and allows you complete control over how you build the Elastic Query.
+        and allows you complete control over how you build the Elastic Query. Be aware that we run ES 6.8, and so
+        any reference documentation you search for should reflect that as ES changes query syntax across versions.
     </p>
 
     <p>
-        You can learn more about Elastic Search queries via the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html">Query DSL Documentation</a>
+        You can learn more about Elastic Search queries via the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.8/query-dsl.html">Query DSL Documentation</a>
     </p>
 
     <p>
