@@ -169,7 +169,7 @@ class ApiRequest
         $this->checkDeveloperRateLimit();
 
         // send any developer Google Analytics data
-        $this->sendDeveloperAnalyticData();
+        // $this->sendDeveloperAnalyticData();
 
         // log daily limits
         $this->recordDailyLimit();
