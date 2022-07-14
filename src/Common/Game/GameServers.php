@@ -196,10 +196,8 @@ class GameServers
             'Garuda',
             'Gungnir',
             'Kujata',
-            'Ramuh',
             'Tonberry',
             'Typhon',
-            'Unicorn'
         ],
         'Gaia' => [
             'Alexander',
@@ -210,22 +208,26 @@ class GameServers
             'Ridill',
             'Tiamat',
             'Ultima',
-            'Valefor',
-            'Yojimbo',
-            'Zeromus',
         ],
         'Mana' => [
             'Anima',
             'Asura',
-            'Belias',
             'Chocobo',
             'Hades',
             'Ixion',
-            'Mandragora',
             'Masamune',
             'Pandaemonium',
-            'Shinryu',
             'Titan',
+        ],
+        'Meteor' => [
+            'Belias',
+            'Mandragora',
+            'Ramuh',
+            'Shinryu',
+            'Unicorn',
+            'Valefor',
+            'Yojimbo',
+            'Zeromus',
         ],
 
         // Oceania
