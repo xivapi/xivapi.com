@@ -172,7 +172,9 @@ class GameServers
             'Louisoix',
             'Moogle',
             'Omega',
+            'Phantom',
             'Ragnarok',
+            'Sagittarius',
             'Spriggan',
         ],
         'Light' => [
