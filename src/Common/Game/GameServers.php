@@ -184,11 +184,11 @@ class GameServers
             'Phoenix',
             'Raiden',
             'Shiva',
-            'Zodiark',
             'Twintania',
+            'Zodiark',
         ],
 
-        // JP - Offline due to World Visit congestion issues.
+        // JP
         'Elemental' => [
             'Aegis',
             'Atomos',
@@ -230,7 +230,7 @@ class GameServers
             'Zeromus',
         ],
 
-        // Oceania
+        // OC
         'Materia' => [
             'Bismarck',
             'Ravana',
