@@ -124,7 +124,13 @@ class GameServers
         'YinLeiHu2',
         'TaiYangHaiAn2',
         'YiXiuJiaDe2',
-        'HongChaChuan2'
+        'HongChaChuan2',
+
+        // New for 6.18
+        'Alpha',
+        'Phantom',
+        'Raiden',
+        'Sagittarius',
     ];
 
     const LIST_DC = [
