@@ -178,9 +178,11 @@ class GameServers
             'Spriggan',
         ],
         'Light' => [
+            'Alpha',
             'Lich',
             'Odin',
             'Phoenix',
+            'Raiden',
             'Shiva',
             'Zodiark',
             'Twintania',
