@@ -56,7 +56,7 @@ Maybe online API's are not your jam, maybe you're sick of the responses and how 
   
 | Title | URL | About |  
 | --- | --- | --- |  
-| SaintCoinach | https://github.com/ufx/SaintCoinach | The worlds best datamining tool, gets everything you'll ever need, including resources to make conspiracy theorists go crazy |  
+| SaintCoinach | https://github.com/xivapi/SaintCoinach | The worlds best datamining tool, gets everything you'll ever need, including resources to make conspiracy theorists go crazy |
 | Datamining | https://github.com/viion/ffxiv-datamining | A resource for sharing datamining information, all sorts of stuff in here. |  
 | Sapphire | https://github.com/SapphireMordred/Sapphire | FFXIV Server Emulation |  
 | Patch Extractions Archive | https://github.com/viion/ffxiv-datamining-patches | A CSV extraction of every patch since 2.0 (except 2.1... dont ask) |  
