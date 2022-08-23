@@ -1118,7 +1118,7 @@
     {
         "Banner": null,
         "ID": 67,
-        "Url": "\/patch+5.21",
+        "Url": "/patch+5.21",
         "ExVersion": 3,
         "ExName": "Shadowbringers",
         "IsExpansion": false,
@@ -1138,7 +1138,7 @@
     {
         "Banner": null,
         "ID": 68,
-        "Url": "\/patch+5.25",
+        "Url": "/patch+5.25",
         "ExVersion": 3,
         "ExName": "Shadowbringers",
         "IsExpansion": false,
@@ -1158,7 +1158,7 @@
     {
         "Banner": "https://img.finalfantasyxiv.com/t/de58e70494f03af0b5e341a9a794afa20fdc1642.png?1596700674?1596525244",
         "ID": 69,
-        "Url": "\/patch+5.3",
+        "Url": "/patch+5.3",
         "ExVersion": 3,
         "ExName": "Shadowbringers",
         "IsExpansion": false,
@@ -1178,7 +1178,7 @@
     {
         "Banner": null,
         "ID": 70,
-        "Url": "\/patch+5.31",
+        "Url": "/patch+5.31",
         "ExVersion": 3,
         "ExName": "Shadowbringers",
         "IsExpansion": false,
@@ -1198,7 +1198,7 @@
     {
         "Banner": null,
         "ID": 71,
-        "Url": "\/patch+5.35",
+        "Url": "/patch+5.35",
         "ExVersion": 3,
         "ExName": "Shadowbringers",
         "IsExpansion": false,
@@ -1218,7 +1218,7 @@
     {
         "Banner": null,
         "ID": 72,
-        "Url": "\/patch+5.4",
+        "Url": "/patch+5.4",
         "ExVersion": 3,
         "ExName": "Shadowbringers",
         "IsExpansion": false,
@@ -1238,7 +1238,7 @@
     {
         "Banner": null,
         "ID": 73,
-        "Url": "\/patch+5.41",
+        "Url": "/patch+5.41",
         "ExVersion": 3,
         "ExName": "Shadowbringers",
         "IsExpansion": false,
@@ -1258,7 +1258,7 @@
     {
         "Banner": null,
         "ID": 74,
-        "Url": "\/patch+5.45",
+        "Url": "/patch+5.45",
         "ExVersion": 3,
         "ExName": "Shadowbringers",
         "IsExpansion": false,
@@ -1278,7 +1278,7 @@
     {
         "Banner": null,
         "ID": 75,
-        "Url": "\/patch+5.5",
+        "Url": "/patch+5.5",
         "ExVersion": 3,
         "ExName": "Shadowbringers",
         "IsExpansion": false,
@@ -1298,7 +1298,7 @@
     {
         "Banner": null,
         "ID": 76,
-        "Url": "\/patch+5.55",
+        "Url": "/patch+5.55",
         "ExVersion": 3,
         "ExName": "Shadowbringers",
         "IsExpansion": false,
@@ -1318,7 +1318,7 @@
     {
         "Banner": null,
         "ID": 77,
-        "Url": "\/patch+6.0",
+        "Url": "/patch+6.0",
         "ExVersion": 4,
         "ExName": "Endwalker",
         "IsExpansion": true,
@@ -1338,7 +1338,7 @@
     {
         "Banner": null,
         "ID": 78,
-        "Url": "\/patch+6.01",
+        "Url": "/patch+6.01",
         "ExVersion": 4,
         "ExName": "Endwalker",
         "IsExpansion": false,
@@ -1358,7 +1358,7 @@
     {
         "Banner": null,
         "ID": 79,
-        "Url": "\/patch+6.05",
+        "Url": "/patch+6.05",
         "ExVersion": 4,
         "ExName": "Endwalker",
         "IsExpansion": false,
@@ -1378,7 +1378,7 @@
     {
         "Banner": null,
         "ID": 80,
-        "Url": "\/patch+6.1",
+        "Url": "/patch+6.1",
         "ExVersion": 4,
         "ExName": "Endwalker",
         "IsExpansion": false,
@@ -1398,7 +1398,7 @@
     {
         "Banner": null,
         "ID": 81,
-        "Url": "\/patch+6.11",
+        "Url": "/patch+6.11",
         "ExVersion": 4,
         "ExName": "Endwalker",
         "IsExpansion": false,
@@ -1414,5 +1414,45 @@
         "PatchNotes_ja": "",
         "ReleaseDate": 1650963600,
         "Version": "6.11"
+    },
+    {
+        "Banner": null,
+        "ID": 82,
+        "Url": "/patch+6.15",
+        "ExVersion": 4,
+        "ExName": "Endwalker",
+        "IsExpansion": false,
+        "Name_ja": "Patch 6.15",
+        "Name_en": "Patch 6.15",
+        "Name_fr": "Patch 6.15",
+        "Name_de": "Patch 6.15",
+        "Name_cn": "Patch 6.15",
+        "Name_kr": "Patch 6.15",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "",
+        "PatchNotes_fr": "",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1654596000,
+        "Version": "6.15"
+    },
+    {
+        "Banner": null,
+        "ID": 83,
+        "Url": "/patch+6.2",
+        "ExVersion": 4,
+        "ExName": "Endwalker",
+        "IsExpansion": false,
+        "Name_ja": "Patch 6.2",
+        "Name_en": "Patch 6.2",
+        "Name_fr": "Patch 6.2",
+        "Name_de": "Patch 6.2",
+        "Name_cn": "Patch 6.2",
+        "Name_kr": "Patch 6.2",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "",
+        "PatchNotes_fr": "",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1661248800,
+        "Version": "6.2"
     }
 ]
