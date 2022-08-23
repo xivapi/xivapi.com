@@ -124,7 +124,13 @@ class GameServers
         'YinLeiHu2',
         'TaiYangHaiAn2',
         'YiXiuJiaDe2',
-        'HongChaChuan2'
+        'HongChaChuan2',
+
+        // New for 6.18
+        'Alpha',
+        'Phantom',
+        'Raiden',
+        'Sagittarius',
     ];
 
     const LIST_DC = [
@@ -166,19 +172,23 @@ class GameServers
             'Louisoix',
             'Moogle',
             'Omega',
+            'Phantom',
             'Ragnarok',
+            'Sagittarius',
             'Spriggan',
         ],
         'Light' => [
+            'Alpha',
             'Lich',
             'Odin',
             'Phoenix',
+            'Raiden',
             'Shiva',
-            'Zodiark',
             'Twintania',
+            'Zodiark',
         ],
 
-        // JP - Offline due to World Visit congestion issues.
+        // JP
         'Elemental' => [
             'Aegis',
             'Atomos',
@@ -186,10 +196,8 @@ class GameServers
             'Garuda',
             'Gungnir',
             'Kujata',
-            'Ramuh',
             'Tonberry',
             'Typhon',
-            'Unicorn'
         ],
         'Gaia' => [
             'Alexander',
@@ -200,25 +208,29 @@ class GameServers
             'Ridill',
             'Tiamat',
             'Ultima',
-            'Valefor',
-            'Yojimbo',
-            'Zeromus',
         ],
         'Mana' => [
             'Anima',
             'Asura',
-            'Belias',
             'Chocobo',
             'Hades',
             'Ixion',
-            'Mandragora',
             'Masamune',
             'Pandaemonium',
-            'Shinryu',
             'Titan',
         ],
+        'Meteor' => [
+            'Belias',
+            'Mandragora',
+            'Ramuh',
+            'Shinryu',
+            'Unicorn',
+            'Valefor',
+            'Yojimbo',
+            'Zeromus',
+        ],
 
-        // Oceania
+        // OC
         'Materia' => [
             'Bismarck',
             'Ravana',
