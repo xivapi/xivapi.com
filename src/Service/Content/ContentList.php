@@ -34,7 +34,8 @@ class ContentList
         }
         
         array_walk($this->ids, function(&$val) {
-            $val = $val === 0 || (int)$val ? $val : false;
+            $isCompositeId = str_starts_with($val, '0');
+            $val = $val === 0 || $isCompositeId || (int)$val ? $val : false;
         });
         
         $this->ids = array_filter($this->ids, function ($value) {
