@@ -36,7 +36,8 @@ class SaintCoinachRedisCommand extends Command
         'RecipeNotebookList',
         'SpearFishingNotebook',
         'RetainerTaskParameter',
-        'MJIBuilding'
+        'MJIBuilding',
+        'MJIItemPouch'
     ];
 
     /** @var Patch */
