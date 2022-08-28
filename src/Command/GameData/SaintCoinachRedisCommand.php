@@ -35,7 +35,8 @@ class SaintCoinachRedisCommand extends Command
         'World',
         'RecipeNotebookList',
         'SpearFishingNotebook',
-        'RetainerTaskParameter'
+        'RetainerTaskParameter',
+        'MJIBuilding'
     ];
 
     /** @var Patch */
