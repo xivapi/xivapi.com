@@ -37,7 +37,10 @@ class SaintCoinachRedisCommand extends Command
         'SpearFishingNotebook',
         'RetainerTaskParameter',
         'MJIBuilding',
-        'MJIItemPouch'
+        'MJIItemPouch',
+        'MJICraftworksPopularityType',
+        'MJICraftworksPopularity',
+        'MJICraftworksSupplyDefine'
     ];
 
     /** @var Patch */
