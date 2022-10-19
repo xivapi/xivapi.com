@@ -202,9 +202,6 @@ class SaintCoinachRedisCommand extends Command
             // save data
             if ($this->save) {
                 $idCount = 0;
-                $saveCount = 0;
-
-                Redis::Cache()->startPipeline();
                 foreach ($this->save as $key => $data) {
                     $idCount++;
 
@@ -218,14 +215,7 @@ class SaintCoinachRedisCommand extends Command
 
                     // save
                     Redis::Cache()->set($key, $data, self::REDIS_DURATION);
-
-                    if ($idCount % self::REDIS_PIPESIZE == 0) {
-                        $saveCount++;
-                        Redis::Cache()->executePipeline();
-                        Redis::Cache()->startPipeline();
-                    }
                 }
-                Redis::Cache()->executePipeline();
 
                 $this->save = [];
             }
