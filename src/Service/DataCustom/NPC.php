@@ -26,8 +26,8 @@ class NPC extends ManualHelper
             // Append Shop Items
             $content->Items = [];
     
-            // assuming a max of 50 items
-            foreach (range(0,50) as $shopNum) {
+            // assuming a max of 100 items
+            foreach (range(0,100) as $shopNum) {
                 $gilShopItem = Redis::Cache()->get("xiv_GilShopItem_{$id}.{$shopNum}");
                 $gilShopItem = Arrays::minification($gilShopItem);
         
