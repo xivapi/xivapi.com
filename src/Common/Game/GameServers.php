@@ -165,6 +165,12 @@ class GameServers
             'Mateus',
             'Zalera'
         ],
+        'Dynamis' => [
+            'Halicarnassus',
+            'Maduin',
+            'Marilith',
+            'Seraph'
+        ],
 
         // EU
         'Chaos' => [
