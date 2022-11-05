@@ -361,6 +361,9 @@ class UpdateSearchCommand extends Command
 
         if ($contentName === 'InstanceContent') {
             unset($content['BNpcBaseBoss']);
+            unset($content['ContentFinderCondition']['Transient']);
+            unset($content['ContentFinderCondition']['TerritoryType']);
+            unset($content['ContentFinderCondition']['Content']);
         }
 
         return $content;
