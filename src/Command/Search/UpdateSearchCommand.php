@@ -359,6 +359,10 @@ class UpdateSearchCommand extends Command
             unset($content['Transient']);
         }
 
+        if ($contentName === 'InstanceContent') {
+            unset($content['BNpcBaseBoss']);
+        }
+
         return $content;
     }
 
