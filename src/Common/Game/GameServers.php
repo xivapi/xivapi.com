@@ -96,6 +96,12 @@ class GameServers
         'Sophia',
         'Zurvan',
 
+        // Dynamis, 6.28, NA DC
+        'Halicarnassus',
+        'Maduin',
+        'Marilith',
+        'Seraph',
+
         // Chinese servers
         'HongYuHai',
         'ShenYiZhiDi',
