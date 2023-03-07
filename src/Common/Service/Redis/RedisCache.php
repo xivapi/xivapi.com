@@ -27,7 +27,7 @@ class RedisCache
         $config = explode(',', getenv($environment));
         $ip     = $config[0];
         $port   = $config[1];
-        $auth   = $config[2];
+        $auth   = $config[2] ?? '';
         $prefix = $config[3] ?? '';
 
         $this->instance = new \Redis();

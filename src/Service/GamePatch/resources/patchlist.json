@@ -1514,5 +1514,25 @@
         "PatchNotes_ja": "",
         "ReleaseDate": 1673342100,
         "Version": "6.3"
+    },
+    {
+        "Banner": null,
+        "ID": 87,
+        "Url": "/patch+6.35",
+        "ExVersion": 4,
+        "ExName": "Endwalker",
+        "IsExpansion": false,
+        "Name_ja": "Patch 6.35",
+        "Name_en": "Patch 6.35",
+        "Name_fr": "Patch 6.35",
+        "Name_de": "Patch 6.35",
+        "Name_cn": "Patch 6.35",
+        "Name_kr": "Patch 6.35",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "",
+        "PatchNotes_fr": "",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1678180310,
+        "Version": "6.35"
     }
 ]
