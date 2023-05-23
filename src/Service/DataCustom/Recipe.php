@@ -40,6 +40,7 @@ class Recipe extends ManualHelper
             $recipe = Redis::Cache()->get("xiv_Recipe_{$id}");
             
             if (!$recipe->ItemResult) {
+                Redis::Cache()->delete("xiv_Recipe_{$id}");
                 continue;
             }
     
