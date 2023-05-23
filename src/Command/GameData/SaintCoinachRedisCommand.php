@@ -158,69 +158,74 @@ class SaintCoinachRedisCommand extends Command
                 $this->maxDepth = self::MAX_DEPTH;
             }
 
-            // load all content for that schema
-            $allContentData = FileSystem::load($contentName, 'json');
+            try{
 
-            // build content (this saves it)
-            $section = (new ConsoleOutput())->section();
-
-            $memory   = number_format(System::memory());
-            $section->writeln("[{$memory}MB memory] Sheet: {$count}/{$total} <info>{$contentName}</info>");
-
-            // Grab the current ID list and then store it for elastic search as this list will be updated
-            // before elastic search gets to use it.
-            $currentIds = (array)Redis::cache()->get("ids_{$contentName}");
-            Redis::cache()->set("ids_{$contentName}_es", $currentIds, self::REDIS_DURATION);
-
-            if (!$quiet) {
-                $section = new ConsoleOutput();
-                $section = $section->section();
-                $section->writeln(">> starting: {$contentName}");
-            }
-
-            foreach ($allContentData as $contentId => $contentData) {
-                if ($focusId && $focusId != $contentId) {
-                    $this->io->writeln("Skipping focus id: {$focusId}");
-                    continue;
-                }
-                // build the game content
-                $this->buildContent($contentId, $contentName, $contentSchema, clone $contentData, 0, true);
-
-                // store the content ids
-                $this->saveContentId($contentId, $contentName);
+                // load all content for that schema
+                $allContentData = FileSystem::load($contentName, 'json');
+    
+                // build content (this saves it)
+                $section = (new ConsoleOutput())->section();
+    
+                $memory   = number_format(System::memory());
+                $section->writeln("[{$memory}MB memory] Sheet: {$count}/{$total} <info>{$contentName}</info>");
+    
+                // Grab the current ID list and then store it for elastic search as this list will be updated
+                // before elastic search gets to use it.
+                $currentIds = (array)Redis::cache()->get("ids_{$contentName}");
+                Redis::cache()->set("ids_{$contentName}_es", $currentIds, self::REDIS_DURATION);
+    
                 if (!$quiet) {
-                    $section->overwrite(">> id: {$contentId}");
+                    $section = new ConsoleOutput();
+                    $section = $section->section();
+                    $section->writeln(">> starting: {$contentName}");
                 }
-            }
-
-            if (!$quiet) {
-                $section->clear();
-            }
-
-            unset($allContentData);
-
-            // save data
-            if ($this->save) {
-                $idCount = 0;
-                foreach ($this->save as $key => $data) {
-                    $idCount++;
-
-                    if (!$data || empty($data) || !isset($data->ID)) {
+    
+                foreach ($allContentData as $contentId => $contentData) {
+                    if ($focusId && $focusId != $contentId) {
+                        $this->io->writeln("Skipping focus id: {$focusId}");
                         continue;
                     }
-
-                    // Set content url and some placeholders
-                    $data->Url = "/{$contentName}/{$data->ID}";
-                    $data->GameContentLinks = null;
-
-                    // save
-                    Redis::Cache()->set($key, $data, self::REDIS_DURATION);
+                    // build the game content
+                    $this->buildContent($contentId, $contentName, $contentSchema, clone $contentData, 0, true);
+    
+                    // store the content ids
+                    $this->saveContentId($contentId, $contentName);
+                    if (!$quiet) {
+                        $section->overwrite(">> id: {$contentId}");
+                    }
                 }
-
-                $this->save = [];
+    
+                if (!$quiet) {
+                    $section->clear();
+                }
+    
+                unset($allContentData);
+    
+                // save data
+                if ($this->save) {
+                    $idCount = 0;
+                    foreach ($this->save as $key => $data) {
+                        $idCount++;
+    
+                        if (!$data || empty($data) || !isset($data->ID)) {
+                            continue;
+                        }
+    
+                        // Set content url and some placeholders
+                        $data->Url = "/{$contentName}/{$data->ID}";
+                        $data->GameContentLinks = null;
+    
+                        // save
+                        Redis::Cache()->set($key, $data, self::REDIS_DURATION);
+                    }
+    
+                    $this->save = [];
+                }
+    
+                unset($section);
+            } catch (\Exception $e) {
+                // Whatever, just a missing def file from the index, probably.
             }
-
-            unset($section);
         }
 
         //
