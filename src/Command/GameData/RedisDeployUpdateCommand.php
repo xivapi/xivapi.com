@@ -35,14 +35,17 @@ class RedisDeployUpdateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->setSymfonyStyle($input, $output);
+        $this->startClock();
         $localRedis = Redis::cache(true);
         $prodRedis = Redis::cache(false);
         $keys = $localRedis->keys('*');
-        $this->io->progressStart(count($keys));
+        $progress = $this->io->createProgressBar(count($keys));
+        $progress->setFormat('very_verbose');
         foreach ($keys as $key) {
             $prodRedis->set($key, $localRedis->get($key));
-            $this->io->progressAdvance();
+            $progress->advance();
         }
-        $this->io->progressFinish();
+        $progress->finish();
+        $this->endClock();
     }
 }
