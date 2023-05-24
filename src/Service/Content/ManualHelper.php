@@ -27,7 +27,7 @@ class ManualHelper
      */
     public function getContentIds($contentName)
     {
-        return Redis::Cache()->get("ids_{$contentName}");
+        return Redis::Cache(true)->get("ids_{$contentName}");
     }
     
     /**

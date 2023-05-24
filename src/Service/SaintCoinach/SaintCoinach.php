@@ -91,7 +91,7 @@ class SaintCoinach
         
         // store content names
         $contentNames = array_values(array_filter($contentNames));
-        Redis::Cache()->set('content', $contentNames, SaintCoinach::REDIS_DURATION);
+        Redis::Cache(true)->set('content', $contentNames, SaintCoinach::REDIS_DURATION);
         $this->console->writeln("Content definition list updated");
         
         // store schema
