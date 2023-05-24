@@ -16,12 +16,12 @@ class Servers extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_World_{$id}";
-            $world = Redis::Cache()->get($key);
+            $world = Redis::Cache(true)->get($key);
     
             $world->InGame = in_array($world->Name_en, GameServers::LIST);
         
             // save
-            Redis::Cache()->set($key, $world, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $world, self::REDIS_DURATION);
         }
     }
 }

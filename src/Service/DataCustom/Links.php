@@ -15,7 +15,7 @@ class Links extends ManualHelper
     public function handle()
     {
         // grab content
-        $content = Redis::Cache()->get('content');
+        $content = Redis::Cache(true)->get('content');
         $this->io->text(sprintf('Processing %s pieces of content', count($content)));
         
         $this->io->progressStart(count($content));
@@ -23,7 +23,7 @@ class Links extends ManualHelper
             $this->io->progressAdvance();
             
             // grab ids
-            $ids = Redis::Cache()->get("ids_{$contentName}");
+            $ids = Redis::Cache(true)->get("ids_{$contentName}");
             if (!$ids) {
                 continue;
             }
@@ -33,8 +33,8 @@ class Links extends ManualHelper
                 $key2 = "connections_{$contentName}_{$contentId}";
             
                 // grab data
-                $content     = Redis::Cache()->get($key1);
-                $connections = Redis::Cache()->get($key2);
+                $content     = Redis::Cache(true)->get($key1);
+                $connections = Redis::Cache(true)->get($key2);
             
                 // rebuild
                 $gameContentLinks = [];
@@ -52,7 +52,7 @@ class Links extends ManualHelper
             
                 // set game content links
                 $content->GameContentLinks = $gameContentLinks;
-                Redis::Cache()->set($key1, $content, self::REDIS_DURATION);
+                Redis::Cache(true)->set($key1, $content, self::REDIS_DURATION);
             }
         }
         

@@ -18,12 +18,12 @@ class Item extends ManualHelper
         $recipes   = array();
 
         foreach ($recipeIds as $recipeId) {
-            $recipes[] = Redis::Cache()->get("xiv_Recipe_{$recipeId}");
+            $recipes[] = Redis::Cache(true)->get("xiv_Recipe_{$recipeId}");
         }
 
         foreach ($ids as $id) {
             $key  = "xiv_Item_{$id}";
-            $item = Redis::Cache()->get($key);
+            $item = Redis::Cache(true)->get($key);
 
             // this is prep for something else
             $item->Materia = $item->Materia ?? null;
@@ -32,7 +32,7 @@ class Item extends ManualHelper
             $this->processStats($item);
             $this->itemLinkItemUiCategoryToItemKind($item);
             $this->linkRecipes($item, $recipes);
-            Redis::Cache()->set($key, $item, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $item, self::REDIS_DURATION);
         }
     }
 
@@ -131,7 +131,7 @@ class Item extends ManualHelper
         }
         $bonusActions = array(844, 845, 846);
         if (isset($item->ItemAction) && in_array($item->ItemAction->Type, $bonusActions)) {
-            $food          = Redis::cache()->get("xiv_ItemFood_{$item->ItemAction->Data1}");
+            $food          = Redis::Cache(true)->get("xiv_ItemFood_{$item->ItemAction->Data1}");
             $item->Bonuses = new stdClass;
             for ($i = 0; $i < 3; $i++) {
                 $bonusEntry    = new stdClass;

@@ -17,11 +17,11 @@ class Orchestrion extends ManualHelper
             $key = "xiv_Orchestrion_{$id}";
             
             // append OrchestrationUiParam
-            $Orchestrion = Redis::Cache()->get($key);
-            $Orchestrion->OrchestrionUiparam = Redis::Cache()->get("xiv_OrchestrionUiparam_{$id}");
+            $Orchestrion = Redis::Cache(true)->get($key);
+            $Orchestrion->OrchestrionUiparam = Redis::Cache(true)->get("xiv_OrchestrionUiparam_{$id}");
             
             // save
-            Redis::Cache()->set($key, $Orchestrion, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $Orchestrion, self::REDIS_DURATION);
         }
     }
 }

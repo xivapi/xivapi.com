@@ -108,9 +108,9 @@ class Icons extends ManualHelper
     public function setQuestIcons()
     {
         $this->io->text(__METHOD__);
-        foreach (Redis::Cache()->get('ids_Quest') as $id) {
+        foreach (Redis::Cache(true)->get('ids_Quest') as $id) {
             $key = "xiv_Quest_{$id}";
-            $content = Redis::Cache()->get($key);
+            $content = Redis::Cache(true)->get($key);
             
             $content->Banner    = $content->Icon;
             $content->IconID    = 71221;
@@ -145,7 +145,7 @@ class Icons extends ManualHelper
                 $content->IconID    = $content->IconSpecialID;
             }
     
-            Redis::Cache()->set($key, $content, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $content, self::REDIS_DURATION);
         }
     }
     
@@ -156,19 +156,19 @@ class Icons extends ManualHelper
     {
         $this->io->text(__METHOD__);
         
-        foreach (Redis::Cache()->get('ids_Recipe') as $id) {
+        foreach (Redis::Cache(true)->get('ids_Recipe') as $id) {
             $key = "xiv_Recipe_{$id}";
-            $content = Redis::Cache()->get($key);
+            $content = Redis::Cache(true)->get($key);
             
             if (!isset($content->ItemResult->ID)) {
                 continue;
             }
             
-            $resultItem = Redis::Cache()->get("xiv_Item_{$content->ItemResult->ID}");
+            $resultItem = Redis::Cache(true)->get("xiv_Item_{$content->ItemResult->ID}");
             $content->Icon = $resultItem->Icon;
             $content->IconID = $resultItem->IconID;
     
-            Redis::Cache()->set($key, $content, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $content, self::REDIS_DURATION);
         }
     }
 }

@@ -20,15 +20,15 @@ class ItemAction extends ManualHelper
         
         foreach ($ids as $id) {
             $key = "xiv_ItemAction_{$id}";
-            $itemAction = Redis::Cache()->get($key);
+            $itemAction = Redis::Cache(true)->get($key);
             
             // 20086 == Ornament
             if ($itemAction->Type == 20086) {
-                $itemAction->Ornament = Redis::Cache()->get("xiv_Ornament_". $itemAction->Data0);
+                $itemAction->Ornament = Redis::Cache(true)->get("xiv_Ornament_". $itemAction->Data0);
             }
             
             // save
-            Redis::Cache()->set($key, $itemAction, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $itemAction, self::REDIS_DURATION);
         }
     
     
@@ -40,7 +40,7 @@ class ItemAction extends ManualHelper
         
         foreach ($ids as $id) {
             $key = "xiv_Item_{$id}";
-            $item = Redis::Cache()->get($key);
+            $item = Redis::Cache(true)->get($key);
             
             // ignore non item action entries
             if (empty($item->ItemAction->ID)) {
@@ -48,7 +48,7 @@ class ItemAction extends ManualHelper
             }
             
             // try get the item entry
-            $itemAction = Redis::Cache()->get("xiv_ItemAction_{$item->ItemAction->ID}");
+            $itemAction = Redis::Cache(true)->get("xiv_ItemAction_{$item->ItemAction->ID}");
             
             if (!$itemAction) {
                 continue;
@@ -57,15 +57,15 @@ class ItemAction extends ManualHelper
             // if the ItemAction has an Ornament we will append this item onto the Ornament entry
             if (!empty($itemAction->Ornament)) {
                 $ornamentKey    = "xiv_Ornament_{$itemAction->Ornament->ID}";
-                $ornament       = Redis::Cache()->get($ornamentKey);
+                $ornament       = Redis::Cache(true)->get($ornamentKey);
                 $ornament->Item = $item;
-                Redis::Cache()->set($ornamentKey, $ornament, self::REDIS_DURATION);
+                Redis::Cache(true)->set($ornamentKey, $ornament, self::REDIS_DURATION);
             }
             
             $item->ItemAction = $itemAction;
     
             // save
-            Redis::Cache()->set($key, $item, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $item, self::REDIS_DURATION);
         }
     }
 }

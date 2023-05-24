@@ -17,12 +17,12 @@ class GatheringPoint extends ManualHelper
             $key = "xiv_GatheringPoint_{$id}";
             
             // append GatheringPointTransient
-            $GatheringPoint = Redis::Cache()->get($key);
-            $GatheringPoint->GatheringPointTransient = Redis::Cache()->get("xiv_GatheringPointTransient_{$id}");
-            $GatheringPoint->ExportedGatheringPoint = Redis::Cache()->get("xiv_ExportedGatheringPoint_{$GatheringPoint->GatheringPointBaseTargetID}");
+            $GatheringPoint = Redis::Cache(true)->get($key);
+            $GatheringPoint->GatheringPointTransient = Redis::Cache(true)->get("xiv_GatheringPointTransient_{$id}");
+            $GatheringPoint->ExportedGatheringPoint = Redis::Cache(true)->get("xiv_ExportedGatheringPoint_{$GatheringPoint->GatheringPointBaseTargetID}");
             
             // save
-            Redis::Cache()->set($key, $GatheringPoint, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $GatheringPoint, self::REDIS_DURATION);
         }
     }
 }

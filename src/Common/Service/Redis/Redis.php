@@ -12,8 +12,9 @@ class Redis
     /**
      * Get a static cache for an environment
      */
-    public static function cache(string $environment = RedisConstants::LOCAL, int $database = null): RedisCache
+    public static function cache(bool $local, int $database = null): RedisCache
     {
+        $environment = $local ? RedisConstants::LOCAL : RedisConstants::PROD;
         if (!isset(self::$instances[$environment])) {
             self::$instances[$environment] = (new RedisCache())->connect($environment);
         }

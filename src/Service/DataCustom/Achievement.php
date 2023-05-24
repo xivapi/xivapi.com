@@ -52,7 +52,7 @@ class Achievement extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_Achievement_{$id}";
-            $achievement = Redis::Cache()->get($key);
+            $achievement = Redis::Cache(true)->get($key);
     
             // add this so all achievements get them
             $achievement->PreAchievements      = (isset($achievement->PreAchievements) && is_array($achievement->PreAchievements)) ? $achievement->PreAchievements : [];
@@ -75,7 +75,7 @@ class Achievement extends ManualHelper
             $achievement->QuestRequirements = !empty($achievement->QuestRequirements) ?: [];
     
             // save
-            Redis::Cache()->set($key, $achievement, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $achievement, self::REDIS_DURATION);
         }
     }
 
@@ -100,7 +100,7 @@ class Achievement extends ManualHelper
                 // Add pre-achievements
                 //
                 $preAchievement = Arrays::minification(
-                    Redis::Cache()->get("xiv_Achievement_{$id}")
+                    Redis::Cache(true)->get("xiv_Achievement_{$id}")
                 );
                 if (!in_array($preAchievement, $achievement->PreAchievements)) {
                     $achievement->PreAchievements[] = $preAchievement;
@@ -111,18 +111,18 @@ class Achievement extends ManualHelper
                 //
                 
                 // get post achievement and create the post achievements array if it does not exist
-                $postAchievement = Redis::Cache()->get("xiv_Achievement_{$id}");
+                $postAchievement = Redis::Cache(true)->get("xiv_Achievement_{$id}");
                 if (!isset($postAchievement->PostAchievements)) {
                     $postAchievement->PostAchievements = [];
                 }
 
                 // get the current achievement in minimum format and add to the post achievement
                 $currentAchievement = Arrays::minification(
-                    Redis::Cache()->get("xiv_Achievement_{$achievement->ID}")
+                    Redis::Cache(true)->get("xiv_Achievement_{$achievement->ID}")
                 );
                 if (!in_array($currentAchievement, $postAchievement->PostAchievements)) {
                     $postAchievement->PostAchievements[] = $currentAchievement;
-                    Redis::Cache()->set("xiv_Achievement_{$id}", $postAchievement, self::REDIS_DURATION);
+                    Redis::Cache(true)->set("xiv_Achievement_{$id}", $postAchievement, self::REDIS_DURATION);
                 }
             }
         }
@@ -138,7 +138,7 @@ class Achievement extends ManualHelper
 
             if ($value > 0) {
                 $quest = Arrays::minification(
-                    Redis::Cache()->get("xiv_Quest_{$value}")
+                    Redis::Cache(true)->get("xiv_Quest_{$value}")
                 );
 
                 unset(
@@ -172,7 +172,7 @@ class Achievement extends ManualHelper
         $achievement->ClassJobRequirements = [
             'Level'     => $level,
             'ClassJob'  => Arrays::minification(
-                Redis::Cache()->get("xiv_ClassJob_{$classJob}")
+                Redis::Cache(true)->get("xiv_ClassJob_{$classJob}")
             ),
         ];
     }

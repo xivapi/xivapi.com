@@ -13,13 +13,13 @@ class Fate extends ManualHelper
     {
         foreach ($this->getContentIds('Fate') as $id) {
             $key = "xiv_Fate_{$id}";
-            $fate = Redis::Cache()->get($key);
+            $fate = Redis::Cache(true)->get($key);
             
             // set icon
             $this->setIcon($fate);
     
             // save
-            Redis::Cache()->set($key, $fate, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $fate, self::REDIS_DURATION);
         }
     }
 

@@ -38,7 +38,7 @@ class Transient extends ManualHelper
     {
         foreach (self::TRANSIENT_TABLES as $contentName) {
             // Grab transient keys
-            $transientKeys = Redis::Cache()->get("ids_{$contentName}Transient");
+            $transientKeys = Redis::Cache(true)->get("ids_{$contentName}Transient");
 
             if (!$transientKeys) {
                 $this->io->text("No Transient for: ". $contentName);
@@ -46,8 +46,8 @@ class Transient extends ManualHelper
             }
 
             foreach ($transientKeys as $id) {
-                $content    = Redis::Cache()->get("xiv_{$contentName}_{$id}");
-                $transient  = Redis::Cache()->get("xiv_{$contentName}Transient_{$id}");
+                $content    = Redis::Cache(true)->get("xiv_{$contentName}_{$id}");
+                $transient  = Redis::Cache(true)->get("xiv_{$contentName}Transient_{$id}");
                 
                 unset($transient->ID);
                 unset($transient->Url);
@@ -65,7 +65,7 @@ class Transient extends ManualHelper
                 }
                 
                 // save content
-                Redis::Cache()->set("xiv_{$contentName}_{$id}", $content, self::REDIS_DURATION);
+                Redis::Cache(true)->set("xiv_{$contentName}_{$id}", $content, self::REDIS_DURATION);
             }
         }
     }

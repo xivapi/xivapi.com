@@ -15,12 +15,12 @@ class TripleTriadCardDescriptions extends ManualHelper
      */
     public function handle()
     {
-        $ids = Redis::Cache()->get('ids_TripleTriadCard');
+        $ids = Redis::Cache(true)->get('ids_TripleTriadCard');
         $formatter = new DescriptionFormatter();
         
         foreach ($ids as $id) {
             $key = "xiv_TripleTriadCard_{$id}";
-            $object = Redis::Cache()->get($key);
+            $object = Redis::Cache(true)->get($key);
             
             if (empty($object->Description_en)) {
                 continue;
@@ -47,7 +47,7 @@ class TripleTriadCardDescriptions extends ManualHelper
             }
             
             // save
-            Redis::Cache()->set($key, $object, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $object, self::REDIS_DURATION);
         }
     }
 }

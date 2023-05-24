@@ -41,12 +41,12 @@ class SkillDescriptions extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_Action_{$id}";
-            $action = Redis::Cache()->get($key);
+            $action = Redis::Cache(true)->get($key);
         
             $this->formatDescription($action);
         
             // save
-            Redis::Cache()->set($key, $action, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $action, self::REDIS_DURATION);
         }
     }
     
@@ -60,12 +60,12 @@ class SkillDescriptions extends ManualHelper
         
         foreach ($ids as $id) {
             $key = "xiv_Trait_{$id}";
-            $action = Redis::Cache()->get($key);
+            $action = Redis::Cache(true)->get($key);
             
             $this->formatDescription($action);
             
             // save
-            Redis::Cache()->set($key, $action, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $action, self::REDIS_DURATION);
         }
     }
     
@@ -76,12 +76,12 @@ class SkillDescriptions extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_CraftAction_{$id}";
-            $action = Redis::Cache()->get($key);
+            $action = Redis::Cache(true)->get($key);
         
             $this->formatDescription($action);
         
             // save
-            Redis::Cache()->set($key, $action, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $action, self::REDIS_DURATION);
         }
 
     }
@@ -93,12 +93,12 @@ class SkillDescriptions extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_Item_{$id}";
-            $action = Redis::Cache()->get($key);
+            $action = Redis::Cache(true)->get($key);
         
             $this->formatDescription($action);
         
             // save
-            Redis::Cache()->set($key, $action, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $action, self::REDIS_DURATION);
         }
     }
 

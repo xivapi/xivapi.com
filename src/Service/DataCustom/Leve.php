@@ -12,9 +12,9 @@ class Leve extends ManualHelper
 
     public function handle()
     {
-        foreach (Redis::Cache()->get("ids_Leve") as $id) {
+        foreach (Redis::Cache(true)->get("ids_Leve") as $id) {
             $key  = "xiv_Leve_{$id}";
-            $leve = Redis::Cache()->get($key);
+            $leve = Redis::Cache(true)->get($key);
             // ---------------------------------------------------
 
             // defaults
@@ -47,7 +47,7 @@ class Leve extends ManualHelper
             $leve->{$leve->DataIdTarget . "TargetID"} = $leve->DataIdTargetID;
 
             // ---------------------------------------------------
-            Redis::Cache()->set($key, $leve, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $leve, self::REDIS_DURATION);
         }
     }
 }

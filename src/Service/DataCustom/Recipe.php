@@ -19,7 +19,7 @@ class Recipe extends ManualHelper
         $ids = $this->getContentIds('Recipe');
         foreach ($ids as $id) {
             $key = "xiv_Recipe_{$id}";
-            $recipe = Redis::Cache()->get($key);
+            $recipe = Redis::Cache(true)->get($key);
             
             $recipe->ClassJob = null;
         
@@ -29,18 +29,18 @@ class Recipe extends ManualHelper
             $this->setClassJob($recipe);
             
             // save
-            Redis::Cache()->set($key, $recipe, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $recipe, self::REDIS_DURATION);
         }
     }
     
     private function warmRecipeData()
     {
         // Build a list of ItemIds to RecipeIds
-        foreach (Redis::Cache()->get('ids_Recipe') as $id) {
-            $recipe = Redis::Cache()->get("xiv_Recipe_{$id}");
+        foreach (Redis::Cache(true)->get('ids_Recipe') as $id) {
+            $recipe = Redis::Cache(true)->get("xiv_Recipe_{$id}");
             
             if (!$recipe->ItemResult) {
-                Redis::Cache()->delete("xiv_Recipe_{$id}");
+                Redis::Cache(true)->delete("xiv_Recipe_{$id}");
                 continue;
             }
     
@@ -100,7 +100,7 @@ class Recipe extends ManualHelper
         //
         if (isset($recipe->CraftType->ID)) {
             $recipe->ClassJob = Arrays::minification(
-                Redis::Cache()->get("xiv_ClassJob_{$arr[(int)$recipe->CraftType->ID]}")
+                Redis::Cache(true)->get("xiv_ClassJob_{$arr[(int)$recipe->CraftType->ID]}")
             );
         }
         
@@ -114,7 +114,7 @@ class Recipe extends ManualHelper
                 foreach ($recipe->{$column} as $subRecipe) {
                     if (isset($subRecipe->CraftType->ID)) {
                         $subRecipe->ClassJob = Arrays::minification(
-                            Redis::Cache()->get("xiv_ClassJob_{$arr[(int)$subRecipe->CraftType->ID]}")
+                            Redis::Cache(true)->get("xiv_ClassJob_{$arr[(int)$subRecipe->CraftType->ID]}")
                         );
                     }
                 }

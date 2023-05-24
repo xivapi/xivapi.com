@@ -171,8 +171,8 @@ class SaintCoinachRedisCommand extends Command
     
                 // Grab the current ID list and then store it for elastic search as this list will be updated
                 // before elastic search gets to use it.
-                $currentIds = (array)Redis::cache()->get("ids_{$contentName}");
-                Redis::cache()->set("ids_{$contentName}_es", $currentIds, self::REDIS_DURATION);
+                $currentIds = (array)Redis::cache(true)->get("ids_{$contentName}");
+                Redis::cache(true)->set("ids_{$contentName}_es", $currentIds, self::REDIS_DURATION);
     
                 if (!$quiet) {
                     $section = new ConsoleOutput();
@@ -216,7 +216,7 @@ class SaintCoinachRedisCommand extends Command
                         $data->GameContentLinks = null;
     
                         // save
-                        Redis::Cache()->set($key, $data, self::REDIS_DURATION);
+                        Redis::cache(true)->set($key, $data, self::REDIS_DURATION);
                     }
     
                     $this->save = [];
@@ -232,7 +232,7 @@ class SaintCoinachRedisCommand extends Command
         // save the ids
         //
         $this->io->text('<fg=cyan>Caching content ID lists</>');
-        Redis::Cache()->startPipeline();
+        Redis::cache(true)->startPipeline();
         foreach ($this->ids as $contentName => $idList) {
             // this prevents id 0 being added when it has no zero content.
             if (!in_array($contentName, self::ZERO_CONTENT) && $idList[0] == '0') {
@@ -240,9 +240,9 @@ class SaintCoinachRedisCommand extends Command
             }
 
             $idList = (array)$idList;
-            Redis::Cache()->set("ids_{$contentName}", $idList, self::REDIS_DURATION);
+            Redis::cache(true)->set("ids_{$contentName}", $idList, self::REDIS_DURATION);
         }
-        Redis::Cache()->executePipeline();
+        Redis::cache(true)->executePipeline();
         $this->complete();
 
         //
@@ -252,7 +252,7 @@ class SaintCoinachRedisCommand extends Command
         $this->io->progressStart(count($this->links));
         foreach ($this->links as $linkTarget => $contentData) {
             $key = "connections_{$linkTarget}";
-            $contentLinks = Redis::Cache()->get($key) ?: [];
+            $contentLinks = Redis::cache(true)->get($key) ?: [];
             $contentLinks = (array)$contentLinks;
 
             // process each target info
@@ -262,7 +262,7 @@ class SaintCoinachRedisCommand extends Command
             }
 
             // save
-            Redis::Cache()->set($key, $contentLinks, self::REDIS_DURATION);
+            Redis::cache(true)->set($key, $contentLinks, self::REDIS_DURATION);
             $this->io->progressAdvance();
         }
         $this->io->progressFinish();

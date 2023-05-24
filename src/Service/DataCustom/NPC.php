@@ -20,25 +20,25 @@ class NPC extends ManualHelper
     {
         $this->io->text(__METHOD__);
         
-        foreach (Redis::Cache()->get('ids_GilShop') as $id) {
-            $content = Redis::Cache()->get("xiv_GilShop_{$id}");
+        foreach (Redis::Cache(true)->get('ids_GilShop') as $id) {
+            $content = Redis::Cache(true)->get("xiv_GilShop_{$id}");
             
             // Append Shop Items
             $content->Items = [];
     
             // assuming a max of 100 items
             foreach (range(0,100) as $shopNum) {
-                $gilShopItem = Redis::Cache()->get("xiv_GilShopItem_{$id}.{$shopNum}");
+                $gilShopItem = Redis::Cache(true)->get("xiv_GilShopItem_{$id}.{$shopNum}");
                 $gilShopItem = Arrays::minification($gilShopItem);
         
                 if ($gilShopItem) {
                     $content->Items[] = Arrays::minification(
-                        Redis::Cache()->get("xiv_Item_{$gilShopItem->Item}")
+                        Redis::Cache(true)->get("xiv_Item_{$gilShopItem->Item}")
                     );
                 }
             }
     
-            Redis::Cache()->set("xiv_GilShop_{$id}", $content, RedisConstants::TIME_10_YEAR);
+            Redis::Cache(true)->set("xiv_GilShop_{$id}", $content, RedisConstants::TIME_10_YEAR);
         }
     }
     
@@ -47,10 +47,10 @@ class NPC extends ManualHelper
         $this->io->text(__METHOD__);
         
         // grab NPCs
-        $ids = Redis::Cache()->get('ids_ENpcResident');
+        $ids = Redis::Cache(true)->get('ids_ENpcResident');
         foreach ($ids as $id) {
             $key = "xiv_ENpcResident_{$id}";
-            $npc = Redis::Cache()->get($key);
+            $npc = Redis::Cache(true)->get($key);
             
             // Add columns so that all entities have them
             $npc->Base = null;
@@ -64,7 +64,7 @@ class NPC extends ManualHelper
             $npc->CraftLeve = [];
             
             // Grab NPC base
-            $npc->Base = Redis::Cache()->get("xiv_ENpcBase_{$npc->ID}");
+            $npc->Base = Redis::Cache(true)->get("xiv_ENpcBase_{$npc->ID}");
             
             foreach (range(0, 31) as $dataNumber) {
                 if (!isset($npc->Base->{"ENpcData{$dataNumber}"})) {
@@ -78,7 +78,7 @@ class NPC extends ManualHelper
                 //
                 if ($dataValue >= 3276800 && $dataValue <= 3276900) {
                     $topicSelect = Arrays::minification(
-                        Redis::Cache()->get("xiv_TopicSelect_{$dataValue}")
+                        Redis::Cache(true)->get("xiv_TopicSelect_{$dataValue}")
                     );
                     
                     // add empty entries to all topic selects
@@ -93,7 +93,7 @@ class NPC extends ManualHelper
                         // Special Shops
                         //
                         if ($shopValue >= 1769000 && $shopValue <= 1770000) {
-                            $specialShop = Redis::Cache()->get("xiv_SpecialShop_{$shopValue}");
+                            $specialShop = Redis::Cache(true)->get("xiv_SpecialShop_{$shopValue}");
                             $npc->SpecialShop[] = $specialShop;
                             
                             $topicSelect->SpecialShop[] = [
@@ -106,7 +106,7 @@ class NPC extends ManualHelper
                         // GilShop
                         //
                         if ($shopValue >= 262100 && $shopValue <= 263000) {
-                            $gilShop = Redis::Cache()->get("xiv_GilShop_{$shopValue}");
+                            $gilShop = Redis::Cache(true)->get("xiv_GilShop_{$shopValue}");
                             $npc->GilShop[] = $gilShop;
                             
                             $topicSelect->GilShop[] = [
@@ -123,21 +123,21 @@ class NPC extends ManualHelper
                 // SpecialShop (with no TopicSelect)
                 //
                 if ($dataValue >= 1769000 && $dataValue <= 1770000) {
-                    $npc->SpecialShop[] = Redis::Cache()->get("xiv_SpecialShop_{$dataValue}");
+                    $npc->SpecialShop[] = Redis::Cache(true)->get("xiv_SpecialShop_{$dataValue}");
                 }
                 
                 //
                 // GilShop (with no TopicSelect)
                 //
                 if ($dataValue >= 262100 && $dataValue <= 263000) {
-                    $npc->GilShop[] = Redis::Cache()->get("xiv_GilShop_{$dataValue}");
+                    $npc->GilShop[] = Redis::Cache(true)->get("xiv_GilShop_{$dataValue}");
                 }
                 
                 //
                 // SwitchTalk
                 //
                 if ($dataValue >= 2031600 && $dataValue <= 2032400) {
-                    $npc->SwitchTalk[] = Redis::Cache()->get("xiv_SwitchTalk_{$dataValue}");
+                    $npc->SwitchTalk[] = Redis::Cache(true)->get("xiv_SwitchTalk_{$dataValue}");
                 }
                 
                 //
@@ -145,7 +145,7 @@ class NPC extends ManualHelper
                 //
                 if ($dataValue >= 589800 && $dataValue <= 594900) {
                     $npc->DefaultTalk[] = Arrays::minification(
-                        Redis::Cache()->get("xiv_DefaultTalk_{$dataValue}")
+                        Redis::Cache(true)->get("xiv_DefaultTalk_{$dataValue}")
                     );
                 }
                 
@@ -154,7 +154,7 @@ class NPC extends ManualHelper
                 //
                 if ($dataValue >= 720896 && $dataValue <= 721406) {
                     $npc->CustomTalk[] = Arrays::minification(
-                        Redis::Cache()->get("xiv_CustomTalk_{$dataValue}")
+                        Redis::Cache(true)->get("xiv_CustomTalk_{$dataValue}")
                     );
                 }
                 
@@ -163,7 +163,7 @@ class NPC extends ManualHelper
                 //
                 if ($dataValue >= 917500 && $dataValue <= 918500) {
                     $npc->CraftLeve[] = Arrays::minification(
-                        Redis::Cache()->get("xiv_CraftLeve_{$dataValue}")
+                        Redis::Cache(true)->get("xiv_CraftLeve_{$dataValue}")
                     );
                 }
                 
@@ -172,7 +172,7 @@ class NPC extends ManualHelper
                 //
                 if ($dataValue >= 65530 && $dataValue <= 68700) {
                     $npc->Quests[] = Arrays::minification(
-                        Redis::Cache()->get("xiv_Quest_{$dataValue}")
+                        Redis::Cache(true)->get("xiv_Quest_{$dataValue}")
                     );
                 }
                 
@@ -187,7 +187,7 @@ class NPC extends ManualHelper
             }
             
             // save
-            Redis::Cache()->set($key, $npc, RedisConstants::TIME_10_YEAR);
+            Redis::Cache(true)->set($key, $npc, RedisConstants::TIME_10_YEAR);
         }
     }
     

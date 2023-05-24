@@ -37,7 +37,7 @@ class Characters extends ManualHelper
         $this->populateItems();
         $this->populateDyes();
         
-        Redis::Cache()->set('character_keys', $this->keys, self::REDIS_DURATION);
+        Redis::Cache(true)->set('character_keys', $this->keys, self::REDIS_DURATION);
     }
     
     /**
@@ -48,8 +48,8 @@ class Characters extends ManualHelper
         $this->io->text(__METHOD__ . " {$contentName}");
         
         $data = [];
-        foreach (Redis::Cache()->get("ids_{$contentName}") as $id) {
-            $content = Redis::Cache()->get("xiv_{$contentName}_{$id}");
+        foreach (Redis::Cache(true)->get("ids_{$contentName}") as $id) {
+            $content = Redis::Cache(true)->get("xiv_{$contentName}_{$id}");
        
             $hash = ContentHash::hash($content->{$column});
             $data[$hash] = $content->ID;
@@ -65,7 +65,7 @@ class Characters extends ManualHelper
             }
         }
         
-        Redis::Cache()->set("character_{$contentName}", $data, self::REDIS_DURATION);
+        Redis::Cache(true)->set("character_{$contentName}", $data, self::REDIS_DURATION);
         $this->keys[] = $contentName;
     }
     
@@ -77,8 +77,8 @@ class Characters extends ManualHelper
         $this->io->text(__METHOD__);
         
         $data = [];
-        foreach (Redis::Cache()->get("ids_ParamGrow") as $id) {
-            $content = Redis::Cache()->get("xiv_ParamGrow_{$id}");
+        foreach (Redis::Cache(true)->get("ids_ParamGrow") as $id) {
+            $content = Redis::Cache(true)->get("xiv_ParamGrow_{$id}");
     
             // don't care about zero exp stuff
             if ($content->ExpToNext == 0) {
@@ -88,7 +88,7 @@ class Characters extends ManualHelper
             $data[$content->ID] = $content->ExpToNext;
         }
         
-        Redis::Cache()->set("character_ParamGrow", $data, self::REDIS_DURATION);
+        Redis::Cache(true)->set("character_ParamGrow", $data, self::REDIS_DURATION);
         $this->keys[] = 'ParamGrow';
     }
     
@@ -100,8 +100,8 @@ class Characters extends ManualHelper
         $this->io->text(__METHOD__);
         
         $data = [];
-        foreach (Redis::Cache()->get("ids_Item") as $id) {
-            $content = Redis::Cache()->get("xiv_Item_{$id}");
+        foreach (Redis::Cache(true)->get("ids_Item") as $id) {
+            $content = Redis::Cache(true)->get("xiv_Item_{$id}");
             
             // if it's a material item
             if (isset($content->ItemUICategory->ID) && $content->ItemUICategory->ID == 58) {
@@ -110,7 +110,7 @@ class Characters extends ManualHelper
             }
         }
         
-        Redis::Cache()->set("character_Materia", $data, self::REDIS_DURATION);
+        Redis::Cache(true)->set("character_Materia", $data, self::REDIS_DURATION);
         $this->keys[] = 'Materia';
     }
     
@@ -122,8 +122,8 @@ class Characters extends ManualHelper
         $this->io->text(__METHOD__);
     
         $data = [];
-        foreach (Redis::Cache()->get("ids_Item") as $id) {
-            $content = Redis::Cache()->get("xiv_Item_{$id}");
+        foreach (Redis::Cache(true)->get("ids_Item") as $id) {
+            $content = Redis::Cache(true)->get("xiv_Item_{$id}");
     
             // only stuff that has a class/job category
             if (isset($content->ClassJobCategory->ID)) {
@@ -132,7 +132,7 @@ class Characters extends ManualHelper
             }
         }
     
-        Redis::Cache()->set("character_Equipment", $data, self::REDIS_DURATION);
+        Redis::Cache(true)->set("character_Equipment", $data, self::REDIS_DURATION);
         $this->keys[] = 'Equipment';
     }
     
@@ -144,8 +144,8 @@ class Characters extends ManualHelper
         $this->io->text(__METHOD__);
     
         $data = [];
-        foreach (Redis::Cache()->get("ids_Item") as $id) {
-            $content = Redis::Cache()->get("xiv_Item_{$id}");
+        foreach (Redis::Cache(true)->get("ids_Item") as $id) {
+            $content = Redis::Cache(true)->get("xiv_Item_{$id}");
             
             // if it's a material item
             if (isset($content->ItemUICategory->ID) && $content->ItemUICategory->ID == 55) {
@@ -154,7 +154,7 @@ class Characters extends ManualHelper
             }
         }
     
-        Redis::Cache()->set("character_Dye", $data, self::REDIS_DURATION);
+        Redis::Cache(true)->set("character_Dye", $data, self::REDIS_DURATION);
         $this->keys[] = 'Dye';
     }
 }

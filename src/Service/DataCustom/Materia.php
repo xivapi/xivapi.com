@@ -15,13 +15,13 @@ class Materia extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_Materia_{$id}";
-            $materia = Redis::Cache()->get($key);
+            $materia = Redis::Cache(true)->get($key);
         
             // attach materia to item
             $this->attachMateriaToItem($materia);
         
             // save
-            Redis::Cache()->set($key, $materia, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $materia, self::REDIS_DURATION);
         }
     }
     
@@ -36,7 +36,7 @@ class Materia extends ManualHelper
             
             if ($item) {
                 $key = "xiv_Item_{$item->ID}";
-                $item = Redis::Cache()->get($key);
+                $item = Redis::Cache(true)->get($key);
                 $item->Materia = [
                     'ID'        => $materia->ID,
                     'BaseParam' => $materia->BaseParam,
@@ -44,7 +44,7 @@ class Materia extends ManualHelper
                 ];
                 
                 // save
-                Redis::Cache()->set($key, $item, self::REDIS_DURATION);
+                Redis::Cache(true)->set($key, $item, self::REDIS_DURATION);
             }
         }
     }

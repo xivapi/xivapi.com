@@ -13,9 +13,9 @@ class CraftLeve extends ManualHelper
     
     public function handle()
     {
-        foreach (Redis::Cache()->get("ids_CraftLeve") as $id) {
+        foreach (Redis::Cache(true)->get("ids_CraftLeve") as $id) {
             $key = "xiv_CraftLeve_{$id}";
-            $cl  = Redis::Cache()->get($key);
+            $cl  = Redis::Cache(true)->get($key);
             // ---------------------------------------------------
             
             // up to 4 possible fields, from Item0, Item1, Item2 and Item3
@@ -31,7 +31,7 @@ class CraftLeve extends ManualHelper
                 }
                 
                 // get the full item data
-                $item = Redis::Cache()->get("xiv_Item_{$item->ID}");
+                $item = Redis::Cache(true)->get("xiv_Item_{$item->ID}");
                 
                 // grab all recipes for this item
                 if (!isset($item->GameContentLinks->Recipe->ItemResult)) {
@@ -41,7 +41,7 @@ class CraftLeve extends ManualHelper
                 // loop through recipes that make this item
                 foreach ($item->GameContentLinks->Recipe->ItemResult as $recipeId) {
                     // grab the recipe data
-                    $recipe = Redis::Cache()->get("xiv_Recipe_{$recipeId}");
+                    $recipe = Redis::Cache(true)->get("xiv_Recipe_{$recipeId}");
                     
                     // minify it, because it too big
                     $recipe = Arrays::minification($recipe);
@@ -52,7 +52,7 @@ class CraftLeve extends ManualHelper
             }
     
             // ---------------------------------------------------
-            Redis::Cache()->set($key, $cl, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $cl, self::REDIS_DURATION);
         }
     }
 }

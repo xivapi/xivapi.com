@@ -15,12 +15,12 @@ class ItemFood extends ManualHelper
     
         foreach ($ids as $id) {
             $key = "xiv_ItemFood_{$id}";
-            $itemFood = Redis::Cache()->get($key);
+            $itemFood = Redis::Cache(true)->get($key);
 
             // todo
         
             // save
-            Redis::Cache()->set($key, $itemFood, self::REDIS_DURATION);
+            Redis::Cache(true)->set($key, $itemFood, self::REDIS_DURATION);
         }
     }
 }
