@@ -94,6 +94,8 @@ class RedisCache
         if (json_last_error()) {
             throw new \Exception("COULD NOT SAVE TO REDIS, JSON ERROR: ". json_last_error_msg());
         }
+
+        $this->delete($key);
     
         $this->pipeline ? $this->pipeline->set($key, $data, $ttl) : $this->instance->set($key, $data, $ttl);
     }
