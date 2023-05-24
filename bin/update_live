@@ -36,6 +36,9 @@ sleep 3
 sleep 3
 /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCustomCommand SkillDescriptions
 
+sleep 3
+/usr/bin/php /home/dalamud/xivapi.com/bin/console RedisDeployUpdateCommand
+
 docker stop redis-importer
 
 # Add on patch info
