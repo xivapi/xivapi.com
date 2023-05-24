@@ -34,6 +34,7 @@ class RedisDeployUpdateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->setSymfonyStyle($input, $output);
         $localRedis = Redis::cache(true);
         $prodRedis = Redis::cache(false);
         $keys = $localRedis->keys('*');
