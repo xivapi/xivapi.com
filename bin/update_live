@@ -2,13 +2,14 @@
 
 START_TIME=$SECONDS
 
+docker stop redis-importer && docker rm redis-importer
+
 docker run -d --name redis-importer -p 6380:6379 redis
 
 ## -------------------------------------------------------------------------------------
 
 # Convert data from CSV to Json
-if [ "$1" != "--skipJSON"]
-then
+if [ "$1" != "--skipJSON" ]; then
     /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachJsonCacheCommand
 fi
 
@@ -26,8 +27,6 @@ for (( i = 0; i <= 55; ++i )); do
 
     sleep 3
 done
-
-
 
 sleep 3
 /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCustomCommand Quest
