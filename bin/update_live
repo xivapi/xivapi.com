@@ -2,7 +2,7 @@
 
 START_TIME=$SECONDS
 
-docker run -d --name redis-importer -p 6380:6379 redis:latest
+docker run -d --name redis-importer -p 6380:6379 redis:latest --rm
 
 ## -------------------------------------------------------------------------------------
 
