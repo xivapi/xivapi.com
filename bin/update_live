@@ -2,10 +2,6 @@
 
 START_TIME=$SECONDS
 
-docker stop redis-importer && docker rm redis-importer
-
-docker run -d --name redis-importer -p 6380:6379 redis
-
 ## -------------------------------------------------------------------------------------
 
 # Convert data from CSV to Json
@@ -37,11 +33,6 @@ sleep 3
 
 sleep 3
 /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCustomCommand SkillDescriptions
-
-sleep 3
-/usr/bin/php /home/dalamud/xivapi.com/bin/console RedisDeployUpdateCommand
-
-docker stop redis-importer && docker rm redis-importer
 
 # Add on patch info
 sleep 3
