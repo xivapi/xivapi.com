@@ -32,7 +32,9 @@ class RedisCache
 
         $this->instance = new \Redis();
         $this->instance->pconnect($ip, $port, $this->options['timeout']);
-        $this->instance->auth($auth);
+        if(strlen($auth) > 0){
+            $this->instance->auth($auth);
+        }
         $this->instance->setOption(\Redis::OPT_SERIALIZER, $this->options['serializer']);
         $this->instance->setOption(\Redis::OPT_READ_TIMEOUT, $this->options['read_timeout']);
         $this->prefix = $prefix;

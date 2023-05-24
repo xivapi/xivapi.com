@@ -2,6 +2,8 @@
 
 START_TIME=$SECONDS
 
+docker run -d --name redis-importer -p 6380:6379 redis:latest
+
 ## -------------------------------------------------------------------------------------
 
 # Convert data from CSV to Json
@@ -22,15 +24,7 @@ for (( i = 0; i <= 55; ++i )); do
     sleep 3
 done
 
-/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand --content=PlaceName -q
-/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand --content=TerritoryType -q
-/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand --content=ContentFinderCondition -q
-/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand --content=InstanceContent -q
-/usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCommand --content=Status -q
 
-# Populate market items
-sleep 3
-#/usr/bin/php /home/dalamud/xivapi.com/bin/console Companion_AutoPopulateItemsCommand
 
 sleep 3
 /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCustomCommand Quest
@@ -42,6 +36,7 @@ sleep 3
 sleep 3
 /usr/bin/php /home/dalamud/xivapi.com/bin/console SaintCoinachRedisCustomCommand SkillDescriptions
 
+docker stop redis-importer
 
 # Add on patch info
 sleep 3
