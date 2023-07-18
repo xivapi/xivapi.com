@@ -1554,5 +1554,25 @@
         "PatchNotes_ja": "",
         "ReleaseDate": 1684828800,
         "Version": "6.4"
+    },
+    {
+        "Banner": null,
+        "ID": 89,
+        "Url": "/patch+6.45",
+        "ExVersion": 4,
+        "ExName": "Endwalker",
+        "IsExpansion": false,
+        "Name_ja": "Patch 6.45",
+        "Name_en": "Patch 6.45",
+        "Name_fr": "Patch 6.45",
+        "Name_de": "Patch 6.45",
+        "Name_cn": "Patch 6.45",
+        "Name_kr": "Patch 6.45",
+        "PatchNotes_de": "",
+        "PatchNotes_en": "https://na.finalfantasyxiv.com/lodestone/topics/detail/7533e7a9b6b72d8e5aad3c1e7c4247967b3ee196",
+        "PatchNotes_fr": "https://fr.finalfantasyxiv.com/lodestone/topics/detail/a25b89e87ce747f28fc45353fcb26b8e56333a86",
+        "PatchNotes_ja": "",
+        "ReleaseDate": 1689671812,
+        "Version": "6.45"
     }
 ]
